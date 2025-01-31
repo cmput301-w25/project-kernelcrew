@@ -6,10 +6,10 @@
 |---------------------|-----------|--------------------|
 | Aditya Patel        | aditydi   | adityadipakpatel   |
 | Taha Kamil          | tkamil    | TahaKamil          |
-| [Full Name]         | [CCID]    | [@username]        |
-| [Full Name]         | [CCID]    | [@username]        |
-| [Full Name]         | [CCID]    | [@username]        |
-| [Full Name]         | [CCID]    | [@username]        |
+| Anton Roupassov-Ruiz| roupasso  | antonrou           |
+| Aidan Olsen         | arolsen   | PossiblyAShrub     |
+| Siddhant Goel       | sgoel3    | siddhantgoel7      |
+| James Mckinnon      | jam10     | jamesMckinnonSchool|
 
 I’ve fixed the formatting, but the last four rows still need to be filled out with the appropriate names, CCIDs, and usernames. Let me know if you need further adjustments!
 
