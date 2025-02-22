@@ -1,5 +1,7 @@
 # CMPUT 301 W25 - Team Kernal Crew
 
+When seeting up locally, follow the [Getting Started Instructions](./docs/getting-started.md).
+
 ## Team Members
 
 | **Full Name**       | **CCID**  | **@username**      |
@@ -10,8 +12,6 @@
 | Aidan Olsen         | arolsen   | PossiblyAShrub     |
 | Siddhant Goel       | sgoel3    | siddhantgoel7      |
 | James Mckinnon      | jam10     | jamesMckinnonSchool|
-
-I’ve fixed the formatting, but the last four rows still need to be filled out with the appropriate names, CCIDs, and usernames. Let me know if you need further adjustments!
 
 ## Project Description
 
