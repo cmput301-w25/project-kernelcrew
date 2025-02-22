@@ -10,5 +10,28 @@
         android:name="com.kernelcrew.moodapp.AuthHome"
         android:label="fragment_auth_home"
         tools:layout="@layout/fragment_auth_home" >
+        <action
+            android:id="@+id/action_authHome_to_authSignIn"
+            app:destination="@id/authSignIn" />
+        <action
+            android:id="@+id/action_authHome_to_authSignUp"
+            app:destination="@id/authSignUp" />
+    </fragment>
+    <fragment
+        android:id="@+id/authSignIn"
+        android:name="com.kernelcrew.moodapp.AuthSignIn"
+        android:label="fragment_auth_sign_in"
+        tools:layout="@layout/fragment_auth_sign_in">
+        <action
+            android:id="@+id/action_authSignIn_to_authHome"
+            app:destination="@id/authHome" />
+    <fragment
+        android:id="@+id/authSignUp"
+        android:name="com.kernelcrew.moodapp.AuthSignUp"
+        android:label="fragment_auth_sign_up"
+        tools:layout="@layout/fragment_auth_sign_up" >
+        <action
+            android:id="@+id/action_authSignUp_to_authHome"
+            app:destination="@id/authHome" />
     </fragment>
 </navigation>
