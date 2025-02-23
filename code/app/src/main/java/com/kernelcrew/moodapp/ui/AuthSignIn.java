@@ -1,4 +1,4 @@
-package com.kernelcrew.moodapp;
+package com.kernelcrew.moodapp.ui;
 
 import android.os.Bundle;
 import android.util.Log;
@@ -13,6 +13,7 @@ import androidx.navigation.Navigation;
 
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.firebase.auth.FirebaseAuth;
+import com.kernelcrew.moodapp.R;
 
 import org.jetbrains.annotations.Nullable;
 

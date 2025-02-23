@@ -1,4 +1,4 @@
-package com.kernelcrew.moodapp;
+package com.kernelcrew.moodapp.ui;
 
 import android.os.Bundle;
 
@@ -15,6 +15,7 @@ import android.widget.EditText;
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.UserProfileChangeRequest;
+import com.kernelcrew.moodapp.R;
 
 import org.jetbrains.annotations.Nullable;
 

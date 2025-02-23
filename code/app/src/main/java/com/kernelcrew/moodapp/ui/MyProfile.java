@@ -1,4 +1,4 @@
-package com.kernelcrew.moodapp;
+package com.kernelcrew.moodapp.ui;
 
 import android.os.Bundle;
 
@@ -14,6 +14,7 @@ import android.widget.Button;
 
 import com.google.android.material.navigation.NavigationBarView;
 import com.google.firebase.auth.FirebaseAuth;
+import com.kernelcrew.moodapp.R;
 
 public class MyProfile extends Fragment {
     FirebaseAuth auth;

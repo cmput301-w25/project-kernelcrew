@@ -1,4 +1,4 @@
-package com.kernelcrew.moodapp;
+package com.kernelcrew.moodapp.ui;
 
 import android.os.Bundle;
 
@@ -13,6 +13,7 @@ import android.view.ViewGroup;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.kernelcrew.moodapp.R;
 
 public class AuthHome extends Fragment {
     FirebaseAuth auth;

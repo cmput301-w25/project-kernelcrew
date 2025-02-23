@@ -1,4 +1,4 @@
-package com.kernelcrew.moodapp;
+package com.kernelcrew.moodapp.ui;
 
 import android.view.MenuItem;
 import android.view.View;
@@ -7,6 +7,7 @@ import androidx.annotation.NonNull;
 import androidx.navigation.Navigation;
 
 import com.google.android.material.navigation.NavigationBarView;
+import com.kernelcrew.moodapp.R;
 
 /**
  * Controller to manage a bottom nav bar.

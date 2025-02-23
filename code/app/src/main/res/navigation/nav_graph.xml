@@ -7,7 +7,7 @@
 
     <fragment
         android:id="@+id/authHome"
-        android:name="com.kernelcrew.moodapp.AuthHome"
+        android:name="com.kernelcrew.moodapp.ui.AuthHome"
         android:label="fragment_auth_home"
         tools:layout="@layout/fragment_auth_home" >
         <action
@@ -19,7 +19,7 @@
     </fragment>
     <fragment
         android:id="@+id/authSignIn"
-        android:name="com.kernelcrew.moodapp.AuthSignIn"
+        android:name="com.kernelcrew.moodapp.ui.AuthSignIn"
         android:label="fragment_auth_sign_in"
         tools:layout="@layout/fragment_auth_sign_in">
         <action
@@ -31,7 +31,7 @@
     </fragment>
     <fragment
         android:id="@+id/authSignUp"
-        android:name="com.kernelcrew.moodapp.AuthSignUp"
+        android:name="com.kernelcrew.moodapp.ui.AuthSignUp"
         android:label="fragment_auth_sign_up"
         tools:layout="@layout/fragment_auth_sign_up" >
         <action
@@ -43,12 +43,12 @@
     </fragment>
     <fragment
         android:id="@+id/homeFeed"
-        android:name="com.kernelcrew.moodapp.HomeFeed"
+        android:name="com.kernelcrew.moodapp.ui.HomeFeed"
         android:label="fragment_home_feed"
         tools:layout="@layout/fragment_home_feed" />
     <fragment
         android:id="@+id/myProfile"
-        android:name="com.kernelcrew.moodapp.MyProfile"
+        android:name="com.kernelcrew.moodapp.ui.MyProfile"
         android:label="fragment_my_profile"
         tools:layout="@layout/fragment_my_profile" />
 </navigation>
