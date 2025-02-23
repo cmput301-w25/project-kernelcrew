@@ -10,35 +10,33 @@ import androidx.navigation.Navigation;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.TextView;
+import android.widget.Button;
 
 import com.google.android.material.navigation.NavigationBarView;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
 
-public class HomeFeed extends Fragment {
+public class MyProfile extends Fragment {
     FirebaseAuth auth;
-    FirebaseUser user;
 
-    TextView homeTextView;
-    NavigationBarView navigationBar;
+    Button signOutButton;
+    NavigationBarView navigationBarView;
+
     BottomNavBarController navBarController;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_home_feed, container, false);
-
         auth = FirebaseAuth.getInstance();
-        user = auth.getCurrentUser();
-        assert user != null;
 
-        homeTextView = view.findViewById(R.id.homeTextView);
-        navigationBar = view.findViewById(R.id.bottom_navigation);
+        View view = inflater.inflate(R.layout.fragment_my_profile, container, false);
 
-        navBarController = new BottomNavBarController(navigationBar);
+        signOutButton = view.findViewById(R.id.signOutButton);
+        navigationBarView = view.findViewById(R.id.bottom_navigation);
 
-        homeTextView.setText("Currently signed in as user: " + user.getDisplayName());
+        navigationBarView.setSelectedItemId(R.id.page_myProfile);
+        navBarController = new BottomNavBarController(navigationBarView);
+
+        signOutButton.setOnClickListener(this::onClickSignOut);
 
         return view;
     }
@@ -47,5 +45,14 @@ public class HomeFeed extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         navBarController.bind(view);
+    }
+
+    /**
+     * Sign the user out and return to the auth home screen.
+     * @param btnView View of the sign out button
+     */
+    private void onClickSignOut(View btnView) {
+        auth.signOut();
+        Navigation.findNavController(btnView).navigate(R.id.authHome);
     }
 }

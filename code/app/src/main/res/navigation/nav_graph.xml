@@ -46,4 +46,9 @@
         android:name="com.kernelcrew.moodapp.HomeFeed"
         android:label="fragment_home_feed"
         tools:layout="@layout/fragment_home_feed" />
+    <fragment
+        android:id="@+id/myProfile"
+        android:name="com.kernelcrew.moodapp.MyProfile"
+        android:label="fragment_my_profile"
+        tools:layout="@layout/fragment_my_profile" />
 </navigation>
