@@ -39,8 +39,8 @@ dependencies {
     implementation libs.annotation
     implementation libs.lifecycle.livedata.ktx
     implementation libs.lifecycle.viewmodel.ktx
-    implementation libs.firebase.bom
-    implementation(libs.firebase.auth)
+    implementation libs.firebase.auth
+    implementation(platform(libs.firebase.bom))
 
     testImplementation libs.junit
 
