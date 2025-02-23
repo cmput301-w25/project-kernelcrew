@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/nav_graph.xml"
+    app:startDestination="@id/authHome">
+
+    <fragment
+        android:id="@+id/authHome"
+        android:name="com.kernelcrew.moodapp.ui.AuthHome"
+        android:label="fragment_auth_home"
+        tools:layout="@layout/fragment_auth_home" >
+        <action
+            android:id="@+id/action_authHome_to_authSignIn"
+            app:destination="@id/authSignIn" />
+        <action
+            android:id="@+id/action_authHome_to_authSignUp"
+            app:destination="@id/authSignUp" />
+    </fragment>
+    <fragment
+        android:id="@+id/authSignIn"
+        android:name="com.kernelcrew.moodapp.ui.AuthSignIn"
+        android:label="fragment_auth_sign_in"
+        tools:layout="@layout/fragment_auth_sign_in">
+        <action
+            android:id="@+id/action_authSignIn_to_authHome"
+            app:destination="@id/authHome" />
+        <action
+            android:id="@+id/action_authSignIn_to_homeFeed"
+            app:destination="@id/homeFeed" />
+    </fragment>
+    <fragment
+        android:id="@+id/authSignUp"
+        android:name="com.kernelcrew.moodapp.ui.AuthSignUp"
+        android:label="fragment_auth_sign_up"
+        tools:layout="@layout/fragment_auth_sign_up" >
+        <action
+            android:id="@+id/action_authSignUp_to_authHome"
+            app:destination="@id/authHome" />
+        <action
+            android:id="@+id/action_authSignUp_to_homeFeed"
+            app:destination="@id/homeFeed" />
+    </fragment>
+    <fragment
+        android:id="@+id/homeFeed"
+        android:name="com.kernelcrew.moodapp.ui.HomeFeed"
+        android:label="fragment_home_feed"
+        tools:layout="@layout/fragment_home_feed" />
+    <fragment
+        android:id="@+id/myProfile"
+        android:name="com.kernelcrew.moodapp.ui.MyProfile"
+        android:label="fragment_my_profile"
+        tools:layout="@layout/fragment_my_profile" />
+</navigation>
