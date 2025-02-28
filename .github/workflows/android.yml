@@ -11,12 +11,19 @@ jobs:
   lint:
     name: Perform lint check
     runs-on: ubuntu-latest
+    env:
+      ACTIONS: 1
     steps:
       - name: Checkout the code
         uses: actions/checkout@v2
 
+      - name: Inflate google-services.json
+        run: scripts/ci.sh inflate-ci-googleservices
+        env:
+          ACTIONS_GOOGLESERVICES: ${{ secrets.ACTIONS_GOOGLESERVICES }}
+
       - name: Run lint
-        run: cd code && gradle lintDebug
+        run: scripts/ci.sh lint
 
       - name: Upload html test report
         uses: actions/upload-artifact@v4
@@ -27,12 +34,19 @@ jobs:
   unit-test:
     name: Perform Unit Testing
     runs-on: ubuntu-latest
+    env:
+      ACTIONS: 1
     steps:
       - name: Checkout the code
         uses: actions/checkout@v2
 
+      - name: Inflate google-services.json
+        run: scripts/ci.sh inflate-ci-googleservices
+        env:
+          ACTIONS_GOOGLESERVICES: ${{ secrets.ACTIONS_GOOGLESERVICES }}
+
       - name: Run tests
-        run: cd code && gradle test
+        run: scripts/ci.sh unit-test
 
       - name: Upload test report
         uses: actions/upload-artifact@v4
@@ -43,6 +57,8 @@ jobs:
   instrumentation-test:
     name: Perform Instrumentation Testing
     runs-on: ubuntu-latest
+    env:
+      ACTIONS: 1
     steps:
       - name: Checkout the code
         uses: actions/checkout@v2
@@ -53,11 +69,19 @@ jobs:
         with:
           java-version: '17'
 
+      - name: Inflate google-services.json
+        run: scripts/ci.sh inflate-ci-googleservices
+        env:
+          ACTIONS_GOOGLESERVICES: ${{ secrets.ACTIONS_GOOGLESERVICES }}
+
+      - name: Enable KVM
+        run: scripts/ci.sh enable-kvm
+
       - name: Run espresso tests
         uses: reactivecircus/android-emulator-runner@v2 # 3rd party tool
         with:
           api-level: 29
-          script: cd code && gradle connectedCheck
+          script: scripts/ci.sh ui-test
 
       - name: Upload Instrumentation Test report
         uses: actions/upload-artifact@v4
@@ -68,6 +92,8 @@ jobs:
   debug-apk:
     name: Generate Debug APK
     runs-on: ubuntu-latest
+    env:
+      ACTIONS: 1
     steps:
       - name: Checkout the code
         uses: actions/checkout@v2
@@ -77,8 +103,13 @@ jobs:
         with:
           java-version: '17'
 
+      - name: Inflate google-services.json
+        run: scripts/ci.sh inflate-ci-googleservices
+
       - name: Build debug APK
-        run: cd code && gradle assembleDebug --stacktrace
+        run: scripts/ci.sh build-dbg-apk
+        env:
+          ACTIONS_GOOGLESERVICES: ${{ secrets.ACTIONS_GOOGLESERVICES }}
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
