@@ -15,11 +15,8 @@ jobs:
       - name: Checkout the code
         uses: actions/checkout@v2
 
-      - name: Make Gradle executable
-        run: cd code && chmod +x ./gradlew
-
       - name: Run lint
-        run: cd code && ./gradlew lintDebug
+        run: cd code && gradle lintDebug
 
       - name: Upload html test report
         uses: actions/upload-artifact@v4
@@ -34,11 +31,8 @@ jobs:
       - name: Checkout the code
         uses: actions/checkout@v2
 
-      - name: Make Gradle executable
-        run: cd code && chmod +x ./gradlew
-
       - name: Run tests
-        run: cd code && ./gradlew test
+        run: cd code && gradle test
 
       - name: Upload test report
         uses: actions/upload-artifact@v4
@@ -59,14 +53,11 @@ jobs:
         with:
           java-version: '17'
 
-      - name: Make Gradle executable
-        run: cd code && chmod +x ./gradlew
-
       - name: Run espresso tests
         uses: reactivecircus/android-emulator-runner@v2 # 3rd party tool
         with:
           api-level: 29
-          script: cd code && ./gradlew connectedCheck
+          script: cd code && gradle connectedCheck
 
       - name: Upload Instrumentation Test report
         uses: actions/upload-artifact@v4
@@ -81,16 +72,13 @@ jobs:
       - name: Checkout the code
         uses: actions/checkout@v2
 
-      - name: Make Gradle executable
-        run: cd code && chmod +x ./gradlew
-
       - name: Set up Java JDK 17
         uses: actions/setup-java@v1
         with:
           java-version: '17'
 
       - name: Build debug APK
-        run: cd code && ./gradlew assembleDebug --stacktrace
+        run: cd code && gradle assembleDebug --stacktrace
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
