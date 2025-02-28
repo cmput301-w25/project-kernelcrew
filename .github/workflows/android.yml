@@ -105,11 +105,11 @@ jobs:
 
       - name: Inflate google-services.json
         run: scripts/ci.sh inflate-ci-googleservices
+        env:
+          ACTIONS_GOOGLESERVICES: ${{ secrets.ACTIONS_GOOGLESERVICES }}
 
       - name: Build debug APK
         run: scripts/ci.sh build-dbg-apk
-        env:
-          ACTIONS_GOOGLESERVICES: ${{ secrets.ACTIONS_GOOGLESERVICES }}
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
