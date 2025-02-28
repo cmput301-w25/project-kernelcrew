@@ -1,28 +1,99 @@
-name: Android CI
+name: CI
 
 on:
   push:
-    branches: [ "main" ]
+    branches: [main]
+
   pull_request:
-    branches: [ "main" ]
+    branches: [main]
 
 jobs:
-  build:
-
+  lint:
+    name: Perform lint check
     runs-on: ubuntu-latest
-
     steps:
-    - uses: actions/checkout@v4
-    - name: set up JDK 17
-      uses: actions/setup-java@v4
-      with:
-        java-version: '17'
-        distribution: 'temurin'
-        cache: gradle
+      - name: Checkout the code
+        uses: actions/checkout@v2
 
-    - name: Grant execute permission for gradlew
-      run: cd code && chmod +x gradlew
-    - name: Run Linter
-      run: cd code && ./gradlew lint
-    - name: Run Unit Tests
-      run: cd code && ./gradlew test
+      - name: Make Gradle executable
+        run: cd code && chmod +x ./gradlew
+
+      - name: Run lint
+        run: cd code && ./gradlew lintDebug
+
+      - name: Upload html test report
+        uses: actions/upload-artifact@v4
+        with:
+          name: lint.html
+          path: code/app/build/reports/lint-results-debug.html
+
+  unit-test:
+    name: Perform Unit Testing
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout the code
+        uses: actions/checkout@v2
+
+      - name: Make Gradle executable
+        run: cd code && chmod +x ./gradlew
+
+      - name: Run tests
+        run: cd code && ./gradlew test
+
+      - name: Upload test report
+        uses: actions/upload-artifact@v4
+        with:
+          name: unit_test_report
+          path: code/app/build/reports/test/testDebugUnitTest/
+
+  instrumentation-test:
+    name: Perform Instrumentation Testing
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout the code
+        uses: actions/checkout@v2
+
+      # Gradle v8.0.0 requires java JDK v17
+      - name: Set up Java JDK 17
+        uses: actions/setup-java@v1
+        with:
+          java-version: '17'
+
+      - name: Make Gradle executable
+        run: cd code && chmod +x ./gradlew
+
+      - name: Run espresso tests
+        uses: reactivecircus/android-emulator-runner@v2 # 3rd party tool
+        with:
+          api-level: 29
+          script: cd code && ./gradlew connectedCheck
+
+      - name: Upload Instrumentation Test report
+        uses: actions/upload-artifact@v4
+        with:
+          name: instrumentation_test_report
+          path: code/app/build/reports/androidTests/connected
+
+  debug-apk:
+    name: Generate Debug APK
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout the code
+        uses: actions/checkout@v2
+
+      - name: Make Gradle executable
+        run: cd code && chmod +x ./gradlew
+
+      - name: Set up Java JDK 17
+        uses: actions/setup-java@v1
+        with:
+          java-version: '17'
+
+      - name: Build debug APK
+        run: cd code && ./gradlew assembleDebug --stacktrace
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: sample-app.apk
+          path: code/app/build/outputs/apk/debug/app-debug.apk
