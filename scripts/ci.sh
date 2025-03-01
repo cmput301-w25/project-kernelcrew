@@ -109,6 +109,28 @@ inflate-ci-googleservices() {
   _log "Inflated to $REPO_ROOT/code/app/google-services.json"
 }
 
+setup-firebaserc() {
+  ### Setup all local firebase config for the CI project
+
+  cat >"$PROJECT_ROOT/.firebaserc" <<EOF
+{
+  "projects": {
+    "default": "$ACTIONS_FIREBASE_PROJECTID"
+  }
+}
+EOF
+
+  _log 'Wrote config to .firebaserc'
+}
+
+start-firebase-emulators() {
+  ### Start the firebase emulators
+
+  _log 'Starting emulators'
+
+  firebase --token "$ACTIONS_FIREBASE_TOKEN" emulators:start
+}
+
 # - Task File Components ---------------------------------------------------------
 
 _print-funcs() {

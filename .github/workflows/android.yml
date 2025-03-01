@@ -74,6 +74,16 @@ jobs:
         env:
           ACTIONS_GOOGLESERVICES: ${{ secrets.ACTIONS_GOOGLESERVICES }}
 
+      - name: Setup firebase
+        run: scripts/ci.sh setup-firebaserc
+        env:
+          ACTIONS_FIREBASE_PROJECTID: ${{ secrets.ACTIONS_FIREBASE_PROJECTID }}
+
+      - name: Start firebase emulators
+        run: scripts/ci.sh start-firebase-emulators &
+        env:
+          ACTIONS_FIREBASE_TOKEN: ${{ secrets.ACTIONS_FIREBASE_TOKEN }}
+
       - name: Enable KVM
         run: scripts/ci.sh enable-kvm
 
