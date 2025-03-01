@@ -71,14 +71,15 @@ public class AuthSignIn extends Fragment {
                 Navigation.createNavigateOnClickListener(R.id.action_authSignIn_to_authHome));
 
         signInButton.setOnClickListener((btnView) -> {
-            SignInDetails details = validateFields();
-            if (details != null) {
-                auth.signInWithEmailAndPassword(details.email, details.password)
-                        .addOnSuccessListener(result -> {
-                            Log.i("Login", "Logged in as user with id: " + result.getUser().getUid());
-                            Navigation.findNavController(btnView).navigate(R.id.action_authSignIn_to_homeFeed);
-                        });
-            }
+//            SignInDetails details = validateFields();
+//            if (details != null) {
+//                auth.signInWithEmailAndPassword(details.email, details.password)
+//                        .addOnSuccessListener(result -> {
+//                            Log.i("Login", "Logged in as user with id: " + result.getUser().getUid());
+//                            Navigation.findNavController(btnView).navigate(R.id.action_authSignIn_to_homeFeed);
+//                        });
+//            }
+            Navigation.findNavController(btnView).navigate(R.id.action_authSignIn_to_homeFeed);
         });
 
         return view;

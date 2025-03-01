@@ -51,4 +51,15 @@
         android:name="com.kernelcrew.moodapp.ui.MyProfile"
         android:label="fragment_my_profile"
         tools:layout="@layout/fragment_my_profile" />
+
+    <fragment
+        android:id="@+id/moodHistory"
+        android:name="com.kernelcrew.moodapp.ui.MoodHistory"
+        android:label="fragment_mood_history"
+        tools:layout="@layout/fragment_mood_history">
+        <action
+            android:id="@+id/action_moodHistory_to_homeFeed"
+            app:destination="@id/homeFeed" />
+    </fragment>
+
 </navigation>

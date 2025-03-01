@@ -37,10 +37,13 @@ public class BottomNavBarController implements NavigationBarView.OnItemSelectedL
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
         int page = 0;
         int itemId = item.getItemId();
+
         if (itemId == R.id.page_home) {
             page = R.id.homeFeed;
         } else if (itemId == R.id.page_myProfile) {
             page = R.id.myProfile;
+        } else if (itemId == R.id.page_myHistory) {
+            page = R.id.moodHistory;
         } else {
             return false;
         }

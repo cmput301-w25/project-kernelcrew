@@ -29,16 +29,16 @@ public class HomeFeed extends Fragment {
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_home_feed, container, false);
 
-        auth = FirebaseAuth.getInstance();
-        user = auth.getCurrentUser();
-        assert user != null;
+//        auth = FirebaseAuth.getInstance();
+//        user = auth.getCurrentUser();
+//        assert user != null;
 
         homeTextView = view.findViewById(R.id.homeTextView);
         navigationBar = view.findViewById(R.id.bottom_navigation);
 
         navBarController = new BottomNavBarController(navigationBar);
 
-        homeTextView.setText("Currently signed in as user: " + user.getDisplayName());
+//        homeTextView.setText("Currently signed in as user: " + user.getDisplayName());
 
         return view;
     }
