@@ -111,6 +111,8 @@ inflate-ci-googleservices() {
 
 setup-firebaserc() {
   ### Setup all local firebase config for the CI project
+  _log 'Installing the firebase CLI'
+  npm install -g firebase-tools
 
   cat >"$REPO_ROOT/.firebaserc" <<EOF
 {
