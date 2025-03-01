@@ -112,7 +112,7 @@ inflate-ci-googleservices() {
 setup-firebaserc() {
   ### Setup all local firebase config for the CI project
 
-  cat >"$PROJECT_ROOT/.firebaserc" <<EOF
+  cat >"$REPO_ROOT/.firebaserc" <<EOF
 {
   "projects": {
     "default": "$ACTIONS_FIREBASE_PROJECTID"
