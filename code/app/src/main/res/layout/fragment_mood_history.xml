@@ -5,6 +5,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:fitsSystemWindows="true"
     tools:context="com.kernelcrew.moodapp.ui.MoodHistory">
 
     <!-- Top App Bar -->
@@ -14,6 +15,8 @@
         android:layout_height="wrap_content"
         android:background="?attr/colorSurface"
         android:elevation="4dp"
+        android:clickable="true"
+        android:focusable="true"
         app:navigationIcon="@drawable/ic_back"
         app:title="User’s Mood History"
         app:titleTextAppearance="@style/TextAppearance.Material3.TitleLarge" />
@@ -24,14 +27,20 @@
         android:layout_height="match_parent"
         android:orientation="vertical"
         android:padding="16dp"
-        app:layout_behavior="@string/appbar_scrolling_view_behavior">
+        android:paddingTop="?attr/actionBarSize"
+        android:layout_marginTop="?attr/actionBarSize"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior"
+        app:layout_anchor="@id/topAppBar"
+        app:layout_anchorGravity="bottom">
 
-        <!-- Search Bar -->
         <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/searchInputLayout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="Search words/emotional states"
-            app:endIconMode="custom">
+            app:endIconMode="clear_text"
+            app:boxStrokeColor="@color/black"
+            android:layout_marginTop="16dp">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/searchInput"
@@ -41,13 +50,16 @@
                 android:background="@android:color/transparent" />
         </com.google.android.material.textfield.TextInputLayout>
 
-        <!-- Mood History List -->
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/moodRecyclerView"
+        <!-- List View -->
+        <ListView
+            android:id="@+id/listViewMoodHistory"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:divider="@android:color/transparent"
+            android:dividerHeight="0dp"
+            android:background="@android:color/white"
             android:paddingTop="8dp"
-            android:scrollbars="vertical"/>
-
+            android:paddingBottom="8dp"/>
     </LinearLayout>
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

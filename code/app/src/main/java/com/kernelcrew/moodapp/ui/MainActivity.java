@@ -23,7 +23,5 @@ public class MainActivity extends AppCompatActivity {
             return insets;
         });
 
-//        setContentView(R.layout.fragment_mood_history);
-
     }
 }

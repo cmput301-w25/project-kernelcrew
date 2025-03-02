@@ -1,0 +1,27 @@
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:padding="12dp"
+    android:background="@color/soft_pink"
+    android:layout_marginBottom="4dp">
+
+    <TextView
+        android:id="@+id/textDate"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textColor="@color/dark_gray"
+        android:textSize="16sp"
+        android:layout_weight="1"
+        android:textStyle="bold" />
+
+    <TextView
+        android:id="@+id/textMoodEventNumber"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Mood Event X"
+        android:textSize="16sp"
+        android:textColor="@color/black"/>
+
+</LinearLayout>

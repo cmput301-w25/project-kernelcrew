@@ -39,13 +39,31 @@ dependencies {
     implementation libs.annotation
     implementation libs.lifecycle.livedata.ktx
     implementation libs.lifecycle.viewmodel.ktx
-    implementation libs.firebase.auth
+
     implementation 'com.google.android.material:material:1.9.0'
+
+    implementation libs.firebase.auth
     implementation(platform(libs.firebase.bom))
     implementation(platform("com.google.firebase:firebase-bom:33.10.0"))
 
+    // Testing dependencies
     testImplementation libs.junit
 
+    // JUnit extensions
     androidTestImplementation libs.ext.junit
-    androidTestImplementation libs.espresso.core
+
+    // Ensure consistent versions for androidx test libraries
+    androidTestImplementation 'androidx.test:core:1.5.0' // Make sure it's 1.5.0 or another compatible version
+    androidTestImplementation 'androidx.test.ext:junit:1.1.5' // Make sure this matches the core version
+
+    // Espresso dependencies
+    androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.1' // Use latest stable version
+    androidTestImplementation 'androidx.test.espresso:espresso-intents:3.5.1' // Use matching version
+
+    // Fragment testing
+    debugImplementation("androidx.fragment:fragment-testing:1.4.0") // Ensure this is compatible with your app version
+
+    // Mockito for mocking
+    testImplementation 'org.mockito:mockito-core:5.5.0'
+    androidTestImplementation 'org.mockito:mockito-android:5.5.0'
 }
