@@ -16,5 +16,5 @@ How should a reviewer test? ...
 - [ ] Does the app still build?
 - [ ] Do tests pass? (TODO: Automate this with GitHub actions)
 - [ ] Does the feature work as expected?
-- [ ] Does the feature introduce any new bugs?
+- [ ] Does the feature still keep the app bug free?
 - [ ] Is the description of the changes correct/present?
