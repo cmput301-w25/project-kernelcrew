@@ -99,7 +99,7 @@ public class HomeFeedNavigationTest {
         // Clean up the Firestore "moods" collection by sending an HTTP DELETE to the emulator.
         // Note: Firestore doesn't provide a direct API to delete a collection,
         // so this approach works with the emulator.
-        String projectId = "kernelcrew-database";  // Replace with your actual Firebase project ID
+        String projectId = "YOUR_PROJECT_ID";  // TODO: Replace with your actual Firebase project ID
         URL url = null;
         try {
             url = new URL("http://10.0.2.2:8080/emulator/v1/projects/" + projectId +
