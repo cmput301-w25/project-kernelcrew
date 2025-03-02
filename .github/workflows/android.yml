@@ -52,11 +52,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: unit_test_report
-          path: code/app/build/reports/test/testDebugUnitTest/{
-  "projects": {
-    "default": "moodable-cc346"
-  }
-}
+          path: code/app/build/reports/test/testDebugUnitTest/
 
   instrumentation-test:
     name: Perform Instrumentation Testing
