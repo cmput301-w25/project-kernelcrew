@@ -2,6 +2,8 @@
 
 When seeting up locally, follow the [Getting Started Instructions](./docs/getting-started.md).
 
+For details about CI, see the [CI Docs](./docs/ci.md).
+
 ## Team Members
 
 | **Full Name**       | **CCID**  | **@username**      |
