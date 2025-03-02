@@ -8,8 +8,12 @@ import android.widget.CheckBox;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
+import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+
+import com.google.android.material.appbar.MaterialToolbar;
+import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.kernelcrew.moodapp.R;
 import com.google.android.material.imageview.ShapeableImageView;
 import java.util.ArrayList;
@@ -38,6 +42,20 @@ public class FollowingFragment extends Fragment {
 
         adapter = new FollowingAdapter(followingList);
         followingRecyclerView.setAdapter(adapter);
+
+        BottomNavigationView bottomNavigationView = view.findViewById(R.id.bottom_navigation);
+        bottomNavigationView.setSelectedItemId(R.id.page_myProfile);
+        bottomNavigationView.setOnItemSelectedListener(item -> {
+            if (item.getItemId() == R.id.page_myProfile) {
+                Navigation.findNavController(view).navigate(R.id.myProfile);
+                return true;
+            }
+            return false;
+        });
+
+        MaterialToolbar topAppBar = view.findViewById(R.id.topAppBar);
+        topAppBar.setNavigationOnClickListener(v -> Navigation.findNavController(v).navigateUp());
+
 
         return view;
     }

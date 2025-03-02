@@ -4,6 +4,7 @@ import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -11,6 +12,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CheckBox;
 import android.widget.TextView;
+
+import com.google.android.material.appbar.MaterialToolbar;
+import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.kernelcrew.moodapp.R;
 import com.google.android.material.imageview.ShapeableImageView;
 import java.util.ArrayList;
@@ -39,6 +43,20 @@ public class FollowersFragment extends Fragment {
 
         adapter = new FollowersAdapter(followersList);
         followersRecyclerView.setAdapter(adapter);
+
+
+        BottomNavigationView bottomNavigationView = view.findViewById(R.id.bottom_navigation);
+        bottomNavigationView.setSelectedItemId(R.id.page_myProfile);
+        bottomNavigationView.setOnItemSelectedListener(item -> {
+            if (item.getItemId() == R.id.page_myProfile) {
+                Navigation.findNavController(view).navigate(R.id.myProfile);
+                return true;
+            }
+            return false;
+        });
+
+        MaterialToolbar topAppBar = view.findViewById(R.id.topAppBar);
+        topAppBar.setNavigationOnClickListener(v -> Navigation.findNavController(v).navigateUp());
 
         return view;
     }
