@@ -15,12 +15,17 @@ import com.google.android.material.navigation.NavigationBarView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.kernelcrew.moodapp.R;
+import com.google.firebase.firestore.FirebaseFirestore;
+
 
 public class MyProfile extends Fragment {
     FirebaseAuth auth;
     FirebaseUser user;
 
     TextView usernameText;
+
+    TextView followersCountText;
+    TextView followingCountText;
     ImageView profileImage;
     Button signOutButton;
     NavigationBarView navigationBarView;
@@ -48,6 +53,7 @@ public class MyProfile extends Fragment {
         navigationBarView.setSelectedItemId(R.id.page_myProfile);
         navBarController = new BottomNavBarController(navigationBarView);
 
+
         // Set click listeners
         signOutButton.setOnClickListener(this::onClickSignOut);
         followersButton.setOnClickListener(v -> Navigation.findNavController(v).navigate(R.id.action_myProfile_to_followersPage));
@@ -62,6 +68,24 @@ public class MyProfile extends Fragment {
                 // Use ic_profile as the default profile image.
                 profileImage.setImageResource(R.drawable.ic_person);
             }
+        }
+
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        if (user != null) {
+            db.collection("users").document(user.getUid()).get()
+                    .addOnSuccessListener(document -> {
+                        if (document.exists()) {
+                            Long followersCount = document.getLong("followersCount");
+                            Long followingCount = document.getLong("followingCount");
+
+                            followersButton.setText("Followers: " + (followersCount != null ? followersCount : 0));
+                            followingButton.setText("Following: " + (followingCount != null ? followingCount : 0));
+                        }
+                    })
+                    .addOnFailureListener(e -> {
+                        followersButton.setText("Followers: 0");
+                        followingButton.setText("Following: 0");
+                    });
         }
 
         return view;

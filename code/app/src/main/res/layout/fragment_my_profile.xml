@@ -62,29 +62,34 @@
 
     <Button
         android:id="@+id/following_button"
-        android:layout_width="363dp"
-        android:layout_height="51dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
         android:layout_marginStart="24dp"
         android:layout_marginTop="36dp"
         android:layout_marginEnd="24dp"
-        android:text="Following"
+        android:text="Following: 0"
+        android:textSize="16sp"
+        android:textStyle="normal"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/profileCard" />
 
+
     <Button
         android:id="@+id/followers_button"
-        android:layout_width="359dp"
-        android:layout_height="51dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
         android:layout_marginStart="24dp"
-        android:layout_marginTop="104dp"
+        android:layout_marginTop="20dp"
         android:layout_marginEnd="24dp"
-        android:text="Followers"
+        android:text="Followers: 0"
+        android:textSize="16sp"
+        android:textStyle="normal"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/profileCard" />
+        app:layout_constraintTop_toBottomOf="@id/following_button" />
 
     <Button
         android:id="@+id/mood_history_button"
@@ -112,6 +117,7 @@
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/profileCard" />
+
 
     <com.google.android.material.bottomnavigation.BottomNavigationView
         android:id="@+id/bottom_navigation"

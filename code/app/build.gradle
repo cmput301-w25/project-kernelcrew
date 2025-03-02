@@ -42,6 +42,7 @@ dependencies {
     implementation libs.firebase.auth
     implementation(platform(libs.firebase.bom))
     implementation libs.recyclerview
+    implementation libs.firebase.firestore
 
     testImplementation libs.junit
 
