@@ -12,6 +12,9 @@ import com.kernelcrew.moodapp.R;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
 
 public class MoodAdapter extends RecyclerView.Adapter<MoodAdapter.MoodViewHolder> {
 
@@ -33,8 +36,18 @@ public class MoodAdapter extends RecyclerView.Adapter<MoodAdapter.MoodViewHolder
     @Override
     public void onBindViewHolder(@NonNull MoodViewHolder holder, int position) {
         Mood mood = moods.get(position);
-        holder.moodTypeTextView.setText(mood.getUserName());
-        holder.dayTimeTextView.setText(mood.getMoodText());
+
+        // 1. Display the mood text in the top TextView
+        holder.moodTypeTextView.setText(mood.getMoodText());
+
+        // 2. Format the timestamp for the second TextView(Ex: "Thu 10am")
+        SimpleDateFormat dateFormat = new SimpleDateFormat("EEE ha", Locale.getDefault());
+        String formattedTime = dateFormat.format(new Date(mood.getTimestamp()));
+
+        // Optional: convert AM/PM to lowercase to match out figma mockup/design
+        formattedTime = formattedTime.replace("AM", "am").replace("PM", "pm");
+
+        holder.dayTimeTextView.setText(formattedTime);
     }
 
     @Override
@@ -42,7 +55,7 @@ public class MoodAdapter extends RecyclerView.Adapter<MoodAdapter.MoodViewHolder
         return moods.size();
     }
 
-    public class MoodViewHolder extends RecyclerView.ViewHolder {
+    public static class MoodViewHolder extends RecyclerView.ViewHolder {
         TextView moodTypeTextView;
         TextView dayTimeTextView;
 
