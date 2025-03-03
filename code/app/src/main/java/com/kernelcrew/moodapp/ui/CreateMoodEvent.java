@@ -56,7 +56,7 @@ public class CreateMoodEvent extends Fragment {
 
         MoodEvent moodEvent = new MoodEvent(currentUser.getUid(), details.emotion);
 
-        moodEventController.createMoodEvent(moodEvent);
+        moodEventController.insertMoodEvent(moodEvent);
 
         navController.navigate(R.id.homeFeed);
     }
