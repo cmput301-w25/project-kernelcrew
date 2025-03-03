@@ -75,15 +75,15 @@ public class AuthSignIn extends Fragment {
         signInButton.setOnClickListener((btnView) -> {
             SignInDetails details = validateFields();
             if (details != null) {
-                // Log.i("Signin", "Trying to login as " + details.email);
+                 Log.i("Signin", "Trying to login as " + details.email);
                 auth.signInWithEmailAndPassword(details.email, details.password)
                         .addOnSuccessListener(result -> {
                             Log.i("Login", "Logged in as user with id: " + result.getUser().getUid());
                             Navigation.findNavController(btnView).navigate(R.id.action_authSignIn_to_homeFeed);
                         })
-                        // .addOnFailureListener(error -> {
-                        //     Log.e("Signin", error.toString());
-                        // })
+                         .addOnFailureListener(error -> {
+                             Log.e("Signin", error.toString());
+                         })
                         ;
             }
         });
