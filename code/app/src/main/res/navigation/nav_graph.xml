@@ -51,4 +51,9 @@
         android:name="com.kernelcrew.moodapp.ui.MyProfile"
         android:label="fragment_my_profile"
         tools:layout="@layout/fragment_my_profile" />
+    <fragment
+        android:id="@+id/createMoodEvent"
+        android:name="com.kernelcrew.moodapp.ui.CreateMoodEvent"
+        android:label="fragment_create_mood_event"
+        tools:layout="@layout/fragment_create_mood_event" />
 </navigation>
