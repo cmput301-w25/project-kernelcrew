@@ -123,6 +123,10 @@ public class EmotionPickerFragment extends Fragment {
         void onSelectEmotion(Emotion emotion);
     }
 
+    public String getError() {
+        return error;
+    }
+
     /**
      * Start displaying an error. Set to null to hide the error.
      * @param error Error to display or null
