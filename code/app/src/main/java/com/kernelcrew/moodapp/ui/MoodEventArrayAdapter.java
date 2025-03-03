@@ -41,7 +41,6 @@ public class MoodEventArrayAdapter extends ArrayAdapter<MoodEvent> {
         TextView textDate = convertView.findViewById(R.id.textDate);
         textDate.setText(formattedDate);
 
-        // Set the Mood Event number as "Mood Event X"
         TextView textMoodEventNumber = convertView.findViewById(R.id.textMoodEventNumber);
         textMoodEventNumber.setText("Mood Event " + moodEvent.getMoodEventNumber());
 
