@@ -2,11 +2,14 @@
 <resources>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
+    <color name="gray">#A4A4A4</color>
+    <color name="errorColor">#FF0000</color>
 
     <!--  Theme colors for dark themes.  -->
     <color name="dark_textPrimary">#EDEDED</color>
     <color name="dark_textSecondary">#C3C3C3</color>
-    <color name="dark_primary">#080E30</color>
+    <color name="dark_initialScreenPrimary">#080E30</color>
+    <color name="dark_signinorupScreenPrimary">#464D68</color>
 
     <!-- Buttons -->
     <color name="btn_purpleSolid">#6F5DE6</color>

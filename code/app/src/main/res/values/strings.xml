@@ -5,6 +5,7 @@
 
     <!-- Image Descriptions -->
     <string name="imageDescription_hero">An image of a pot over on a windowsill.</string>
+    <string name="imageDescription_cat">An image of a cat looking at the user.</string>
 
     <!-- Generic Strings -->
     <string name="let_s_get_started">Let\'s get started.</string>
@@ -20,4 +21,8 @@
     <string name="invalid_password">Password must be >5 characters</string>
     <string name="login_failed">"Login failed"</string>
     <string name="sign_up">Sign Up</string>
+    <string name="welcome_back">Welcome Back</string>
+    <string name="action_sign_up">Sign Up</string>
+    <string name="create_an_account">Create an Account</string>
+    <string name="prompt_username">Username</string>
 </resources>
