@@ -54,5 +54,6 @@ public class BottomNavBarController implements NavigationBarView.OnItemSelectedL
         }
 
         Navigation.findNavController(this.view).navigate(page);
+        return true;
     }
 }
