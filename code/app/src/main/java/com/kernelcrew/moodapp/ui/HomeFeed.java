@@ -84,6 +84,17 @@ public class HomeFeed extends Fragment {
                     }
                 });
 
+        moodAdapter.setOnMoodClickListener(new MoodAdapter.OnMoodClickListener() {
+            @Override
+            public void onViewDetails(Mood mood) {
+                // Use mood.getId() (or however you retrieve the moodEventId) and navigate to MoodDetails.
+                Bundle args = new Bundle();
+                args.putString("moodEventId", mood.getId());
+                args.putString("sourceScreen", "home"); // or "filtered"
+                // TODO: Navigate to MoodDetails using your NavController
+            }
+        });
+
         return view;
     }
 
