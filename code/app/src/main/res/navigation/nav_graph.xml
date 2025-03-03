@@ -61,7 +61,6 @@
         <action
             android:id="@+id/action_myProfile_to_followingPage"
             app:destination="@id/followingFragment" />
-
     </fragment>
 
     <fragment
@@ -76,5 +75,9 @@
         android:label="Following"
         tools:layout="@layout/fragment_following" />
 
-
+    <fragment
+        android:id="@+id/createMoodEvent"
+        android:name="com.kernelcrew.moodapp.ui.CreateMoodEvent"
+        android:label="fragment_create_mood_event"
+        tools:layout="@layout/fragment_create_mood_event" />
 </navigation>

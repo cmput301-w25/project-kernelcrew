@@ -35,18 +35,24 @@ public class BottomNavBarController implements NavigationBarView.OnItemSelectedL
 
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-        int currentDestinationId = Navigation.findNavController(this.view).getCurrentDestination().getId();
-
         int itemId = item.getItemId();
-        if (itemId == R.id.page_home && currentDestinationId != R.id.homeFeed) {
-            Navigation.findNavController(this.view).navigate(R.id.homeFeed);
-            return true;
-        }
-        else if (itemId == R.id.page_myProfile && currentDestinationId != R.id.myProfile) {
-            Navigation.findNavController(this.view).navigate(R.id.myProfile);
-            return true;
-        }
-        return false;
-    }
 
+        int page = 0;
+        if (itemId == R.id.page_home) {
+            page = R.id.homeFeed;
+        } else if (itemId == R.id.page_createMoodEvent) {
+            page = R.id.createMoodEvent;
+        } else if (itemId == R.id.page_myProfile) {
+            page = R.id.myProfile;
+        } else {
+            return false;
+        }
+
+        int currentPage = Navigation.findNavController(this.view).getCurrentDestination().getId();
+        if (page == currentPage) {
+            return false;
+        }
+
+        Navigation.findNavController(this.view).navigate(page);
+    }
 }
