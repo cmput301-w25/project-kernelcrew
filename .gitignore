@@ -54,3 +54,7 @@
 # Virtual machine crash logs
 **/hs_err_pid*
 **/replay_pid*
+
+# Everyone needs to have their own .firebaserc
+# Initialize it with scripts/setup-firebase.sh
+.firebaserc

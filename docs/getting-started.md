@@ -10,33 +10,36 @@ To setup Firebase, create a new Firebase app (just like we did in our lab) for
 an app called "Moodable". Skip the instructions for updating any of the gradle
 files, you will only need to copy over a `google-services.json` file.
 
-### Firestore
+Some extra configuration needs to be done. Most of this can be automated by the
+[firebase CLI](https://firebase.google.com/docs/cli). First follow the [install
+docs](https://firebase.google.com/docs/cli) to setup the firebase CLI. You will
+also need to run `firebase login` at some point. (If you did Lab 7, then this
+should be all set up.)
 
-Once the app is setup in Firebase, create a Firestore database **setup in
-"production" mode. **Note that in this step, we differ from the lab
-instructions**.
+Next, in a terminal which can access `firebase` -- any terminal on Linux / MacOS
+or the special "firebase" terminal on Windows -- run:
 
-Once the Firestore database (DB) has been created, we need to update the access
-rules so that our users can actually read/write data from the DB. Navigate to
-the "Rules" tab and change the ruleset to the following:
-
+```sh
+scripts/setup-firebase.sh  # Associate your clone with your firebase project
+firebase deploy  # Configure your firebase app with our project settings
 ```
-rules_version = '2';
 
-service cloud.firestore {
-  match /databases/{database}/documents {
-    match /{document=**} {
-      allow read, write: if request.auth != null;
-    }
+**Note**, if the above doesn't work on windows, create a file in your
+repository root called `.firebaserc` with the following contents. (The
+`setup-firebase.sh` script will do this, if you can run it.)
+
+```json
+{
+  "projects": {
+    "default": "your-project-id"
   }
 }
 ```
 
-> This ruleset requires that all reads/writes to any document in the database
-> *must be authenticated*.
+You will have to replave `your-project-id` with the id of your firebase
+project we created earlier.
 
-Once the ruleset edits have been made, be sure to press "Publish" to apply
-them.
+After the `.firebaserc` file has been created, you can run `firebase deploy`.
 
 ### Authentication
 
