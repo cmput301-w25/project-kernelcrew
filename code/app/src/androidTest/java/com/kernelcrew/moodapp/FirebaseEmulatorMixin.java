@@ -16,15 +16,29 @@ import java.net.URL;
 
 public class FirebaseEmulatorMixin {
     private static final String androidLocalhost = "10.0.2.2";
+    private static boolean setupEmulator = false;
 
     @BeforeClass
     public static void setup() {
+        // We can only setup the emulator once
+        if (setupEmulator) {
+            // Make sure we are signed out
+            FirebaseAuth auth = FirebaseAuth.getInstance();
+            if (auth.getCurrentUser() != null) {
+                auth.signOut();
+            }
+
+            return;
+        }
+
         FirebaseFirestore.getInstance().useEmulator(androidLocalhost, 8080);
         FirebaseAuth.getInstance().useEmulator(androidLocalhost, 9099);
+
+        setupEmulator = true;
     }
 
     @After
-    public void teardown() throws MalformedURLException, IOException {
+    public void teardown() throws IOException {
         // Clean up the Firestore "moodEvent" collection by sending an HTTP DELETE to the emulator.
         String projectId = FirebaseApp.getInstance().getOptions().getProjectId();
 
