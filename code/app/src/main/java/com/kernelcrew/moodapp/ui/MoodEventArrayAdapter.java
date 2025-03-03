@@ -28,7 +28,7 @@ public class MoodEventArrayAdapter extends ArrayAdapter<MoodEvent> {
     @Override
     public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
         if (convertView == null) {
-            convertView = LayoutInflater.from(context).inflate(R.layout.item_mood_event, parent, false);
+            convertView = LayoutInflater.from(context).inflate(R.layout.item_mood_history_mood, parent, false);
         }
 
         MoodEvent moodEvent = moodEvents.get(position);
