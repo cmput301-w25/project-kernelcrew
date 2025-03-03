@@ -12,7 +12,7 @@ public class MoodEventController {
 
     private MoodEventController() {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
-        collection = db.collection("moodEvent");
+        collection = db.collection("moodEvents");
     }
 
     public static MoodEventController getInstance() {
