@@ -1,16 +1,13 @@
 package com.kernelcrew.moodapp;
 
-import static androidx.test.espresso.action.ViewActions.click;
-import static androidx.test.espresso.matcher.ViewMatchers.withId;
-import static androidx.test.espresso.matcher.ViewMatchers.withText;
+import static androidx.test.espresso.Espresso.*;
+import static androidx.test.espresso.action.ViewActions.*;
+import static androidx.test.espresso.matcher.ViewMatchers.*;
+import static androidx.test.espresso.assertion.ViewAssertions.*;
 
 import android.os.SystemClock;
-import android.util.Log;
 
-import androidx.test.espresso.Espresso;
 import androidx.test.espresso.action.ViewActions;
-import androidx.test.espresso.assertion.ViewAssertions;
-import androidx.test.espresso.matcher.ViewMatchers;
 import androidx.test.ext.junit.rules.ActivityScenarioRule;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
@@ -22,18 +19,10 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.kernelcrew.moodapp.ui.MainActivity;
 import com.kernelcrew.moodapp.ui.Mood;
 
-import org.junit.After;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-
-import java.io.IOException;
-import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.util.Objects;
 
 @RunWith(AndroidJUnit4.class)
 public class HomeFeedNavigationTest {
@@ -69,22 +58,22 @@ public class HomeFeedNavigationTest {
                 .perform(ViewActions.click());
 
         // Now on AuthSignIn screen: Check that the email field is displayed.
-        Espresso.onView(ViewMatchers.withId(R.id.email))
-                .check(ViewAssertions.matches(ViewMatchers.isDisplayed()));
+        onView(withId(R.id.email))
+                .check(matches(isDisplayed()));
 
         // Fill in the email and password fields.
-        Espresso.onView(ViewMatchers.withId(R.id.email))
-                .perform(ViewActions.replaceText("test@kernelcrew.com"), ViewActions.closeSoftKeyboard());
-        Espresso.onView(ViewMatchers.withId(R.id.password))
-                .perform(ViewActions.replaceText("Password@1234"), ViewActions.closeSoftKeyboard());
+        onView(withId(R.id.email))
+                .perform(replaceText("test@kernelcrew.com"), ViewActions.closeSoftKeyboard());
+        onView(withId(R.id.password))
+                .perform(replaceText("Password@1234"), ViewActions.closeSoftKeyboard());
 
         // Click the sign in button on AuthSignIn.
         Espresso.onView(ViewMatchers.withId(R.id.signInButtonAuth))
                 .perform(ViewActions.click());
 
         // On HomeFeed screen: Verify that the homeTextView is displayed.
-        Espresso.onView(ViewMatchers.withId(R.id.homeTextView))
-                .check(ViewAssertions.matches(ViewMatchers.isDisplayed()));
+        onView(withId(R.id.homeTextView))
+                .check(matches(isDisplayed()));
     }
 
     @After
