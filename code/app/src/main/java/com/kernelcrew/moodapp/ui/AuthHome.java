@@ -23,9 +23,9 @@ import com.kernelcrew.moodapp.R;
 public class AuthHome extends Fragment {
     FirebaseAuth auth;
 
-/**
- * Called to have the fragment instantiate its user interface view.
- * */
+    /**
+     * Called to have the fragment instantiate its user interface view.
+     * */
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {

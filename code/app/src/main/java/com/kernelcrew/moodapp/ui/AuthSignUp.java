@@ -17,7 +17,6 @@ import com.google.android.material.appbar.MaterialToolbar;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.UserProfileChangeRequest;
-import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.firestore.WriteBatch;
@@ -26,28 +25,30 @@ import com.kernelcrew.moodapp.R;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.HashMap;
-import java.util.Map;
-import java.util.Objects;
 
 /**
  * A Fragment representing the Sign-Up screen.
  * Allows the user to sign up and sign-in after creating an account.
  */
 public class AuthSignUp extends Fragment {
+    // Prevent spam sign ups. (if you spam the sign up button it creates accounts)
+    private long lastClickTime = 0;
+    private boolean isSigningUp = false;
+
     // Database
-    FirebaseAuth auth;
-    FirebaseFirestore db;
+    private FirebaseAuth auth;
+    private FirebaseFirestore db;
 
     // UI elements
-    MaterialToolbar topAppBar;
-    EditText userNameEditText;
-    EditText emailEditText;
-    EditText passwordEditText;
-    Button signUpButton;
+    private MaterialToolbar topAppBar;
+    private EditText userNameEditText;
+    private EditText emailEditText;
+    private EditText passwordEditText;
+    private Button signUpButton;
 
     /**
      * Class containing the details entered by the user
-     * */
+     */
     private class SignUpDetails {
         String userName;
         String email;
@@ -62,10 +63,10 @@ public class AuthSignUp extends Fragment {
 
     /**
      * A method of the SignUpDetails which does data validation of the details inputted and displays
-     *      corresponding error messages.
-     * @return
-     *      null if invalid data, otherwise SignUpDetails
-     * */
+     * corresponding error messages.
+     *
+     * @return null if invalid data, otherwise SignUpDetails
+     */
     private @Nullable SignUpDetails validateFields() {
         userNameEditText.setError(null);
         emailEditText.setError(null);
@@ -74,26 +75,23 @@ public class AuthSignUp extends Fragment {
         SignUpDetails details = new SignUpDetails();
 
         if (details.userName.isBlank()) {
-            userNameEditText.setError("A user name is required");
+            userNameEditText.setError("Please enter a username.");
             return null;
         }
-
         if (details.email.isBlank()) {
-            emailEditText.setError("An email is required");
+            emailEditText.setError("Please enter an email.");
             return null;
         }
-
         if (details.password.isBlank()) {
-            passwordEditText.setError("A password is required");
+            passwordEditText.setError("Please enter a password.");
             return null;
         }
-
         return details;
     }
 
     /**
      * Inflates the fragment layout and initializes UI elements.
-     * */
+     */
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -111,11 +109,25 @@ public class AuthSignUp extends Fragment {
         topAppBar.setNavigationOnClickListener(
                 Navigation.createNavigateOnClickListener(R.id.action_authSignUp_to_authHome));
 
-        signUpButton.setOnClickListener(btnView -> {
+        signUpButton.setOnClickListener(v -> {
             SignUpDetails details = validateFields();
-
             if (details != null) {
-                checkUsernameAndSignUp(details);
+                signUpUser(details);
+            }
+        });
+
+        signUpButton.setOnClickListener(v -> {
+            long currentTime = System.currentTimeMillis();
+            if (currentTime - lastClickTime < 500) return; // Ignore if less than 500ms since last click
+            lastClickTime = currentTime;
+
+            if (isSigningUp) return;
+
+            SignUpDetails details = validateFields();
+            if (details != null) {
+                isSigningUp = true;
+                signUpButton.setEnabled(false);
+                signUpUser(details);
             }
         });
 
@@ -123,84 +135,89 @@ public class AuthSignUp extends Fragment {
     }
 
     /**
-     * Check for if the username is unique; if it is unique, then sign the user up
-     * @param details
-     *      The sign in user information we need to sign up with. details.userName is the checked value.
-     * */
-    private void checkUsernameAndSignUp(SignUpDetails details) {
-        db.collection("usernames")
-                .whereEqualTo("username", details.userName)
-                .get()
-                .addOnCompleteListener(task -> {
-                    if (task.isSuccessful()) {
-                        QuerySnapshot snapshot = task.getResult();
-                        if (snapshot != null && snapshot.isEmpty()) {
-                            signUpUser(details);
-                        } else {
-                            userNameEditText.setError("Username is already taken");
-                        }
+     * Sign the user up, then create and save the user to firestore users collection
+     *
+     * @param details The users information needed to sign them up
+     */
+    private void signUpUser(SignUpDetails details) {
+        auth.createUserWithEmailAndPassword(details.email, details.password)
+            .addOnCompleteListener(createUserTask -> {
+                if (!createUserTask.isSuccessful()) {
+                    deleteAuthUserIfExists();
+                    isSigningUp = false;
+                    signUpButton.setEnabled(true);
+                    return;
+                }
+
+                FirebaseUser user = auth.getCurrentUser();
+                if (user == null) {
+                    deleteAuthUserIfExists();
+                    isSigningUp = false;
+                    signUpButton.setEnabled(true);
+                    return;
+                }
+
+                UserProfileChangeRequest profileUpdates = new UserProfileChangeRequest.Builder()
+                        .setDisplayName(details.userName)
+                        .build();
+
+                user.updateProfile(profileUpdates).addOnCompleteListener(updateProfileTask -> {
+                    if (updateProfileTask.isSuccessful()) {
+                        WriteBatch batch = db.batch();
+
+                        // Add user document
+                        batch.set(db.collection("users").document(user.getUid()),
+                                new HashMap<String, Object>() {{
+                                    put("uid", user.getUid());
+                                    put("email", details.email);
+                                    put("username", details.userName);
+                                }});
+
+                        // Add username document
+                        batch.set(db.collection("usernames").document(details.userName),
+                                new HashMap<String, Object>() {{
+                                    put("uid", user.getUid());
+                                }});
+
+                        // Commit Firestore changes
+                        batch.commit().addOnCompleteListener(task -> {
+                            if (task.isSuccessful()) {
+                                Toast.makeText(getContext(), "Sign-up successful!", Toast.LENGTH_SHORT).show();
+                                Navigation.findNavController(requireView()).navigate(R.id.action_authSignUp_to_authHome);
+                            } else {
+                                deleteAuthUserIfExists();
+                                Toast.makeText(requireContext(),
+                                        "Error creating account: " + task.getException().getMessage(),
+                                        Toast.LENGTH_SHORT).show();
+
+                            }
+                            isSigningUp = false;
+                            signUpButton.setEnabled(true);
+                        });
                     } else {
-                        Toast.makeText(requireContext(),
-                                "Error in check username: " + task.getException().getMessage(),
-                                Toast.LENGTH_SHORT).show();
+                        deleteAuthUserIfExists();
+                        isSigningUp = false;
+                        signUpButton.setEnabled(true);
                     }
                 });
+            });
     }
 
     /**
-     * Sign the user up, then create and save the user to firestore users collection
-     * @param details
-     *      The users information needed to sign them up
+     * Cleans up the auth user that may be left as a result of a sign up attempt
      * */
-    private void signUpUser(SignUpDetails details) {
-        auth.createUserWithEmailAndPassword(details.email, details.password)
-            .addOnCompleteListener(attempt -> {
-                if (attempt.isSuccessful()) {
-                    FirebaseUser user = auth.getCurrentUser();
-
-                    if (user == null) {
-                        Toast.makeText(requireContext(),
-                                "Error in signing up user: A user was not returned by the database.",
-                                Toast.LENGTH_SHORT).show();
-                        return;
-                    }
-
-                    UserProfileChangeRequest profileUpdates = new UserProfileChangeRequest.Builder()
-                            .setDisplayName(details.userName)
-                            .build();
-
-                    user.updateProfile(profileUpdates).addOnCompleteListener(profileTask -> {
-                        if (profileTask.isSuccessful()) {
-                            WriteBatch batch = db.batch();
-
-                            // Add user document
-                            batch.set(db.collection("users").document(user.getUid()),
-                                    new HashMap<String, Object>() {{
-                                        put("uid", user.getUid());
-                                        put("email", details.email);
-                                        put("username", details.userName);
-                                    }});
-
-                            // Add username document
-                            batch.set(db.collection("usernames").document(details.userName),
-                                    new HashMap<String, Object>() {{
-                                        put("uid", user.getUid());
-                                    }});
-
-                            // Commit Firestore changes
-                            batch.commit().addOnCompleteListener(task -> {
-                                if (task.isSuccessful()) {
-                                    Toast.makeText(getContext(), "Sign-up successful!", Toast.LENGTH_SHORT).show();
-                                    Navigation.findNavController(requireView()).navigate(R.id.action_authSignUp_to_authHome);
-                                }
-                            });
+    private void deleteAuthUserIfExists() {
+        FirebaseUser currentUser = auth.getCurrentUser();
+        if (currentUser != null) {
+            currentUser.delete()
+                    .addOnCompleteListener(deleteTask -> {
+                        if (deleteTask.isSuccessful()) {
+                            Log.d("SignUp", "Orphaned Auth user deleted.");
+                        } else {
+                            Log.e("SignUp", "Failed to delete orphaned user: " +
+                                    deleteTask.getException().getMessage());
                         }
                     });
-                } else {
-                    Toast.makeText(requireContext(),
-                            "Error in signing up user: A user was not returned by the database.",
-                            Toast.LENGTH_SHORT).show();
-                }
-            });
+        }
     }
 }
