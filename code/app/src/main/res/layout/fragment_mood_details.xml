@@ -1,5 +1,4 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- A Material-based, polished layout using CoordinatorLayout, MaterialToolbar, ScrollView, and MaterialCardView -->
 <androidx.coordinatorlayout.widget.CoordinatorLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
@@ -14,15 +13,15 @@
         android:id="@+id/moodDetailsToolbar"
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
-        app:navigationIcon="@drawable/ic_back"
         android:background="?attr/colorPrimary"
+        app:navigationIcon="@drawable/ic_back"
+        app:popupTheme="@style/ThemeOverlay.MaterialComponents.Light"
         app:title="Mood Details"
         app:titleCentered="true"
-        app:titleTextColor="@android:color/white"
-        app:popupTheme="@style/ThemeOverlay.MaterialComponents.Light" />
+        app:titleTextColor="@android:color/white" />
 
-    <!-- Scrollable content area -->
-    <ScrollView
+    <!-- Scrollable content area (Material-friendly) -->
+    <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_marginTop="?attr/actionBarSize"
@@ -57,123 +56,132 @@
                     android:textAppearance="?attr/textAppearanceHeadline6"
                     android:textColor="?attr/colorOnBackground" />
 
-                <!-- Edit Mood Button styled like the view details button -->
-                <Button
+                <!-- Edit Mood Button (MaterialButton) styled like a pill-shaped purple button -->
+                <com.google.android.material.button.MaterialButton
                     android:id="@+id/btnEditMood"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Edit Mood" />
+                    style="@style/Widget.MaterialComponents.Button"
+                    android:text="Edit Mood"
+                    android:textColor="@android:color/white"
+                    app:cornerRadius="999dp"
+                    android:backgroundTint="?attr/colorPrimary"
+                    android:layout_marginStart="16dp" />
             </LinearLayout>
 
             <!-- Divider -->
             <View
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
-                android:background="@android:color/darker_gray"
-                android:layout_marginVertical="8dp" />
+                android:layout_marginVertical="8dp"
+                android:background="@android:color/darker_gray" />
 
-            <!-- Details Card -->
+            <!-- Details Card (MaterialCardView) -->
             <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                app:cardCornerRadius="8dp"
-                app:cardElevation="4dp"
-                android:layout_marginBottom="16dp">
+                style="@style/Widget.MaterialComponents.CardView"  <!-- Ensures Material styling -->
+            android:layout_marginBottom="16dp"
+            app:cardCornerRadius="8dp"
+            app:cardElevation="4dp">
 
-                <LinearLayout
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="16dp">
+
+                <!-- Trigger -->
+                <TextView
+                    android:id="@+id/tvTriggerLabel"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    android:text="Trigger"
+                    android:textAppearance="?attr/textAppearanceSubtitle1"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/tvTriggerValue"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:padding="16dp">
+                    android:layout_marginTop="4dp"
+                    android:text="Some Trigger"
+                    android:textAppearance="?attr/textAppearanceBody1" />
 
+                <!-- Social Situation -->
+                <TextView
+                    android:id="@+id/tvSocialSituationLabel"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    android:text="Social Situation"
+                    android:textAppearance="?attr/textAppearanceSubtitle1"
+                    android:textStyle="bold" />
 
+                <TextView
+                    android:id="@+id/tvSocialSituationValue"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:text="With Friends"
+                    android:textAppearance="?attr/textAppearanceBody1" />
 
-                    <!-- Trigger -->
-                    <TextView
-                        android:id="@+id/tvTriggerLabel"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Trigger"
-                        android:textAppearance="?attr/textAppearanceSubtitle1"
-                        android:textStyle="bold"
-                        android:layout_marginTop="16dp" />
-                    <TextView
-                        android:id="@+id/tvTriggerValue"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:text="Some Trigger"
-                        android:textAppearance="?attr/textAppearanceBody1"
-                        android:layout_marginTop="4dp" />
+                <!-- Reason -->
+                <TextView
+                    android:id="@+id/tvReasonLabel"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    android:text="Reason"
+                    android:textAppearance="?attr/textAppearanceSubtitle1"
+                    android:textStyle="bold" />
 
-                    <!-- Social Situation -->
-                    <TextView
-                        android:id="@+id/tvSocialSituationLabel"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Social Situation"
-                        android:textAppearance="?attr/textAppearanceSubtitle1"
-                        android:textStyle="bold"
-                        android:layout_marginTop="16dp" />
-                    <TextView
-                        android:id="@+id/tvSocialSituationValue"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:text="With Friends"
-                        android:textAppearance="?attr/textAppearanceBody1"
-                        android:layout_marginTop="4dp" />
+                <TextView
+                    android:id="@+id/tvReasonValue"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:text="Some Reason"
+                    android:textAppearance="?attr/textAppearanceBody1" />
 
-                    <!-- Reason -->
-                    <TextView
-                        android:id="@+id/tvReasonLabel"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Reason"
-                        android:textAppearance="?attr/textAppearanceSubtitle1"
-                        android:textStyle="bold"
-                        android:layout_marginTop="16dp" />
-                    <TextView
-                        android:id="@+id/tvReasonValue"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:text="Some Reason"
-                        android:textAppearance="?attr/textAppearanceBody1"
-                        android:layout_marginTop="4dp" />
+                <!-- Photo -->
+                <TextView
+                    android:id="@+id/tvPhotoLabel"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    android:text="Photo"
+                    android:textAppearance="?attr/textAppearanceSubtitle1"
+                    android:textStyle="bold" />
 
-                    <!-- Photo -->
-                    <TextView
-                        android:id="@+id/tvPhotoLabel"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Photo"
-                        android:textAppearance="?attr/textAppearanceSubtitle1"
-                        android:textStyle="bold"
-                        android:layout_marginTop="16dp" />
-                    <ImageView
-                        android:id="@+id/ivMoodPhoto"
-                        android:layout_width="match_parent"
-                        android:layout_height="200dp"
-                        android:scaleType="centerCrop"
-                        android:layout_marginTop="4dp"
-                        tools:srcCompat="@drawable/ic_launcher_foreground" />
+                <ImageView
+                    android:id="@+id/ivMoodPhoto"
+                    android:layout_width="match_parent"
+                    android:layout_height="200dp"
+                    android:layout_marginTop="4dp"
+                    android:scaleType="centerCrop"
+                    tools:srcCompat="@drawable/ic_launcher_foreground" />
 
-                    <!-- Location -->
-                    <TextView
-                        android:id="@+id/tvLocationLabel"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Location"
-                        android:textAppearance="?attr/textAppearanceSubtitle1"
-                        android:textStyle="bold"
-                        android:layout_marginTop="16dp" />
-                    <FrameLayout
-                        android:id="@+id/mapContainer"
-                        android:layout_width="match_parent"
-                        android:layout_height="150dp"
-                        android:layout_marginTop="4dp"
-                        android:background="@android:color/darker_gray" />
+                <!-- Location -->
+                <TextView
+                    android:id="@+id/tvLocationLabel"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    android:text="Location"
+                    android:textAppearance="?attr/textAppearanceSubtitle1"
+                    android:textStyle="bold" />
 
-                </LinearLayout>
-            </com.google.android.material.card.MaterialCardView>
-        </LinearLayout>
-    </ScrollView>
-</androidx.coordinatorlayout.widget.CoordinatorLayout>
+                <FrameLayout
+                    android:id="@+id/mapContainer"
+                    android:layout_width="match_parent"
+                    android:layout_height="150dp"
+                    android:layout_marginTop="4dp"
+                    android:background="@android:color/darker_gray" />
+
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+    </LinearLayout>
+</androidx.core.widget.NestedScrollView>
+    </androidx.coordinatorlayout.widget.CoordinatorLayout>
