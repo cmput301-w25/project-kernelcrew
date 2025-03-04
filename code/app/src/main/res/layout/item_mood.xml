@@ -43,7 +43,6 @@
                 android:text="Thu 10am"
                 android:textSize="14sp" />
         </LinearLayout>
-
         <Button
             android:id="@+id/viewDetailsButton"
             android:layout_width="wrap_content"

@@ -33,7 +33,7 @@
             android:layout_height="wrap_content"
             android:orientation="vertical">
 
-            <!-- Header: Mood Icon and State -->
+            <!-- Header: Mood Icon, Mood State, and Edit Mood Button -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -50,11 +50,19 @@
 
                 <TextView
                     android:id="@+id/tvMoodState"
-                    android:layout_width="wrap_content"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
+                    android:layout_weight="1"
                     android:text="Happy"
                     android:textAppearance="?attr/textAppearanceHeadline6"
                     android:textColor="?attr/colorOnBackground" />
+
+                <!-- Edit Mood Button styled like the view details button -->
+                <Button
+                    android:id="@+id/btnEditMood"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Edit Mood" />
             </LinearLayout>
 
             <!-- Divider -->
@@ -78,13 +86,7 @@
                     android:orientation="vertical"
                     android:padding="16dp">
 
-                    <!-- Edit Mood Button -->
-                    <Button
-                        android:id="@+id/btnEditMood"
-                        style="@style/Widget.MaterialComponents.Button.OutlinedButton"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Edit Mood" />
+
 
                     <!-- Trigger -->
                     <TextView
