@@ -13,10 +13,15 @@ import androidx.navigation.Navigation;
 
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.FirebaseFirestore;
 import com.kernelcrew.moodapp.R;
 
 import org.jetbrains.annotations.Nullable;
 
+/**
+ * A Fragment representing the Sign-In screen.
+ * Allows users to log in using their email and password.
+ */
 public class AuthSignIn extends Fragment {
     FirebaseAuth auth;
 
@@ -26,18 +31,25 @@ public class AuthSignIn extends Fragment {
     EditText passwordEditText;
     Button signInButton;
 
+    /**
+     * Class containing the details entered by the user
+     * */
     private class SignInDetails {
         String email;
         String password;
 
         SignInDetails() {
-            // this.email = "test@test.com";
-            // this.password = "test123";
             this.email = emailEditText.getText().toString();
             this.password = passwordEditText.getText().toString();
         }
     }
 
+    /**
+     * A method of the SignUpDetails which does data validation of the details inputted and displays
+     *      corresponding error messages.
+     * @return
+     *      null if invalid data, otherwise SignUpDetails
+     * */
     private @Nullable SignInDetails validateFields() {
         emailEditText.setError(null);
         passwordEditText.setError(null);
@@ -57,6 +69,9 @@ public class AuthSignIn extends Fragment {
         return details;
     }
 
+    /**
+     * Inflates the fragment layout and initializes UI elements.
+     * */
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -67,26 +82,21 @@ public class AuthSignIn extends Fragment {
         topAppBar = view.findViewById(R.id.topAppBar);
         emailEditText = view.findViewById(R.id.email);
         passwordEditText = view.findViewById(R.id.password);
-        signInButton = view.findViewById(R.id.signInButton);
+        signInButton = view.findViewById(R.id.signInButtonAuth);
 
         topAppBar.setNavigationOnClickListener(
                 Navigation.createNavigateOnClickListener(R.id.action_authSignIn_to_authHome));
 
-//        TODO: these 3 lines are for testing unconditionally jumping to home_feed without any authentication
-        signInButton.setOnClickListener(btnView -> {
-            Navigation.findNavController(btnView).navigate(R.id.action_authSignIn_to_homeFeed);
+        signInButton.setOnClickListener((btnView) -> {
+            SignInDetails details = validateFields();
+            if (details != null) {
+                auth.signInWithEmailAndPassword(details.email, details.password)
+                        .addOnSuccessListener(result -> {
+                            Log.i("Login", "Logged in as user with id: " + result.getUser().getUid());
+                            Navigation.findNavController(btnView).navigate(R.id.action_authSignIn_to_homeFeed);
+                        });
+            }
         });
-
-//        signInButton.setOnClickListener((btnView) -> {
-//            SignInDetails details = validateFields();
-//            if (details != null) {
-//                auth.signInWithEmailAndPassword(details.email, details.password)
-//                        .addOnSuccessListener(result -> {
-//                            Log.i("Login", "Logged in as user with id: " + result.getUser().getUid());
-//                            Navigation.findNavController(btnView).navigate(R.id.action_authSignIn_to_homeFeed);
-//                        });
-//            }
-//        });
 
         return view;
     }

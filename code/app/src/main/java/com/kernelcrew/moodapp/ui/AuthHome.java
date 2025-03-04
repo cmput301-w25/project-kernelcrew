@@ -15,9 +15,17 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.kernelcrew.moodapp.R;
 
+/**
+ * A fragment representing the authentication home screen.
+ * Allows navigation to sign-in or sign-up authentication screens.
+ * If a user is already logged in, they are automatically redirected to the home feed.
+ */
 public class AuthHome extends Fragment {
     FirebaseAuth auth;
 
+/**
+ * Called to have the fragment instantiate its user interface view.
+ * */
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -25,12 +33,16 @@ public class AuthHome extends Fragment {
 
         View view = inflater.inflate(R.layout.fragment_auth_home, container, false);
 
-       view.findViewById(R.id.signInButton).setOnClickListener(Navigation.createNavigateOnClickListener(R.id.action_authHome_to_authSignIn));
-        view.findViewById(R.id.signUpButton).setOnClickListener(Navigation.createNavigateOnClickListener(R.id.action_authHome_to_authSignUp));
+        view.findViewById(R.id.signInButtonInitial).setOnClickListener(Navigation.createNavigateOnClickListener(R.id.action_authHome_to_authSignIn));
+        view.findViewById(R.id.signUpButtonInitial).setOnClickListener(Navigation.createNavigateOnClickListener(R.id.action_authHome_to_authSignUp));
 
         return view;
     }
 
+    /**
+     * Called immediately after {@link #onCreateView(LayoutInflater, ViewGroup, Bundle)} has returned.
+     * Checks if a user is already logged in and navigates to the home feed if they are.
+     * */
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);

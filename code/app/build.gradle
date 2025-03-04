@@ -41,7 +41,8 @@ dependencies {
     implementation libs.lifecycle.viewmodel.ktx
     implementation libs.firebase.auth
     implementation(platform(libs.firebase.bom))
-    implementation 'com.google.firebase:firebase-firestore'
+    implementation libs.firebase.firestore
+    implementation libs.play.services.auth
 
     testImplementation libs.junit
     androidTestImplementation libs.ext.junit

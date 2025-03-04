@@ -1,13 +1,8 @@
 package com.kernelcrew.moodapp;
 
-import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.action.ViewActions.click;
-import static androidx.test.espresso.action.ViewActions.replaceText;
-import static androidx.test.espresso.action.ViewActions.closeSoftKeyboard;
-import static androidx.test.espresso.assertion.ViewAssertions.matches;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
-import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
 
 import android.os.SystemClock;
 import android.util.Log;
@@ -19,6 +14,9 @@ import androidx.test.espresso.matcher.ViewMatchers;
 import androidx.test.ext.junit.rules.ActivityScenarioRule;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.AuthResult;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.kernelcrew.moodapp.ui.MainActivity;
@@ -39,6 +37,8 @@ import java.util.Objects;
 
 @RunWith(AndroidJUnit4.class)
 public class HomeFeedNavigationTest {
+    private static final String TEST_EMAIL = "test@kernelcrew.com";
+    private static final String TEST_PASSWORD = "Password@1234";
 
     @Rule
     public ActivityScenarioRule<MainActivity> activityScenarioRule =
@@ -48,31 +48,24 @@ public class HomeFeedNavigationTest {
     public static void setupClass() {
         // Setup Firestore emulator (if you are using the emulator for testing)
         String androidLocalhost = "10.0.2.2";
-        int portNumber = 8080;
-        FirebaseFirestore.getInstance().useEmulator(androidLocalhost, portNumber);
+        int fireStorePort = 8080;
+        int authPort = 9099;
+
+        FirebaseFirestore.getInstance().useEmulator(androidLocalhost, fireStorePort);
+        FirebaseAuth.getInstance().useEmulator(androidLocalhost, 9099);
     }
 
     @Before
-    public void seedDatabase() {
-        // Seed the Firestore "moods" collection with a sample document.
-        // This ensures that when HomeFeed loads, it has at least one mood document.
-        FirebaseFirestore db = FirebaseFirestore.getInstance();
-        CollectionReference moodsRef = db.collection("moods");
-
-        // Create a test mood using the correct constructor parameters:
-        // id, userName, moodText, timestamp.
-        Mood testMood = new Mood("testMoodId", "dummyUser", "Test mood", System.currentTimeMillis());
-        moodsRef.document("testMoodId").set(testMood);
-
-        // Wait for the data to be written
-        SystemClock.sleep(2000);
+    public void setUp() throws InterruptedException {
+        createUser(TEST_EMAIL, TEST_PASSWORD);
+        SystemClock.sleep(1000);
     }
 
     @Test
-    public void testNavigationToHomeFeed() {
+    public void testNavigationToHomeFeed() throws InterruptedException {
         // On AuthHome screen: Click the "Sign In" button.
         // Adjust the matcher below if your AuthHome layout uses a different text or id.
-        Espresso.onView(ViewMatchers.withText("Sign In"))
+        Espresso.onView(ViewMatchers.withId(R.id.signInButtonInitial))
                 .perform(ViewActions.click());
 
         // Now on AuthSignIn screen: Check that the email field is displayed.
@@ -86,7 +79,7 @@ public class HomeFeedNavigationTest {
                 .perform(ViewActions.replaceText("Password@1234"), ViewActions.closeSoftKeyboard());
 
         // Click the sign in button on AuthSignIn.
-        Espresso.onView(ViewMatchers.withId(R.id.signInButton))
+        Espresso.onView(ViewMatchers.withId(R.id.signInButtonAuth))
                 .perform(ViewActions.click());
 
         // On HomeFeed screen: Verify that the homeTextView is displayed.
@@ -121,6 +114,14 @@ public class HomeFeedNavigationTest {
             if (urlConnection != null) {
                 urlConnection.disconnect();
             }
+        }
+    }
+
+    private void createUser(String email, String password) throws InterruptedException {
+        FirebaseAuth auth = FirebaseAuth.getInstance();
+        Task<AuthResult> createUserTask = auth.createUserWithEmailAndPassword(email, password);
+        while (!createUserTask.isComplete()) {
+            Thread.sleep(200);
         }
     }
 }
