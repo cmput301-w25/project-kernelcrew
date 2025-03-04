@@ -37,6 +37,13 @@ import java.util.Objects;
 
 @RunWith(AndroidJUnit4.class)
 public class HomeFeedNavigationTest {
+    // Required for this test to work
+    private static final String projectId = "PROJECT_ID"; // replace with your project ID
+    private static final String androidLocalhost = "10.0.2.2"; // Ensure this is correct
+    private static final int fireStorePort = 8080; // Change to the correct port (if yours varies from default)
+    private static final int authPort = 9099; // Change to the correct port (if yours varies from default)
+
+    // Changeable strings
     private static final String TEST_EMAIL = "test@kernelcrew.com";
     private static final String TEST_PASSWORD = "Password@1234";
 
@@ -47,12 +54,8 @@ public class HomeFeedNavigationTest {
     @BeforeClass
     public static void setupClass() {
         // Setup Firestore emulator (if you are using the emulator for testing)
-        String androidLocalhost = "10.0.2.2";
-        int fireStorePort = 8080;
-        int authPort = 9099;
-
         FirebaseFirestore.getInstance().useEmulator(androidLocalhost, fireStorePort);
-        FirebaseAuth.getInstance().useEmulator(androidLocalhost, 9099);
+        FirebaseAuth.getInstance().useEmulator(androidLocalhost, authPort);
     }
 
     @Before
@@ -89,30 +92,38 @@ public class HomeFeedNavigationTest {
 
     @After
     public void tearDown() {
-        // Clean up the Firestore "moods" collection by sending an HTTP DELETE to the emulator.
-        // Note: Firestore doesn't provide a direct API to delete a collection,
-        // so this approach works with the emulator.
-        String projectId = "YOUR_PROJECT_ID";  // TODO: Replace with your actual Firebase project ID
-        URL url = null;
+        // 1. DELETE all Firestore documents
+        HttpURLConnection firestoreConnection = null;
         try {
-            url = new URL("http://10.0.2.2:8080/emulator/v1/projects/" + projectId +
-                    "/databases/(default)/documents/moods");
-        } catch (MalformedURLException exception) {
-            Log.e("URL Error", Objects.requireNonNull(exception.getMessage()));
-        }
-        HttpURLConnection urlConnection = null;
-        try {
-            if (url != null) {
-                urlConnection = (HttpURLConnection) url.openConnection();
-                urlConnection.setRequestMethod("DELETE");
-                int response = urlConnection.getResponseCode();
-                Log.i("Response Code", "Response Code: " + response);
-            }
-        } catch (IOException exception) {
-            Log.e("IO Error", Objects.requireNonNull(exception.getMessage()));
+            URL firestoreUrl = new URL("http://10.0.2.2:8080/emulator/v1/projects/"
+                    + projectId + "/databases/(default)/documents");
+            firestoreConnection = (HttpURLConnection) firestoreUrl.openConnection();
+            firestoreConnection.setRequestMethod("DELETE");
+            int firestoreResponse = firestoreConnection.getResponseCode();
+            Log.i("Firestore Wipe", "Deleted Firestore docs. Response code: " + firestoreResponse);
+        } catch (IOException e) {
+            Log.e("Firestore Wipe Error", e.getMessage());
         } finally {
-            if (urlConnection != null) {
-                urlConnection.disconnect();
+            if (firestoreConnection != null) {
+                firestoreConnection.disconnect();
+            }
+        }
+
+        // 2. DELETE all Auth emulator users
+        HttpURLConnection authConnection = null;
+        try {
+            // Use the Auth emulator port (9099 below, or whatever you set up)
+            URL authUrl = new URL("http://10.0.2.2:9099/emulator/v1/projects/"
+                    + projectId + "/accounts");
+            authConnection = (HttpURLConnection) authUrl.openConnection();
+            authConnection.setRequestMethod("DELETE");
+            int authResponse = authConnection.getResponseCode();
+            Log.i("Auth Wipe", "Deleted all Auth users. Response code: " + authResponse);
+        } catch (IOException e) {
+            Log.e("Auth Wipe Error", e.getMessage());
+        } finally {
+            if (authConnection != null) {
+                authConnection.disconnect();
             }
         }
     }
