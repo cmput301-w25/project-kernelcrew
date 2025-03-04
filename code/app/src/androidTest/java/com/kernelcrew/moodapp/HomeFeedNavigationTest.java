@@ -6,8 +6,11 @@ import static androidx.test.espresso.matcher.ViewMatchers.*;
 import static androidx.test.espresso.assertion.ViewAssertions.*;
 
 import android.os.SystemClock;
+import android.util.Log;
 
+import androidx.test.espresso.Espresso;
 import androidx.test.espresso.action.ViewActions;
+import androidx.test.espresso.matcher.ViewMatchers;
 import androidx.test.ext.junit.rules.ActivityScenarioRule;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
@@ -19,10 +22,18 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.kernelcrew.moodapp.ui.MainActivity;
 import com.kernelcrew.moodapp.ui.Mood;
 
+import org.junit.After;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
+import java.io.IOException;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.Objects;
 
 @RunWith(AndroidJUnit4.class)
 public class HomeFeedNavigationTest {
