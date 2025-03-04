@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="CustomToolbarTitleText" parent="TextAppearance.Material3.TitleLarge">
+        <item name="android:textColor">@color/dark_gray</item>
+    </style>
+
+    <style name="CustomHintText" parent="TextAppearance.MaterialComponents.Caption">
+        <item name="android:textColorHint">@color/dark_gray</item>
+    </style>
+</resources>
