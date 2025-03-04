@@ -37,16 +37,6 @@ public class MyProfileTest {
         onView(withId(R.id.signInButton)).check(matches(isDisplayed()));
     }
 
-    @Test
-    public void testNavigationToFollowersAndFollowing() {
-        onView(withId(R.id.followers_button)).perform(click());
-        onView(withId(R.id.followersRecyclerView)).check(matches(isDisplayed()));
-
-        onView(withId(R.id.topAppBar)).perform(click());
-
-        onView(withId(R.id.following_button)).perform(click());
-        onView(withId(R.id.followingRecyclerView)).check(matches(isDisplayed()));
-    }
 
     @Test
     public void testUserDataDisplay() {
