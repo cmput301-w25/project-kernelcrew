@@ -44,7 +44,7 @@ done
 
 log 'Updating .firebaserc'
 
-cat >"$PROJECT_ROOT/.firebaserc" <<EOF
+cat >"$REPO_ROOT/.firebaserc" <<EOF
 {
   "projects": {
     "default": "$PROJECT_ID"
