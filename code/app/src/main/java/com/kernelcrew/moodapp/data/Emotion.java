@@ -85,7 +85,7 @@ public enum Emotion {
         }
     },
 
-    HAPPINESS {
+    HAPPY {
         @NonNull
         @Override
         public int getIconRes() {
@@ -105,7 +105,7 @@ public enum Emotion {
         }
     },
 
-    SADNESS {
+    SAD {
         @NonNull
         @Override
         public int getIconRes() {

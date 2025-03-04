@@ -52,7 +52,7 @@ public class CreateMoodEventTest extends FirebaseEmulatorMixin {
         onView(withId(R.id.emotion_picker)).check((view, noViewFoundException) -> {
             FragmentContainerView fragmentContainerView = (FragmentContainerView) view;
             EmotionPickerFragment emotionPicker = fragmentContainerView.getFragment();
-            assertEquals(Emotion.HAPPINESS, emotionPicker.getSelected());
+            assertEquals(Emotion.HAPPY, emotionPicker.getSelected());
         });
 
         onView(withId(R.id.submit_button)).perform(click());
