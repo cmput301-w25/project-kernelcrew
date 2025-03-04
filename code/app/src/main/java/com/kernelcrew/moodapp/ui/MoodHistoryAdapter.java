@@ -13,6 +13,7 @@ import com.kernelcrew.moodapp.ui.Mood;
 import com.kernelcrew.moodapp.R;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
@@ -46,6 +47,10 @@ public class MoodHistoryAdapter extends RecyclerView.Adapter<MoodHistoryAdapter.
     @Override
     public int getItemCount() {
         return moods.size();
+    }
+
+    public List<Mood> getItems() {
+        return new ArrayList<>(moods);
     }
 
     static class MoodViewHolder extends RecyclerView.ViewHolder {

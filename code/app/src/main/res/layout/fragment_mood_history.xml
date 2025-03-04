@@ -12,7 +12,6 @@
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
         app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
         <!-- Top App Bar -->
@@ -20,7 +19,7 @@
             android:id="@+id/topAppBar"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:background="?attr/colorSurface"
+            android:background="@color/soft_pink"
             android:elevation="4dp"
             android:clickable="true"
             android:focusable="true"
