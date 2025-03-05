@@ -14,6 +14,8 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
 import com.kernelcrew.moodapp.R;
 import com.google.android.material.imageview.ShapeableImageView;
 import java.util.ArrayList;
@@ -23,7 +25,8 @@ public class FollowingFragment extends Fragment {
 
     private RecyclerView followingRecyclerView;
     private FollowingAdapter adapter;
-    private List<User> followingList;
+    private List<FollowingFragment.User> followingList = new ArrayList<>();
+    private FirebaseFirestore db;
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -32,16 +35,11 @@ public class FollowingFragment extends Fragment {
         followingRecyclerView = view.findViewById(R.id.followingRecyclerView);
         followingRecyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
 
-        // Sample data
-        followingList = new ArrayList<>();
-        followingList.add(new User("Alice", true));
-        followingList.add(new User("Bob", false));
-        followingList.add(new User("Charlie", true));
-        followingList.add(new User("Diana", true));
-        followingList.add(new User("Evan", false));
-
         adapter = new FollowingAdapter(followingList);
         followingRecyclerView.setAdapter(adapter);
+
+        db = FirebaseFirestore.getInstance();
+        fetchFollowing();
 
         BottomNavigationView bottomNavigationView = view.findViewById(R.id.bottom_navigation);
         bottomNavigationView.setSelectedItemId(R.id.page_myProfile);
@@ -58,6 +56,21 @@ public class FollowingFragment extends Fragment {
 
 
         return view;
+    }
+
+    private void fetchFollowing() {
+        db.collection("users").document("testUser").collection("following")
+                .get()
+                .addOnSuccessListener(queryDocumentSnapshots -> {
+                    followingList.clear();
+                    for (DocumentSnapshot doc : queryDocumentSnapshots) {
+                        String name = doc.getId();
+                        boolean isFollowed = doc.getBoolean("isFollowed") != null && doc.getBoolean("isFollowed");
+                        followingList.add(new User(name, isFollowed));
+                    }
+                    adapter.notifyDataSetChanged();
+                })
+                .addOnFailureListener(e -> System.out.println("TEST_FIRESTORE: Failed to load following."));
     }
 
     private static class FollowingAdapter extends RecyclerView.Adapter<FollowingAdapter.ViewHolder> {

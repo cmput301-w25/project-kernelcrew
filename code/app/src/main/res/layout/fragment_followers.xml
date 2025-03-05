@@ -16,7 +16,6 @@
         android:layout_gravity="bottom"
         app:menu="@menu/bottom_navigation_menu"/>
 
-    <!-- Top App Bar -->
     <com.google.android.material.appbar.AppBarLayout
         android:id="@+id/appBarLayout"
         android:layout_width="match_parent"
@@ -27,13 +26,12 @@
             android:id="@+id/topAppBar"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
+            app:menu="@menu/bottom_navigation_menu"
+            app:navigationIcon="@drawable/ic_back"
             app:title="Followers"
-            app:titleCentered="false"
-            app:navigationIcon="@drawable/ic_notifications"
-            app:menu="@menu/bottom_navigation_menu"/>
+            app:titleCentered="false" />
     </com.google.android.material.appbar.AppBarLayout>
 
-    <!-- RecyclerView for the list of Followers -->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/followersRecyclerView"
         android:layout_width="match_parent"

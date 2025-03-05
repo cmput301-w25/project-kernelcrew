@@ -15,6 +15,8 @@ import android.widget.TextView;
 
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
 import com.kernelcrew.moodapp.R;
 import com.google.android.material.imageview.ShapeableImageView;
 import java.util.ArrayList;
@@ -24,7 +26,8 @@ public class FollowersFragment extends Fragment {
 
     private RecyclerView followersRecyclerView;
     private FollowersAdapter adapter;
-    private List<User> followersList;
+    private List<User> followersList = new ArrayList<>();
+    private FirebaseFirestore db;
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -33,17 +36,11 @@ public class FollowersFragment extends Fragment {
         followersRecyclerView = view.findViewById(R.id.followersRecyclerView);
         followersRecyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
 
-        // Sample data
-        followersList = new ArrayList<>();
-        followersList.add(new User("Fiona", false));
-        followersList.add(new User("George", false));
-        followersList.add(new User("Helen", true));
-        followersList.add(new User("Ian", true));
-        followersList.add(new User("Jane", false));
-
         adapter = new FollowersAdapter(followersList);
         followersRecyclerView.setAdapter(adapter);
 
+        db = FirebaseFirestore.getInstance();
+        fetchFollowers();
 
         BottomNavigationView bottomNavigationView = view.findViewById(R.id.bottom_navigation);
         bottomNavigationView.setSelectedItemId(R.id.page_myProfile);
@@ -59,6 +56,21 @@ public class FollowersFragment extends Fragment {
         topAppBar.setNavigationOnClickListener(v -> Navigation.findNavController(v).navigateUp());
 
         return view;
+    }
+
+    private void fetchFollowers() {
+        db.collection("users").document("testUser").collection("followers")
+                .get()
+                .addOnSuccessListener(queryDocumentSnapshots -> {
+                    followersList.clear();
+                    for (DocumentSnapshot doc : queryDocumentSnapshots) {
+                        String name = doc.getId();
+                        boolean isFollowed = doc.getBoolean("isFollowed") != null && doc.getBoolean("isFollowed");
+                        followersList.add(new User(name, isFollowed));
+                    }
+                    adapter.notifyDataSetChanged();
+                })
+                .addOnFailureListener(e -> System.out.println("TEST_FIRESTORE: Failed to load followers."));
     }
 
     private static class FollowersAdapter extends RecyclerView.Adapter<FollowersAdapter.ViewHolder> {

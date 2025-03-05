@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/nav_graph.xml"
-    app:startDestination="@id/myProfile">
+    app:startDestination="@id/authHome">
 
     <fragment
         android:id="@+id/authHome"
@@ -48,7 +48,11 @@
         android:id="@+id/homeFeed"
         android:name="com.kernelcrew.moodapp.ui.HomeFeed"
         android:label="fragment_home_feed"
-        tools:layout="@layout/fragment_home_feed" />
+        tools:layout="@layout/fragment_home_feed" >
+        <action
+            android:id="@+id/action_homeFeed_to_myProfile"
+            app:destination="@id/myProfile" />
+    </fragment>
 
     <fragment
         android:id="@+id/myProfile"
