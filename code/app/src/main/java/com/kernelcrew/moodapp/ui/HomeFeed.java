@@ -9,6 +9,8 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.navigation.NavController;
+import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import com.google.android.material.navigation.NavigationBarView;
@@ -91,7 +93,8 @@ public class HomeFeed extends Fragment {
                 Bundle args = new Bundle();
                 args.putString("moodEventId", mood.getId());
                 args.putString("sourceScreen", "home"); // or "filtered"
-                // TODO: Navigate to MoodDetails using your NavController
+                NavController navController = Navigation.findNavController(getActivity(), R.id.nav_host_fragment);
+                navController.navigate(R.id.action_homeFeed_to_moodDetails, args);
             }
         });
 
