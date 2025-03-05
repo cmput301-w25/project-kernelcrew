@@ -8,8 +8,10 @@ espressoContrib = "3.6.1"
 espressoCoreVersion = "3.5.1"
 firebaseAuth = "23.2.0"
 firebaseBom = "33.9.0"
+firebaseBomVersion = "29.3.1"
 firebaseFirestore = "25.1.2"
 glideVersion = "4.12.0"
+googleProtobufJavalite = "3.18.0"
 junit = "4.13.2"
 junitVersion = "1.2.1"
 espressoCore = "3.6.1"
@@ -34,10 +36,12 @@ espresso-contrib = { module = "androidx.test.espresso:espresso-contrib", version
 espresso-core-v351 = { module = "androidx.test.espresso:espresso-core", version.ref = "espressoCoreVersion" }
 firebase-auth = { module = "com.google.firebase:firebase-auth" }
 firebase-bom = { module = "com.google.firebase:firebase-bom", version.ref = "firebaseBom" }
+firebase-bom-v2931 = { module = "com.google.firebase:firebase-bom", version.ref = "firebaseBomVersion" }
 firebase-firestore = { module = "com.google.firebase:firebase-firestore", version.ref = "firebaseFirestore" }
 github-glide = { module = "com.github.bumptech.glide:glide", version.ref = "glideVersion" }
 glide-compiler = { module = "com.github.bumptech.glide:compiler", version.ref = "compilerVersion" }
 google-firebase-auth = { module = "com.google.firebase:firebase-auth", version.ref = "firebaseAuth" }
+google-firebase-firestore = { module = "com.google.firebase:firebase-firestore" }
 google-protobuf-javalite = { module = "com.google.protobuf:protobuf-javalite", version.ref = "protobufJavaliteVersion" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 ext-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }
@@ -54,6 +58,7 @@ annotation = { group = "androidx.annotation", name = "annotation", version.ref =
 lifecycle-livedata-ktx = { group = "androidx.lifecycle", name = "lifecycle-livedata-ktx", version.ref = "lifecycleLivedataKtx" }
 lifecycle-viewmodel-ktx = { group = "androidx.lifecycle", name = "lifecycle-viewmodel-ktx", version.ref = "lifecycleViewmodelKtx" }
 coordinatorlayout = { group = "androidx.coordinatorlayout", name = "coordinatorlayout", version.ref = "coordinatorlayout" }
+protobuf-javalite-v3180 = { module = "com.google.protobuf:protobuf-javalite", version.ref = "googleProtobufJavalite" }
 protobuf-javalite-v32112 = { module = "com.google.protobuf:protobuf-javalite", version.ref = "protobufJavalite" }
 rules = { module = "androidx.test:rules", version.ref = "rules" }
 

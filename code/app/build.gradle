@@ -40,8 +40,9 @@ dependencies {
     implementation libs.lifecycle.livedata.ktx
     implementation libs.lifecycle.viewmodel.ktx
     implementation libs.firebase.auth
-    implementation(platform(libs.firebase.bom))
+    implementation platform(libs.firebase.bom.v2931)
     implementation libs.firebase.firestore
+    implementation libs.google.firebase.firestore
     implementation libs.google.firebase.auth
     implementation libs.github.glide
     implementation libs.github.glide
@@ -51,6 +52,7 @@ dependencies {
     implementation libs.appcompat
     implementation libs.material.v180
     implementation libs.coordinatorlayout
+    implementation libs.protobuf.javalite.v3180
 
     annotationProcessor libs.glide.compiler
     annotationProcessor libs.glide.compiler
