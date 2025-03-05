@@ -41,30 +41,31 @@ dependencies {
     implementation libs.lifecycle.viewmodel.ktx
     implementation libs.firebase.auth
     implementation(platform(libs.firebase.bom))
-    implementation 'com.google.firebase:firebase-firestore:25.1.2'
-    implementation 'com.google.firebase:firebase-auth:22.1.1'
-    implementation 'com.github.bumptech.glide:glide:4.12.0'
-    implementation 'com.github.bumptech.glide:glide:4.12.0'
-    implementation 'com.google.protobuf:protobuf-javalite:3.21.12'
-    implementation 'androidx.coordinatorlayout:coordinatorlayout:1.2.0'
-    implementation 'androidx.core:core-ktx:1.9.0'
-    implementation 'androidx.appcompat:appcompat:1.6.1'
-    implementation 'com.google.android.material:material:1.8.0'
+    implementation libs.firebase.firestore
+    implementation libs.google.firebase.auth
+    implementation libs.github.glide
+    implementation libs.github.glide
+    implementation libs.protobuf.javalite.v32112
+    implementation libs.coordinatorlayout.v120
+    implementation libs.core.ktx
+    implementation libs.appcompat
+    implementation libs.material.v180
     implementation libs.coordinatorlayout
 
-    annotationProcessor 'com.github.bumptech.glide:compiler:4.12.0'
-    annotationProcessor 'com.github.bumptech.glide:compiler:4.12.0'
+    annotationProcessor libs.glide.compiler
+    annotationProcessor libs.glide.compiler
 
     testImplementation libs.junit
     androidTestImplementation libs.ext.junit
     androidTestImplementation libs.espresso.core
-    androidTestImplementation 'androidx.test.ext:junit:1.1.5'
-    androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.1'
-    androidTestImplementation 'androidx.test.espresso:espresso-contrib:3.5.1'
-    androidTestImplementation 'androidx.test:rules:1.5.0'
+    androidTestImplementation libs.junit.v115
+    androidTestImplementation libs.espresso.core.v351
+    androidTestImplementation libs.espresso.contrib
+    androidTestImplementation libs.rules
+    androidTestImplementation libs.google.protobuf.javalite
 }
 
-configurations.all {
+configurations.configureEach {
     resolutionStrategy {
         force 'com.google.protobuf:protobuf-javalite:3.21.12'
     }
