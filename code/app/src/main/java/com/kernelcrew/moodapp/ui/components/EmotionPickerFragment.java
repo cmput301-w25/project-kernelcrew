@@ -58,8 +58,8 @@ public class EmotionPickerFragment extends Fragment {
                 new EmotionToggleConfig(R.id.toggle_confusion, Emotion.CONFUSION),
                 new EmotionToggleConfig(R.id.toggle_disgust, Emotion.DISGUST),
                 new EmotionToggleConfig(R.id.toggle_fear, Emotion.FEAR),
-                new EmotionToggleConfig(R.id.toggle_happy, Emotion.HAPPY),
-                new EmotionToggleConfig(R.id.toggle_sad, Emotion.SAD),
+                new EmotionToggleConfig(R.id.toggle_happy, Emotion.HAPPINESS),
+                new EmotionToggleConfig(R.id.toggle_sadness, Emotion.SADNESS),
                 new EmotionToggleConfig(R.id.toggle_shame, Emotion.SHAME),
                 new EmotionToggleConfig(R.id.toggle_surprise, Emotion.SURPRISE),
         };

@@ -10,15 +10,16 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.kernelcrew.moodapp.R;
 
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.Locale;
 
 public class MoodAdapter extends RecyclerView.Adapter<MoodAdapter.MoodViewHolder> {
 
     private List<Mood> moods = new ArrayList<>();
+
     private OnMoodClickListener onMoodClickListener;
 
     // Callback interface to handle clicks on the "View Details" button
@@ -47,14 +48,15 @@ public class MoodAdapter extends RecyclerView.Adapter<MoodAdapter.MoodViewHolder
     public void onBindViewHolder(@NonNull MoodViewHolder holder, int position) {
         Mood mood = moods.get(position);
 
-        // Display the mood text in the top TextView
+        // 1. Display the mood text in the top TextView
         holder.moodTypeTextView.setText(mood.getMoodText());
 
-        // Format the timestamp for the second TextView (e.g., "Thu 10am")
+        // 2. Format the timestamp for the second TextView(Ex: "Thu 10am")
         SimpleDateFormat dateFormat = new SimpleDateFormat("EEE ha", Locale.getDefault());
         String formattedTime = dateFormat.format(new Date(mood.getTimestamp()));
-        // Convert AM/PM to lowercase to match your Figma design
+
         formattedTime = formattedTime.replace("AM", "am").replace("PM", "pm");
+
         holder.dayTimeTextView.setText(formattedTime);
 
         // Set click listener for the "View Details" button

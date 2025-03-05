@@ -49,7 +49,7 @@ public class MoodDetailsNavigationTest extends FirebaseEmulatorMixin {
         CollectionReference moodEventsRef = db.collection("moodEvent");
         MoodEvent testEvent = new MoodEvent(
                 "dummyUser",
-                Emotion.HAPPY,
+                Emotion.HAPPINESS,
                 "Morning Coffee",       // trigger
                 "With Friends",         // socialSituation
                 "Celebration",          // reason
