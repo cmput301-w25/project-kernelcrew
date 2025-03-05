@@ -1,6 +1,7 @@
 package com.kernelcrew.moodapp.ui;
 
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -91,7 +92,8 @@ public class MoodDetails extends Fragment {
      */
     private void fetchMoodDetails(String moodEventId) {
         if (moodEventId == null) return;
-
+        // TODO: remove this log line once issue is fixed
+        // Log.i("", "TESTING TESTING TESTING" + moodEventId + "TESTING TESTING TESTING");
         db.collection("moodEvent")
                 .document(moodEventId)
                 .get()
