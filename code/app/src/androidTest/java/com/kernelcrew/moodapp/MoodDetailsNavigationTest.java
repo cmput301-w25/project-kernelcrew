@@ -15,8 +15,13 @@ import androidx.test.espresso.contrib.RecyclerViewActions;
 import androidx.test.ext.junit.rules.ActivityScenarioRule;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
+import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.kernelcrew.moodapp.data.Emotion;
+import com.kernelcrew.moodapp.data.MoodEvent;
 import com.kernelcrew.moodapp.ui.MainActivity;
 import com.kernelcrew.moodapp.R;
+import com.kernelcrew.moodapp.ui.Mood;
 
 import org.junit.Before;
 import org.junit.Rule;
