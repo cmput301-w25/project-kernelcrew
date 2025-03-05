@@ -1,5 +1,4 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Purple background for MoodDetails screen -->
 <androidx.coordinatorlayout.widget.CoordinatorLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
@@ -7,9 +6,9 @@
     android:id="@+id/moodDetailsCoordinator"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@android:color/white"
     tools:context=".ui.MoodDetails">
 
-    <!-- Top App Bar with centered title and back navigation -->
     <com.google.android.material.appbar.MaterialToolbar
         android:id="@+id/moodDetailsToolbar"
         android:layout_width="match_parent"
@@ -21,7 +20,6 @@
         app:titleCentered="true"
         app:titleTextColor="@android:color/white" />
 
-    <!-- Use NestedScrollView for Material scrolling behavior -->
     <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -33,7 +31,7 @@
             android:layout_height="wrap_content"
             android:orientation="vertical">
 
-            <!-- Header: Mood Icon, Mood State, and Edit Mood Button -->
+            <!-- Mood Header: Icon, State, Edit Button -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -55,19 +53,18 @@
                     android:layout_weight="1"
                     android:text="Happy"
                     android:textAppearance="?attr/textAppearanceHeadline6"
-                    android:textColor="?attr/colorOnBackground" />
+                    android:textColor="@android:color/black" />
 
-                <!-- Rounded Material Button for "Edit Mood" -->
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/btnEditMood"
                     style="@style/Widget.MaterialComponents.Button"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_marginStart="16dp"
                     android:text="Edit Mood"
                     android:textColor="@android:color/white"
-                    android:layout_marginStart="16dp"
-                    app:cornerRadius="999dp"
-                    android:backgroundTint="@color/purple_color"/>
+                    android:backgroundTint="@color/button_purple"
+                    app:cornerRadius="999dp" />
             </LinearLayout>
 
             <!-- Divider -->
@@ -77,13 +74,14 @@
                 android:layout_marginVertical="8dp"
                 android:background="@android:color/darker_gray" />
 
-            <!-- Details Card -->
+            <!-- Main Pinkish Card -->
             <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
                 app:cardCornerRadius="8dp"
                 app:cardElevation="4dp"
-                android:layout_marginBottom="16dp">
+                android:backgroundTint="@color/light_purple">
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -103,7 +101,7 @@
                         app:boxCornerRadiusTopEnd="12dp"
                         app:boxCornerRadiusBottomStart="12dp"
                         app:boxCornerRadiusBottomEnd="12dp"
-                        app:boxBackgroundColor="@android:color/white"
+                        app:boxBackgroundColor="@color/light_gray"
                         app:boxStrokeWidth="0dp"
                         app:boxStrokeWidthFocused="2dp">
 
@@ -127,7 +125,7 @@
                         app:boxCornerRadiusTopEnd="12dp"
                         app:boxCornerRadiusBottomStart="12dp"
                         app:boxCornerRadiusBottomEnd="12dp"
-                        app:boxBackgroundColor="@android:color/white"
+                        app:boxBackgroundColor="@color/light_gray"
                         app:boxStrokeWidth="0dp"
                         app:boxStrokeWidthFocused="2dp">
 
@@ -151,7 +149,7 @@
                         app:boxCornerRadiusTopEnd="12dp"
                         app:boxCornerRadiusBottomStart="12dp"
                         app:boxCornerRadiusBottomEnd="12dp"
-                        app:boxBackgroundColor="@android:color/white"
+                        app:boxBackgroundColor="@color/light_gray"
                         app:boxStrokeWidth="0dp"
                         app:boxStrokeWidthFocused="2dp">
 
@@ -163,7 +161,7 @@
                             android:enabled="false" />
                     </com.google.android.material.textfield.TextInputLayout>
 
-                    <!-- Photo Section -->
+                    <!-- Photo Label -->
                     <com.google.android.material.textview.MaterialTextView
                         android:id="@+id/tvPhotoLabel"
                         android:layout_width="wrap_content"
@@ -173,7 +171,7 @@
                         android:textAppearance="?attr/textAppearanceSubtitle1"
                         android:textStyle="bold" />
 
-                    <!-- Card for the Photo placeholder -->
+                    <!-- Photo Card (white inside pinkish) -->
                     <com.google.android.material.card.MaterialCardView
                         android:layout_width="match_parent"
                         android:layout_height="200dp"
@@ -190,7 +188,7 @@
                             tools:srcCompat="@drawable/ic_launcher_foreground" />
                     </com.google.android.material.card.MaterialCardView>
 
-                    <!-- Location Section -->
+                    <!-- Location Label -->
                     <com.google.android.material.textview.MaterialTextView
                         android:id="@+id/tvLocationLabel"
                         android:layout_width="wrap_content"
@@ -200,7 +198,7 @@
                         android:textAppearance="?attr/textAppearanceSubtitle1"
                         android:textStyle="bold" />
 
-                    <!-- Card for the map container -->
+                    <!-- Location Card (white inside pinkish) -->
                     <com.google.android.material.card.MaterialCardView
                         android:layout_width="match_parent"
                         android:layout_height="200dp"
@@ -209,7 +207,6 @@
                         app:cardElevation="2dp"
                         android:backgroundTint="@android:color/white">
 
-                        <!-- FrameLayout for your map or placeholder -->
                         <FrameLayout
                             android:id="@+id/mapContainer"
                             android:layout_width="match_parent"
