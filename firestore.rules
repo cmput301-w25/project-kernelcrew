@@ -13,6 +13,12 @@ service cloud.firestore {
       allow read;
     }
 
+    match /moodEvents/{eventId} {
+      allow create: if request.auth != null && request.auth.uid == request.resource.data.uid;
+      allow read;
+      allow update, delete: if request.auth != null && request.auth.uid == resource.data.uid;
+    }
+
     // Function to ensure a user can create an account with a unique username
     function isUniqueUsernameAndOwner(username) {
       let isOwner = request.auth.uid == request.resource.data.uid;

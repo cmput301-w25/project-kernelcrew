@@ -6,7 +6,10 @@ import static androidx.test.espresso.matcher.ViewMatchers.*;
 
 import static org.junit.Assert.*;
 
+import android.content.Intent;
+
 import androidx.fragment.app.FragmentContainerView;
+import androidx.test.core.app.ActivityScenario;
 import androidx.test.ext.junit.rules.ActivityScenarioRule;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
@@ -17,9 +20,11 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.kernelcrew.moodapp.data.Emotion;
+import com.kernelcrew.moodapp.ui.HomeFeed;
 import com.kernelcrew.moodapp.ui.MainActivity;
 import com.kernelcrew.moodapp.ui.components.EmotionPickerFragment;
 
+import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
@@ -31,16 +36,16 @@ import java.util.concurrent.ExecutionException;
 @RunWith(AndroidJUnit4.class)
 @LargeTest
 public class CreateMoodEventTest extends FirebaseEmulatorMixin {
-    @Rule
-    public ActivityScenarioRule<MainActivity> activityScenarioRule =
-            new ActivityScenarioRule<>(MainActivity.class);
+    public ActivityScenario<MainActivity> scenario;
 
-    @BeforeClass
-    public static void login() throws ExecutionException, InterruptedException {
+    @Before
+    public void login() throws ExecutionException, InterruptedException {
         FirebaseAuth auth = FirebaseAuth.getInstance();
-
-        Tasks.await(
-                auth.createUserWithEmailAndPassword("test@example.com", "password"));
+        // Optionally, check if the user is already logged in
+        if (auth.getCurrentUser() == null) {
+            Tasks.await(auth.createUserWithEmailAndPassword("test@toasted.com", "password"));
+        }
+        scenario = ActivityScenario.launch(MainActivity.class);
     }
 
     @Test
@@ -56,9 +61,9 @@ public class CreateMoodEventTest extends FirebaseEmulatorMixin {
         });
 
         onView(withId(R.id.submit_button)).perform(click());
-        Thread.sleep(100);
+        Thread.sleep(3000);
 
-        QuerySnapshot results = Tasks.await(db.collection("moodEvent").get());
+        QuerySnapshot results = Tasks.await(db.collection("moodEvents").get());
         List<DocumentSnapshot> moodEvents = results.getDocuments();
         assertEquals(1, moodEvents.size());
         assertEquals("HAPPINESS", moodEvents.get(0).get("emotion"));
