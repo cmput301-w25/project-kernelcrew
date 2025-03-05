@@ -1,23 +1,26 @@
 package com.kernelcrew.moodapp.ui;
 
 import android.os.Bundle;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CheckBox;
 import android.widget.TextView;
-import androidx.annotation.NonNull;
-import androidx.fragment.app.Fragment;
-import androidx.navigation.Navigation;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.appbar.MaterialToolbar;
-import com.google.android.material.bottomnavigation.BottomNavigationView;
-import com.google.firebase.firestore.DocumentSnapshot;
-import com.google.firebase.firestore.FirebaseFirestore;
-import com.kernelcrew.moodapp.R;
+import com.google.android.material.navigation.NavigationBarView;
 import com.google.android.material.imageview.ShapeableImageView;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.kernelcrew.moodapp.R;
+import com.kernelcrew.moodapp.data.User;
+import com.kernelcrew.moodapp.data.UserController;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -25,8 +28,9 @@ public class FollowingFragment extends Fragment {
 
     private RecyclerView followingRecyclerView;
     private FollowingAdapter adapter;
-    private List<FollowingFragment.User> followingList = new ArrayList<>();
-    private FirebaseFirestore db;
+    private List<User> followingList = new ArrayList<>();
+    private BottomNavBarController navBarController;
+    private UserController userController;
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -38,39 +42,31 @@ public class FollowingFragment extends Fragment {
         adapter = new FollowingAdapter(followingList);
         followingRecyclerView.setAdapter(adapter);
 
-        db = FirebaseFirestore.getInstance();
+        userController = new UserController();
         fetchFollowing();
 
-        BottomNavigationView bottomNavigationView = view.findViewById(R.id.bottom_navigation);
-        bottomNavigationView.setSelectedItemId(R.id.page_myProfile);
-        bottomNavigationView.setOnItemSelectedListener(item -> {
-            if (item.getItemId() == R.id.page_myProfile) {
-                Navigation.findNavController(view).navigate(R.id.myProfile);
-                return true;
-            }
-            return false;
-        });
+        NavigationBarView navigationBarView = view.findViewById(R.id.bottom_navigation);
+        navBarController = new BottomNavBarController(navigationBarView);
 
         MaterialToolbar topAppBar = view.findViewById(R.id.topAppBar);
-        topAppBar.setNavigationOnClickListener(v -> Navigation.findNavController(v).navigateUp());
-
+        topAppBar.setNavigationOnClickListener(v -> requireActivity().onBackPressed());
 
         return view;
     }
 
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        navBarController.bind(view);
+    }
+
     private void fetchFollowing() {
-        db.collection("users").document("testUser").collection("following")
-                .get()
-                .addOnSuccessListener(queryDocumentSnapshots -> {
-                    followingList.clear();
-                    for (DocumentSnapshot doc : queryDocumentSnapshots) {
-                        String name = doc.getId();
-                        boolean isFollowed = doc.getBoolean("isFollowed") != null && doc.getBoolean("isFollowed");
-                        followingList.add(new User(name, isFollowed));
-                    }
-                    adapter.notifyDataSetChanged();
-                })
-                .addOnFailureListener(e -> System.out.println("TEST_FIRESTORE: Failed to load following."));
+        FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
+        if (currentUser == null) {
+            System.out.println("ERROR: No user logged in.");
+            return;
+        }
+        userController.fetchFollowing(currentUser.getUid(), followingList, adapter);
     }
 
     private static class FollowingAdapter extends RecyclerView.Adapter<FollowingAdapter.ViewHolder> {
@@ -91,7 +87,6 @@ public class FollowingFragment extends Fragment {
         public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
             User user = users.get(position);
             holder.usernameTextView.setText(user.getName());
-
             holder.avatarImageView.setImageResource(R.drawable.ic_person);
             holder.followCheckBox.setChecked(user.isFollowed());
         }
@@ -112,24 +107,6 @@ public class FollowingFragment extends Fragment {
                 usernameTextView = itemView.findViewById(R.id.usernameTextView);
                 followCheckBox = itemView.findViewById(R.id.followCheckBox);
             }
-        }
-    }
-
-    private static class User {
-        private final String name;
-        private final boolean followed;
-
-        User(String name, boolean followed) {
-            this.name = name;
-            this.followed = followed;
-        }
-
-        public String getName() {
-            return name;
-        }
-
-        public boolean isFollowed() {
-            return followed;
         }
     }
 }

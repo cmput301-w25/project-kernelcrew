@@ -16,6 +16,7 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.kernelcrew.moodapp.R;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.kernelcrew.moodapp.data.UserController;
 
 
 public class MyProfile extends Fragment {
@@ -70,25 +71,11 @@ public class MyProfile extends Fragment {
             }
         }
 
-        //dynamic follower/following update
-        FirebaseFirestore db = FirebaseFirestore.getInstance();
         if (user != null) {
-            db.collection("users").document(user.getUid())
-                    .addSnapshotListener((documentSnapshot, error) -> {
-                        if (error != null) {
-                            followersButton.setText("Followers: 0");
-                            followingButton.setText("Following: 0");
-                            return;
-                        }
-                        if (documentSnapshot != null && documentSnapshot.exists()) {
-                            Long followersCount = documentSnapshot.getLong("followersCount");
-                            Long followingCount = documentSnapshot.getLong("followingCount");
-
-                            followersButton.setText("Followers: " + (followersCount != null ? followersCount : 0));
-                            followingButton.setText("Following: " + (followingCount != null ? followingCount : 0));
-                        }
-                    });
+            UserController userController = new UserController();
+            userController.listenForUserUpdates(user.getUid(), followersButton, followingButton);
         }
+
 
         return view;
     }
