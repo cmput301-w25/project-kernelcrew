@@ -1,7 +1,7 @@
 package com.kernelcrew.moodapp;
 
 import static androidx.test.espresso.Espresso.onView;
-import static androidx.test.espresso.Espresso.closeSoftKeyboard;
+import static androidx.test.espresso.action.ViewActions.closeSoftKeyboard;
 import static androidx.test.espresso.action.ViewActions.replaceText;
 import static androidx.test.espresso.action.ViewActions.click;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
@@ -11,18 +11,11 @@ import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
 
 import android.os.SystemClock;
 
-import androidx.test.espresso.ViewAction;
-import androidx.test.espresso.action.ViewActions;
 import androidx.test.espresso.contrib.RecyclerViewActions;
 import androidx.test.ext.junit.rules.ActivityScenarioRule;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
-import com.google.firebase.firestore.CollectionReference;
-import com.google.firebase.firestore.FirebaseFirestore;
-import com.kernelcrew.moodapp.data.MoodEvent;
-import com.kernelcrew.moodapp.data.Emotion;
 import com.kernelcrew.moodapp.ui.MainActivity;
-import com.kernelcrew.moodapp.ui.Mood;
 import com.kernelcrew.moodapp.R;
 
 import org.junit.Before;
@@ -68,42 +61,38 @@ public class MoodDetailsNavigationTest extends FirebaseEmulatorMixin {
     }
 
     @Test
-    public void testViewDetailsNavigationAndData() throws InterruptedException {
-        // On the AuthHome screen: click the "Sign In" button.
-        onView(withText("Sign In"))
-                .perform(click());
+    public void testNavigationToMoodDetails() throws InterruptedException {
+        // On AuthHome screen: Click the "Sign In" button.
+        onView(withText("Sign In")).perform(click());
 
-        // On the AuthSignIn screen: verify that the email field is displayed.
+        // On AuthSignIn screen: Fill in email and password.
         onView(withId(R.id.email))
                 .check(matches(isDisplayed()));
-
-        // Fill in the email and password fields.
         onView(withId(R.id.email))
-                .perform(replaceText("test@kernelcrew.com"), ViewActions.closeSoftKeyboard());
+                .perform(replaceText("test@kernelcrew.com"), closeSoftKeyboard());
         onView(withId(R.id.password))
-                .perform(replaceText("Password@1234"), ViewActions.closeSoftKeyboard());
+                .perform(replaceText("Password@1234"), closeSoftKeyboard());
+        onView(withId(R.id.signInButton)).perform(click());
 
-        // Click the sign in button.
-        onView(withId(R.id.signInButton))
-                .perform(click());
-
-        // On the HomeFeed screen: verify that a key element (for example, homeTextView) is displayed.
+        // On HomeFeed screen: Verify that homeTextView is displayed.
         onView(withId(R.id.homeTextView))
                 .check(matches(isDisplayed()));
 
         // Wait for the RecyclerView to load the seeded mood document.
         SystemClock.sleep(2000);
 
-        // Click the first item in the RecyclerView to navigate to the MoodDetails screen.
+        // Click on the first mood item in the RecyclerView to view its details.
+        // (Ensure that your HomeFeed layout contains a RecyclerView with id moodRecyclerView.)
         onView(withId(R.id.moodRecyclerView))
                 .perform(RecyclerViewActions.actionOnItemAtPosition(0, click()));
 
         // Wait for the MoodDetails screen to load.
         SystemClock.sleep(2000);
 
-        // Verify that the MoodDetails screen displays the correct information.
+        // Verify that key elements on the MoodDetails screen are displayed and have the correct text.
         onView(withId(R.id.tvMoodState))
-                .check(matches(isDisplayed()))
+                .check(matches(isDisplayed()));
+        onView(withId(R.id.tvMoodState))
                 .check(matches(withText("Happy")));
         onView(withId(R.id.tvTriggerValue))
                 .check(matches(withText("Morning Coffee")));
