@@ -31,7 +31,7 @@ public class HomeFeedNavigationTest extends FirebaseEmulatorMixin {
     public void seedDatabase() {
         // This ensures that when HomeFeed loads, it has at least one mood document.
         FirebaseFirestore db = FirebaseFirestore.getInstance();
-        CollectionReference moodsRef = db.collection("mood");
+        CollectionReference moodsRef = db.collection("moods");
 
         // Create a test mood using the correct constructor parameters:
         // id, userName, moodText, timestamp.

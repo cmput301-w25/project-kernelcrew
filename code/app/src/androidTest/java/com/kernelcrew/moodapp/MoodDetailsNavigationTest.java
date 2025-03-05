@@ -41,7 +41,7 @@ public class MoodDetailsNavigationTest extends FirebaseEmulatorMixin {
         moodsRef.document("testMoodId").set(testMood);
 
         // Seed a detailed MoodEvent document used in the MoodDetails screen.
-        CollectionReference moodEventsRef = db.collection("moodEvents");
+        CollectionReference moodEventsRef = db.collection("moodEvent");
         MoodEvent testEvent = new MoodEvent(
                 "dummyUser",
                 Emotion.HAPPY,

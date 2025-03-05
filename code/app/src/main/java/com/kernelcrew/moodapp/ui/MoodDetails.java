@@ -92,7 +92,7 @@ public class MoodDetails extends Fragment {
     private void fetchMoodDetails(String moodEventId) {
         if (moodEventId == null) return;
 
-        db.collection("moodEvents")
+        db.collection("moodEvent")
                 .document(moodEventId)
                 .get()
                 .addOnSuccessListener(documentSnapshot -> {
