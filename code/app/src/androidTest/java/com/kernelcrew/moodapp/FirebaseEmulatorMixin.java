@@ -43,7 +43,7 @@ public class FirebaseEmulatorMixin {
         String projectId = FirebaseApp.getInstance().getOptions().getProjectId();
 
         URL url = new URL("http://10.0.2.2:8080/emulator/v1/projects/" + projectId +
-                    "/databases/(default)/documents/moodEvent");
+                    "/databases/(default)/documents/moodEvents");
         HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
         urlConnection.setRequestMethod("DELETE");
         int response = urlConnection.getResponseCode();
