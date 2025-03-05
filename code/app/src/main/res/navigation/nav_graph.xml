@@ -45,7 +45,37 @@
         android:id="@+id/homeFeed"
         android:name="com.kernelcrew.moodapp.ui.HomeFeed"
         android:label="fragment_home_feed"
-        tools:layout="@layout/fragment_home_feed" />
+        tools:layout="@layout/fragment_home_feed">
+        <action
+            android:id="@+id/action_homeFeed_to_moodDetails"
+            app:destination="@id/moodDetails" />
+    </fragment>
+    <fragment
+        android:id="@+id/moodDetails"
+        android:name="com.kernelcrew.moodapp.ui.MoodDetails"
+        android:label="Mood Details"
+        tools:layout="@layout/fragment_mood_details">
+        <argument
+            android:name="moodEventId"
+            app:argType="string" />
+        <argument
+            android:name="sourceScreen"
+            app:argType="string"
+            android:defaultValue="home" />
+        <action
+            android:id="@+id/action_moodDetails_to_editMood"
+            app:destination="@id/editMood" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/editMood"
+        android:name="com.kernelcrew.moodapp.ui.EditMood"
+        android:label="Edit Mood"
+        tools:layout="@layout/fragment_edit_mood">
+        <argument
+            android:name="moodEventId"
+            app:argType="string" />
+    </fragment>
     <fragment
         android:id="@+id/myProfile"
         android:name="com.kernelcrew.moodapp.ui.MyProfile"
