@@ -18,7 +18,6 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.UserProfileChangeRequest;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.firestore.WriteBatch;
 import com.kernelcrew.moodapp.R;
 
@@ -104,7 +103,7 @@ public class AuthSignUp extends Fragment {
         userNameEditText = view.findViewById(R.id.username);
         emailEditText = view.findViewById(R.id.email);
         passwordEditText = view.findViewById(R.id.password);
-        signUpButton = view.findViewById(R.id.signUpButtonAuth);
+        signUpButton = view.findViewById(R.id.signUpButtonAuthToHome);
 
         topAppBar.setNavigationOnClickListener(
                 Navigation.createNavigateOnClickListener(R.id.action_authSignUp_to_authHome));

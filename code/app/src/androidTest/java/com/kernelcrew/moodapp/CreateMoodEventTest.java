@@ -34,7 +34,6 @@ import java.util.List;
 import java.util.concurrent.ExecutionException;
 
 @RunWith(AndroidJUnit4.class)
-@LargeTest
 public class CreateMoodEventTest extends FirebaseEmulatorMixin {
     @Rule
     public ActivityScenarioRule<MainActivity> activityScenarioRule =

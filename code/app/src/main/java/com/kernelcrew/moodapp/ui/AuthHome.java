@@ -33,8 +33,8 @@ public class AuthHome extends Fragment {
 
         View view = inflater.inflate(R.layout.fragment_auth_home, container, false);
 
-        view.findViewById(R.id.signInButtonInitial).setOnClickListener(Navigation.createNavigateOnClickListener(R.id.action_authHome_to_authSignIn));
-        view.findViewById(R.id.signUpButtonInitial).setOnClickListener(Navigation.createNavigateOnClickListener(R.id.action_authHome_to_authSignUp));
+        view.findViewById(R.id.buttonInitialToSignIn).setOnClickListener(Navigation.createNavigateOnClickListener(R.id.action_authHome_to_authSignIn));
+        view.findViewById(R.id.buttonInitialToSignUp).setOnClickListener(Navigation.createNavigateOnClickListener(R.id.action_authHome_to_authSignUp));
 
         return view;
     }

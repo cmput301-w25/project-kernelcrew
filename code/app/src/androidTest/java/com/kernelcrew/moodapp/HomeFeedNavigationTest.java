@@ -6,7 +6,6 @@ import static androidx.test.espresso.matcher.ViewMatchers.*;
 import static androidx.test.espresso.assertion.ViewAssertions.*;
 
 import android.os.SystemClock;
-import android.util.Log;
 
 import androidx.test.espresso.Espresso;
 import androidx.test.espresso.action.ViewActions;
@@ -15,25 +14,17 @@ import androidx.test.ext.junit.rules.ActivityScenarioRule;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
 import com.google.android.gms.tasks.Task;
+import com.google.android.gms.tasks.Tasks;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.firestore.CollectionReference;
-import com.google.firebase.firestore.FirebaseFirestore;
 import com.kernelcrew.moodapp.ui.MainActivity;
-import com.kernelcrew.moodapp.ui.Mood;
 
-import org.junit.After;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import java.io.IOException;
-import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.util.Objects;
+import java.util.concurrent.ExecutionException;
 
 @RunWith(AndroidJUnit4.class)
 public class HomeFeedNavigationTest extends FirebaseEmulatorMixin {
@@ -46,7 +37,7 @@ public class HomeFeedNavigationTest extends FirebaseEmulatorMixin {
             new ActivityScenarioRule<>(MainActivity.class);
 
     @Before
-    public void setUp() throws InterruptedException {
+    public void setUp() throws InterruptedException, ExecutionException {
         createUser(TEST_EMAIL, TEST_PASSWORD);
         SystemClock.sleep(1000);
     }
@@ -55,7 +46,7 @@ public class HomeFeedNavigationTest extends FirebaseEmulatorMixin {
     public void testNavigationToHomeFeed() throws InterruptedException {
         // On AuthHome screen: Click the "Sign In" button.
         // Adjust the matcher below if your AuthHome layout uses a different text or id.
-        Espresso.onView(ViewMatchers.withId(R.id.signInButtonInitial))
+        Espresso.onView(ViewMatchers.withId(R.id.buttonInitialToSignIn))
                 .perform(ViewActions.click());
 
         // Now on AuthSignIn screen: Check that the email field is displayed.
@@ -69,7 +60,7 @@ public class HomeFeedNavigationTest extends FirebaseEmulatorMixin {
                 .perform(replaceText("Password@1234"), ViewActions.closeSoftKeyboard());
 
         // Click the sign in button on AuthSignIn.
-        Espresso.onView(ViewMatchers.withId(R.id.signInButtonAuth))
+        Espresso.onView(ViewMatchers.withId(R.id.topAppBar))
                 .perform(ViewActions.click());
 
         // On HomeFeed screen: Verify that the homeTextView is displayed.
@@ -77,11 +68,9 @@ public class HomeFeedNavigationTest extends FirebaseEmulatorMixin {
                 .check(matches(isDisplayed()));
     }
 
-    private void createUser(String email, String password) throws InterruptedException {
+    private void createUser(String email, String password) throws InterruptedException, ExecutionException {
         FirebaseAuth auth = FirebaseAuth.getInstance();
         Task<AuthResult> createUserTask = auth.createUserWithEmailAndPassword(email, password);
-        while (!createUserTask.isComplete()) {
-            Thread.sleep(200);
-        }
+        Tasks.await(createUserTask);
     }
 }

@@ -48,7 +48,7 @@
 
             <!-- Welcome Back Text -->
             <TextView
-                android:id="@+id/tvWelcomeBack"
+                android:id="@+id/tvCreateAccount"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="start"
@@ -128,12 +128,13 @@
                 app:startIconTint="@null"
                 app:startIconContentDescription="@string/prompt_password"
                 app:endIconMode="password_toggle"
-                app:endIconDrawable="@drawable/ic_visibility"
+                app:endIconDrawable="@drawable/password_toggle_selector"
                 app:endIconTint="@color/white"
                 app:endIconContentDescription="Show password"
                 app:boxStrokeColor="@drawable/text_input_outline_color"
                 app:hintTextColor="@drawable/text_input_hint_color"
-                app:errorTextColor="@color/white">
+                app:errorTextColor="@color/white"
+                app:cursorColor="@color/white">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/password"
@@ -147,7 +148,7 @@
 
             <!-- Sign Up Button -->
             <Button
-                android:id="@+id/signUpButtonAuth"
+                android:id="@+id/signUpButtonAuthToHome"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="24dp"

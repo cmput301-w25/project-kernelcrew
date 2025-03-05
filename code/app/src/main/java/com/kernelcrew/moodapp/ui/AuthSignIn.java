@@ -13,7 +13,6 @@ import androidx.navigation.Navigation;
 
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.firestore.FirebaseFirestore;
 import com.kernelcrew.moodapp.R;
 
 import org.jetbrains.annotations.Nullable;
@@ -82,7 +81,7 @@ public class AuthSignIn extends Fragment {
         topAppBar = view.findViewById(R.id.topAppBar);
         emailEditText = view.findViewById(R.id.email);
         passwordEditText = view.findViewById(R.id.password);
-        signInButton = view.findViewById(R.id.signInButtonAuth);
+        signInButton = view.findViewById(R.id.signInButtonAuthToHome);
 
         topAppBar.setNavigationOnClickListener(
                 Navigation.createNavigateOnClickListener(R.id.action_authSignIn_to_authHome));

@@ -89,7 +89,7 @@
                 android:layout_marginBottom="20dp"/>
 
             <Button
-                android:id="@+id/signInButtonInitial"
+                android:id="@+id/buttonInitialToSignIn"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:background="@drawable/btn_sign_in"
@@ -101,7 +101,7 @@
                 android:paddingHorizontal="24dp" />
 
             <Button
-                android:id="@+id/signUpButtonInitial"
+                android:id="@+id/buttonInitialToSignUp"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:background="@drawable/btn_sign_up"
