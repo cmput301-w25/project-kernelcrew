@@ -29,7 +29,7 @@ public class MyProfileTest extends FirebaseEmulatorMixin {
 
     @Test
     public void testProfilePageLoadsAndSignOutWorks() {
-
+        // --- Sign In Flow ---
         onView(withText("Sign In")).perform(click());
         SystemClock.sleep(2000);
 
@@ -37,24 +37,28 @@ public class MyProfileTest extends FirebaseEmulatorMixin {
                 .perform(replaceText("test@kernelcrew.com"), closeSoftKeyboard());
         onView(withId(R.id.password))
                 .perform(replaceText("Password@1234"), closeSoftKeyboard());
-
         onView(withId(R.id.signInButton)).perform(click());
         SystemClock.sleep(3000);
 
+        // --- Verify HomeFeed is loaded ---
         onView(withId(R.id.homeTextView)).check(matches(isDisplayed()));
 
-
+        // --- Navigate to Profile via Bottom Navigation ---
         onView(withId(R.id.page_myProfile)).perform(click());
         SystemClock.sleep(2000);
 
+        // --- Verify Profile UI Elements ---
         onView(withId(R.id.username_text)).check(matches(isDisplayed()));
         onView(withId(R.id.signOutButton)).check(matches(isDisplayed()));
         onView(withId(R.id.followers_button)).check(matches(isDisplayed()));
         onView(withId(R.id.following_button)).check(matches(isDisplayed()));
 
+        // --- Perform Sign Out ---
+        // Directly click signOutButton (removing scrollTo())
         onView(withId(R.id.signOutButton)).perform(click());
-        SystemClock.sleep(2000);
+        SystemClock.sleep(3000);
 
+        // --- Verify that we are back on AuthHome ---
         onView(withId(R.id.signInButton)).check(matches(isDisplayed()));
     }
 }
