@@ -36,13 +36,7 @@ import java.net.URL;
 import java.util.Objects;
 
 @RunWith(AndroidJUnit4.class)
-public class HomeFeedNavigationTest {
-    // Required for this test to work
-    private static final String projectId = "PROJECT_ID"; // replace with your project ID
-    private static final String androidLocalhost = "10.0.2.2"; // Ensure this is correct
-    private static final int fireStorePort = 8080; // Change to the correct port (if yours varies from default)
-    private static final int authPort = 9099; // Change to the correct port (if yours varies from default)
-
+public class HomeFeedNavigationTest extends FirebaseEmulatorMixin {
     // Changeable strings
     private static final String TEST_EMAIL = "test@kernelcrew.com";
     private static final String TEST_PASSWORD = "Password@1234";
@@ -50,13 +44,6 @@ public class HomeFeedNavigationTest {
     @Rule
     public ActivityScenarioRule<MainActivity> activityScenarioRule =
             new ActivityScenarioRule<>(MainActivity.class);
-
-    @BeforeClass
-    public static void setupClass() {
-        // Setup Firestore emulator (if you are using the emulator for testing)
-        FirebaseFirestore.getInstance().useEmulator(androidLocalhost, fireStorePort);
-        FirebaseAuth.getInstance().useEmulator(androidLocalhost, authPort);
-    }
 
     @Before
     public void setUp() throws InterruptedException {
@@ -88,44 +75,6 @@ public class HomeFeedNavigationTest {
         // On HomeFeed screen: Verify that the homeTextView is displayed.
         onView(withId(R.id.homeTextView))
                 .check(matches(isDisplayed()));
-    }
-
-    @After
-    public void tearDown() {
-        // 1. DELETE all Firestore documents
-        HttpURLConnection firestoreConnection = null;
-        try {
-            URL firestoreUrl = new URL("http://10.0.2.2:8080/emulator/v1/projects/"
-                    + projectId + "/databases/(default)/documents");
-            firestoreConnection = (HttpURLConnection) firestoreUrl.openConnection();
-            firestoreConnection.setRequestMethod("DELETE");
-            int firestoreResponse = firestoreConnection.getResponseCode();
-            Log.i("Firestore Wipe", "Deleted Firestore docs. Response code: " + firestoreResponse);
-        } catch (IOException e) {
-            Log.e("Firestore Wipe Error", e.getMessage());
-        } finally {
-            if (firestoreConnection != null) {
-                firestoreConnection.disconnect();
-            }
-        }
-
-        // 2. DELETE all Auth emulator users
-        HttpURLConnection authConnection = null;
-        try {
-            // Use the Auth emulator port (9099 below, or whatever you set up)
-            URL authUrl = new URL("http://10.0.2.2:9099/emulator/v1/projects/"
-                    + projectId + "/accounts");
-            authConnection = (HttpURLConnection) authUrl.openConnection();
-            authConnection.setRequestMethod("DELETE");
-            int authResponse = authConnection.getResponseCode();
-            Log.i("Auth Wipe", "Deleted all Auth users. Response code: " + authResponse);
-        } catch (IOException e) {
-            Log.e("Auth Wipe Error", e.getMessage());
-        } finally {
-            if (authConnection != null) {
-                authConnection.disconnect();
-            }
-        }
     }
 
     private void createUser(String email, String password) throws InterruptedException {
