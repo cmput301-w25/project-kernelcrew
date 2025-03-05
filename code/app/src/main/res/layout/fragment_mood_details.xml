@@ -8,8 +8,6 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
 
-    <!-- purple color-->
-    android:background="@color/light_purple"
     tools:context=".ui.MoodDetails">
 
     <!-- Top App Bar with centered title and back navigation -->
@@ -70,7 +68,7 @@ android:padding="16dp">
             android:textColor="@android:color/white"
             android:layout_marginStart="16dp"
             app:cornerRadius="999dp"
-            android:backgroundTint="@color/purple_700"/>
+            android:backgroundTint="@android:color/holo_purple"/>
     </LinearLayout>
 
     <!-- Text Fields Section: Trigger, Social Situation, Reason -->
