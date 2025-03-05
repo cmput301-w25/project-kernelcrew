@@ -1,205 +1,226 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!-- Purple background for MoodDetails screen -->
 <androidx.coordinatorlayout.widget.CoordinatorLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-
     android:id="@+id/moodDetailsCoordinator"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-
     tools:context=".ui.MoodDetails">
 
     <!-- Top App Bar with centered title and back navigation -->
-<com.google.android.material.appbar.MaterialToolbar
-android:id="@+id/moodDetailsToolbar"
-android:layout_width="match_parent"
-android:layout_height="?attr/actionBarSize"
-android:background="?attr/colorPrimary"
-app:navigationIcon="@drawable/ic_back"
-app:popupTheme="@style/ThemeOverlay.MaterialComponents.Light"
-app:title="Mood Details"
-app:titleCentered="true"
-app:titleTextColor="@android:color/white" />
+    <com.google.android.material.appbar.MaterialToolbar
+        android:id="@+id/moodDetailsToolbar"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        android:background="?attr/colorPrimary"
+        app:navigationIcon="@drawable/ic_back"
+        app:popupTheme="@style/ThemeOverlay.MaterialComponents.Light"
+        app:title="Mood Details"
+        app:titleCentered="true"
+        app:titleTextColor="@android:color/white" />
 
     <!-- Use NestedScrollView for Material scrolling behavior -->
-<androidx.core.widget.NestedScrollView
-android:layout_width="match_parent"
-android:layout_height="match_parent"
-android:layout_marginTop="?attr/actionBarSize"
-android:padding="16dp">
-
-<LinearLayout
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:orientation="vertical">
-
-    <!-- Header: Mood Icon, Mood State, and Edit Mood Button -->
-    <LinearLayout
+    <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:gravity="center_vertical"
-        android:padding="8dp">
+        android:layout_height="match_parent"
+        android:layout_marginTop="?attr/actionBarSize"
+        android:padding="16dp">
 
-        <ImageView
-            android:id="@+id/imageMoodIcon"
-            android:layout_width="64dp"
-            android:layout_height="64dp"
-            android:layout_marginEnd="16dp"
-            tools:srcCompat="@drawable/ic_happy_color" />
-
-        <TextView
-            android:id="@+id/tvMoodState"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="Happy"
-            android:textAppearance="?attr/textAppearanceHeadline6"
-            android:textColor="?attr/colorOnBackground" />
-
-        <!-- Rounded Material Button for "Edit Mood" -->
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/btnEditMood"
-            style="@style/Widget.MaterialComponents.Button"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Edit Mood"
-            android:textColor="@android:color/white"
-            android:layout_marginStart="16dp"
-            app:cornerRadius="999dp"
-            android:backgroundTint="@android:color/holo_purple"/>
-    </LinearLayout>
-
-    <!-- Text Fields Section: Trigger, Social Situation, Reason -->
-    <!-- Replaces the old label/value pairs with filled Material text fields. -->
-
-    <!-- Trigger -->
-    <com.google.android.material.textfield.TextInputLayout
-        android:id="@+id/tvTriggerLabel"
-        style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        android:hint="Trigger"
-        app:boxCornerRadiusTopStart="12dp"
-        app:boxCornerRadiusTopEnd="12dp"
-        app:boxCornerRadiusBottomStart="12dp"
-        app:boxCornerRadiusBottomEnd="12dp"
-        app:boxBackgroundColor="@android:color/white"
-        app:boxStrokeWidth="0dp"
-        app:boxStrokeWidthFocused="2dp">
-
-        <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/tvTriggerValue"
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Some Trigger"
-            android:enabled="false" />
-    </com.google.android.material.textfield.TextInputLayout>
+            android:orientation="vertical">
 
-    <!-- Social Situation -->
-    <com.google.android.material.textfield.TextInputLayout
-        android:id="@+id/tvSocialSituationLabel"
-        style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        android:hint="Social Situation"
-        app:boxCornerRadiusTopStart="12dp"
-        app:boxCornerRadiusTopEnd="12dp"
-        app:boxCornerRadiusBottomStart="12dp"
-        app:boxCornerRadiusBottomEnd="12dp"
-        app:boxBackgroundColor="@android:color/white"
-        app:boxStrokeWidth="0dp"
-        app:boxStrokeWidthFocused="2dp">
+            <!-- Header: Mood Icon, Mood State, and Edit Mood Button -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:padding="8dp">
 
-        <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/tvSocialSituationValue"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Input"
-            android:enabled="false" />
-    </com.google.android.material.textfield.TextInputLayout>
+                <ImageView
+                    android:id="@+id/imageMoodIcon"
+                    android:layout_width="64dp"
+                    android:layout_height="64dp"
+                    android:layout_marginEnd="16dp"
+                    tools:srcCompat="@drawable/ic_happy_color" />
 
-    <!-- Reason -->
-    <com.google.android.material.textfield.TextInputLayout
-        android:id="@+id/tvReasonLabel"
-        style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        android:hint="Reason"
-        app:boxCornerRadiusTopStart="12dp"
-        app:boxCornerRadiusTopEnd="12dp"
-        app:boxCornerRadiusBottomStart="12dp"
-        app:boxCornerRadiusBottomEnd="12dp"
-        app:boxBackgroundColor="@android:color/white"
-        app:boxStrokeWidth="0dp"
-        app:boxStrokeWidthFocused="2dp">
+                <TextView
+                    android:id="@+id/tvMoodState"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Happy"
+                    android:textAppearance="?attr/textAppearanceHeadline6"
+                    android:textColor="?attr/colorOnBackground" />
 
-        <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/tvReasonValue"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Some Reason"
-            android:enabled="false" />
-    </com.google.android.material.textfield.TextInputLayout>
+                <!-- Rounded Material Button for "Edit Mood" -->
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnEditMood"
+                    style="@style/Widget.MaterialComponents.Button"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Edit Mood"
+                    android:textColor="@android:color/white"
+                    android:layout_marginStart="16dp"
+                    app:cornerRadius="999dp"
+                    android:backgroundTint="@color/purple_color"/>
+            </LinearLayout>
 
-    <!-- Photo Section -->
-    <com.google.android.material.textview.MaterialTextView
-        android:id="@+id/tvPhotoLabel"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="24dp"
-        android:text="Photo"
-        android:textAppearance="?attr/textAppearanceSubtitle1"
-        android:textStyle="bold" />
+            <!-- Divider -->
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginVertical="8dp"
+                android:background="@android:color/darker_gray" />
 
-    <!-- Card for the Photo placeholder -->
-    <com.google.android.material.card.MaterialCardView
-        android:layout_width="match_parent"
-        android:layout_height="200dp"
-        android:layout_marginTop="8dp"
-        app:cardCornerRadius="12dp"
-        app:cardElevation="2dp"
-        android:backgroundTint="@android:color/white">
+            <!-- Details Card -->
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:cardCornerRadius="8dp"
+                app:cardElevation="4dp"
+                android:layout_marginBottom="16dp">
 
-        <ImageView
-            android:id="@+id/ivMoodPhoto"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:scaleType="centerInside"
-            tools:srcCompat="@drawable/ic_launcher_foreground" />
-    </com.google.android.material.card.MaterialCardView>
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="16dp">
 
-    <!-- Location Section -->
-    <com.google.android.material.textview.MaterialTextView
-        android:id="@+id/tvLocationLabel"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="24dp"
-        android:text="Location"
-        android:textAppearance="?attr/textAppearanceSubtitle1"
-        android:textStyle="bold" />
+                    <!-- Trigger -->
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:id="@+id/tvTriggerLabel"
+                        style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="16dp"
+                        android:hint="Trigger"
+                        app:boxCornerRadiusTopStart="12dp"
+                        app:boxCornerRadiusTopEnd="12dp"
+                        app:boxCornerRadiusBottomStart="12dp"
+                        app:boxCornerRadiusBottomEnd="12dp"
+                        app:boxBackgroundColor="@android:color/white"
+                        app:boxStrokeWidth="0dp"
+                        app:boxStrokeWidthFocused="2dp">
 
-    <!-- Card for the map container -->
-    <com.google.android.material.card.MaterialCardView
-        android:layout_width="match_parent"
-        android:layout_height="200dp"
-        android:layout_marginTop="8dp"
-        app:cardCornerRadius="12dp"
-        app:cardElevation="2dp"
-        android:backgroundTint="@android:color/white">
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/tvTriggerValue"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="Some Trigger"
+                            android:enabled="false" />
+                    </com.google.android.material.textfield.TextInputLayout>
 
-        <!-- FrameLayout for your map or placeholder -->
-        <FrameLayout
-            android:id="@+id/mapContainer"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:background="@android:color/darker_gray" />
-    </com.google.android.material.card.MaterialCardView>
+                    <!-- Social Situation -->
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:id="@+id/tvSocialSituationLabel"
+                        style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="16dp"
+                        android:hint="Social Situation"
+                        app:boxCornerRadiusTopStart="12dp"
+                        app:boxCornerRadiusTopEnd="12dp"
+                        app:boxCornerRadiusBottomStart="12dp"
+                        app:boxCornerRadiusBottomEnd="12dp"
+                        app:boxBackgroundColor="@android:color/white"
+                        app:boxStrokeWidth="0dp"
+                        app:boxStrokeWidthFocused="2dp">
 
-</LinearLayout>
-</androidx.core.widget.NestedScrollView>
-    </androidx.coordinatorlayout.widget.CoordinatorLayout>
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/tvSocialSituationValue"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="Input"
+                            android:enabled="false" />
+                    </com.google.android.material.textfield.TextInputLayout>
+
+                    <!-- Reason -->
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:id="@+id/tvReasonLabel"
+                        style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="16dp"
+                        android:hint="Reason"
+                        app:boxCornerRadiusTopStart="12dp"
+                        app:boxCornerRadiusTopEnd="12dp"
+                        app:boxCornerRadiusBottomStart="12dp"
+                        app:boxCornerRadiusBottomEnd="12dp"
+                        app:boxBackgroundColor="@android:color/white"
+                        app:boxStrokeWidth="0dp"
+                        app:boxStrokeWidthFocused="2dp">
+
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/tvReasonValue"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="Some Reason"
+                            android:enabled="false" />
+                    </com.google.android.material.textfield.TextInputLayout>
+
+                    <!-- Photo Section -->
+                    <com.google.android.material.textview.MaterialTextView
+                        android:id="@+id/tvPhotoLabel"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="24dp"
+                        android:text="Photo"
+                        android:textAppearance="?attr/textAppearanceSubtitle1"
+                        android:textStyle="bold" />
+
+                    <!-- Card for the Photo placeholder -->
+                    <com.google.android.material.card.MaterialCardView
+                        android:layout_width="match_parent"
+                        android:layout_height="200dp"
+                        android:layout_marginTop="8dp"
+                        app:cardCornerRadius="12dp"
+                        app:cardElevation="2dp"
+                        android:backgroundTint="@android:color/white">
+
+                        <ImageView
+                            android:id="@+id/ivMoodPhoto"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:scaleType="centerInside"
+                            tools:srcCompat="@drawable/ic_launcher_foreground" />
+                    </com.google.android.material.card.MaterialCardView>
+
+                    <!-- Location Section -->
+                    <com.google.android.material.textview.MaterialTextView
+                        android:id="@+id/tvLocationLabel"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="24dp"
+                        android:text="Location"
+                        android:textAppearance="?attr/textAppearanceSubtitle1"
+                        android:textStyle="bold" />
+
+                    <!-- Card for the map container -->
+                    <com.google.android.material.card.MaterialCardView
+                        android:layout_width="match_parent"
+                        android:layout_height="200dp"
+                        android:layout_marginTop="8dp"
+                        app:cardCornerRadius="12dp"
+                        app:cardElevation="2dp"
+                        android:backgroundTint="@android:color/white">
+
+                        <!-- FrameLayout for your map or placeholder -->
+                        <FrameLayout
+                            android:id="@+id/mapContainer"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:background="@android:color/darker_gray" />
+                    </com.google.android.material.card.MaterialCardView>
+
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+        </LinearLayout>
+    </androidx.core.widget.NestedScrollView>
+
+</androidx.coordinatorlayout.widget.CoordinatorLayout>
