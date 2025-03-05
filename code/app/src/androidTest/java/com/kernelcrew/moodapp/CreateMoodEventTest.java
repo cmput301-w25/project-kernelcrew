@@ -36,16 +36,14 @@ import java.util.concurrent.ExecutionException;
 @RunWith(AndroidJUnit4.class)
 @LargeTest
 public class CreateMoodEventTest extends FirebaseEmulatorMixin {
-    public ActivityScenario<MainActivity> scenario;
+    @Rule
+    public ActivityScenarioRule<MainActivity> activityScenarioRule =
+            new ActivityScenarioRule<>(MainActivity.class);
 
-    @Before
-    public void login() throws ExecutionException, InterruptedException {
+    @BeforeClass
+    public static void login() throws ExecutionException, InterruptedException {
         FirebaseAuth auth = FirebaseAuth.getInstance();
-        // Optionally, check if the user is already logged in
-        if (auth.getCurrentUser() == null) {
-            Tasks.await(auth.createUserWithEmailAndPassword("test@toasted.com", "password"));
-        }
-        scenario = ActivityScenario.launch(MainActivity.class);
+        Tasks.await(auth.createUserWithEmailAndPassword("test@lol.com", "password"));
     }
 
     @Test
