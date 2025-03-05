@@ -93,16 +93,17 @@
 
     <Button
         android:id="@+id/mood_history_button"
-        android:layout_width="362dp"
-        android:layout_height="51dp"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
         android:layout_marginStart="24dp"
-        android:layout_marginTop="168dp"
+        android:layout_marginTop="20dp"
         android:layout_marginEnd="24dp"
         android:text="Mood History"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/profileCard" />
+        app:layout_constraintTop_toBottomOf="@id/followers_button" />
+
 
     <com.google.android.material.button.MaterialButton
         android:id="@+id/signOutButton"
@@ -110,14 +111,13 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginStart="24dp"
-        android:layout_marginTop="416dp"
+        android:layout_marginTop="24dp"
         android:layout_marginEnd="24dp"
         android:text="Sign Out"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/profileCard" />
-
+        app:layout_constraintTop_toBottomOf="@id/mood_history_button" />
 
     <com.google.android.material.bottomnavigation.BottomNavigationView
         android:id="@+id/bottom_navigation"
