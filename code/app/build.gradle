@@ -39,27 +39,44 @@ dependencies {
     implementation libs.annotation
     implementation libs.lifecycle.livedata.ktx
     implementation libs.lifecycle.viewmodel.ktx
-
-    implementation 'com.google.android.material:material:1.9.0'
-
     implementation libs.firebase.auth
+    implementation libs.firebase.firestore
+    implementation libs.google.firebase.firestore
+    implementation libs.google.firebase.auth
+    implementation libs.github.glide
+    implementation libs.github.glide
+    implementation libs.protobuf.javalite.v32112
+    implementation libs.coordinatorlayout.v120
+    implementation libs.core.ktx
+    implementation libs.appcompat
+    implementation libs.material.v180
+    implementation libs.coordinatorlayout
+    implementation libs.protobuf.javalite.v3180
     implementation(platform(libs.firebase.bom))
-    implementation 'com.google.firebase:firebase-firestore'
+//    implementation libs.recyclerview
+//    implementation libs.play.services
+
+    annotationProcessor libs.glide.compiler
+    annotationProcessor libs.glide.compiler
 
     testImplementation libs.junit
+
     androidTestImplementation libs.ext.junit
+    androidTestImplementation libs.junit.v113
+    androidTestImplementation libs.espresso.core
+    androidTestImplementation libs.junit.v115
+    androidTestImplementation libs.espresso.core.v351
+    androidTestImplementation libs.rules
+    androidTestImplementation libs.google.protobuf.javalite
+    androidTestImplementation libs.androidx.espresso.intents
+    androidTestImplementation libs.androidx.uiautomator
 
-    androidTestImplementation 'androidx.test:core:1.5.0'
-    androidTestImplementation 'androidx.test.ext:junit:1.1.5'
-
-    // Espresso dependencies
-    androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.1'
-    androidTestImplementation 'androidx.test.espresso:espresso-intents:3.5.1'
-
-    // Fragment testing
-    debugImplementation("androidx.fragment:fragment-testing:1.4.0")
-
-    // Mockito for mocking
-    testImplementation 'org.mockito:mockito-core:5.5.0'
-    androidTestImplementation 'org.mockito:mockito-android:5.5.0'
+    // Fix issue where protobuf class static method cannot be found.
+    // See: https://stackoverflow.com/a/68675881/10970228
+    androidTestImplementation(libs.espresso.contrib){
+        exclude module: "protobuf-lite"
+    }
 }
+
+apply plugin: 'com.android.application'
+apply plugin: 'com.google.gms.google-services'

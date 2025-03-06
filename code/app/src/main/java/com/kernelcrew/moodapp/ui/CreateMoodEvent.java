@@ -54,7 +54,16 @@ public class CreateMoodEvent extends Fragment {
             return;
         }
 
-        MoodEvent moodEvent = new MoodEvent(currentUser.getUid(), details.emotion);
+        MoodEvent moodEvent = new MoodEvent(
+                currentUser.getUid(),
+                details.emotion,
+                "",     // trigger (empty string if not provided)
+                "",     // socialSituation
+                "",     // reason
+                "",     // photoUrl
+                null,   // latitude
+                null    // longitude
+        );
 
         moodEventController.insertMoodEvent(moodEvent);
 

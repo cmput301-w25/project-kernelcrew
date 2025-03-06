@@ -17,6 +17,7 @@
             android:id="@+id/action_authHome_to_authSignUp"
             app:destination="@id/authSignUp" />
     </fragment>
+
     <fragment
         android:id="@+id/authSignIn"
         android:name="com.kernelcrew.moodapp.ui.AuthSignIn"
@@ -29,6 +30,7 @@
             android:id="@+id/action_authSignIn_to_homeFeed"
             app:destination="@id/homeFeed" />
     </fragment>
+
     <fragment
         android:id="@+id/authSignUp"
         android:name="com.kernelcrew.moodapp.ui.AuthSignUp"
@@ -56,15 +58,4 @@
         android:name="com.kernelcrew.moodapp.ui.CreateMoodEvent"
         android:label="fragment_create_mood_event"
         tools:layout="@layout/fragment_create_mood_event" />
-
-    <fragment
-        android:id="@+id/moodHistory"
-        android:name="com.kernelcrew.moodapp.ui.MoodHistory"
-        android:label="fragment_mood_history"
-        tools:layout="@layout/fragment_mood_history">
-        <action
-            android:id="@+id/action_moodHistory_to_homeFeed"
-            app:destination="@id/homeFeed" />
-    </fragment>
-
 </navigation>

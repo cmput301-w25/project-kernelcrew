@@ -7,6 +7,7 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.Navigation;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -37,6 +38,7 @@ public class AuthHome extends Fragment {
 
         // Navigate to the home feed if the user is already logged in
         FirebaseUser user = auth.getCurrentUser();
+        Log.i("AuthHome", user != null ? "User already logged in" : "User not logged in");
         if (user != null) {
             Navigation.findNavController(view).navigate(R.id.homeFeed);
         }

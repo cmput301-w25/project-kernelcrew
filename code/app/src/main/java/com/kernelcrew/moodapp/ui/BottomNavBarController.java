@@ -50,7 +50,12 @@ public class BottomNavBarController implements NavigationBarView.OnItemSelectedL
             return false;
         }
 
+        int currentPage = Navigation.findNavController(this.view).getCurrentDestination().getId();
+        if (page == currentPage) {
+            return false;
+        }
+
         Navigation.findNavController(this.view).navigate(page);
-        return false;
+        return true;
     }
 }

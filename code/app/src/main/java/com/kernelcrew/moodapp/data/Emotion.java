@@ -41,7 +41,7 @@ public enum Emotion {
         @NonNull
         @Override
         public String toString() {
-            return "Confusion";
+            return "Confused";
         }
     },
 
@@ -101,7 +101,7 @@ public enum Emotion {
         @NonNull
         @Override
         public String toString() {
-            return "Happiness";
+            return "Happy";
         }
     },
 
@@ -121,7 +121,7 @@ public enum Emotion {
         @NonNull
         @Override
         public String toString() {
-            return "Sadness";
+            return "Sad";
         }
     },
 
