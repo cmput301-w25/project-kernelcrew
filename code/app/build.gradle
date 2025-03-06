@@ -53,18 +53,23 @@ dependencies {
     implementation libs.coordinatorlayout
     implementation libs.protobuf.javalite.v3180
     implementation(platform(libs.firebase.bom))
+    implementation libs.recyclerview
 //    implementation libs.play.services
 
     annotationProcessor libs.glide.compiler
     annotationProcessor libs.glide.compiler
 
     testImplementation libs.junit
+
     androidTestImplementation libs.ext.junit
+    androidTestImplementation libs.junit.v113
     androidTestImplementation libs.espresso.core
     androidTestImplementation libs.junit.v115
     androidTestImplementation libs.espresso.core.v351
     androidTestImplementation libs.rules
     androidTestImplementation libs.google.protobuf.javalite
+    androidTestImplementation libs.androidx.espresso.intents
+    androidTestImplementation libs.androidx.uiautomator
 
     // Fix issue where protobuf class static method cannot be found.
     // See: https://stackoverflow.com/a/68675881/10970228

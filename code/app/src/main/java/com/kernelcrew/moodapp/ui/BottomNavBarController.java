@@ -35,8 +35,9 @@ public class BottomNavBarController implements NavigationBarView.OnItemSelectedL
 
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-        int page = 0;
         int itemId = item.getItemId();
+
+        int page = 0;
         if (itemId == R.id.page_home) {
             page = R.id.homeFeed;
         } else if (itemId == R.id.page_createMoodEvent) {
@@ -47,7 +48,12 @@ public class BottomNavBarController implements NavigationBarView.OnItemSelectedL
             return false;
         }
 
+        int currentPage = Navigation.findNavController(this.view).getCurrentDestination().getId();
+        if (page == currentPage) {
+            return false;
+        }
+
         Navigation.findNavController(this.view).navigate(page);
-        return false;
+        return true;
     }
 }
