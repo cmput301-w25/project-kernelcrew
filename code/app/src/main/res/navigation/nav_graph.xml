@@ -113,4 +113,18 @@
         android:name="com.kernelcrew.moodapp.ui.CreateMoodEvent"
         android:label="fragment_create_mood_event"
         tools:layout="@layout/fragment_create_mood_event" />
+    <fragment
+        android:id="@+id/requestFragment"
+        android:name="com.kernelcrew.moodapp.ui.RequestFragment"
+        android:label="Request"
+        tools:layout="@layout/fragment_request" />
+
+    <action
+        android:id="@+id/action_followersFragment_to_requestFragment"
+        app:destination="@id/requestFragment" />
+
+    <action
+        android:id="@+id/action_followingFragment_to_requestFragment"
+        app:destination="@id/requestFragment" />
+
 </navigation>
