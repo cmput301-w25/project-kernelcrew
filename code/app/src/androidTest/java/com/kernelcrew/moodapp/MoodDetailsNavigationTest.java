@@ -115,7 +115,7 @@ public class MoodDetailsNavigationTest extends FirebaseEmulatorMixin {
                 .check(matches(isDisplayed()));
 
         // Wait for the RecyclerView to load the seeded mood document.
-        SystemClock.sleep(2000);
+        SystemClock.sleep(1000);
 
         // Click on the first mood item in the RecyclerView to view its details.
         // (Ensure that your HomeFeed layout contains a RecyclerView with id moodRecyclerView.)
@@ -132,8 +132,6 @@ public class MoodDetailsNavigationTest extends FirebaseEmulatorMixin {
         // Verify that key elements on the MoodDetails screen are displayed and have the correct text.
         onView(withId(R.id.tvMoodState))
                 .check(matches(isDisplayed()));
-        SystemClock.sleep(1000);
-
 //        onView(withId(R.id.tvMoodState))
 //                .check(matches(withText(DATA_EMOTION.toString())));
         onView(withId(R.id.tvTriggerValue))
