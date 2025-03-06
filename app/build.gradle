@@ -1,0 +1,45 @@
+plugins {
+    alias(libs.plugins.android.application)
+    //Next line from Google cloud API documentation on maps and location, accessed 03-02-2025
+    id 'com.google.gms.google-services'
+}
+
+android {
+    namespace = 'com.kernelcrew.moodapp'
+    compileSdk = 34
+
+    defaultConfig {
+        applicationId = "com.kernelcrew.moodapp"
+        minSdk = 24
+        targetSdk = 34
+        versionCode = 1
+        versionName = "1.0"
+        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+    }
+
+    // Remaining configurations...
+    
+    testOptions {
+        unitTests {
+            includeAndroidResources = true
+            returnDefaultValues = true
+            
+            all {
+                // Configure Robolectric properly
+                systemProperty 'robolectric.logging', 'stdout'
+                systemProperty 'robolectric.dependency.repo.id', 'central'
+                systemProperty 'robolectric.dependency.repo.url', 'https://repo1.maven.org/maven2'
+            }
+        }
+    }
+}
+
+dependencies {
+    // Existing dependencies...
+    
+    // Add explicit shadows-framework dependency
+    testImplementation 'org.robolectric:shadows-framework:4.9'
+    
+    // Make sure all required Robolectric dependencies are present
+    testImplementation 'org.robolectric:robolectric:4.9'
+} 
