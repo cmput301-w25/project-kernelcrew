@@ -6,11 +6,14 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CheckBox;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.navigation.NavigationBarView;
@@ -25,10 +28,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class FollowersFragment extends Fragment {
-
-    private RecyclerView followersRecyclerView;
     private FollowersAdapter adapter;
-    private List<User> followersList = new ArrayList<>();
+    private final List<User> followersList = new ArrayList<>();
     private BottomNavBarController navBarController;
     private UserController userController;
 
@@ -36,7 +37,7 @@ public class FollowersFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_followers, container, false);
 
-        followersRecyclerView = view.findViewById(R.id.followersRecyclerView);
+        RecyclerView followersRecyclerView = view.findViewById(R.id.followersRecyclerView);
         followersRecyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
 
         adapter = new FollowersAdapter(followersList);
@@ -66,7 +67,17 @@ public class FollowersFragment extends Fragment {
             System.out.println("ERROR: No user logged in.");
             return;
         }
-        userController.fetchFollowers(currentUser.getUid(), followersList, adapter);
+
+        userController.fetchFollowers(currentUser.getUid())
+                .addOnSuccessListener(followers -> {
+                    followersList.clear();
+                    followersList.addAll(followers);
+                    adapter.notifyDataSetChanged();
+                })
+                .addOnFailureListener(error -> {
+                    Toast.makeText(getContext(), error.getMessage(), Toast.LENGTH_LONG).show();
+                    Log.e("FollowersFragment", error.toString());
+                });
     }
 
     private static class FollowersAdapter extends RecyclerView.Adapter<FollowersAdapter.ViewHolder> {

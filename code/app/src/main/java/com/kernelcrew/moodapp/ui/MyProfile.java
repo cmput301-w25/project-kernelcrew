@@ -15,7 +15,6 @@ import com.google.android.material.navigation.NavigationBarView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.kernelcrew.moodapp.R;
-import com.google.firebase.firestore.FirebaseFirestore;
 import com.kernelcrew.moodapp.data.UserController;
 
 
@@ -24,17 +23,10 @@ public class MyProfile extends Fragment {
     FirebaseUser user;
 
     TextView usernameText;
-
-    TextView followersCountText;
-    TextView followingCountText;
     ImageView profileImage;
     Button signOutButton;
     NavigationBarView navigationBarView;
     BottomNavBarController navBarController;
-
-    private Button followersButton;
-    private Button followingButton;
-    private Button moodHistoryButton;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -46,14 +38,13 @@ public class MyProfile extends Fragment {
         profileImage = view.findViewById(R.id.profile_image);
 
         signOutButton = view.findViewById(R.id.signOutButton);
-        followersButton = view.findViewById(R.id.followers_button);
-        followingButton = view.findViewById(R.id.following_button);
-        moodHistoryButton = view.findViewById(R.id.mood_history_button);
+        Button followersButton = view.findViewById(R.id.followers_button);
+        Button followingButton = view.findViewById(R.id.following_button);
+        Button moodHistoryButton = view.findViewById(R.id.mood_history_button);
 
         navigationBarView = view.findViewById(R.id.bottom_navigation);
         navigationBarView.setSelectedItemId(R.id.page_myProfile);
         navBarController = new BottomNavBarController(navigationBarView);
-
 
         // Set click listeners
         signOutButton.setOnClickListener(this::onClickSignOut);
@@ -73,9 +64,22 @@ public class MyProfile extends Fragment {
 
         if (user != null) {
             UserController userController = new UserController();
-            userController.listenForUserUpdates(user.getUid(), followersButton, followingButton);
-        }
+            userController.addSnapshotListener(user.getUid(), (documentSnapshot, error) -> {
+                if (error != null) {
+                    followersButton.setText("Followers: 0");
+                    followingButton.setText("Following: 0");
+                    return;
+                }
 
+                if (documentSnapshot != null && documentSnapshot.exists()) {
+                    Long followersCount = documentSnapshot.getLong("followersCount");
+                    Long followingCount = documentSnapshot.getLong("followingCount");
+
+                    followersButton.setText("Followers: " + (followersCount != null ? followersCount : 0));
+                    followingButton.setText("Following: " + (followingCount != null ? followingCount : 0));
+                }
+            });
+        }
 
         return view;
     }

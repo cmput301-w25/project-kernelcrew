@@ -1,70 +1,78 @@
 package com.kernelcrew.moodapp.data;
 
-import android.widget.Button;
-
 import androidx.annotation.NonNull;
+
+import com.google.android.gms.tasks.Task;
+import com.google.android.gms.tasks.Tasks;
 import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QuerySnapshot;
+
+import java.util.ArrayList;
 import java.util.List;
 
 
 public class UserController {
-
     private final FirebaseFirestore db;
 
     public UserController() {
         db = FirebaseFirestore.getInstance();
     }
 
-    public void fetchFollowers(@NonNull String userId, List<com.kernelcrew.moodapp.data.User> followersList,
-                               androidx.recyclerview.widget.RecyclerView.Adapter<?> adapter) {
-        db.collection("users").document(userId).collection("followers")
-                .get()
-                .addOnSuccessListener(queryDocumentSnapshots -> {
-                    followersList.clear();
-                    for (DocumentSnapshot doc : queryDocumentSnapshots) {
-                        String name = doc.getId();
-                        boolean isFollowingBack = doc.getBoolean("isFollowingBack") != null && doc.getBoolean("isFollowingBack");
-                        followersList.add(new com.kernelcrew.moodapp.data.User(name, isFollowingBack));
-                    }
-                    adapter.notifyDataSetChanged();
-                })
-                .addOnFailureListener(e -> System.out.println("ERROR: Failed to load followers."));
+    /**
+     * Fetch all users following a specific user.
+     * @param uid The user to look up the followers of.
+     * @return All users following this user.
+     */
+    public Task<List<User>> fetchFollowers(@NonNull String uid) {
+        Task<QuerySnapshot> followers = db.collection("users").document(uid).collection("followers").get();
+        return followers.onSuccessTask(queryDocumentSnapshots -> {
+            List<User> followersList = new ArrayList<>();
+
+            for (DocumentSnapshot doc : queryDocumentSnapshots) {
+                String name = doc.getId();
+                Boolean isFollowingBack = doc.getBoolean("isFollowingBack");
+                if (isFollowingBack == null) {
+                    isFollowingBack = false;
+                }
+                followersList.add(new User(name, isFollowingBack));
+            }
+
+            return Tasks.forResult(followersList);
+        });
     }
 
+    /**
+     * Fetch all users followed by a specific user.
+     * @param uid The user to look up the following of.
+     * @return All users followed bt this user.
+     */
+    public Task<List<User>> fetchFollowing(@NonNull String uid) {
+        Task<QuerySnapshot> query = db.collection("users").document(uid).collection("following").get();
+        return query.onSuccessTask(queryDocumentSnapshots -> {
+            List<User> followingList = new ArrayList<>();
 
-    public void fetchFollowing(@NonNull String userId, List<com.kernelcrew.moodapp.data.User> followingList,
-                               androidx.recyclerview.widget.RecyclerView.Adapter<?> adapter) {
-        db.collection("users").document(userId).collection("following")
-                .get()
-                .addOnSuccessListener(queryDocumentSnapshots -> {
-                    followingList.clear();
-                    for (DocumentSnapshot doc : queryDocumentSnapshots) {
-                        String name = doc.getId();
-                        boolean isFollowed = doc.getBoolean("isFollowed") != null && doc.getBoolean("isFollowed");
-                        followingList.add(new com.kernelcrew.moodapp.data.User(name, isFollowed));
-                    }
-                    adapter.notifyDataSetChanged();
-                })
-                .addOnFailureListener(e -> System.out.println("ERROR: Failed to load following."));
+            for (DocumentSnapshot doc : queryDocumentSnapshots) {
+                String name = doc.getId();
+                Boolean isFollowed = doc.getBoolean("isFollowed");
+                if (isFollowed == null) {
+                    isFollowed = false;
+                }
+
+                followingList.add(new User(name, isFollowed));
+            }
+
+            return Tasks.forResult(followingList);
+        });
     }
 
-
-    public void listenForUserUpdates(@NonNull String userId, Button followersButton, Button followingButton) {
-        db.collection("users").document(userId)
-                .addSnapshotListener((documentSnapshot, error) -> {
-                    if (error != null) {
-                        followersButton.setText("Followers: 0");
-                        followingButton.setText("Following: 0");
-                        return;
-                    }
-                    if (documentSnapshot != null && documentSnapshot.exists()) {
-                        Long followersCount = documentSnapshot.getLong("followersCount");
-                        Long followingCount = documentSnapshot.getLong("followingCount");
-
-                        followersButton.setText("Followers: " + (followersCount != null ? followersCount : 0));
-                        followingButton.setText("Following: " + (followingCount != null ? followingCount : 0));
-                    }
-                });
+    /**
+     * Add a listener for changes made to the following or followers sub-collections
+     * @param uid Id of the user to listen to.
+     * @param listener Snapshot listener to attach.
+     */
+    public void addSnapshotListener(@NonNull String uid, @NonNull EventListener<DocumentSnapshot> listener) {
+        db.collection("users").document(uid).addSnapshotListener(listener);
     }
 }
