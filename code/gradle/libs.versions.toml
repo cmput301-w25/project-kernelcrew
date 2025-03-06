@@ -32,7 +32,7 @@ rules = "1.6.1"
 uiautomator = "2.3.0"
 
 [libraries]
-droidx-espresso-intents = { module = "androidx.test.espresso:espresso-intents", version.ref = "espressoContrib" }
+androidx-espresso-intents = { module = "androidx.test.espresso:espresso-intents", version.ref = "espressoContrib" }
 androidx-uiautomator = { module = "androidx.test.uiautomator:uiautomator", version.ref = "uiautomator" }
 espresso-contrib = { module = "androidx.test.espresso:espresso-contrib", version.ref = "espressoContrib" }
 coordinatorlayout-v120 = { module = "androidx.coordinatorlayout:coordinatorlayout", version.ref = "coordinatorlayoutVersion" }
@@ -49,7 +49,6 @@ google-firebase-auth = { module = "com.google.firebase:firebase-auth", version.r
 google-protobuf-javalite = { module = "com.google.protobuf:protobuf-javalite", version.ref = "protobufJavaliteVersion" }
 #recyclerview = "1.4.0"
 
-androidx-espresso-intents = { module = "androidx.test.espresso:espresso-intents", version.ref = "espressoContrib" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 ext-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }
 espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espressoCore" }
