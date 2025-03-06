@@ -13,7 +13,7 @@
     <color name="shame">#FF40D6</color>
     <color name="surprise">#FFA947</color>
     <color name="gray">#A4A4A4</color>
-    <color name="errorColor">#FF0000</color>
+    <color name="errorColor">#FF1313</color>
 
     <!--  Theme colors for dark themes.  -->
     <color name="dark_textPrimary">#EDEDED</color>

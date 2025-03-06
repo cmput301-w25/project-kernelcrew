@@ -44,6 +44,12 @@ dependencies {
     implementation libs.firebase.firestore
 
     testImplementation libs.junit
+    testImplementation libs.hamcrest
     androidTestImplementation libs.ext.junit
     androidTestImplementation libs.espresso.core
+
+    // https://github.com/awaitility/awaitility/issues/194
+    androidTestImplementation(libs.awaitility.v410) {
+        transitive = false
+    }
 }

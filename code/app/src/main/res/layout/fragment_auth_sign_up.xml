@@ -100,10 +100,11 @@
                 app:startIconContentDescription="@string/prompt_email"
                 app:boxStrokeColor="@drawable/text_input_outline_color"
                 app:hintTextColor="@drawable/text_input_hint_color"
+                app:cursorColor="@color/white"
                 app:errorTextColor="@color/white">
 
                 <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/email"
+                    android:id="@+id/emailSignUp"
                     android:layout_width="match_parent"
                     android:layout_height="61dp"
                     android:textColor="@color/white"
@@ -137,7 +138,7 @@
                 app:cursorColor="@color/white">
 
                 <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/password"
+                    android:id="@+id/passwordSignUp"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:inputType="textPassword"
@@ -146,12 +147,29 @@
                     />
             </com.google.android.material.textfield.TextInputLayout>
 
+            <!-- Spacing -->
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="16dp" />
+
+            <!-- Error Message Text -->
+            <TextView
+                android:id="@+id/errorTextSignUp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:textColor="@color/errorColor"
+                android:textSize="16sp"
+                android:layout_marginBottom="16dp"
+                android:gravity="start"
+                android:paddingHorizontal="5dp"
+                android:visibility="gone"/>
+
             <!-- Sign Up Button -->
             <Button
                 android:id="@+id/signUpButtonAuthToHome"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="24dp"
                 android:layout_marginBottom="8dp"
                 android:text="@string/action_sign_up"
                 android:textAllCaps="false" />

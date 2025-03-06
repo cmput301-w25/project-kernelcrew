@@ -71,10 +71,11 @@
                 app:startIconContentDescription="@string/prompt_email"
                 app:boxStrokeColor="@drawable/text_input_outline_color"
                 app:hintTextColor="@drawable/text_input_hint_color"
+                app:cursorColor="@color/white"
                 app:errorTextColor="@color/white">
 
                 <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/email"
+                    android:id="@+id/emailSignIn"
                     android:layout_width="match_parent"
                     android:layout_height="61dp"
                     android:textColor="@color/white"
@@ -99,15 +100,16 @@
                 app:startIconTint="@null"
                 app:startIconContentDescription="@string/prompt_password"
                 app:endIconMode="password_toggle"
-                app:endIconDrawable="@drawable/ic_visibility"
+                app:endIconDrawable="@drawable/password_toggle_selector"
                 app:endIconTint="@color/white"
                 app:endIconContentDescription="Show password"
                 app:boxStrokeColor="@drawable/text_input_outline_color"
                 app:hintTextColor="@drawable/text_input_hint_color"
-                app:errorTextColor="@color/white">
+                app:errorTextColor="@color/white"
+                app:cursorColor="@color/white">
 
                 <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/password"
+                    android:id="@+id/passwordSignIn"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:inputType="textPassword"
@@ -116,13 +118,30 @@
                     />
             </com.google.android.material.textfield.TextInputLayout>
 
+            <!-- Spacing -->
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="16dp" />
+
+            <!-- Error Message Text -->
+            <TextView
+                android:id="@+id/errorTextSignIn"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:textColor="@color/errorColor"
+                android:textSize="16sp"
+                android:layout_marginBottom="16dp"
+                android:gravity="start"
+                android:paddingHorizontal="5dp"
+                android:visibility="gone"/>
+
             <!-- Sign In Button -->
             <Button
                 android:id="@+id/signInButtonAuthToHome"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="24dp"
-                android:layout_marginBottom="8dp"
+                android:layout_marginBottom="5dp"
                 android:text="@string/action_sign_in"
                 android:textAllCaps="false" />
         </LinearLayout>

@@ -4,15 +4,12 @@ import static androidx.test.espresso.Espresso.*;
 import static androidx.test.espresso.action.ViewActions.*;
 import static androidx.test.espresso.matcher.ViewMatchers.*;
 
+import static org.awaitility.Awaitility.await;
 import static org.junit.Assert.*;
 
-import android.content.Intent;
-
 import androidx.fragment.app.FragmentContainerView;
-import androidx.test.core.app.ActivityScenario;
 import androidx.test.ext.junit.rules.ActivityScenarioRule;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
-import androidx.test.filters.LargeTest;
 
 import com.google.android.gms.tasks.Tasks;
 import com.google.firebase.auth.FirebaseAuth;
@@ -20,11 +17,9 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.kernelcrew.moodapp.data.Emotion;
-import com.kernelcrew.moodapp.ui.HomeFeed;
 import com.kernelcrew.moodapp.ui.MainActivity;
 import com.kernelcrew.moodapp.ui.components.EmotionPickerFragment;
 
-import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
@@ -32,6 +27,7 @@ import org.junit.runner.RunWith;
 
 import java.util.List;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
 
 @RunWith(AndroidJUnit4.class)
 public class CreateMoodEventTest extends FirebaseEmulatorMixin {
@@ -58,12 +54,14 @@ public class CreateMoodEventTest extends FirebaseEmulatorMixin {
         });
 
         onView(withId(R.id.submit_button)).perform(click());
-        Thread.sleep(3000);
 
-        QuerySnapshot results = Tasks.await(db.collection("moodEvents").get());
-        List<DocumentSnapshot> moodEvents = results.getDocuments();
-        assertEquals(1, moodEvents.size());
-        assertEquals("HAPPINESS", moodEvents.get(0).get("emotion"));
+        await().atMost(10, TimeUnit.SECONDS)
+                .untilAsserted(() -> {
+                    QuerySnapshot results = Tasks.await(db.collection("moodEvents").get());
+                    List<DocumentSnapshot> moodEvents = results.getDocuments();
+                    assertEquals(1, moodEvents.size());
+                    assertEquals("HAPPINESS", moodEvents.get(0).get("emotion"));
+                });
     }
 
     @Test
