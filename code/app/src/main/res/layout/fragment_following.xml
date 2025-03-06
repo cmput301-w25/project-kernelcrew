@@ -16,7 +16,6 @@
         android:layout_gravity="bottom"
         app:menu="@menu/bottom_navigation_menu"/>
 
-
     <com.google.android.material.appbar.AppBarLayout
         android:id="@+id/appBarLayout"
         android:layout_width="match_parent"
@@ -26,7 +25,6 @@
             android:id="@+id/topAppBar"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
-            app:menu="@menu/bottom_navigation_menu"
             app:title="Following"
             app:titleCentered="false" />
     </com.google.android.material.appbar.AppBarLayout>

@@ -26,8 +26,6 @@
             android:id="@+id/topAppBar"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
-            app:menu="@menu/bottom_navigation_menu"
-
             app:title="Followers"
             app:titleCentered="false" />
     </com.google.android.material.appbar.AppBarLayout>
