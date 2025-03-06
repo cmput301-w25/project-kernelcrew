@@ -43,19 +43,87 @@
             android:id="@+id/action_authSignUp_to_homeFeed"
             app:destination="@id/homeFeed" />
     </fragment>
+
     <fragment
         android:id="@+id/homeFeed"
         android:name="com.kernelcrew.moodapp.ui.HomeFeed"
         android:label="fragment_home_feed"
-        tools:layout="@layout/fragment_home_feed" />
+        tools:layout="@layout/fragment_home_feed">
+        <action
+            android:id="@+id/action_homeFeed_to_moodDetails"
+            app:destination="@id/moodDetails" />
+        <action
+            android:id="@+id/action_homeFeed_to_myProfile"
+            app:destination="@id/myProfile" />
+    </fragment>
+    <fragment
+        android:id="@+id/moodDetails"
+        android:name="com.kernelcrew.moodapp.ui.MoodDetails"
+        android:label="Mood Details"
+        tools:layout="@layout/fragment_mood_details">
+        <argument
+            android:name="moodEventId"
+            app:argType="string" />
+        <argument
+            android:name="sourceScreen"
+            app:argType="string"
+            android:defaultValue="home" />
+<!--        <action-->
+<!--            android:id="@+id/action_moodDetails_to_editMood"-->
+<!--            app:destination="@id/editMood" />-->
+    </fragment>
+
+<!--    <fragment-->
+<!--        android:id="@+id/editMood"-->
+<!--        android:name="com.kernelcrew.moodapp.ui.EditMood"-->
+<!--        android:label="Edit Mood"-->
+<!--        tools:layout="@layout/fragment_edit_mood">-->
+<!--        <argument-->
+<!--            android:name="moodEventId"-->
+<!--            app:argType="string" />-->
+<!--    </fragment>-->
+
     <fragment
         android:id="@+id/myProfile"
         android:name="com.kernelcrew.moodapp.ui.MyProfile"
         android:label="fragment_my_profile"
-        tools:layout="@layout/fragment_my_profile" />
+        tools:layout="@layout/fragment_my_profile" >
+        <action
+            android:id="@+id/action_myProfile_to_followersPage"
+            app:destination="@id/followersFragment" />
+        <action
+            android:id="@+id/action_myProfile_to_followingPage"
+            app:destination="@id/followingFragment" />
+        <action
+            android:id="@+id/action_myProfile_to_moodHistoryPage"
+            app:destination="@id/moodHistory" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/followersFragment"
+        android:name="com.kernelcrew.moodapp.ui.FollowersFragment"
+        android:label="Followers"
+        tools:layout="@layout/fragment_followers" />
+
+    <fragment
+        android:id="@+id/followingFragment"
+        android:name="com.kernelcrew.moodapp.ui.FollowingFragment"
+        android:label="Following"
+        tools:layout="@layout/fragment_following" />
+
     <fragment
         android:id="@+id/createMoodEvent"
         android:name="com.kernelcrew.moodapp.ui.CreateMoodEvent"
         android:label="fragment_create_mood_event"
         tools:layout="@layout/fragment_create_mood_event" />
+
+    <fragment
+        android:id="@+id/moodHistory"
+        android:name="com.kernelcrew.moodapp.ui.MoodHistory"
+        android:label="fragment_mood_history"
+        tools:layout="@layout/fragment_mood_history">
+        <action
+            android:id="@+id/action_moodHistory_to_homeFeed"
+            app:destination="@id/homeFeed" />
+    </fragment>
 </navigation>

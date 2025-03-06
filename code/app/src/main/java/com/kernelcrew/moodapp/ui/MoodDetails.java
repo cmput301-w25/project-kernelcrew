@@ -81,7 +81,7 @@ public class MoodDetails extends Fragment {
             // TODO: Pass any additional fields if needed
 
             // Navigate to the EditMood fragment using the Navigation Component
-            NavHostFragment.findNavController(this).navigate(R.id.action_moodDetails_to_editMood, args);
+//            NavHostFragment.findNavController(this).navigate(R.id.action_moodDetails_to_editMood, args);
         });
 
         return view;
