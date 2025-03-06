@@ -4,8 +4,7 @@ androidxJunit = "1.2.1"
 espressoContrib = "3.6.1"
 firebaseBom = "33.10.0"
 awaitility = "4.3.0"
-awaitilityVersion = "4.1.0"
-firebaseBom = "33.9.0"
+awaitilityVersion = "4.3.0"
 hamcrest = "2.1"
 junit = "4.13.2"
 junitVersion = "1.2.1"
@@ -45,9 +44,8 @@ navigation-fragment = { module = "androidx.navigation:navigation-fragment", vers
 annotation = { group = "androidx.annotation", name = "annotation", version.ref = "annotation" }
 lifecycle-livedata-ktx = { group = "androidx.lifecycle", name = "lifecycle-livedata-ktx", version.ref = "lifecycleLivedataKtx" }
 lifecycle-viewmodel-ktx = { group = "androidx.lifecycle", name = "lifecycle-viewmodel-ktx", version.ref = "lifecycleViewmodelKtx" }
-play-services-auth = { module = "com.google.android.gms:play-services-auth", version.ref = "playServicesAuth" }
 recyclerview = { group = "androidx.recyclerview", name = "recyclerview", version.ref = "recyclerview" }
-firebase-firestore = { group = "com.google.firebase", name = "firebase-firestore", version.ref = "firebaseFirestore" }
+google-firebase-firestore = { group = "com.google.firebase", name = "firebase-firestore", version.ref = "firebaseFirestore" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
