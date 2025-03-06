@@ -40,16 +40,34 @@ dependencies {
     implementation libs.lifecycle.livedata.ktx
     implementation libs.lifecycle.viewmodel.ktx
     implementation libs.firebase.auth
-    implementation libs.recyclerview
     implementation libs.firebase.firestore
     implementation libs.google.firebase.firestore
+    implementation libs.google.firebase.auth
+    implementation libs.github.glide
+    implementation libs.github.glide
+    implementation libs.protobuf.javalite.v32112
+    implementation libs.coordinatorlayout.v120
+    implementation libs.core.ktx
+    implementation libs.appcompat
+    implementation libs.material.v180
+    implementation libs.coordinatorlayout
+    implementation libs.protobuf.javalite.v3180
     implementation(platform(libs.firebase.bom))
+//    implementation libs.recyclerview
+//    implementation libs.play.services
+
+    annotationProcessor libs.glide.compiler
+    annotationProcessor libs.glide.compiler
 
     testImplementation libs.junit
     testImplementation libs.hamcrest
     androidTestImplementation libs.ext.junit
     androidTestImplementation libs.junit.v113
     androidTestImplementation libs.espresso.core
+    androidTestImplementation libs.junit.v115
+    androidTestImplementation libs.espresso.core.v351
+    androidTestImplementation libs.rules
+    androidTestImplementation libs.google.protobuf.javalite
     androidTestImplementation libs.androidx.espresso.intents
     androidTestImplementation libs.androidx.uiautomator
 
@@ -64,3 +82,6 @@ dependencies {
         transitive = false
     }
 }
+
+apply plugin: 'com.android.application'
+apply plugin: 'com.google.gms.google-services'

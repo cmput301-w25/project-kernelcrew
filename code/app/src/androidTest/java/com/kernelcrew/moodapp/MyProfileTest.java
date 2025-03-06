@@ -19,25 +19,48 @@ import androidx.test.espresso.matcher.ViewMatchers;
 import androidx.test.ext.junit.rules.ActivityScenarioRule;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
-import com.google.android.gms.tasks.Task;
 import com.google.android.gms.tasks.Tasks;
-import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.AuthResult;
+import com.google.firebase.firestore.FirebaseFirestore;
 import com.kernelcrew.moodapp.ui.MainActivity;
 
-import org.junit.Before;
+import org.junit.After;
+import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.ExecutionException;
 
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
 @RunWith(AndroidJUnit4.class)
 public class MyProfileTest extends FirebaseEmulatorMixin {
-    // Changeable strings
-    private static final String TEST_EMAIL =  "test@kernelcrew.com";
-    private static final String TEST_PASSWORD = "Password@1234";
+
+    private static final String USER_EMAIL = "test@kernelcrew.com";
+    private static final String USER_PASSWORD = "Password@1234";
+    private static final String TEST_USERNAME = "dummyUser";
+
+    @BeforeClass
+    public static void seedDatabase() throws ExecutionException, InterruptedException {
+        // Seed Firestore with test user profile data.
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        FirebaseAuth auth = FirebaseAuth.getInstance();
+
+        // Create the test user.
+        Tasks.await(auth.createUserWithEmailAndPassword(USER_EMAIL, USER_PASSWORD));
+
+        Map<String, Object> profileData = new HashMap<>();
+        profileData.put("username", TEST_USERNAME);
+        profileData.put("bio", "This is a test bio");
+
+        Tasks.await(db.collection("users").document(TEST_USERNAME).set(profileData));
+        auth.signOut();
+    }
 
     @Rule
     public ActivityScenarioRule<MainActivity> activityScenarioRule =
@@ -87,7 +110,6 @@ public class MyProfileTest extends FirebaseEmulatorMixin {
         onView(withId(R.id.following_button)).check(matches(isDisplayed()));
 
         // --- Perform Sign Out ---
-        // Directly click signOutButton (removing scrollTo())
         onView(withId(R.id.signOutButton)).perform(click());
         SystemClock.sleep(3000);
 
@@ -100,5 +122,12 @@ public class MyProfileTest extends FirebaseEmulatorMixin {
         Task<AuthResult> createUserTask = auth.createUserWithEmailAndPassword(TEST_EMAIL, TEST_PASSWORD);
         Tasks.await(createUserTask);
         auth.signOut();
+    }
+
+
+    @After
+    public void signOutTheUser() {
+        // Ensure the user is signed out after the test runs.
+        FirebaseAuth.getInstance().signOut();
     }
 }

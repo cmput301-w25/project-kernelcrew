@@ -9,20 +9,28 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.navigation.NavController;
+import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+
+import com.google.android.gms.tasks.Tasks;
 import com.google.android.material.navigation.NavigationBarView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.kernelcrew.moodapp.R;
+import com.kernelcrew.moodapp.data.Emotion;
+import com.kernelcrew.moodapp.data.MoodEvent;
 import com.kernelcrew.moodapp.ui.Mood;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 
 public class HomeFeed extends Fragment {
     FirebaseAuth auth;
@@ -86,6 +94,18 @@ public class HomeFeed extends Fragment {
                         moodAdapter.setMoods(moodList);
                     }
                 });
+
+        moodAdapter.setOnMoodClickListener(new MoodAdapter.OnMoodClickListener() {
+            @Override
+            public void onViewDetails(Mood mood) {
+                // Use mood.getId() (or however you retrieve the moodEventId) and navigate to MoodDetails.
+                Bundle args = new Bundle();
+                args.putString("moodEventId", mood.getId());
+                args.putString("sourceScreen", "home"); // or "filtered"
+                NavController navController = Navigation.findNavController(getActivity(), R.id.nav_host_fragment);
+                navController.navigate(R.id.action_homeFeed_to_moodDetails, args);
+            }
+        });
 
         return view;
     }
