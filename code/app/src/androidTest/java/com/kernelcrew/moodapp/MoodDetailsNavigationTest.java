@@ -55,6 +55,27 @@ public class MoodDetailsNavigationTest extends FirebaseEmulatorMixin {
     public ActivityScenarioRule<MainActivity> activityScenarioRule =
             new ActivityScenarioRule<>(MainActivity.class);
 
+    // Custom ViewAction to click a child view with a given id.
+    public static ViewAction clickChildViewWithId(final int id) {
+        return new ViewAction() {
+            @Override
+            public Matcher<View> getConstraints() {
+                return isDisplayed();
+            }
+            @Override
+            public String getDescription() {
+                return "Click on a child view with specified id.";
+            }
+            @Override
+            public void perform(UiController uiController, View view) {
+                View childView = view.findViewById(id);
+                if (childView != null && childView.isClickable()) {
+                    childView.performClick();
+                }
+            }
+        };
+    }
+
     @BeforeClass
     public static void seedDatabase() throws ExecutionException, InterruptedException {
         // Seed Firestore with a test Mood and corresponding MoodEvent.
@@ -120,14 +141,10 @@ public class MoodDetailsNavigationTest extends FirebaseEmulatorMixin {
         // Click on the first mood item in the RecyclerView to view its details.
         // (Ensure that your HomeFeed layout contains a RecyclerView with id moodRecyclerView.)
         onView(withId(R.id.moodRecyclerView))
-                .perform(RecyclerViewActions.actionOnItemAtPosition(0, click()));
+                .perform(RecyclerViewActions.actionOnItemAtPosition(0, clickChildViewWithId(R.id.viewDetailsButton)));
 
         // Wait for the MoodDetails screen to load.
         SystemClock.sleep(3000);
-
-        // Click on view details button to go to view details screen
-        onView(withId(R.id.viewDetailsButton))
-                .perform(click());
 
         // Verify that key elements on the MoodDetails screen are displayed and have the correct text.
         onView(withId(R.id.tvMoodState))
