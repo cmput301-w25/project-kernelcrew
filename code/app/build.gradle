@@ -53,7 +53,7 @@ dependencies {
     implementation libs.coordinatorlayout
     implementation libs.protobuf.javalite.v3180
     implementation(platform(libs.firebase.bom))
-    implementation libs.recyclerview
+//    implementation libs.recyclerview
 //    implementation libs.play.services
 
     annotationProcessor libs.glide.compiler
