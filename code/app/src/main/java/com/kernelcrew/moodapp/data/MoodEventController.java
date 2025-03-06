@@ -4,6 +4,7 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QuerySnapshot;
 
 public class MoodEventController {
     private static MoodEventController instance;
@@ -30,5 +31,9 @@ public class MoodEventController {
      */
     public Task<DocumentReference> insertMoodEvent(MoodEvent moodEvent) {
         return collection.add(moodEvent);
+    }
+
+    public Task<QuerySnapshot> getMoodEvents(){
+        return collection.get();
     }
 }
