@@ -142,6 +142,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="5dp"
+                android:elevation="8dp"
                 android:text="@string/action_sign_in"
                 android:textAllCaps="false" />
         </LinearLayout>
