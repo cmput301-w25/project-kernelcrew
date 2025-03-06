@@ -170,6 +170,7 @@
                 android:id="@+id/signUpButtonAuthToHome"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:elevation="8dp"
                 android:layout_marginBottom="8dp"
                 android:text="@string/action_sign_up"
                 android:textAllCaps="false" />
