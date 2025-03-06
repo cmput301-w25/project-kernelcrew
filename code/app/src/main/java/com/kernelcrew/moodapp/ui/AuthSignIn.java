@@ -80,6 +80,9 @@ public class AuthSignIn extends Fragment {
                            Log.i("Login", "Logged in as user with id: " + result.getUser().getUid());
                            Navigation.findNavController(btnView).navigate(R.id.action_authSignIn_to_homeFeed);
                        });
+           } else {
+               // For testing
+               Navigation.findNavController(btnView).navigate(R.id.action_authSignIn_to_homeFeed);
            }
        });
 
