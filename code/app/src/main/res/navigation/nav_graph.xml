@@ -2,8 +2,8 @@
 <navigation xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/nav_graph.xml"
-    app:startDestination="@id/authHome">
+    android:id="@+id/frag.xml"
+    app:startDestination="@id/deleteDialogFragment">
 
     <fragment
         android:id="@+id/authHome"
@@ -51,4 +51,14 @@
         android:name="com.kernelcrew.moodapp.ui.MyProfile"
         android:label="fragment_my_profile"
         tools:layout="@layout/fragment_my_profile" />
+    <fragment
+        android:id="@+id/mapsFragment2"
+        android:name="com.kernelcrew.moodapp.ui.MapsFragment"
+        android:label="fragment_maps"
+        tools:layout="@layout/fragment_maps" />
+    <fragment
+        android:id="@+id/deleteDialogFragment"
+        android:name="com.kernelcrew.moodapp.ui.DeleteDialogFragment"
+        android:label="Delete Dialog"
+        tools:layout="@layout/fragment_delete_dialog" />
 </navigation>

@@ -1,33 +1,49 @@
 [versions]
 agp = "8.8.0"
-firebaseBom = "33.9.0"
+androidx-activity = "1.8.2"
+androidx-appcompat = "1.6.1"
+androidx-constraintlayout = "2.1.4"
+androidx-navigation = "2.7.7"
+androidx-annotation = "1.7.1"
+androidx-lifecycle = "2.7.0"
+androidx-test = "1.5.0"
+androidx-test-ext = "1.1.5"
+androidx-espresso = "3.5.1"
+androidx-fragment = "1.6.2"
+android-material = "1.11.0"
+firebase = "22.3.1"
+firebase-platform = "32.7.2"
+gms-maps = "18.2.0"
+gms-location = "21.1.0"
 junit = "4.13.2"
-junitVersion = "1.2.1"
-espressoCore = "3.6.1"
-appcompat = "1.7.0"
-material = "1.12.0"
-activity = "1.10.0"
-constraintlayout = "2.2.0"
-navigationCommon = "2.8.7"
-annotation = "1.6.0"
-lifecycleLivedataKtx = "2.6.1"
-lifecycleViewmodelKtx = "2.6.1"
+robolectric = "4.11.1"
+uiautomator = "2.3.0"
 
 [libraries]
-firebase-auth = { module = "com.google.firebase:firebase-auth" }
-firebase-bom = { module = "com.google.firebase:firebase-bom", version.ref = "firebaseBom" }
+activity = { group = "androidx.activity", name = "activity", version.ref = "androidx-activity" }
+appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "androidx-appcompat" }
+constraintlayout = { group = "androidx.constraintlayout", name = "constraintlayout", version.ref = "androidx-constraintlayout" }
+navigation-common = { group = "androidx.navigation", name = "navigation-common", version.ref = "androidx-navigation" }
+navigation-fragment = { group = "androidx.navigation", name = "navigation-fragment", version.ref = "androidx-navigation" }
+annotation = { group = "androidx.annotation", name = "annotation", version.ref = "androidx-annotation" }
+lifecycle-livedata-ktx = { group = "androidx.lifecycle", name = "lifecycle-livedata-ktx", version.ref = "androidx-lifecycle" }
+lifecycle-viewmodel-ktx = { group = "androidx.lifecycle", name = "lifecycle-viewmodel-ktx", version.ref = "androidx-lifecycle" }
+material = { group = "com.google.android.material", name = "material", version.ref = "android-material" }
+firebase-auth = { group = "com.google.firebase", name = "firebase-auth", version.ref = "firebase" }
+firebase-platform = { group = "com.google.firebase", name = "firebase-bom", version.ref = "firebase-platform" }
+play-services-maps = { group = "com.google.android.gms", name = "play-services-maps", version.ref = "gms-maps" }
+play-services-location = { group = "com.google.android.gms", name = "play-services-location", version.ref = "gms-location" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
-ext-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }
-espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espressoCore" }
-appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "appcompat" }
-material = { group = "com.google.android.material", name = "material", version.ref = "material" }
-activity = { group = "androidx.activity", name = "activity", version.ref = "activity" }
-constraintlayout = { group = "androidx.constraintlayout", name = "constraintlayout", version.ref = "constraintlayout" }
-navigation-common = { module = "androidx.navigation:navigation-common", version.ref = "navigationCommon" }
-navigation-fragment = { module = "androidx.navigation:navigation-fragment", version.ref = "navigationCommon" }
-annotation = { group = "androidx.annotation", name = "annotation", version.ref = "annotation" }
-lifecycle-livedata-ktx = { group = "androidx.lifecycle", name = "lifecycle-livedata-ktx", version.ref = "lifecycleLivedataKtx" }
-lifecycle-viewmodel-ktx = { group = "androidx.lifecycle", name = "lifecycle-viewmodel-ktx", version.ref = "lifecycleViewmodelKtx" }
+robolectric = { group = "org.robolectric", name = "robolectric", version.ref = "robolectric" }
+androidx-test-core = { group = "androidx.test", name = "core", version.ref = "androidx-test" }
+androidx-test-runner = { group = "androidx.test", name = "runner", version.ref = "androidx-test" }
+androidx-test-rules = { group = "androidx.test", name = "rules", version.ref = "androidx-test" }
+androidx-test-ext-junit = { group = "androidx.test.ext", name = "junit", version.ref = "androidx-test-ext" }
+androidx-test-ext-junit-ktx = { group = "androidx.test.ext", name = "junit-ktx", version.ref = "androidx-test-ext" }
+espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "androidx-espresso" }
+espresso-intents = { group = "androidx.test.espresso", name = "espresso-intents", version.ref = "androidx-espresso" }
+fragment-testing = { group = "androidx.fragment", name = "fragment-testing", version.ref = "androidx-fragment" }
+uiautomator = { group = "androidx.test.uiautomator", name = "uiautomator", version.ref = "uiautomator" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

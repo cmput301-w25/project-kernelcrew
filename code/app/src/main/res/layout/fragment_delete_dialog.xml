@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Code from Claude AI, Anthropic, "Create Material Design delete confirmation dialog layout", accessed 03-13-2025 -->
+<androidx.cardview.widget.CardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/delete_dialog_card"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_margin="16dp"
+    app:cardCornerRadius="28dp"
+    app:cardBackgroundColor="#F3E5F5">
+
+    <LinearLayout
+        android:id="@+id/delete_dialog_container"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="24dp">
+
+        <TextView
+            android:id="@+id/delete_dialog_title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Delete this mood event?"
+            android:textSize="24sp"
+            android:textColor="#000000"
+            android:textStyle="bold"
+            android:layout_marginBottom="16dp"/>
+
+        <TextView
+            android:id="@+id/delete_dialog_message"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Are you sure you want to delete this mood event? It cannot be recovered after deletion."
+            android:textSize="16sp"
+            android:textColor="#666666"
+            android:layout_marginBottom="24dp"/>
+
+        <LinearLayout
+            android:id="@+id/delete_dialog_buttons"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="end">
+
+            <Button
+                android:id="@+id/btn_keep"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="No, Keep It"
+                android:textAllCaps="false"
+                android:layout_marginEnd="16dp"
+                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                android:textColor="#673AB7"/>
+
+            <Button
+                android:id="@+id/btn_delete"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Yes, Delete It"
+                android:textAllCaps="false"
+                style="@style/Widget.MaterialComponents.Button.TextButton"
+                android:textColor="#673AB7"/>
+        </LinearLayout>
+    </LinearLayout>
+</androidx.cardview.widget.CardView> 

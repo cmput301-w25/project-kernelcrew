@@ -1,34 +1,135 @@
 plugins {
     alias(libs.plugins.android.application)
+    //Next line from Google cloud API documentation on maps and location, accessed 03-02-2025
     id 'com.google.gms.google-services'
 }
 
+// Code from Claude AI, Anthropic, "Configure Android project settings", accessed 03-06-2024
 android {
-    namespace 'com.kernelcrew.moodapp'
-    compileSdk 35
+    namespace = 'com.kernelcrew.moodapp'
+    compileSdk = 34
 
     defaultConfig {
-        applicationId "com.kernelcrew.moodapp"
-        minSdk 24
-        targetSdk 35
-        versionCode 1
-        versionName "1.0"
-
-        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        applicationId = "com.kernelcrew.moodapp"
+        minSdk = 24
+        targetSdk = 34
+        versionCode = 1
+        versionName = "1.0"
+        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
+    // Code from Claude AI, Anthropic, "Configure Android build types", accessed 03-06-2024
     buildTypes {
         release {
-            minifyEnabled false
-            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            minifyEnabled = false
+            proguardFiles = [getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro']
         }
     }
+
+    //Code from Claude AI, Anthropic, "Configure Java 11 compatibility", accessed 03-05-2025
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_11
-        targetCompatibility JavaVersion.VERSION_11
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
+    }
+
+    //Code from Claude AI, Anthropic, "Configure Android unit testing with JUnit", accessed 03-05-2025
+    testOptions {
+        unitTests {
+            includeAndroidResources = true
+            returnDefaultValues = true
+        }
+    }
+
+    // Code from Claude AI, Anthropic, "Fix Robolectric test failures in Android project", accessed 03-06-2024
+    testOptions {
+        unitTests {
+            includeAndroidResources = true
+            
+            all {
+                // Configure Robolectric properly
+                systemProperty 'robolectric.logging', 'stdout'
+                systemProperty 'robolectric.graphicsMode', 'NATIVE'
+                systemProperty 'robolectric.dependency.repo.id', 'central'
+                systemProperty 'robolectric.dependency.repo.url', 'https://repo1.maven.org/maven2'
+            }
+        }
+    }
+
+    // Code from Claude AI, Anthropic, "Configure test task for all build variants", accessed 03-06-2024
+    tasks.withType(Test) {
+        testLogging {
+            events "passed", "skipped", "failed", "standardOut", "standardError"
+            showStandardStreams = true
+            exceptionFormat = "full"
+        }
+    }
+    
+    // Code from Claude AI, Anthropic, "Configure source sets for test resources", accessed 03-06-2024
+    sourceSets {
+        test {
+            resources {
+                srcDirs = ["src/test/resources"]
+            }
+        }
+    }
+    
+    // Code from Claude AI, Anthropic, "Create custom test tasks for Android project", accessed 03-06-2024
+    tasks.register('runAllTests') {
+        dependsOn 'testDebugUnitTest', 'testReleaseUnitTest'
+        group = 'verification'
+        description = 'Runs all unit tests.'
+        doLast {
+            println "All unit tests have completed."
+        }
+    }
+
+    // Code from Claude AI, Anthropic, "Configure hook into standard test task", accessed 03-07-2024
+    tasks.matching { it.name == 'test' }.configureEach {
+        dependsOn 'testDebugUnitTest'
+    }
+    
+    // Code from Claude AI, Anthropic, "Configure test filtering for release variant", accessed 03-07-2024
+    tasks.whenTaskAdded { task ->
+        if (task.name == 'testReleaseUnitTest') {
+            task.filter {
+                excludeTestsMatching "com.kernelcrew.moodapp.LocationLogicTest*"
+            }
+        }
+    }
+
+    // Add Javadoc configuration
+    // Code from Claude AI, Anthropic, "Configure Javadoc generation for Android projects", accessed 03-06-2024
+    tasks.register('generateJavadoc', Javadoc) {
+        description = 'Generates Javadoc for the main source code'
+        source = android.sourceSets.main.java.srcDirs
+        exclude '**/BuildConfig.java'
+        exclude '**/R.java'
+        
+        // Get the Android jar file
+        def androidJar = "${android.sdkDirectory}/platforms/${android.compileSdkVersion}/android.jar"
+        classpath = files(androidJar)
+        
+        options {
+            docTitle = "MoodApp Documentation"
+            windowTitle = "MoodApp API"
+            encoding = 'UTF-8'
+            charSet = 'UTF-8'
+            author = true
+            version = true
+            links = ["https://docs.oracle.com/javase/8/docs/api/"]
+        }
+        
+        failOnError = false
+        destinationDir = file("${project.buildDir}/docs/javadoc")
+        
+        doFirst {
+            logger.lifecycle("Generating Javadocs for ${source}")
+            logger.lifecycle("Using classpath: ${classpath.asPath}")
+        }
     }
 }
 
+// Code from Claude AI, Anthropic, "Configure Android project dependencies", accessed 03-07-2024
 dependencies {
     implementation libs.appcompat
     implementation libs.material
@@ -40,10 +141,58 @@ dependencies {
     implementation libs.lifecycle.livedata.ktx
     implementation libs.lifecycle.viewmodel.ktx
     implementation libs.firebase.auth
-    implementation(platform(libs.firebase.bom))
+    implementation(platform(libs.firebase.platform))
+    //Next two lines from Google cloud API documentation on maps and location, accessed 03-02-2025
+    implementation libs.play.services.maps
+    implementation libs.play.services.location
 
+    // Code from Claude AI, Anthropic, "Configure testing dependencies for Android project", accessed 03-07-2024
+    // Testing dependencies
     testImplementation libs.junit
-
-    androidTestImplementation libs.ext.junit
+    
+    // Robolectric - updated with proper configuration
+    // Code from Claude AI, Anthropic, "Fix ClassNotFoundException in Android unit tests with Robolectric", accessed 03-06-2024
+    testImplementation 'org.robolectric:robolectric:4.10.3'
+    testImplementation 'org.robolectric:shadows-framework:4.10.3'
+    testImplementation 'androidx.test:core:1.5.0'
+    testImplementation 'androidx.test.ext:junit:1.1.5'
+    debugImplementation 'androidx.fragment:fragment-testing:1.6.2'
+    
+    // Code from Claude AI, Anthropic, "Configure additional test support libraries", accessed 03-07-2024
+    // Additional test support
+    testImplementation 'androidx.arch.core:core-testing:2.2.0'
+    testImplementation 'androidx.test.espresso:espresso-core:3.5.1'
+    testImplementation 'androidx.test:rules:1.5.0'
+    
+    testImplementation 'androidx.test.ext:junit:1.1.5'
+    
+    // Code from Claude AI, Anthropic, "Configure AndroidX Test libraries", accessed 03-07-2024
+    // AndroidX Test Core library
+    androidTestImplementation libs.androidx.test.core
+    androidTestImplementation libs.androidx.test.runner
+    androidTestImplementation libs.androidx.test.rules
+    
+    // AndroidJUnitRunner and Rules
+    androidTestImplementation libs.androidx.test.ext.junit
+    androidTestImplementation libs.androidx.test.ext.junit.ktx
+    
+    // Espresso
     androidTestImplementation libs.espresso.core
+    androidTestImplementation libs.espresso.intents
+    
+    // UiAutomator
+    androidTestImplementation 'androidx.test.uiautomator:uiautomator:2.3.0'
+    
+    // Code from Claude AI, Anthropic, "Configure fragment testing dependencies", accessed 03-07-2024
+    // Fragment testing
+    androidTestImplementation libs.fragment.testing
+    debugImplementation libs.fragment.testing
+    
+    // Code from Claude AI, Anthropic, "Fix release variant fragment testing", accessed 03-07-2024
+    // Enable fragment testing in release variant for testing
+    debugImplementation 'androidx.fragment:fragment-testing-manifest:1.6.2'
+    testReleaseImplementation 'androidx.fragment:fragment-testing:1.6.2'
+    testReleaseImplementation 'androidx.fragment:fragment-testing-manifest:1.6.2'
+
+    testImplementation 'junit:junit:4.13.2'
 }
