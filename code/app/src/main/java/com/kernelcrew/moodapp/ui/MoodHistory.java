@@ -1,13 +1,11 @@
 package com.kernelcrew.moodapp.ui;
 
 import android.os.Bundle;
-import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
@@ -19,15 +17,12 @@ import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.kernelcrew.moodapp.R;
 import com.kernelcrew.moodapp.data.MoodEventController;
-import com.kernelcrew.moodapp.ui.Mood;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
-import java.util.Locale;
 
-public class MoodHistory extends Fragment {
+public class MoodHistory extends Fragment implements MoodHistoryAdapter.OnItemClickListener {
 
     private RecyclerView recyclerView;
     private MoodHistoryAdapter adapter;
@@ -42,22 +37,13 @@ public class MoodHistory extends Fragment {
 
         // Set up RecyclerView
         recyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
-        adapter = new MoodHistoryAdapter(moods);
+        adapter = new MoodHistoryAdapter(moods, this);
         recyclerView.setAdapter(adapter);
 
         // Fetch mood events from Firebase
         fetchMoodEvents();
 
-        toolbar.setNavigationOnClickListener(v -> {
-            NavController navController = Navigation.findNavController(requireActivity(), R.id.nav_host_fragment);
-
-            // Navigate based on the sourceScreen
-            if ("profile".equals(sourceScreen)) {
-                navController.navigate(R.id.myProfile);
-            } else if ("home".equals(sourceScreen)) {
-                navController.navigate(R.id.homeFeed);
-            }
-        });
+        toolbar.setNavigationOnClickListener(v -> handleBackButton());
 
         return view;
     }
@@ -92,5 +78,19 @@ public class MoodHistory extends Fragment {
                 }
             }
         });
+    }
+
+    private void handleBackButton() {
+        androidx.navigation.fragment.NavHostFragment.findNavController(this).popBackStack();
+    }
+
+    @Override
+    public void onItemClick(String moodEventId) {
+        // Navigate to MoodDetails fragment with the moodEventId as an argument
+        Bundle args = new Bundle();
+        args.putString("moodEventId", moodEventId);
+
+        NavController navController = Navigation.findNavController(requireActivity(), R.id.nav_host_fragment);
+        navController.navigate(R.id.action_moodHistory_to_moodDetails, args);
     }
 }

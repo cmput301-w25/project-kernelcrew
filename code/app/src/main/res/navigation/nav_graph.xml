@@ -126,8 +126,14 @@
             android:name="sourceScreen"
             app:argType="string"
             android:defaultValue="home"/>
+        <argument
+            android:name="moodEventId"
+            app:argType="string"/>
         <action
             android:id="@+id/action_moodHistory_to_homeFeed"
             app:destination="@id/homeFeed" />
+        <action
+            android:id="@+id/action_moodHistory_to_moodDetails"
+            app:destination="@id/moodDetails" />
     </fragment>
 </navigation>

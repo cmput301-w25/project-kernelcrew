@@ -22,8 +22,15 @@ public class MoodHistoryAdapter extends RecyclerView.Adapter<MoodHistoryAdapter.
     private List<Mood> moods;
     private SimpleDateFormat dateFormat = new SimpleDateFormat("MMM d, yyyy", Locale.ENGLISH);
 
-    public MoodHistoryAdapter(List<Mood> moods) {
-        this.moods = moods;
+    public interface OnItemClickListener {
+        void onItemClick(String moodEventId);
+    }
+
+    private OnItemClickListener listener;
+
+    public MoodHistoryAdapter(List<Mood> moods, OnItemClickListener listener) {
+        this.moods = moods != null ? moods : new ArrayList<>();
+        this.listener = listener;
     }
 
     @NonNull
@@ -42,6 +49,13 @@ public class MoodHistoryAdapter extends RecyclerView.Adapter<MoodHistoryAdapter.
 
         holder.textDate.setText(formattedDate);
         holder.textMoodEventNumber.setText("Mood Event " + (position + 1));
+
+        // Set click listener on the item view
+        holder.itemView.setOnClickListener(v -> {
+            if (listener != null) {
+                listener.onItemClick(mood.getId());
+            }
+        });
     }
 
     @Override
