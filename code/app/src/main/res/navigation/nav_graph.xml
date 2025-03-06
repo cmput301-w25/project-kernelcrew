@@ -122,6 +122,10 @@
         android:name="com.kernelcrew.moodapp.ui.MoodHistory"
         android:label="fragment_mood_history"
         tools:layout="@layout/fragment_mood_history">
+        <argument
+            android:name="sourceScreen"
+            app:argType="string"
+            android:defaultValue="home"/>
         <action
             android:id="@+id/action_moodHistory_to_homeFeed"
             app:destination="@id/homeFeed" />

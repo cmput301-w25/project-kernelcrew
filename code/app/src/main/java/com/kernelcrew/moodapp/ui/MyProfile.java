@@ -50,7 +50,12 @@ public class MyProfile extends Fragment {
         signOutButton.setOnClickListener(this::onClickSignOut);
 //        followersButton.setOnClickListener(v -> Navigation.findNavController(v).navigate(R.id.action_myProfile_to_followersPage));
 //        followingButton.setOnClickListener(v -> Navigation.findNavController(v).navigate(R.id.action_myProfile_to_followingPage));
-        moodHistoryButton.setOnClickListener(v -> Navigation.findNavController(v).navigate(R.id.action_myProfile_to_moodHistoryPage));
+        Bundle bundle = new Bundle();
+        bundle.putString("sourceScreen", "profile");
+        moodHistoryButton.setOnClickListener(v ->
+                Navigation.findNavController(v)
+                        .navigate(R.id.action_myProfile_to_moodHistoryPage, bundle)
+        );
 
         // User details
         if (user != null) {

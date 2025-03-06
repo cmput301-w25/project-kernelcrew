@@ -27,7 +27,7 @@ public class MoodHistory extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_mood_history, container, false);
-
+        String sourceScreen = getArguments() != null ? getArguments().getString("sourceScreen", "home") : "home";
         MaterialToolbar toolbar = view.findViewById(R.id.topAppBar);
         RecyclerView recyclerView = view.findViewById(R.id.recyclerViewMoodHistory);
 
@@ -52,7 +52,12 @@ public class MoodHistory extends Fragment {
 
         toolbar.setNavigationOnClickListener(v -> {
             NavController navController = Navigation.findNavController(requireActivity(), R.id.nav_host_fragment);
-            navController.navigate(R.id.homeFeed);
+
+            if ("profile".equals(sourceScreen)) {
+                navController.navigate(R.id.myProfile);
+            } else if ("home".equals(sourceScreen)) {
+                navController.navigate(R.id.homeFeed);
+            }
         });
 
         return view;

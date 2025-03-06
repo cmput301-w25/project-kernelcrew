@@ -1,5 +1,6 @@
 package com.kernelcrew.moodapp.ui;
 
+import android.os.Bundle;
 import android.view.MenuItem;
 import android.view.View;
 
@@ -46,6 +47,9 @@ public class BottomNavBarController implements NavigationBarView.OnItemSelectedL
             page = R.id.myProfile;
         } else if (itemId == R.id.page_myHistory) {
             page = R.id.moodHistory;
+            Bundle bundle = new Bundle();
+            bundle.putString("sourceScreen", "home");
+            Navigation.findNavController(this.view).navigate(page, bundle);
         } else {
             return false;
         }
