@@ -116,17 +116,17 @@ public class MoodDetailsNavigationTest extends FirebaseEmulatorMixin {
 
 
         // Now on AuthSignIn screen: Check that the email field is displayed.
-        onView(withId(R.id.email))
+        onView(withId(R.id.emailSignIn))
                 .check(matches(isDisplayed()));
 
         // Fill in the email and password fields.
-        onView(withId(R.id.email))
+        onView(withId(R.id.emailSignIn))
                 .perform(replaceText(USER_EMAIL), ViewActions.closeSoftKeyboard());
-        onView(withId(R.id.password))
+        onView(withId(R.id.passwordSignIn))
                 .perform(replaceText(USER_PASSWORD), ViewActions.closeSoftKeyboard());
 
         // Click the sign in button on AuthSignIn.
-        onView(withId(R.id.signInButton))
+        onView(withId(R.id.signInButtonAuthToHome))
                 .perform(click());
 
         SystemClock.sleep(1000);

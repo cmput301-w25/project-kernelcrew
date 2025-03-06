@@ -8,7 +8,7 @@ import java.util.UUID;
  */
 public class MoodEvent {
     private String id;
-    private String uid;
+    private String userId;
     private Date created;
     private Emotion emotion;
     private String trigger;
@@ -27,7 +27,7 @@ public class MoodEvent {
     public MoodEvent(String userId, Emotion emotion, String trigger, String socialSituation,
                      String reason, String photoUrl, Double latitude, Double longitude) {
         this.id = UUID.randomUUID().toString();
-        this.uid = uid;
+        this.userId = userId;
         this.created = new Date();
         this.emotion = emotion;
         this.trigger = trigger;
@@ -46,8 +46,8 @@ public class MoodEvent {
         this.id = id;
     }
 
-    public String getUid() {
-        return uid;
+    public String getUserId() {
+        return userId;
     }
     public void setUserId(String userId) {
         this.userId = userId;

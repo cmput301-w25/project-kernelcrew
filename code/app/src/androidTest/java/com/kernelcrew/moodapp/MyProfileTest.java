@@ -1,7 +1,6 @@
 package com.kernelcrew.moodapp;
 
 import static androidx.test.espresso.Espresso.onView;
-import static androidx.test.espresso.action.ViewActions.closeSoftKeyboard;
 import static androidx.test.espresso.action.ViewActions.click;
 import static androidx.test.espresso.action.ViewActions.replaceText;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
@@ -19,6 +18,7 @@ import androidx.test.espresso.matcher.ViewMatchers;
 import androidx.test.ext.junit.rules.ActivityScenarioRule;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
+import com.google.android.gms.tasks.Task;
 import com.google.android.gms.tasks.Tasks;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.AuthResult;
@@ -26,6 +26,7 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.kernelcrew.moodapp.ui.MainActivity;
 
 import org.junit.After;
+import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
@@ -35,14 +36,13 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
 @RunWith(AndroidJUnit4.class)
 public class MyProfileTest extends FirebaseEmulatorMixin {
 
-    private static final String USER_EMAIL = "test@kernelcrew.com";
-    private static final String USER_PASSWORD = "Password@1234";
+    private static final String TEST_EMAIL = "test@kernelcrew.com";
+    private static final String TEST_PASSWORD = "Password@1234";
     private static final String TEST_USERNAME = "dummyUser";
 
     @BeforeClass
@@ -52,7 +52,7 @@ public class MyProfileTest extends FirebaseEmulatorMixin {
         FirebaseAuth auth = FirebaseAuth.getInstance();
 
         // Create the test user.
-        Tasks.await(auth.createUserWithEmailAndPassword(USER_EMAIL, USER_PASSWORD));
+        Tasks.await(auth.createUserWithEmailAndPassword(TEST_EMAIL, TEST_PASSWORD));
 
         Map<String, Object> profileData = new HashMap<>();
         profileData.put("username", TEST_USERNAME);
