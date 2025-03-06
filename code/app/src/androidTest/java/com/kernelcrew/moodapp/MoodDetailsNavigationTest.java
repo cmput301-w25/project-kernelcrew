@@ -82,24 +82,34 @@ public class MoodDetailsNavigationTest extends FirebaseEmulatorMixin {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         FirebaseAuth auth = FirebaseAuth.getInstance();
 
-        Tasks.await(auth.createUserWithEmailAndPassword(USER_EMAIL, USER_PASSWORD));
+        // Create (or ensure) the test user exists.
+        try {
+            Tasks.await(auth.createUserWithEmailAndPassword(USER_EMAIL, USER_PASSWORD));
+        } catch (ExecutionException e) {
+            if (!(e.getCause() instanceof com.google.firebase.auth.FirebaseAuthUserCollisionException)) {
+                throw e;
+            }
+        }
+
+        // Sign in so Firestore security rules allow write operations.
+        Tasks.await(auth.signInWithEmailAndPassword(USER_EMAIL, USER_PASSWORD));
 
         // Seed a basic Mood document used in the HomeFeed RecyclerView.
         CollectionReference moodsRef = db.collection("moods");
         Mood testMood = new Mood("testMoodId", "dummyUser", "Happy", System.currentTimeMillis());
-        moodsRef.document("testMoodId").set(testMood);
+        Tasks.await(moodsRef.document("testMoodId").set(testMood));
 
         // Seed a detailed MoodEvent document used in the MoodDetails screen.
-        CollectionReference moodEventsRef = db.collection("moodEvent");
+        CollectionReference moodEventsRef = db.collection("moodEvents");
         MoodEvent testEvent = new MoodEvent(
                 "dummyUser",
                 Emotion.HAPPINESS,
                 DATA_TRIGGER,       // trigger
-                DATA_SOCIALSITUATION,         // socialSituation
-                DATA_REASON,          // reason
-                DATA_PHOTOURL, // photoUrl
-                DATA_LATITUDE,              // latitude
-                DATA_LONGITUDE             // longitude
+                DATA_SOCIALSITUATION, // socialSituation
+                DATA_REASON,        // reason
+                DATA_PHOTOURL,      // photoUrl
+                DATA_LATITUDE,      // latitude
+                DATA_LONGITUDE      // longitude
         );
         // Set the id to match the test document id.
         testEvent.setId("testMoodId");
@@ -107,6 +117,7 @@ public class MoodDetailsNavigationTest extends FirebaseEmulatorMixin {
 
         auth.signOut();
     }
+
 
     @Test
     public void testNavigationToMoodDetails() throws InterruptedException {

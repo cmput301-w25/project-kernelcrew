@@ -51,8 +51,14 @@ public class MyProfileTest extends FirebaseEmulatorMixin {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         FirebaseAuth auth = FirebaseAuth.getInstance();
 
-        // Create the test user.
-        Tasks.await(auth.createUserWithEmailAndPassword(TEST_EMAIL, TEST_PASSWORD));
+        // Create the test user, ignore if already exists.
+        try {
+            Tasks.await(auth.createUserWithEmailAndPassword(TEST_EMAIL, TEST_PASSWORD));
+        } catch (ExecutionException e) {
+            if (!(e.getCause() instanceof com.google.firebase.auth.FirebaseAuthUserCollisionException)) {
+                throw e;
+            }
+        }
 
         Map<String, Object> profileData = new HashMap<>();
         profileData.put("username", TEST_USERNAME);
@@ -62,6 +68,7 @@ public class MyProfileTest extends FirebaseEmulatorMixin {
         auth.signOut();
     }
 
+
     @Rule
     public ActivityScenarioRule<MainActivity> activityScenarioRule =
             new ActivityScenarioRule<>(MainActivity.class);
@@ -69,6 +76,9 @@ public class MyProfileTest extends FirebaseEmulatorMixin {
     @Before
     public void setUp() throws InterruptedException, ExecutionException {
         createUser();
+        FirebaseAuth.getInstance().signOut();
+
+        // Wait for the user creation process to complete before proceeding.
         await().atMost(5, TimeUnit.SECONDS)
                 .until(() -> FirebaseAuth.getInstance().getCurrentUser() == null);
     }
@@ -115,19 +125,5 @@ public class MyProfileTest extends FirebaseEmulatorMixin {
 
         // --- Verify that we are back on AuthHome ---
         onView(withId(R.id.buttonInitialToSignIn)).check(matches(isDisplayed()));
-    }
-
-    private void createUser() throws InterruptedException, ExecutionException {
-        FirebaseAuth auth = FirebaseAuth.getInstance();
-        Task<AuthResult> createUserTask = auth.createUserWithEmailAndPassword(TEST_EMAIL, TEST_PASSWORD);
-        Tasks.await(createUserTask);
-        auth.signOut();
-    }
-
-
-    @After
-    public void signOutTheUser() {
-        // Ensure the user is signed out after the test runs.
-        FirebaseAuth.getInstance().signOut();
     }
 }

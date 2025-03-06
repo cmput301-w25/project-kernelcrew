@@ -50,7 +50,7 @@ public class MoodEventController {
         }
 
         // Ensure the MoodEvent has the correct userId
-        moodEvent.setUserId(user.getUid());
+        moodEvent.setUid(user.getUid());
 
         FirebaseFirestore firestore = FirebaseFirestore.getInstance();
 

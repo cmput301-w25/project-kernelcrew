@@ -5,6 +5,7 @@ import static androidx.test.espresso.action.ViewActions.*;
 import static androidx.test.espresso.matcher.ViewMatchers.*;
 
 import static org.awaitility.Awaitility.await;
+import static org.awaitility.Awaitility.with;
 import static org.junit.Assert.*;
 
 import androidx.fragment.app.FragmentContainerView;
@@ -20,6 +21,7 @@ import com.kernelcrew.moodapp.data.Emotion;
 import com.kernelcrew.moodapp.ui.MainActivity;
 import com.kernelcrew.moodapp.ui.components.EmotionPickerFragment;
 
+import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
@@ -37,8 +39,7 @@ public class CreateMoodEventTest extends FirebaseEmulatorMixin {
 
     @BeforeClass
     public static void login() throws ExecutionException, InterruptedException {
-        FirebaseAuth auth = FirebaseAuth.getInstance();
-        Tasks.await(auth.createUserWithEmailAndPassword("test@lol.com", "password"));
+        staticCreateUser();
     }
 
     @Test
@@ -62,10 +63,7 @@ public class CreateMoodEventTest extends FirebaseEmulatorMixin {
                     assertEquals(1, moodEvents.size());
                     assertEquals("HAPPINESS", moodEvents.get(0).get("emotion"));
                 });
-    }
 
-    @Test
-    public void createNewMoodMissingEmotion() {
         onView(withId(R.id.page_createMoodEvent)).perform(click());
 
         onView(withId(R.id.submit_button)).perform(click());
