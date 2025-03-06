@@ -123,7 +123,7 @@ public class MoodDetailsNavigationTest extends FirebaseEmulatorMixin {
                 .perform(RecyclerViewActions.actionOnItemAtPosition(0, click()));
 
         // Wait for the MoodDetails screen to load.
-        SystemClock.sleep(1000);
+        SystemClock.sleep(3000);
 
         // Click on view details button to go to view details screen
         onView(withId(R.id.viewDetailsButton))
