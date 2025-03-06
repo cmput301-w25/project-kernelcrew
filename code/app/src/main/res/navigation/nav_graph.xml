@@ -17,6 +17,7 @@
             android:id="@+id/action_authHome_to_authSignUp"
             app:destination="@id/authSignUp" />
     </fragment>
+
     <fragment
         android:id="@+id/authSignIn"
         android:name="com.kernelcrew.moodapp.ui.AuthSignIn"
@@ -29,6 +30,7 @@
             android:id="@+id/action_authSignIn_to_homeFeed"
             app:destination="@id/homeFeed" />
     </fragment>
+
     <fragment
         android:id="@+id/authSignUp"
         android:name="com.kernelcrew.moodapp.ui.AuthSignUp"
@@ -41,16 +43,42 @@
             android:id="@+id/action_authSignUp_to_homeFeed"
             app:destination="@id/homeFeed" />
     </fragment>
+
     <fragment
         android:id="@+id/homeFeed"
         android:name="com.kernelcrew.moodapp.ui.HomeFeed"
         android:label="fragment_home_feed"
-        tools:layout="@layout/fragment_home_feed" />
+        tools:layout="@layout/fragment_home_feed" >
+        <action
+            android:id="@+id/action_homeFeed_to_myProfile"
+            app:destination="@id/myProfile" />
+    </fragment>
+
     <fragment
         android:id="@+id/myProfile"
         android:name="com.kernelcrew.moodapp.ui.MyProfile"
         android:label="fragment_my_profile"
-        tools:layout="@layout/fragment_my_profile" />
+        tools:layout="@layout/fragment_my_profile" >
+        <action
+            android:id="@+id/action_myProfile_to_followersPage"
+            app:destination="@id/followersFragment" />
+        <action
+            android:id="@+id/action_myProfile_to_followingPage"
+            app:destination="@id/followingFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/followersFragment"
+        android:name="com.kernelcrew.moodapp.ui.FollowersFragment"
+        android:label="Followers"
+        tools:layout="@layout/fragment_followers" />
+
+    <fragment
+        android:id="@+id/followingFragment"
+        android:name="com.kernelcrew.moodapp.ui.FollowingFragment"
+        android:label="Following"
+        tools:layout="@layout/fragment_following" />
+
     <fragment
         android:id="@+id/createMoodEvent"
         android:name="com.kernelcrew.moodapp.ui.CreateMoodEvent"

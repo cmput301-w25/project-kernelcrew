@@ -40,13 +40,24 @@ dependencies {
     implementation libs.lifecycle.livedata.ktx
     implementation libs.lifecycle.viewmodel.ktx
     implementation libs.firebase.auth
-    implementation(platform(libs.firebase.bom))
+    implementation libs.recyclerview
     implementation libs.firebase.firestore
+    implementation libs.google.firebase.firestore
+    implementation(platform(libs.firebase.bom))
 
     testImplementation libs.junit
     testImplementation libs.hamcrest
     androidTestImplementation libs.ext.junit
+    androidTestImplementation libs.junit.v113
     androidTestImplementation libs.espresso.core
+    androidTestImplementation libs.androidx.espresso.intents
+    androidTestImplementation libs.androidx.uiautomator
+
+    // Fix issue where protobuf class static method cannot be found.
+    // See: https://stackoverflow.com/a/68675881/10970228
+    androidTestImplementation(libs.espresso.contrib){
+        exclude module: "protobuf-lite"
+    }
 
     // https://github.com/awaitility/awaitility/issues/194
     androidTestImplementation(libs.awaitility.v410) {
