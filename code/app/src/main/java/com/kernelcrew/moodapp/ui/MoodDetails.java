@@ -92,8 +92,6 @@ public class MoodDetails extends Fragment {
      */
     private void fetchMoodDetails(String moodEventId) {
         if (moodEventId == null) return;
-        // TODO: remove this log line once issue is fixed
-        // Log.i("", "TESTING TESTING TESTING" + moodEventId + "TESTING TESTING TESTING");
         db.collection("moodEvent")
                 .document(moodEventId)
                 .get()

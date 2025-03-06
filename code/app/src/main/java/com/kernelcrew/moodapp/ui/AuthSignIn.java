@@ -72,11 +72,6 @@ public class AuthSignIn extends Fragment {
         topAppBar.setNavigationOnClickListener(
                 Navigation.createNavigateOnClickListener(R.id.action_authSignIn_to_authHome));
 
-//        TODO: these 3 lines are for testing unconditionally jumping to home_feed without any authentication
-//         signInButton.setOnClickListener(btnView -> {
-//             Navigation.findNavController(btnView).navigate(R.id.action_authSignIn_to_homeFeed);
-//         });
-
        signInButton.setOnClickListener((btnView) -> {
            SignInDetails details = validateFields();
            if (details != null) {

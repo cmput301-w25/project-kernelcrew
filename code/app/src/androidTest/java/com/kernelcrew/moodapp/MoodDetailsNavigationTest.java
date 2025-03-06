@@ -4,12 +4,18 @@ import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.action.ViewActions.replaceText;
 import static androidx.test.espresso.action.ViewActions.click;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
+import static androidx.test.espresso.matcher.ViewMatchers.isAssignableFrom;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
 import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
 
 import android.os.SystemClock;
+import android.util.Log;
+import android.view.View;
+import android.widget.TextView;
 
+import androidx.test.espresso.UiController;
+import androidx.test.espresso.ViewAction;
 import androidx.test.espresso.action.ViewActions;
 import androidx.test.espresso.contrib.RecyclerViewActions;
 import androidx.test.ext.junit.rules.ActivityScenarioRule;
@@ -24,6 +30,7 @@ import com.kernelcrew.moodapp.data.MoodEvent;
 import com.kernelcrew.moodapp.ui.MainActivity;
 import com.kernelcrew.moodapp.ui.Mood;
 
+import org.hamcrest.Matcher;
 import org.junit.After;
 import org.junit.BeforeClass;
 import org.junit.Rule;
@@ -36,7 +43,7 @@ import java.util.concurrent.ExecutionException;
 public class MoodDetailsNavigationTest extends FirebaseEmulatorMixin {
     private static final String USER_EMAIL = "test@kernelcrew.com";
     private static final String USER_PASSWORD = "Password@1234";
-    private static final String DATA_EMOTION = "Happy";
+    private static final Emotion DATA_EMOTION = Emotion.valueOf("HAPPINESS");
     private static final String DATA_TRIGGER = "Morning Coffee";
     private static final String DATA_SOCIALSITUATION = "With Friends";
     private static final String DATA_REASON = "Celebration";
@@ -125,9 +132,10 @@ public class MoodDetailsNavigationTest extends FirebaseEmulatorMixin {
         // Verify that key elements on the MoodDetails screen are displayed and have the correct text.
         onView(withId(R.id.tvMoodState))
                 .check(matches(isDisplayed()));
-        SystemClock.sleep(3000);
+        SystemClock.sleep(1000);
+
         onView(withId(R.id.tvMoodState))
-                .check(matches(withText(DATA_EMOTION)));
+                .check(matches(withText(DATA_EMOTION.toString())));
         onView(withId(R.id.tvTriggerValue))
                 .check(matches(withText(DATA_TRIGGER)));
         onView(withId(R.id.tvSocialSituationValue))
