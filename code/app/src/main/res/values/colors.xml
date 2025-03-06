@@ -12,4 +12,7 @@
     <color name="sadness">#5195FB</color>
     <color name="shame">#FF40D6</color>
     <color name="surprise">#FFA947</color>
+    <color name="button_purple">#65558f</color>
+    <color name="light_purple">#CE91E9</color>
+    <color name="light_gray">#E8E8E8</color>
 </resources>

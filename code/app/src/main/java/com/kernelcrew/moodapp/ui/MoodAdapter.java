@@ -20,6 +20,17 @@ public class MoodAdapter extends RecyclerView.Adapter<MoodAdapter.MoodViewHolder
 
     private List<Mood> moods = new ArrayList<>();
 
+    private OnMoodClickListener onMoodClickListener;
+
+    // Callback interface to handle clicks on the "View Details" button
+    public interface OnMoodClickListener {
+        void onViewDetails(Mood mood);
+    }
+
+    public void setOnMoodClickListener(OnMoodClickListener listener) {
+        this.onMoodClickListener = listener;
+    }
+
     public void setMoods(List<Mood> moods) {
         this.moods = moods;
         notifyDataSetChanged();
@@ -44,10 +55,19 @@ public class MoodAdapter extends RecyclerView.Adapter<MoodAdapter.MoodViewHolder
         SimpleDateFormat dateFormat = new SimpleDateFormat("EEE ha", Locale.getDefault());
         String formattedTime = dateFormat.format(new Date(mood.getTimestamp()));
 
-        // Optional: convert AM/PM to lowercase to match out figma mockup/design
         formattedTime = formattedTime.replace("AM", "am").replace("PM", "pm");
 
         holder.dayTimeTextView.setText(formattedTime);
+
+        // Set click listener for the "View Details" button
+        holder.viewDetailsButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (onMoodClickListener != null) {
+                    onMoodClickListener.onViewDetails(mood);
+                }
+            }
+        });
     }
 
     @Override
@@ -58,12 +78,14 @@ public class MoodAdapter extends RecyclerView.Adapter<MoodAdapter.MoodViewHolder
     public static class MoodViewHolder extends RecyclerView.ViewHolder {
         TextView moodTypeTextView;
         TextView dayTimeTextView;
+        View viewDetailsButton; // Reference to the "View Details" button
 
         public MoodViewHolder(@NonNull View itemView) {
             super(itemView);
             // Use the IDs defined in item_mood.xml
             moodTypeTextView = itemView.findViewById(R.id.moodTypeText);
             dayTimeTextView = itemView.findViewById(R.id.dayTimeText);
+            viewDetailsButton = itemView.findViewById(R.id.viewDetailsButton);
         }
     }
 }

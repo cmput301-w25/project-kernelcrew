@@ -6,41 +6,54 @@ import static androidx.test.espresso.matcher.ViewMatchers.*;
 import static androidx.test.espresso.assertion.ViewAssertions.*;
 
 import android.os.SystemClock;
+import android.util.Log;
 
 import androidx.test.espresso.action.ViewActions;
 import androidx.test.ext.junit.rules.ActivityScenarioRule;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
+import com.google.android.gms.tasks.Tasks;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.kernelcrew.moodapp.ui.MainActivity;
 import com.kernelcrew.moodapp.ui.Mood;
 
+import org.junit.After;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import java.util.concurrent.ExecutionException;
+
 @RunWith(AndroidJUnit4.class)
 public class HomeFeedNavigationTest extends FirebaseEmulatorMixin {
+    private static final String USER_EMAIL = "test@kernelcrew.com";
+    private static final String USER_PASSWORD = "Password@1234";
+
     @Rule
     public ActivityScenarioRule<MainActivity> activityScenarioRule =
             new ActivityScenarioRule<>(MainActivity.class);
 
-    @Before
-    public void seedDatabase() {
+    @BeforeClass
+    public static void seedDatabase() throws InterruptedException, ExecutionException {
         // Seed the Firestore "moods" collection with a sample document.
         // This ensures that when HomeFeed loads, it has at least one mood document.
         FirebaseFirestore db = FirebaseFirestore.getInstance();
+        FirebaseAuth auth = FirebaseAuth.getInstance();
+
         CollectionReference moodsRef = db.collection("mood");
+
+        Tasks.await(auth.createUserWithEmailAndPassword(USER_EMAIL, USER_PASSWORD));
 
         // Create a test mood using the correct constructor parameters:
         // id, userName, moodText, timestamp.
         Mood testMood = new Mood("testMoodId", "dummyUser", "Test mood", System.currentTimeMillis());
-        moodsRef.document("testMoodId").set(testMood);
+        Tasks.await(moodsRef.document("testMoodId").set(testMood));
 
-        // Wait for the data to be written
-        SystemClock.sleep(2000);
+        auth.signOut();
     }
 
     @Test
@@ -56,16 +69,24 @@ public class HomeFeedNavigationTest extends FirebaseEmulatorMixin {
 
         // Fill in the email and password fields.
         onView(withId(R.id.email))
-                .perform(replaceText("test@kernelcrew.com"), ViewActions.closeSoftKeyboard());
+                .perform(replaceText(USER_EMAIL), ViewActions.closeSoftKeyboard());
         onView(withId(R.id.password))
-                .perform(replaceText("Password@1234"), ViewActions.closeSoftKeyboard());
+                .perform(replaceText(USER_PASSWORD), ViewActions.closeSoftKeyboard());
 
         // Click the sign in button on AuthSignIn.
         onView(withId(R.id.signInButton))
                 .perform(click());
 
+        SystemClock.sleep(1000);
+
         // On HomeFeed screen: Verify that the homeTextView is displayed.
         onView(withId(R.id.homeTextView))
                 .check(matches(isDisplayed()));
+    }
+
+    @After
+    public void signOutTheUser() {
+        // Not necessary right now, but will be if we add more tests
+        FirebaseAuth.getInstance().signOut();
     }
 }
