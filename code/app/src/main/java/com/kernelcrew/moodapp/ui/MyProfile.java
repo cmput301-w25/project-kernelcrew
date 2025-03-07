@@ -15,7 +15,7 @@ import com.google.android.material.navigation.NavigationBarView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.kernelcrew.moodapp.R;
-import com.kernelcrew.moodapp.data.UserController;
+import com.kernelcrew.moodapp.data.UserProvider;
 
 
 public class MyProfile extends Fragment {
@@ -63,8 +63,8 @@ public class MyProfile extends Fragment {
         }
 
         if (user != null) {
-            UserController userController = new UserController();
-            userController.addSnapshotListener(user.getUid(), (documentSnapshot, error) -> {
+            UserProvider userProvider = new UserProvider();
+            userProvider.addSnapshotListener(user.getUid(), (documentSnapshot, error) -> {
                 if (error != null) {
                     followersButton.setText("Followers: 0");
                     followingButton.setText("Following: 0");

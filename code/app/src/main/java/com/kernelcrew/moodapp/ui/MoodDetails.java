@@ -1,7 +1,6 @@
 package com.kernelcrew.moodapp.ui;
 
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -20,7 +19,7 @@ import com.google.android.material.appbar.MaterialToolbar;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.kernelcrew.moodapp.R;
 import com.kernelcrew.moodapp.data.MoodEvent;
-import com.kernelcrew.moodapp.data.MoodEventController;
+import com.kernelcrew.moodapp.data.MoodEventProvider;
 
 public class MoodDetails extends Fragment {
 
@@ -29,7 +28,7 @@ public class MoodDetails extends Fragment {
     private TextView tvMoodState, tvTriggerValue, tvSocialSituationValue, tvReasonValue;
     private Button btnEditMood;
     private FirebaseFirestore db;
-    private MoodEventController controller;
+    private MoodEventProvider provider;
 
     // Document ID for the mood event and source of navigation
     private String moodEventId;
@@ -51,7 +50,7 @@ public class MoodDetails extends Fragment {
 
         // Initialize Firestore
         db = FirebaseFirestore.getInstance();
-        controller = MoodEventController.getInstance();
+        provider = MoodEventProvider.getInstance();
     }
 
     @Nullable
@@ -93,7 +92,7 @@ public class MoodDetails extends Fragment {
      */
     private void fetchMoodDetails(String moodEventId) {
         if (moodEventId == null) return;
-        controller.getMoodEvent(moodEventId)
+        provider.getMoodEvent(moodEventId)
                 .addOnSuccessListener(moodEvent -> {
                     if (moodEvent != null) {
                         bindMoodData(moodEvent);

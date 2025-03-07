@@ -1,6 +1,5 @@
 package com.kernelcrew.moodapp;
 
-import static androidx.test.espresso.Espresso.onData;
 import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.action.ViewActions.replaceText;
 import static androidx.test.espresso.action.ViewActions.click;
@@ -10,25 +9,20 @@ import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
 import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
 
-import static org.hamcrest.CoreMatchers.instanceOf;
-
 import android.os.SystemClock;
 import android.view.View;
 
-import androidx.test.espresso.Espresso;
 import androidx.test.espresso.UiController;
 import androidx.test.espresso.ViewAction;
 import androidx.test.espresso.action.ViewActions;
-import androidx.test.espresso.contrib.RecyclerViewActions;
 import androidx.test.ext.junit.rules.ActivityScenarioRule;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
 import com.google.android.gms.tasks.Tasks;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.firestore.FirebaseFirestore;
 import com.kernelcrew.moodapp.data.Emotion;
 import com.kernelcrew.moodapp.data.MoodEvent;
-import com.kernelcrew.moodapp.data.MoodEventController;
+import com.kernelcrew.moodapp.data.MoodEventProvider;
 import com.kernelcrew.moodapp.ui.MainActivity;
 
 import org.hamcrest.Matcher;
@@ -109,7 +103,7 @@ public class MoodDetailsNavigationTest extends FirebaseEmulatorMixin {
                 DATA_LATITUDE,      // latitude
                 DATA_LONGITUDE      // longitude
         );
-        Tasks.await(MoodEventController.getInstance().insertMoodEvent(testEvent));
+        Tasks.await(MoodEventProvider.getInstance().insertMoodEvent(testEvent));
 
         auth.signOut();
     }

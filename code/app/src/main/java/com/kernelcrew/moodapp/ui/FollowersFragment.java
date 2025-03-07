@@ -22,7 +22,7 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.kernelcrew.moodapp.R;
 import com.kernelcrew.moodapp.data.User;
-import com.kernelcrew.moodapp.data.UserController;
+import com.kernelcrew.moodapp.data.UserProvider;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -31,7 +31,7 @@ public class FollowersFragment extends Fragment {
     private FollowersAdapter adapter;
     private final List<User> followersList = new ArrayList<>();
     private BottomNavBarController navBarController;
-    private UserController userController;
+    private UserProvider userProvider;
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -43,7 +43,7 @@ public class FollowersFragment extends Fragment {
         adapter = new FollowersAdapter(followersList);
         followersRecyclerView.setAdapter(adapter);
 
-        userController = new UserController();
+        userProvider = new UserProvider();
         fetchFollowers();
 
         NavigationBarView navigationBarView = view.findViewById(R.id.bottom_navigation);
@@ -68,7 +68,7 @@ public class FollowersFragment extends Fragment {
             return;
         }
 
-        userController.fetchFollowers(currentUser.getUid())
+        userProvider.fetchFollowers(currentUser.getUid())
                 .addOnSuccessListener(followers -> {
                     followersList.clear();
                     followersList.addAll(followers);

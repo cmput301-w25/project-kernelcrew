@@ -11,23 +11,21 @@ import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QuerySnapshot;
 
-import java.util.Date;
-
-public class MoodEventController {
+public class MoodEventProvider {
     private final CollectionReference collection;
     private final FirebaseAuth auth;
 
-    private MoodEventController() {
+    private MoodEventProvider() {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         collection = db.collection("moodEvents");
 
         auth = FirebaseAuth.getInstance();
     }
 
-    private static MoodEventController instance;
-    public static MoodEventController getInstance() {
+    private static MoodEventProvider instance;
+    public static MoodEventProvider getInstance() {
         if (instance == null) {
-            instance = new MoodEventController();
+            instance = new MoodEventProvider();
         }
 
         return instance;

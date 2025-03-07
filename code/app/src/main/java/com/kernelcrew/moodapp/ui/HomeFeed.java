@@ -20,14 +20,14 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.kernelcrew.moodapp.R;
 import com.kernelcrew.moodapp.data.MoodEvent;
-import com.kernelcrew.moodapp.data.MoodEventController;
+import com.kernelcrew.moodapp.data.MoodEventProvider;
 import java.util.ArrayList;
 import java.util.List;
 
 public class HomeFeed extends Fragment {
     FirebaseAuth auth;
     FirebaseUser user;
-    MoodEventController controller;
+    MoodEventProvider provider;
 
     TextView homeTextView;
     NavigationBarView navigationBar;
@@ -42,7 +42,7 @@ public class HomeFeed extends Fragment {
 
         auth = FirebaseAuth.getInstance();
         user = auth.getCurrentUser();
-        controller = MoodEventController.getInstance();
+        provider = MoodEventProvider.getInstance();
 
         homeTextView = view.findViewById(R.id.homeTextView);
         navigationBar = view.findViewById(R.id.bottom_navigation);
@@ -62,7 +62,7 @@ public class HomeFeed extends Fragment {
         }
 
         // Listen for changes in the "moods" collection
-        controller.addSnapshotListener((snapshots, error) -> {
+        provider.addSnapshotListener((snapshots, error) -> {
             if (error != null) {
                 Log.w("HomeFeed", "Listen failed.", error);
                 return;

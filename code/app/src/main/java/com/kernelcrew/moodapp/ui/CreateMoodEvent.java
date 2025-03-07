@@ -24,7 +24,7 @@ import com.google.firebase.auth.FirebaseUser;
 import com.kernelcrew.moodapp.R;
 import com.kernelcrew.moodapp.data.Emotion;
 import com.kernelcrew.moodapp.data.MoodEvent;
-import com.kernelcrew.moodapp.data.MoodEventController;
+import com.kernelcrew.moodapp.data.MoodEventProvider;
 import com.kernelcrew.moodapp.ui.components.EmotionPickerFragment;
 
 public class CreateMoodEvent extends Fragment {
@@ -37,7 +37,7 @@ public class CreateMoodEvent extends Fragment {
     private TextInputEditText reasonEditText;
 
     private FirebaseUser currentUser;
-    private MoodEventController moodEventController;
+    private MoodEventProvider provider;
 
     private static class MoodEventDetails {
         Emotion emotion;
@@ -83,7 +83,7 @@ public class CreateMoodEvent extends Fragment {
                 null,   // latitude
                 null    // longitude
         );
-        moodEventController.insertMoodEvent(moodEvent)
+        provider.insertMoodEvent(moodEvent)
                 .addOnSuccessListener(_result -> {
                     navController.navigate(R.id.homeFeed);
                 })
@@ -131,7 +131,7 @@ public class CreateMoodEvent extends Fragment {
         situationAutoComplete = view.findViewById(R.id.emotion_situation);
         reasonEditText = view.findViewById(R.id.emotion_reason);
 
-        moodEventController = MoodEventController.getInstance();
+        provider = MoodEventProvider.getInstance();
         currentUser = FirebaseAuth.getInstance().getCurrentUser();
         assert currentUser != null;
     }

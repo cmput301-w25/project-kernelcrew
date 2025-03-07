@@ -13,10 +13,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 
-public class UserController {
+public class UserProvider {
     private final FirebaseFirestore db;
 
-    public UserController() {
+    public UserProvider() {
         db = FirebaseFirestore.getInstance();
     }
 
