@@ -208,6 +208,7 @@ public class AuthSignUp extends Fragment {
                             usernameLayout.setError("Username is already taken!");
                         } else {
                             usernameLayout.setError(null);
+                            usernameLayout.setErrorEnabled(false);
                         }
                     }
                 });
