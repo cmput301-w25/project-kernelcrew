@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="simple_items">
+        <item>Alone</item>
+        <item>One other person</item>
+        <item>Two to several people</item>
+        <item>In a crowd</item>
+    </string-array>
+</resources>

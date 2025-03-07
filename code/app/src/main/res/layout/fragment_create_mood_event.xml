@@ -50,8 +50,48 @@ tools:context=".ui.CreateMoodEvent">
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp" />
 
-    </LinearLayout>
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/layout_trigger"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Trigger">
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/emotion_trigger"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                />
+        </com.google.android.material.textfield.TextInputLayout>
 
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/layout_situation"
+            style="@style/Widget.Material3.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Social Situation">
+
+            <AutoCompleteTextView
+                android:id="@+id/emotion_situation"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="none"
+                app:simpleItems="@array/simple_items"
+            />
+
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/layout_reason"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Reason">
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/emotion_reason"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                />
+        </com.google.android.material.textfield.TextInputLayout>
+
+    </LinearLayout>
 
     <Button
         android:id="@+id/submit_button"

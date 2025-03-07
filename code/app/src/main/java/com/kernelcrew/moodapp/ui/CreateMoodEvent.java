@@ -13,9 +13,11 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 
 import com.google.android.material.navigation.NavigationBarView;
+import com.google.android.material.textfield.TextInputEditText;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.kernelcrew.moodapp.R;
@@ -30,19 +32,35 @@ public class CreateMoodEvent extends Fragment {
     private BottomNavBarController navBarController;
 
     private EmotionPickerFragment emotionPickerFragment;
+    private TextInputEditText triggerEditText;
+    private AutoCompleteTextView situationAutoComplete;
+    private TextInputEditText reasonEditText;
 
     private FirebaseUser currentUser;
     private MoodEventController moodEventController;
 
     private static class MoodEventDetails {
         Emotion emotion;
+        String trigger;
+        String socialSituation;
+        String reason;
     }
 
     private @Nullable MoodEventDetails validateFields() {
         MoodEventDetails details = new MoodEventDetails();
+
         details.emotion = emotionPickerFragment.getSelected();
         if (details.emotion == null) {
             emotionPickerFragment.setError("An emotion is required");
+            return null;
+        }
+
+        details.trigger = triggerEditText.getText().toString();
+        details.socialSituation = situationAutoComplete.getText().toString();
+
+        details.reason = reasonEditText.getText().toString();
+        if (details.reason.length() > 20 && details.reason.split(" ").length > 3) {
+            reasonEditText.setError("Reason must be less than 20 characters or 3 words");
             return null;
         }
 
@@ -58,14 +76,13 @@ public class CreateMoodEvent extends Fragment {
         MoodEvent moodEvent = new MoodEvent(
                 currentUser.getUid(),
                 details.emotion,
-                "",     // trigger (empty string if not provided)
-                "",     // socialSituation
-                "",     // reason
+                details.trigger,
+                details.socialSituation,
+                details.reason,
                 "",     // photoUrl
                 null,   // latitude
                 null    // longitude
         );
-
         moodEventController.insertMoodEvent(moodEvent);
 
         navController.navigate(R.id.homeFeed);
@@ -105,6 +122,11 @@ public class CreateMoodEvent extends Fragment {
             Log.e("CreateMoodEvent", "EmotionPickerFragment not attached. Ensure it's specified in the layout.");
             return;
         }
+
+        triggerEditText = view.findViewById(R.id.emotion_trigger);
+        situationAutoComplete = view.findViewById(R.id.emotion_situation);
+        reasonEditText = view.findViewById(R.id.emotion_reason);
+
         moodEventController = MoodEventController.getInstance();
         currentUser = FirebaseAuth.getInstance().getCurrentUser();
         assert currentUser != null;

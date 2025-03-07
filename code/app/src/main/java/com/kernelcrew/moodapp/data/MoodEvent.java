@@ -1,12 +1,13 @@
 package com.kernelcrew.moodapp.data;
 
+import java.io.Serializable;
 import java.util.Date;
 import java.util.UUID;
 
 /**
  * A logged mood event owned by a user referenced by that user's firebase auth UID.
  */
-public class MoodEvent {
+public class MoodEvent implements Serializable {
     private String id;
     private String uid;
     private Date created;
