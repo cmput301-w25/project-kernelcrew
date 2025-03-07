@@ -9,29 +9,29 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.kernelcrew.moodapp.R;
+import com.kernelcrew.moodapp.data.MoodEvent;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.Locale;
 
 public class MoodAdapter extends RecyclerView.Adapter<MoodAdapter.MoodViewHolder> {
 
-    private List<Mood> moods = new ArrayList<>();
+    private List<MoodEvent> moods = new ArrayList<>();
 
     private OnMoodClickListener onMoodClickListener;
 
     // Callback interface to handle clicks on the "View Details" button
     public interface OnMoodClickListener {
-        void onViewDetails(Mood mood);
+        void onViewDetails(MoodEvent mood);
     }
 
     public void setOnMoodClickListener(OnMoodClickListener listener) {
         this.onMoodClickListener = listener;
     }
 
-    public void setMoods(List<Mood> moods) {
+    public void setMoods(List<MoodEvent> moods) {
         this.moods = moods;
         notifyDataSetChanged();
     }
@@ -46,26 +46,21 @@ public class MoodAdapter extends RecyclerView.Adapter<MoodAdapter.MoodViewHolder
 
     @Override
     public void onBindViewHolder(@NonNull MoodViewHolder holder, int position) {
-        Mood mood = moods.get(position);
+        MoodEvent mood = moods.get(position);
 
         // 1. Display the mood text in the top TextView
-        holder.moodTypeTextView.setText(mood.getMoodText());
+        holder.moodTypeTextView.setText(mood.getEmotion().toString());
 
         // 2. Format the timestamp for the second TextView(Ex: "Thu 10am")
         SimpleDateFormat dateFormat = new SimpleDateFormat("EEE ha", Locale.getDefault());
-        String formattedTime = dateFormat.format(new Date(mood.getTimestamp()));
-
-        formattedTime = formattedTime.replace("AM", "am").replace("PM", "pm");
+        String formattedTime = dateFormat.format(mood.getCreated());
 
         holder.dayTimeTextView.setText(formattedTime);
 
         // Set click listener for the "View Details" button
-        holder.viewDetailsButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (onMoodClickListener != null) {
-                    onMoodClickListener.onViewDetails(mood);
-                }
+        holder.viewDetailsButton.setOnClickListener(v -> {
+            if (onMoodClickListener != null) {
+                onMoodClickListener.onViewDetails(mood);
             }
         });
     }

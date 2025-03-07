@@ -15,6 +15,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
+import android.widget.Toast;
 
 import com.google.android.material.navigation.NavigationBarView;
 import com.google.android.material.textfield.TextInputEditText;
@@ -27,7 +28,6 @@ import com.kernelcrew.moodapp.data.MoodEventController;
 import com.kernelcrew.moodapp.ui.components.EmotionPickerFragment;
 
 public class CreateMoodEvent extends Fragment {
-    private NavigationBarView navigationBarView;
     private NavController navController;
     private BottomNavBarController navBarController;
 
@@ -83,9 +83,14 @@ public class CreateMoodEvent extends Fragment {
                 null,   // latitude
                 null    // longitude
         );
-        moodEventController.insertMoodEvent(moodEvent);
-
-        navController.navigate(R.id.homeFeed);
+        moodEventController.insertMoodEvent(moodEvent)
+                .addOnSuccessListener(_result -> {
+                    navController.navigate(R.id.homeFeed);
+                })
+                .addOnFailureListener(error -> {
+                    Toast.makeText(getContext(), error.getMessage(), Toast.LENGTH_LONG).show();
+                    Log.e("CreateMoodEvent", error.toString());
+                });
     }
 
     @Override
@@ -93,8 +98,7 @@ public class CreateMoodEvent extends Fragment {
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_create_mood_event, container, false);
 
-        navigationBarView = view.findViewById(R.id.bottom_navigation);
-
+        NavigationBarView navigationBarView = view.findViewById(R.id.bottom_navigation);
         navigationBarView.setSelectedItemId(R.id.page_createMoodEvent);
         navBarController = new BottomNavBarController(navigationBarView);
 
