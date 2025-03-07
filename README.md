@@ -36,4 +36,5 @@ For details about CI, see the [CI Docs](./docs/ci.md).
 - [Wiki Link](https://github.com/cmput301-w25/project-kernelcrew/wiki)
 - [Scrum Board](https://github.com/orgs/cmput301-w25/projects/65/views/1)
 - [UI Mockups](https://www.figma.com/design/eCa5ZnSU4jZLgUE4boTtz5/Kernel-Crew-Mood-App?t=15209Kt1Vejob1xl-1)
+- [JavaDocs](https://cmput301-w25.github.io/project-kernelcrew/)
 - [UML]

@@ -133,6 +133,18 @@ start-firebase-emulators() {
   firebase --token "$ACTIONS_FIREBASE_TOKEN" emulators:start
 }
 
+generate-javadocs() {
+  ### Generate javadocs
+
+  # Make sure all generated sources are created
+  # This is a little inneficient, but it's reliable
+  build-dbg-apk
+
+  cd "$REPO_ROOT/code"
+  gradle generateDebugJavadoc
+  echo "Javadocs generated at $REPO_ROOT/code/app/build/docs/javadoc/index.html"
+}
+
 # - Task File Components ---------------------------------------------------------
 
 _print-funcs() {
