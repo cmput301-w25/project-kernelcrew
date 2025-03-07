@@ -64,7 +64,7 @@ public class MyProfile extends Fragment {
 
         if (user != null) {
             UserProvider userProvider = UserProvider.getInstance();
-            userProvider.addSnapshotListener(user.getUid(), (documentSnapshot, error) -> {
+            userProvider.addSnapshotListenerForUser(user.getUid(), (documentSnapshot, error) -> {
                 if (error != null) {
                     followersButton.setText("Followers: 0");
                     followingButton.setText("Following: 0");

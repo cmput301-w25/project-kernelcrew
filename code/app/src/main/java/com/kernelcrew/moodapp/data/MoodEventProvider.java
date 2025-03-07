@@ -23,6 +23,11 @@ public class MoodEventProvider {
     }
 
     private static MoodEventProvider instance;
+
+    /**
+     * Get the singleton instance of the MoodEventProvider.
+     * @return Singleton instance
+     */
     public static MoodEventProvider getInstance() {
         if (instance == null) {
             instance = new MoodEventProvider();
@@ -66,6 +71,10 @@ public class MoodEventProvider {
         });
     }
 
+    /**
+     * Add a snapshot listener to the mood events collection
+     * @param listener Snapshot listener to add
+     */
     public void addSnapshotListener(@NonNull EventListener<QuerySnapshot> listener) {
         collection.addSnapshotListener(listener);
     }
