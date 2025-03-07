@@ -85,8 +85,6 @@ public class AuthSignUp extends Fragment {
      * @return null if invalid data, otherwise SignUpDetails
      */
     private void validateFieldsAndSignUp(OnValidationCompleteListener listener) {
-        boolean error = false;
-
         // Clear previous errors
         usernameLayout.setError(null);
         emailLayout.setError(null);
@@ -97,16 +95,10 @@ public class AuthSignUp extends Fragment {
         // Validate fields synchronously
         if (details.userName.isBlank()) {
             usernameLayout.setError("Please enter a username.");
-            error = true;
         }
 
-        if (!checkEmailValid(details.email)) {
-            error = true;
-        }
-
-        if (!checkPasswordValid(details.password)) {
-            error = true;
-        }
+        checkEmailValid(details.email);
+        checkPasswordValid(details.password);
 
         // Validate username asynchronously
         checkUsernameUnique(details.userName, new OnUsernameCheckListener() {
@@ -120,7 +112,10 @@ public class AuthSignUp extends Fragment {
             }
         });
 
-        if (error || usernameLayout.getError() == "Username is already taken!") {
+        if (usernameLayout.getError() != null ||
+                emailLayout.getError() != null ||
+                passwordLayout != null
+        ) {
             listener.onValidationComplete(null);
             signUpButton.setEnabled(true);
         } else {
@@ -193,6 +188,8 @@ public class AuthSignUp extends Fragment {
                     public void onCheckComplete(boolean isUnique) {
                         if (!isUnique) {
                             usernameLayout.setError("Username is already taken!");
+                        } else {
+                            usernameLayout.setError(null);
                         }
                     }
                 });
@@ -278,9 +275,9 @@ public class AuthSignUp extends Fragment {
             currentUser.delete()
                     .addOnCompleteListener(deleteTask -> {
                         if (deleteTask.isSuccessful()) {
-                            Log.d("SignUp", "Orphaned Auth user deleted.");
+                            Log.d("SignUp", "Auth user deleted.");
                         } else {
-                            Log.e("SignUp", "Failed to delete orphaned user: " +
+                            Log.e("SignUp", "Failed to delete user: " +
                                     deleteTask.getException().getMessage());
                         }
                     });
