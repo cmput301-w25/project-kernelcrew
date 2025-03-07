@@ -7,23 +7,13 @@ import static androidx.test.espresso.assertion.ViewAssertions.*;
 
 import static org.awaitility.Awaitility.await;
 
-import android.os.SystemClock;
-import android.util.Log;
-
 import androidx.test.espresso.Espresso;
-import androidx.test.espresso.action.ViewActions;
 import androidx.test.ext.junit.rules.ActivityScenarioRule;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
-import com.google.android.gms.tasks.Tasks;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.kernelcrew.moodapp.ui.MainActivity;
-import com.kernelcrew.moodapp.ui.Mood;
 
-import org.junit.After;
-import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
@@ -44,9 +34,6 @@ public class HomeFeedNavigationTest extends FirebaseEmulatorMixin {
 
         FirebaseEmulatorMixin.staticCreateUser();
         FirebaseEmulatorMixin.clearUser();
-//        CollectionReference moodsRef = db.collection("moodEvents");
-//        Mood testMood = new Mood("testMoodId", "dummyUser", "Test mood", System.currentTimeMillis());
-//        moodsRef.document("testMoodId").set(testMood);
     }
 
 

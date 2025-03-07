@@ -40,7 +40,7 @@ public class AuthSignIn extends Fragment {
 
     /**
      * Class containing the details entered by the user
-     * */
+     */
     private class SignInDetails {
         String email;
         String password;
@@ -56,7 +56,7 @@ public class AuthSignIn extends Fragment {
      *      corresponding error messages.
      * @return
      *      null if invalid data, otherwise SignUpDetails
-     * */
+     */
     private @Nullable SignInDetails validateFields() {
         boolean error = false   ;
 
@@ -76,7 +76,7 @@ public class AuthSignIn extends Fragment {
 
     /**
      * Inflates the fragment layout and initializes UI elements.
-     * */
+     */
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {

@@ -1,7 +1,6 @@
 package com.kernelcrew.moodapp.ui;
 
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,9 +16,10 @@ import androidx.navigation.fragment.NavHostFragment;
 
 import com.bumptech.glide.Glide;
 import com.google.android.material.appbar.MaterialToolbar;
-import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.kernelcrew.moodapp.R;
+import com.kernelcrew.moodapp.data.MoodEvent;
+import com.kernelcrew.moodapp.data.MoodEventProvider;
 
 public class MoodDetails extends Fragment {
 
@@ -28,6 +28,7 @@ public class MoodDetails extends Fragment {
     private TextView tvMoodState, tvTriggerValue, tvSocialSituationValue, tvReasonValue;
     private Button btnEditMood;
     private FirebaseFirestore db;
+    private MoodEventProvider provider;
 
     // Document ID for the mood event and source of navigation
     private String moodEventId;
@@ -49,6 +50,7 @@ public class MoodDetails extends Fragment {
 
         // Initialize Firestore
         db = FirebaseFirestore.getInstance();
+        provider = MoodEventProvider.getInstance();
     }
 
     @Nullable
@@ -58,7 +60,6 @@ public class MoodDetails extends Fragment {
                              @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_mood_details, container, false);
 
-        // Bind views
         toolbar = view.findViewById(R.id.moodDetailsToolbar);
         imageMoodIcon = view.findViewById(R.id.imageMoodIcon);
         tvMoodState = view.findViewById(R.id.tvMoodState);
@@ -68,7 +69,6 @@ public class MoodDetails extends Fragment {
         ivMoodPhoto = view.findViewById(R.id.ivMoodPhoto);
         btnEditMood = view.findViewById(R.id.btnEditMood);
 
-        // Handle back navigation via the toolbar
         toolbar.setNavigationOnClickListener(v -> handleBackButton());
 
         // Fetch mood details from Firestore
@@ -92,12 +92,10 @@ public class MoodDetails extends Fragment {
      */
     private void fetchMoodDetails(String moodEventId) {
         if (moodEventId == null) return;
-        db.collection("moodEvent")
-                .document(moodEventId)
-                .get()
-                .addOnSuccessListener(documentSnapshot -> {
-                    if (documentSnapshot.exists()) {
-                        bindMoodData(documentSnapshot);
+        provider.getMoodEvent(moodEventId)
+                .addOnSuccessListener(moodEvent -> {
+                    if (moodEvent != null) {
+                        bindMoodData(moodEvent);
                     } else {
                         Toast.makeText(requireContext(), "Mood event not found", Toast.LENGTH_SHORT).show();
                     }
@@ -108,24 +106,19 @@ public class MoodDetails extends Fragment {
     }
 
     /**
-     * Binds Firestore document data to the UI components.
+     * Binds MoodEvent data to the UI components.
      */
-    private void bindMoodData(DocumentSnapshot doc) {
-        String moodState = doc.getString("moodState");
-        String trigger = doc.getString("trigger");
-        String socialSituation = doc.getString("socialSituation");
-        String reason = doc.getString("reason");
-        String photoUrl = doc.getString("photoUrl");
-
-        tvMoodState.setText(moodState);
-        tvTriggerValue.setText(trigger);
-        tvSocialSituationValue.setText(socialSituation);
-        tvReasonValue.setText(reason);
+    private void bindMoodData(MoodEvent moodEvent) {
+        tvMoodState.setText(moodEvent.getEmotion().toString());
+        tvTriggerValue.setText(moodEvent.getTrigger());
+        tvSocialSituationValue.setText(moodEvent.getSocialSituation());
+        tvReasonValue.setText(moodEvent.getReason());
 
         // TODO: Dynamically set the mood icon based on moodState if needed.
         // e.g., if ("Happy".equalsIgnoreCase(moodState)) { imageMoodIcon.setImageResource(R.drawable.ic_happy_color); }
 
         // Load photo with Glide if a URL is available
+        String photoUrl = moodEvent.getPhotoUrl();
         if (photoUrl != null && !photoUrl.isEmpty()) {
             Glide.with(requireContext())
                     .load(photoUrl)
@@ -134,19 +127,9 @@ public class MoodDetails extends Fragment {
     }
 
     /**
-     * Handles the back button behavior. Customize based on sourceScreen if necessary.
+     * Handles the back button behavior.
      */
     private void handleBackButton() {
-        // Example using the Navigation Component:
-        // If you need to implement custom logic based on sourceScreen, you can do it here.
-        if ("filtered".equalsIgnoreCase(sourceScreen)) {
-            // TODO: Implement custom navigation logic for filtered feed if needed.
-            // For now, simply pop back stack.
-            androidx.navigation.fragment.NavHostFragment.findNavController(this).popBackStack();
-        } else {
-            // Default: pop back stack to return to previous screen (e.g., HomeFeed)
-            androidx.navigation.fragment.NavHostFragment.findNavController(this).popBackStack();
-        }
+        NavHostFragment.findNavController(this).popBackStack();
     }
-
 }

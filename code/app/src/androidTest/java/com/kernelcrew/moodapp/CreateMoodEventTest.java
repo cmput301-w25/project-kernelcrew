@@ -9,6 +9,7 @@ import static org.awaitility.Awaitility.await;
 import static org.junit.Assert.*;
 
 import androidx.fragment.app.FragmentContainerView;
+import androidx.test.espresso.Espresso;
 import androidx.test.ext.junit.rules.ActivityScenarioRule;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
@@ -85,6 +86,8 @@ public class CreateMoodEventTest extends FirebaseEmulatorMixin {
 
         onView(withId(R.id.emotion_reason))
                 .perform(typeText("This is a really long string with too many characters"));
+        Espresso.closeSoftKeyboard();
+
         onView(withId(R.id.submit_button)).perform(click());
         onView(withId(R.id.emotion_reason))
                 .check(matches(hasErrorText("Reason must be less than 20 characters or 3 words")));
@@ -98,6 +101,8 @@ public class CreateMoodEventTest extends FirebaseEmulatorMixin {
 
         onView(withId(R.id.emotion_reason))
                 .perform(typeText("AAAAAAAAAAA AAAAAAAAAAAAAAAA AAAAAAAAAAAAAA AAA"));
+        Espresso.closeSoftKeyboard();
+
         onView(withId(R.id.submit_button)).perform(click());
         onView(withId(R.id.emotion_reason))
                 .check(matches(hasErrorText("Reason must be less than 20 characters or 3 words")));
@@ -113,6 +118,8 @@ public class CreateMoodEventTest extends FirebaseEmulatorMixin {
 
         onView(withId(R.id.emotion_reason))
                 .perform(typeText("AAAAAAAAAAA AAAAAAAAAAAAAAAA AAAAAAAAAAAAAAAAAA"));
+        Espresso.closeSoftKeyboard();
+
         onView(withId(R.id.submit_button)).perform(click());
 
         await().atMost(10, TimeUnit.SECONDS)

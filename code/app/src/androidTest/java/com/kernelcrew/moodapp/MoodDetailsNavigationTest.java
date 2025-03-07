@@ -4,34 +4,30 @@ import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.action.ViewActions.replaceText;
 import static androidx.test.espresso.action.ViewActions.click;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
-import static androidx.test.espresso.matcher.ViewMatchers.isAssignableFrom;
+import static androidx.test.espresso.contrib.RecyclerViewActions.actionOnItemAtPosition;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
 import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
 
 import android.os.SystemClock;
-import android.util.Log;
 import android.view.View;
-import android.widget.TextView;
 
 import androidx.test.espresso.UiController;
 import androidx.test.espresso.ViewAction;
 import androidx.test.espresso.action.ViewActions;
-import androidx.test.espresso.contrib.RecyclerViewActions;
 import androidx.test.ext.junit.rules.ActivityScenarioRule;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
 import com.google.android.gms.tasks.Tasks;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.firestore.CollectionReference;
-import com.google.firebase.firestore.FirebaseFirestore;
 import com.kernelcrew.moodapp.data.Emotion;
 import com.kernelcrew.moodapp.data.MoodEvent;
+import com.kernelcrew.moodapp.data.MoodEventProvider;
 import com.kernelcrew.moodapp.ui.MainActivity;
-import com.kernelcrew.moodapp.ui.Mood;
 
 import org.hamcrest.Matcher;
 import org.junit.After;
+import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
@@ -43,8 +39,8 @@ import java.util.concurrent.ExecutionException;
 public class MoodDetailsNavigationTest extends FirebaseEmulatorMixin {
     private static final String USER_EMAIL = "test@kernelcrew.com";
     private static final String USER_PASSWORD = "Password@1234";
-    private static final Emotion DATA_EMOTION = Emotion.valueOf("HAPPINESS");
-    private static final String DATA_TRIGGER = "Some Trigger";
+    private static final Emotion DATA_EMOTION = Emotion.HAPPINESS;
+    private static final String DATA_TRIGGER = "Morning Coffee";
     private static final String DATA_SOCIALSITUATION = "With Friends";
     private static final String DATA_REASON = "Celebration";
     private static final String DATA_PHOTOURL = "https://example.com/photo.jpg";
@@ -79,7 +75,6 @@ public class MoodDetailsNavigationTest extends FirebaseEmulatorMixin {
     @BeforeClass
     public static void seedDatabase() throws ExecutionException, InterruptedException {
         // Seed Firestore with a test Mood and corresponding MoodEvent.
-        FirebaseFirestore db = FirebaseFirestore.getInstance();
         FirebaseAuth auth = FirebaseAuth.getInstance();
 
         // Create (or ensure) the test user exists.
@@ -98,11 +93,9 @@ public class MoodDetailsNavigationTest extends FirebaseEmulatorMixin {
         String uid = auth.getCurrentUser().getUid();
 
         // Seed a detailed MoodEvent document used in the MoodDetails screen.
-        CollectionReference moodEventsRef = db.collection("moodEvents");
-        // Use the current user's uid instead of "dummyUser".
         MoodEvent testEvent = new MoodEvent(
                 uid,
-                Emotion.HAPPINESS,
+                DATA_EMOTION,
                 DATA_TRIGGER,       // trigger
                 DATA_SOCIALSITUATION, // socialSituation
                 DATA_REASON,        // reason
@@ -110,11 +103,14 @@ public class MoodDetailsNavigationTest extends FirebaseEmulatorMixin {
                 DATA_LATITUDE,      // latitude
                 DATA_LONGITUDE      // longitude
         );
-        // Set the id to match the test document id.
-        testEvent.setId("testMoodId");
-        Tasks.await(moodEventsRef.document(uid).set(testEvent));
+        Tasks.await(MoodEventProvider.getInstance().insertMoodEvent(testEvent));
 
         auth.signOut();
+    }
+
+    @Before
+    public void setupAuth() throws InterruptedException, ExecutionException {
+        loginUser();
     }
 
     @Test
@@ -122,7 +118,6 @@ public class MoodDetailsNavigationTest extends FirebaseEmulatorMixin {
         // On AuthHome screen: Click the "Sign In" button.
         onView(withText("Sign In"))
                 .perform(click());
-
 
         // Now on AuthSignIn screen: Check that the email field is displayed.
         onView(withId(R.id.emailSignIn))
@@ -144,13 +139,11 @@ public class MoodDetailsNavigationTest extends FirebaseEmulatorMixin {
         onView(withId(R.id.homeTextView))
                 .check(matches(isDisplayed()));
 
-        // Wait for the RecyclerView to load the seeded mood document.
-        SystemClock.sleep(1000);
-
         // Click on the first mood item in the RecyclerView to view its details.
-        // (Ensure that your HomeFeed layout contains a RecyclerView with id moodRecyclerView.)
         onView(withId(R.id.moodRecyclerView))
-                .perform(RecyclerViewActions.actionOnItemAtPosition(0, clickChildViewWithId(R.id.viewDetailsButton)));
+                .perform(actionOnItemAtPosition(
+                        0,
+                        clickChildViewWithId(R.id.viewDetailsButton)));
 
         // Wait for the MoodDetails screen to load.
         SystemClock.sleep(3000);
