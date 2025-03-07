@@ -43,7 +43,7 @@ public class FollowersFragment extends Fragment {
         adapter = new FollowersAdapter(followersList);
         followersRecyclerView.setAdapter(adapter);
 
-        userProvider = new UserProvider();
+        userProvider = UserProvider.getInstance();
         fetchFollowers();
 
         NavigationBarView navigationBarView = view.findViewById(R.id.bottom_navigation);

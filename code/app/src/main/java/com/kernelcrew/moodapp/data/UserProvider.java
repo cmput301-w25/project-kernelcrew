@@ -16,8 +16,16 @@ import java.util.List;
 public class UserProvider {
     private final FirebaseFirestore db;
 
-    public UserProvider() {
+    private UserProvider() {
         db = FirebaseFirestore.getInstance();
+    }
+
+    private static UserProvider instance;
+    public static UserProvider getInstance() {
+        if (instance == null) {
+            instance = new UserProvider();
+        }
+        return instance;
     }
 
     /**
