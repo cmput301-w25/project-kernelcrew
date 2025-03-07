@@ -8,6 +8,7 @@ import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
 import org.junit.After;
+import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import java.io.IOException;
 import java.net.HttpURLConnection;
@@ -42,6 +43,22 @@ public class FirebaseEmulatorMixin {
 
     @After
     public void teardown() throws IOException {
+        // Just clear the moodEvents
+
+        String projectId = FirebaseApp.getInstance().getOptions().getProjectId();
+        URL url = new URL("http://10.0.2.2:8080/emulator/v1/projects/" + projectId +
+                "/databases/(default)/documents/moodEvents");
+        HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
+        urlConnection.setRequestMethod("DELETE");
+        int response = urlConnection.getResponseCode();
+        Log.i("Response Code", "Response Code: " + response);
+        urlConnection.disconnect();
+    }
+
+    @AfterClass
+    public static void teardownAll() throws IOException {
+        // Clear the entire db and users list
+
         String projectId = FirebaseApp.getInstance().getOptions().getProjectId();
         URL url = new URL("http://10.0.2.2:8080/emulator/v1/projects/" + projectId +
                 "/databases/(default)/documents/moodEvents");
