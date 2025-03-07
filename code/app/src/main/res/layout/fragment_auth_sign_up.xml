@@ -81,6 +81,7 @@
                 app:startIconContentDescription="@string/prompt_username"
                 app:boxStrokeColor="@drawable/text_input_outline_color"
                 app:hintTextColor="@drawable/text_input_hint_color"
+                app:cursorColor="@color/white"
                 app:errorTextColor="@color/white">
 
                 <com.google.android.material.textfield.TextInputEditText

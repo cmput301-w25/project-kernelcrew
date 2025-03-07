@@ -40,7 +40,6 @@ import java.util.Objects;
 public class AuthSignUp extends Fragment {
     // Prevent spam sign ups. (if you spam the sign up button it creates accounts)
     private long lastClickTime = 0;
-    private boolean isSigningUp = false;
 
     // Database
     private FirebaseAuth auth;
@@ -109,20 +108,24 @@ public class AuthSignUp extends Fragment {
             error = true;
         }
 
-        if (error) {
-            listener.onValidationComplete(null);
-            return;
-        }
-
         // Validate username asynchronously
         checkUsernameUnique(details.userName, new OnUsernameCheckListener() {
             @Override
             public void onCheckComplete(boolean isUnique) {
-                if (!isUnique) {
+                if (isUnique) {
+                    listener.onValidationComplete(details);
+                } else {
                     usernameLayout.setError("Username is already taken!");
                 }
             }
         });
+
+        if (error || usernameLayout.getError() == "Username is already taken!") {
+            listener.onValidationComplete(null);
+            signUpButton.setEnabled(true);
+        } else {
+            listener.onValidationComplete(details);
+        }
     }
 
     /**
@@ -154,9 +157,8 @@ public class AuthSignUp extends Fragment {
             if (currentTime - lastClickTime < 500) return;
             lastClickTime = currentTime;
 
-            if (isSigningUp) return;
+            if (!signUpButton.isEnabled()) return;
 
-            isSigningUp = true;
             signUpButton.setEnabled(false);
             generalErrorText.setVisibility(GONE);
 
@@ -167,7 +169,6 @@ public class AuthSignUp extends Fragment {
                         signUpUser(details);
                     } else {
                         // Validation failed; re-enable the button
-                        isSigningUp = false;
                         signUpButton.setEnabled(true);
                     }
                 }
@@ -212,7 +213,7 @@ public class AuthSignUp extends Fragment {
                 if (!createUserTask.isSuccessful()) {
                     deleteAuthUserIfExists();
 
-                    setGeneralError(Objects.requireNonNull(createUserTask.getException()));                    isSigningUp = false;
+                    setGeneralError(Objects.requireNonNull(createUserTask.getException()));
                     signUpButton.setEnabled(true);
                     return;
                 }
@@ -251,7 +252,6 @@ public class AuthSignUp extends Fragment {
                         deleteAuthUserIfExists();
                         setGeneralError(task.getException());
                     }
-                    isSigningUp = false;
                     signUpButton.setEnabled(true);
                 });
 
@@ -263,7 +263,6 @@ public class AuthSignUp extends Fragment {
                     if (!updateProfileTask.isSuccessful()) {
                         deleteAuthUserIfExists();
                         setGeneralError(new Exception("The username update failed, please try again."));
-                        isSigningUp = false;
                         signUpButton.setEnabled(true);
                     }
                 });
@@ -308,8 +307,8 @@ public class AuthSignUp extends Fragment {
                         boolean isUnique = !document.exists();
                         listener.onCheckComplete(isUnique);
                     } else {
-                        // Handle the error (you might consider the username as not unique in this case or handle it differently)
-                        listener.onCheckComplete(false);
+                        listener.onCheckComplete(true);
+                        setGeneralError(task.getException());
                     }
                 });
     }
@@ -358,7 +357,6 @@ public class AuthSignUp extends Fragment {
             generalErrorText.setText(R.string.error_account_with_email_exists_already);
         } else if (exception instanceof FirebaseAuthException) {
             String errorCode = ((FirebaseAuthException) exception).getErrorCode();
-
             switch (errorCode) {
                 case "ERROR_INVALID_EMAIL":
                     generalErrorText.setText(R.string.error_invalid_email);
@@ -378,10 +376,14 @@ public class AuthSignUp extends Fragment {
             }
         } else if (exception instanceof FirebaseNetworkException) {
             generalErrorText.setText(R.string.no_internet_connection);
+        } else if (exception instanceof com.google.firebase.firestore.FirebaseFirestoreException &&
+                ((com.google.firebase.firestore.FirebaseFirestoreException) exception).getCode() ==
+                        com.google.firebase.firestore.FirebaseFirestoreException.Code.PERMISSION_DENIED) {
+            generalErrorText.setText(R.string.error_insufficient_firestore_permissions);
         } else {
             generalErrorText.setText(R.string.error_unexpected);
         }
-
         generalErrorText.setVisibility(View.VISIBLE);
     }
+
 }

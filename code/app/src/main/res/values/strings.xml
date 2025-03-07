@@ -38,4 +38,5 @@
     <string name="error_sign_up_is_disabled">Sign-up is currently disabled. Contact support.</string>
     <string name="no_internet_connection">No internet connection. Please check your network.</string>
     <string name="error_account_creation_failed">Account creation failed. Please check your details and try again.</string>
+    <string name="error_insufficient_firestore_permissions">Insufficient permissions to write to the database. Please contact support.</string>
 </resources>
