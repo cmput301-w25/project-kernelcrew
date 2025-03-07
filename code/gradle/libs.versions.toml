@@ -8,6 +8,9 @@ espressoContrib = "3.6.1"
 espressoCoreVersion = "3.5.1"
 firebaseAuth = "23.2.0"
 firebaseBom = "33.10.0"
+awaitility = "4.3.0"
+awaitilityVersion = "4.3.0"
+hamcrest = "2.1"
 firebaseBomVersion = "29.3.1"
 firebaseFirestore = "25.1.2"
 glideVersion = "4.12.0"
@@ -35,19 +38,18 @@ uiautomator = "2.3.0"
 androidx-espresso-intents = { module = "androidx.test.espresso:espresso-intents", version.ref = "espressoContrib" }
 androidx-uiautomator = { module = "androidx.test.uiautomator:uiautomator", version.ref = "uiautomator" }
 espresso-contrib = { module = "androidx.test.espresso:espresso-contrib", version.ref = "espressoContrib" }
+awaitility-v410 = { module = "org.awaitility:awaitility", version.ref = "awaitilityVersion" }
 coordinatorlayout-v120 = { module = "androidx.coordinatorlayout:coordinatorlayout", version.ref = "coordinatorlayoutVersion" }
 core-ktx = { module = "androidx.core:core-ktx", version.ref = "coreKtx" }
 espresso-core-v351 = { module = "androidx.test.espresso:espresso-core", version.ref = "espressoCoreVersion" }
-google-firebase-firestore = { module = "com.google.firebase:firebase-firestore" }
 firebase-auth = { module = "com.google.firebase:firebase-auth" }
 firebase-bom = { module = "com.google.firebase:firebase-bom", version.ref = "firebaseBom" }
-firebase-bom-v2931 = { module = "com.google.firebase:firebase-bom", version.ref = "firebaseBomVersion" }
+hamcrest = { module = "org.hamcrest:hamcrest", version.ref = "hamcrest" }
 firebase-firestore = { module = "com.google.firebase:firebase-firestore", version.ref = "firebaseFirestore" }
 github-glide = { module = "com.github.bumptech.glide:glide", version.ref = "glideVersion" }
 glide-compiler = { module = "com.github.bumptech.glide:compiler", version.ref = "compilerVersion" }
 google-firebase-auth = { module = "com.google.firebase:firebase-auth", version.ref = "firebaseAuth" }
 google-protobuf-javalite = { module = "com.google.protobuf:protobuf-javalite", version.ref = "protobufJavaliteVersion" }
-#recyclerview = "1.4.0"
 
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 ext-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }
@@ -69,6 +71,7 @@ play-services = { module = "com.google.android.gms:play-services", version.ref =
 protobuf-javalite-v3180 = { module = "com.google.protobuf:protobuf-javalite", version.ref = "googleProtobufJavalite" }
 protobuf-javalite-v32112 = { module = "com.google.protobuf:protobuf-javalite", version.ref = "protobufJavalite" }
 rules = { module = "androidx.test:rules", version.ref = "rules" }
+google-firebase-firestore = { group = "com.google.firebase", name = "firebase-firestore", version.ref = "firebaseFirestore" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

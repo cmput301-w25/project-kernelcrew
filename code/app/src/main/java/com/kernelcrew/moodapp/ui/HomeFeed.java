@@ -74,8 +74,11 @@ public class HomeFeed extends Fragment {
         firestore = FirebaseFirestore.getInstance();
 
         // Listen for changes in the "moods" collection
-        firestore.collection("moods")
-                .orderBy("timestamp")
+        if (auth.getCurrentUser() == null) {
+            Log.e("Home", "User not authenticated!");
+        }
+
+        firestore.collection("moodEvents")
                 .addSnapshotListener(new EventListener<QuerySnapshot>() {
                     @Override
                     public void onEvent(@Nullable QuerySnapshot snapshots, @Nullable FirebaseFirestoreException error) {

@@ -9,6 +9,7 @@ import androidx.fragment.app.FragmentContainerView;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -94,9 +95,16 @@ public class CreateMoodEvent extends Fragment {
 
         FragmentContainerView emotionPickerFragmentContainer =
                 view.findViewById(R.id.emotion_picker);
+        if (emotionPickerFragmentContainer == null) {
+            // Log error and possibly show an error message to the user
+            Log.e("CreateMoodEvent", "Emotion picker container not found in layout.");
+            return;
+        }
         emotionPickerFragment = emotionPickerFragmentContainer.getFragment();
-        assert emotionPickerFragment != null;
-
+        if (emotionPickerFragment == null) {
+            Log.e("CreateMoodEvent", "EmotionPickerFragment not attached. Ensure it's specified in the layout.");
+            return;
+        }
         moodEventController = MoodEventController.getInstance();
         currentUser = FirebaseAuth.getInstance().getCurrentUser();
         assert currentUser != null;
