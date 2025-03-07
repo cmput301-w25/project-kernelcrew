@@ -81,6 +81,9 @@ dependencies {
     androidTestImplementation(libs.awaitility.v410) {
         transitive = false
     }
+
+    // To prevent JavaDocs error
+    implementation(files("${android.sdkDirectory}/platforms/${android.compileSdkVersion}/android.jar"))
 }
 
 apply plugin: 'com.android.application'
