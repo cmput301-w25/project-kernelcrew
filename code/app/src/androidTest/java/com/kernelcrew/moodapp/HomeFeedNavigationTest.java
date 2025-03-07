@@ -44,9 +44,9 @@ public class HomeFeedNavigationTest extends FirebaseEmulatorMixin {
 
         FirebaseEmulatorMixin.staticCreateUser();
         FirebaseEmulatorMixin.clearUser();
-        CollectionReference moodsRef = db.collection("moods");
-        Mood testMood = new Mood("testMoodId", "dummyUser", "Test mood", System.currentTimeMillis());
-        moodsRef.document("testMoodId").set(testMood);
+//        CollectionReference moodsRef = db.collection("moodEvents");
+//        Mood testMood = new Mood("testMoodId", "dummyUser", "Test mood", System.currentTimeMillis());
+//        moodsRef.document("testMoodId").set(testMood);
     }
 
 
