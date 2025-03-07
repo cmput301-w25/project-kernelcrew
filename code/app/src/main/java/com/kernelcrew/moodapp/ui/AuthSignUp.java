@@ -65,9 +65,9 @@ public class AuthSignUp extends Fragment {
         String password;
 
         SignUpDetails() {
-            this.userName = usernameEditText.getText() != null ? usernameEditText.getText().toString().trim() : "";
-            this.email = emailEditText.getText() != null ? emailEditText.getText().toString().trim() : "";
-            this.password = passwordEditText.getText() != null ? passwordEditText.getText().toString() : "";
+            this.userName = String.valueOf(usernameEditText.getText());
+            this.email = String.valueOf(emailEditText.getText());
+            this.password = String.valueOf(passwordEditText.getText());
         }
     }
 
@@ -91,16 +91,41 @@ public class AuthSignUp extends Fragment {
         passwordLayout.setError(null);
 
         SignUpDetails details = new SignUpDetails();
+        boolean hasError = false;
 
-        // Validate fields synchronously
+        // Synchronous validations
         if (details.userName.isBlank()) {
             usernameLayout.setError("Please enter a username.");
+            hasError = true;
         }
 
-        checkEmailValid(details.email);
-        checkPasswordValid(details.password);
+        if (details.email.isBlank()) {
+            emailLayout.setError("Please enter an email.");
+            hasError = true;
+        } else if (!android.util.Patterns.EMAIL_ADDRESS.matcher(details.email).matches()) {
+            emailLayout.setError("Please enter a valid email.");
+            hasError = true;
+        }
 
-        // Validate username asynchronously
+        if (details.password.isBlank()) {
+            passwordLayout.setError("Please enter a password.");
+            hasError = true;
+        } else if (details.password.length() < 6) {
+            passwordLayout.setError("Password must be at least 6 characters.");
+            hasError = true;
+        } else if (details.password.length() > 4096) {
+            passwordLayout.setError("Password must be no more than 4096 characters.");
+            hasError = true;
+        }
+
+        // If any synchronous validation fails, immediately call the listener with null and exit.
+        if (hasError) {
+            listener.onValidationComplete(null);
+            signUpButton.setEnabled(true);
+            return;
+        }
+
+        // Asynchronously validate the username uniqueness
         checkUsernameUnique(details.userName, new OnUsernameCheckListener() {
             @Override
             public void onCheckComplete(boolean isUnique) {
@@ -108,20 +133,12 @@ public class AuthSignUp extends Fragment {
                     listener.onValidationComplete(details);
                 } else {
                     usernameLayout.setError("Username is already taken!");
+                    listener.onValidationComplete(null);
                 }
             }
         });
-
-        if (usernameLayout.getError() != null ||
-                emailLayout.getError() != null ||
-                passwordLayout != null
-        ) {
-            listener.onValidationComplete(null);
-            signUpButton.setEnabled(true);
-        } else {
-            listener.onValidationComplete(details);
-        }
     }
+
 
     /**
      * Inflates the fragment layout and initializes UI elements.
@@ -183,6 +200,7 @@ public class AuthSignUp extends Fragment {
 
             @Override
             public void afterTextChanged(Editable s) {
+                if (s.toString().isEmpty()) return;
                 checkUsernameUnique(s.toString(), new OnUsernameCheckListener() {
                     @Override
                     public void onCheckComplete(boolean isUnique) {
@@ -292,7 +310,7 @@ public class AuthSignUp extends Fragment {
 
     private void checkUsernameUnique(String username, OnUsernameCheckListener listener) {
         if (username == null || username.trim().isEmpty()) {
-            listener.onCheckComplete(true);
+            listener.onCheckComplete(false);
             return;
         }
 
@@ -308,31 +326,6 @@ public class AuthSignUp extends Fragment {
                         setGeneralError(task.getException());
                     }
                 });
-    }
-
-    private boolean checkEmailValid(String email) {
-        if (email == null || email.isEmpty()) {
-            emailLayout.setError("Please enter an email.");
-            return false;
-        } else if (!android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
-            emailLayout.setError("Please enter a valid email.");
-            return false;
-        }
-        return true;
-    }
-
-    private boolean checkPasswordValid(String password) {
-        if (password == null || password.isEmpty()) {
-            passwordLayout.setError("Please enter a password.");
-            return false;
-        } else if (password.length() < 6) {
-            passwordLayout.setError("Password must be at least 6 characters.");
-            return false;
-        } else if (password.length() > 4096) {
-            passwordLayout.setError("Password must be no more than 4096 characters.");
-            return false;
-        }
-        return true;
     }
 
     // ChatGPT:
