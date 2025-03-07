@@ -59,6 +59,22 @@ public class FirebaseEmulatorMixin {
         Log.i("Response Code", "Response Code: " + response);
         urlConnection.disconnect();
 
+        url = new URL("http://" + androidLocalhost + ":9099/emulator/v1/projects/" + projectId +
+                "/databases/(default)/documents/users");
+        urlConnection = (HttpURLConnection) url.openConnection();
+        urlConnection.setRequestMethod("DELETE");
+        response = urlConnection.getResponseCode();
+        Log.i("Response Code", "Response Code: " + response);
+        urlConnection.disconnect();
+
+        url = new URL("http://" + androidLocalhost + ":9099/emulator/v1/projects/" + projectId +
+                "/databases/(default)/documents/usernames");
+        urlConnection = (HttpURLConnection) url.openConnection();
+        urlConnection.setRequestMethod("DELETE");
+        response = urlConnection.getResponseCode();
+        Log.i("Response Code", "Response Code: " + response);
+        urlConnection.disconnect();
+
         // Clear the current user
         if (FirebaseAuth.getInstance().getCurrentUser() != null) {
             FirebaseAuth.getInstance().getCurrentUser().delete();

@@ -99,7 +99,7 @@ public class SignInAndSignUpTest extends FirebaseEmulatorMixin {
         onView(withId(R.id.passwordLayout))
                 .check(matches(hasDescendant(withText("Password must be at least 6 characters."))));
     }
-    
+
     @Test
     public void testSignInInputValidation() {
         onView(withId(R.id.buttonInitialToSignIn)).perform(click());

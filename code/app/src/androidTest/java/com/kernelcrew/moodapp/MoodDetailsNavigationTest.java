@@ -44,7 +44,7 @@ public class MoodDetailsNavigationTest extends FirebaseEmulatorMixin {
     private static final String USER_EMAIL = "test@kernelcrew.com";
     private static final String USER_PASSWORD = "Password@1234";
     private static final Emotion DATA_EMOTION = Emotion.valueOf("HAPPINESS");
-    private static final String DATA_TRIGGER = "Morning Coffee";
+    private static final String DATA_TRIGGER = "Some Trigger";
     private static final String DATA_SOCIALSITUATION = "With Friends";
     private static final String DATA_REASON = "Celebration";
     private static final String DATA_PHOTOURL = "https://example.com/photo.jpg";
@@ -99,10 +99,14 @@ public class MoodDetailsNavigationTest extends FirebaseEmulatorMixin {
         Mood testMood = new Mood("testMoodId", "dummyUser", "Happy", System.currentTimeMillis());
         Tasks.await(moodsRef.document("testMoodId").set(testMood));
 
+        // Get the current user uid.
+        String uid = auth.getCurrentUser().getUid();
+
         // Seed a detailed MoodEvent document used in the MoodDetails screen.
         CollectionReference moodEventsRef = db.collection("moodEvents");
+        // Use the current user's uid instead of "dummyUser".
         MoodEvent testEvent = new MoodEvent(
-                "dummyUser",
+                uid,
                 Emotion.HAPPINESS,
                 DATA_TRIGGER,       // trigger
                 DATA_SOCIALSITUATION, // socialSituation
@@ -113,11 +117,10 @@ public class MoodDetailsNavigationTest extends FirebaseEmulatorMixin {
         );
         // Set the id to match the test document id.
         testEvent.setId("testMoodId");
-        Tasks.await(moodEventsRef.document("testMoodId").set(testEvent));
+        Tasks.await(moodEventsRef.document(uid).set(testEvent));
 
         auth.signOut();
     }
-
 
     @Test
     public void testNavigationToMoodDetails() throws InterruptedException {

@@ -60,14 +60,20 @@ public class MyProfileTest extends FirebaseEmulatorMixin {
             }
         }
 
+        // Sign in so that request.auth is non-null.
+        Tasks.await(auth.signInWithEmailAndPassword(TEST_EMAIL, TEST_PASSWORD));
+        String uid = auth.getCurrentUser().getUid();
+
+        // Create profile data with the uid included.
         Map<String, Object> profileData = new HashMap<>();
+        profileData.put("uid", uid);
         profileData.put("username", TEST_USERNAME);
         profileData.put("bio", "This is a test bio");
 
-        Tasks.await(db.collection("users").document(TEST_USERNAME).set(profileData));
+        // Use uid as the document id.
+        Tasks.await(db.collection("users").document(uid).set(profileData));
         auth.signOut();
     }
-
 
     @Rule
     public ActivityScenarioRule<MainActivity> activityScenarioRule =
@@ -75,13 +81,14 @@ public class MyProfileTest extends FirebaseEmulatorMixin {
 
     @Before
     public void setUp() throws InterruptedException, ExecutionException {
-        createUser();
+        // The test user is already created in seedDatabase(), so we don't need to call createUser() again.
         FirebaseAuth.getInstance().signOut();
 
-        // Wait for the user creation process to complete before proceeding.
+        // Wait for sign out to complete before proceeding.
         await().atMost(5, TimeUnit.SECONDS)
                 .until(() -> FirebaseAuth.getInstance().getCurrentUser() == null);
     }
+
 
     @Test
     public void testProfilePageLoadsAndSignOutWorks() {
