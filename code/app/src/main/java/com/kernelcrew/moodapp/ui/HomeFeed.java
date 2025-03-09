@@ -69,6 +69,7 @@ public class HomeFeed extends Fragment {
             }
 
             List<MoodEvent> moodList = new ArrayList<>();
+            assert snapshots != null;
             for (QueryDocumentSnapshot doc : snapshots) {
                 MoodEvent mood = doc.toObject(MoodEvent.class);
                 moodList.add(mood);
