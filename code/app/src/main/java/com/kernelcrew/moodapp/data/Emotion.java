@@ -6,13 +6,11 @@ import com.kernelcrew.moodapp.R;
 
 public enum Emotion {
     ANGER {
-        @NonNull
         @Override
         public int getIconRes() {
             return R.drawable.ic_anger;
         }
 
-        @NonNull
         @Override
         public int getColorRes() {
             return R.color.anger;
@@ -26,13 +24,11 @@ public enum Emotion {
     },
 
     CONFUSION {
-        @NonNull
         @Override
         public int getIconRes() {
             return R.drawable.ic_confused;
         }
 
-        @NonNull
         @Override
         public int getColorRes() {
             return R.color.confusion;
@@ -46,13 +42,11 @@ public enum Emotion {
     },
 
     DISGUST {
-        @NonNull
         @Override
         public int getIconRes() {
             return R.drawable.ic_disgust;
         }
 
-        @NonNull
         @Override
         public int getColorRes() {
             return R.color.disgust;
@@ -66,13 +60,11 @@ public enum Emotion {
     },
 
     FEAR {
-        @NonNull
         @Override
         public int getIconRes() {
             return R.drawable.ic_fear;
         }
 
-        @NonNull
         @Override
         public int getColorRes() {
             return R.color.fear;
@@ -86,13 +78,11 @@ public enum Emotion {
     },
 
     HAPPINESS {
-        @NonNull
         @Override
         public int getIconRes() {
             return R.drawable.ic_happy;
         }
 
-        @NonNull
         @Override
         public int getColorRes() {
             return R.color.happiness;
@@ -106,13 +96,11 @@ public enum Emotion {
     },
 
     SADNESS {
-        @NonNull
         @Override
         public int getIconRes() {
             return R.drawable.ic_sad;
         }
 
-        @NonNull
         @Override
         public int getColorRes() {
             return R.color.sadness;
@@ -126,13 +114,11 @@ public enum Emotion {
     },
 
     SHAME {
-        @NonNull
         @Override
         public int getIconRes() {
             return R.drawable.ic_shame;
         }
 
-        @NonNull
         @Override
         public int getColorRes() {
             return R.color.shame;
@@ -146,13 +132,11 @@ public enum Emotion {
     },
 
     SURPRISE {
-        @NonNull
         @Override
         public int getIconRes() {
             return R.drawable.ic_surprise;
         }
 
-        @NonNull
         @Override
         public int getColorRes() {
             return R.color.surprise;
@@ -165,9 +149,15 @@ public enum Emotion {
         }
     };
 
-    @NonNull
+    /**
+     * Get the resource ID of the icon drawable for this emotion
+     * @return Drawable resource ID
+     */
     public abstract int getIconRes();
 
-    @NonNull
+    /**
+     * Get the resource ID for the color of this emotion
+     * @return Color resource ID
+     */
     public abstract int getColorRes();
 }

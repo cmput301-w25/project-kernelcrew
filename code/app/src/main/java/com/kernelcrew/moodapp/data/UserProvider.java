@@ -13,11 +13,24 @@ import java.util.ArrayList;
 import java.util.List;
 
 
-public class UserController {
+public class UserProvider {
     private final FirebaseFirestore db;
 
-    public UserController() {
+    private UserProvider() {
         db = FirebaseFirestore.getInstance();
+    }
+
+    private static UserProvider instance;
+
+    /**
+     * Get the singleton instance of UserProvider
+     * @return Singleton instance of UserProvider
+     */
+    public static UserProvider getInstance() {
+        if (instance == null) {
+            instance = new UserProvider();
+        }
+        return instance;
     }
 
     /**
@@ -68,11 +81,11 @@ public class UserController {
     }
 
     /**
-     * Add a listener for changes made to the following or followers sub-collections
+     * Add a listener for changes made to a specific user.
      * @param uid Id of the user to listen to.
      * @param listener Snapshot listener to attach.
      */
-    public void addSnapshotListener(@NonNull String uid, @NonNull EventListener<DocumentSnapshot> listener) {
+    public void addSnapshotListenerForUser(@NonNull String uid, @NonNull EventListener<DocumentSnapshot> listener) {
         db.collection("users").document(uid).addSnapshotListener(listener);
     }
 }

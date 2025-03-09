@@ -1,14 +1,15 @@
 package com.kernelcrew.moodapp.data;
 
+import java.io.Serializable;
 import java.util.Date;
 import java.util.UUID;
 
 /**
  * A logged mood event owned by a user referenced by that user's firebase auth UID.
  */
-public class MoodEvent {
+public class MoodEvent implements Serializable {
     private String id;
-    private String userId;
+    private String uid;
     private Date created;
     private Emotion emotion;
     private String trigger;
@@ -24,10 +25,10 @@ public class MoodEvent {
     /**
      * Constructor for a new MoodEvent with additional details.
      */
-    public MoodEvent(String userId, Emotion emotion, String trigger, String socialSituation,
+    public MoodEvent(String uid, Emotion emotion, String trigger, String socialSituation,
                      String reason, String photoUrl, Double latitude, Double longitude) {
         this.id = UUID.randomUUID().toString();
-        this.userId = userId;
+        this.uid = uid;
         this.created = new Date();
         this.emotion = emotion;
         this.trigger = trigger;
@@ -46,11 +47,11 @@ public class MoodEvent {
         this.id = id;
     }
 
-    public String getUserId() {
-        return userId;
+    public String getUid() {
+        return uid;
     }
-    public void setUserId(String userId) {
-        this.userId = userId;
+    public void setUid(String uid) {
+        this.uid = uid;
     }
 
     public Date getCreated() {
