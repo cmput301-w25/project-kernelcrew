@@ -46,7 +46,7 @@ import java.util.concurrent.ExecutionException;
     application = TestApplication.class,
     packageName = "com.kernelcrew.moodapp"
 )
-@SuppressWarnings("unchecked")
+
 public class DeleteDialogFragmentTest {
     private DeleteDialogFragment dialogFragment;
     private boolean listenerCalled;

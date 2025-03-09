@@ -50,14 +50,14 @@ android {
     }
 
     // Code from Claude AI, Anthropic, "Configure test task for all build variants", accessed 03-06-2024
-    tasks.withType(Test) {
+    tasks.withType(Test).configureEach {
         testLogging {
             events "passed", "skipped", "failed", "standardOut", "standardError"
             showStandardStreams = true
             exceptionFormat = "full"
         }
     }
-    
+
     // Code from Claude AI, Anthropic, "Configure source sets for test resources", accessed 03-06-2024
     sourceSets {
         test {
@@ -83,7 +83,7 @@ android {
     }
     
     // Code from Claude AI, Anthropic, "Configure test filtering for release variant", accessed 03-07-2024
-    tasks.whenTaskAdded { task ->
+    tasks.configureEach { task ->
         if (task.name == 'testReleaseUnitTest') {
             task.filter {
                 excludeTestsMatching "com.kernelcrew.moodapp.LocationLogicTest*"
@@ -191,8 +191,8 @@ dependencies {
     // Code from Claude AI, Anthropic, "Fix release variant fragment testing", accessed 03-07-2024
     // Enable fragment testing in release variant for testing
     debugImplementation 'androidx.fragment:fragment-testing-manifest:1.6.2'
-    testReleaseImplementation 'androidx.fragment:fragment-testing:1.6.2'
-    testReleaseImplementation 'androidx.fragment:fragment-testing-manifest:1.6.2'
+    debugImplementation 'androidx.fragment:fragment-testing:1.6.2'
+    debugImplementation 'androidx.fragment:fragment-testing-manifest:1.6.2'
 
     testImplementation 'junit:junit:4.13.2'
 }
