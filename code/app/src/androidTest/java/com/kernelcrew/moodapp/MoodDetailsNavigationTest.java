@@ -1,6 +1,7 @@
 package com.kernelcrew.moodapp;
 
 import static androidx.test.espresso.Espresso.onView;
+import static androidx.test.espresso.action.ViewActions.closeSoftKeyboard;
 import static androidx.test.espresso.action.ViewActions.replaceText;
 import static androidx.test.espresso.action.ViewActions.click;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
@@ -125,9 +126,9 @@ public class MoodDetailsNavigationTest extends FirebaseEmulatorMixin {
 
         // Fill in the email and password fields.
         onView(withId(R.id.emailSignIn))
-                .perform(replaceText(USER_EMAIL), ViewActions.closeSoftKeyboard());
+                .perform(replaceText(USER_EMAIL), closeSoftKeyboard());
         onView(withId(R.id.passwordSignIn))
-                .perform(replaceText(USER_PASSWORD), ViewActions.closeSoftKeyboard());
+                .perform(replaceText(USER_PASSWORD), closeSoftKeyboard());
 
         // Click the sign in button on AuthSignIn.
         onView(withId(R.id.signInButtonAuthToHome))
@@ -160,6 +161,39 @@ public class MoodDetailsNavigationTest extends FirebaseEmulatorMixin {
 //        onView(withId(R.id.tvReasonValue))
 //                .check(matches(withText(DATA_REASON)));
     }
+
+//    @Test
+//    public void testViewProfileNavigationFromMoodDetails() throws InterruptedException {
+//        // Sign in
+//        onView(withText("Sign In")).perform(click());
+//        onView(withId(R.id.emailSignIn))
+//                .perform(replaceText(USER_EMAIL), closeSoftKeyboard());
+//        onView(withId(R.id.passwordSignIn))
+//                .perform(replaceText(USER_PASSWORD), closeSoftKeyboard());
+//
+//        // Click the sign in button on AuthSignIn.
+//        onView(withId(R.id.signInButtonAuthToHome))
+//                .perform(click());
+//        SystemClock.sleep(1000);
+//
+//        // On HomeFeed: Click on the first mood item's "View Details" button to navigate to MoodDetails.
+//        onView(withId(R.id.homeTextView))
+//                .check(matches(isDisplayed()));
+//
+//        // Click on the first mood item in the RecyclerView to view its details.
+//        onView(withId(R.id.moodRecyclerView))
+//                .perform(actionOnItemAtPosition(
+//                        0,
+//                        clickChildViewWithId(R.id.viewDetailsButton)));
+//
+//        // On MoodDetails: Scroll to and click the "View Profile" button.
+////        onView(withId(R.id.btnViewProfile))
+////                .perform(ViewActions.scrollTo(), click());
+////        SystemClock.sleep(3000);
+////
+////        // Verify that MyProfile screen is displayed (for example, the username_text view is visible).
+////        onView(withId(R.id.username_text)).check(matches(isDisplayed()));
+//    }
 
     @After
     public void signOutTheUser() {
