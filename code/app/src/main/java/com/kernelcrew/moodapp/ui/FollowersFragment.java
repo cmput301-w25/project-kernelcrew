@@ -4,6 +4,7 @@ import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -99,7 +100,13 @@ public class FollowersFragment extends Fragment {
             User user = users.get(position);
             holder.usernameTextView.setText(user.getName());
             holder.avatarImageView.setImageResource(R.drawable.ic_person);
-            holder.followCheckBox.setChecked(user.isFollowed());
+
+            holder.itemView.setOnClickListener(v -> {
+                Bundle bundle = new Bundle();
+                bundle.putString("requestType", "follow_request");
+                bundle.putString("username", user.getName());
+                Navigation.findNavController(v).navigate(R.id.action_followersFragment_to_requestFragment, bundle);
+            });
         }
 
         @Override
