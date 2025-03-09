@@ -32,6 +32,14 @@ public class DeleteDialogFragment extends DialogFragment {
     public void setDeleteDialogListener(DeleteDialogListener listener) {
         this.listener = listener;
     }
+    
+    /**
+     * Get the current delete dialog listener
+     * @return The current listener or null if none is set
+     */
+    public DeleteDialogListener getDeleteDialogListener() {
+        return this.listener;
+    }
 
     @Override
     public void onAttach(@NonNull Context context) {

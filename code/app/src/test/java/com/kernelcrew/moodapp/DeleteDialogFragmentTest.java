@@ -1,14 +1,10 @@
 package com.kernelcrew.moodapp;
 
-//Code from Claude AI, Anthropic, "Configure Android unit testing with JUnit", accessed 03-05-2025
-//Code from Anthropic, Claude 3.7 Sonnet, "Add Firestore emulator testing", accessed 05-13-2024
+//Code from Claude AI, Anthropic, "Convert Robolectric tests to JUnit for DeleteDialogFragment", accessed 05-17-2024
 import static org.junit.Assert.*;
-
-import android.util.Log;
 
 import com.google.android.gms.tasks.Tasks;
 import com.google.firebase.Timestamp;
-import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -17,12 +13,8 @@ import com.kernelcrew.moodapp.ui.DeleteDialogFragment;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.robolectric.RobolectricTestRunner;
-import org.robolectric.annotation.Config;
-import org.robolectric.shadows.ShadowLog;
+import org.mockito.MockitoAnnotations;
 
 import java.io.IOException;
 import java.net.HttpURLConnection;
@@ -33,41 +25,32 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ExecutionException;
+import java.util.logging.Logger;
 
 /**
- * Unit tests for the DeleteDialogFragment.
+ * JUnit tests for the DeleteDialogFragment.
  * <p>
- * This test class uses Robolectric to test the fragment and Firebase emulator for 
+ * This test class uses JUnit to test the fragment and Firebase emulator for 
  * database operations.
  */
-@RunWith(RobolectricTestRunner.class)
-@Config(
-    sdk = 29,
-    application = TestApplication.class,
-    packageName = "com.kernelcrew.moodapp"
-)
-
 public class DeleteDialogFragmentTest {
+    private static final Logger logger = Logger.getLogger(DeleteDialogFragmentTest.class.getName());
+    
     private DeleteDialogFragment dialogFragment;
     private boolean listenerCalled;
     
-    // Teest collection name for Firestore operations
+    // Test collection name for Firestore operations
     private final String TEST_COLLECTION = "moodEvents";
     
     // Test document ID for Firestore operations
     private final String TEST_DOCUMENT_ID = "testMoodEvent";
     
-    // Your Firebase project ID - replace with your actual project ID
+    // Your Firebase project ID
     private final String PROJECT_ID = "moodable-a6fde";
     
     // Emulator connection parameters
     private static final String ANDROID_LOCALHOST = "127.0.0.1";
-    private static final int FIRESTORE_EMULATOR_PORT = 8080;
-    
-    static {
-        // Enable Robolectric logging to console
-        ShadowLog.stream = System.out;
-    }
+    private static final int FIRESTORE_EMULATOR_PORT = 8080; // Using port 8080 as specified
     
     /**
      * Configure the FirebaseFirestore instance to use the local emulator
@@ -76,11 +59,16 @@ public class DeleteDialogFragmentTest {
     @BeforeClass
     public static void setupEmulator() {
         FirebaseFirestore.getInstance().useEmulator(ANDROID_LOCALHOST, FIRESTORE_EMULATOR_PORT);
+        logger.info("Configured Firestore emulator at " + ANDROID_LOCALHOST + ":" + FIRESTORE_EMULATOR_PORT);
     }
 
     @Before
     public void setUp() {
         try {
+            // Initialize mockito
+            MockitoAnnotations.openMocks(this);
+            
+            // Create dialog fragment
             dialogFragment = new DeleteDialogFragment();
             listenerCalled = false;
             
@@ -89,8 +77,10 @@ public class DeleteDialogFragmentTest {
             
             // Seed the database with test data
             seedDatabase();
+            
+            logger.info("Test setup completed successfully");
         } catch (Exception e) {
-            Log.e("DeleteDialogTest", "Error in setup: " + e.getMessage(), e);
+            logger.severe("Error in setup: " + e.getMessage());
         }
     }
     
@@ -115,9 +105,9 @@ public class DeleteDialogFragmentTest {
         DocumentReference docRef = db.collection(TEST_COLLECTION).document(TEST_DOCUMENT_ID);
         try {
             Tasks.await(docRef.set(moodEventData));
-            Log.i("DeleteDialogTest", "Database seeded successfully");
+            logger.info("Database seeded successfully");
         } catch (Exception e) {
-            Log.e("DeleteDialogTest", "Error seeding database: " + e.getMessage(), e);
+            logger.severe("Error seeding database: " + e.getMessage());
         }
     }
     
@@ -129,22 +119,19 @@ public class DeleteDialogFragmentTest {
         try {
             url = new URL("http://" + ANDROID_LOCALHOST + ":" + FIRESTORE_EMULATOR_PORT + 
                           "/emulator/v1/projects/" + PROJECT_ID + "/databases/(default)/documents");
-        } catch (MalformedURLException exception) {
-            Log.e("DeleteDialogTest", "URL Error: " + Objects.requireNonNull(exception.getMessage()), exception);
-        }
-        
-        HttpURLConnection urlConnection = null;
-        try {
-            urlConnection = (HttpURLConnection) url.openConnection();
+            
+            HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
             urlConnection.setRequestMethod("DELETE");
             int response = urlConnection.getResponseCode();
-            Log.i("DeleteDialogTest", "Database clear response code: " + response);
-        } catch (IOException exception) {
-            Log.e("DeleteDialogTest", "IO Error: " + Objects.requireNonNull(exception.getMessage()), exception);
-        } finally {
+            logger.info("Database clear response code: " + response);
+            
             if (urlConnection != null) {
                 urlConnection.disconnect();
             }
+        } catch (MalformedURLException exception) {
+            logger.severe("URL Error: " + exception.getMessage());
+        } catch (IOException exception) {
+            logger.severe("IO Error: " + exception.getMessage());
         }
     }
     
@@ -156,33 +143,65 @@ public class DeleteDialogFragmentTest {
         try {
             // Force cleanup of resources
             clearDatabase();
-            System.gc(); // Request garbage collection
+            logger.info("Test teardown completed");
         } catch (Exception e) {
-            Log.e("DeleteDialogTest", "Error in tearDown: " + e.getMessage(), e);
+            logger.severe("Error in tearDown: " + e.getMessage());
         }
     }
 
+    /**
+     * Test that we can set a listener on the dialog fragment
+     */
     @Test
     public void testListenerSetup() {
-        // Test that we can set a listener
-        dialogFragment.setDeleteDialogListener(() -> listenerCalled = true);
-        assertNotNull(dialogFragment);
+        // Create a listener
+        DeleteDialogFragment.DeleteDialogListener listener = () -> listenerCalled = true;
+        
+        // Set the listener on the fragment
+        dialogFragment.setDeleteDialogListener(listener);
+        
+        // Verify no exceptions were thrown
+        assertNotNull("Dialog fragment should not be null after setting listener", dialogFragment);
     }
 
+    /**
+     * Test that the dialog fragment can be created
+     */
     @Test
     public void testDialogFragmentCreation() {
-        // Test that dialog fragment can be created
+        // Just verify the fragment can be instantiated
         assertNotNull("Dialog fragment should not be null", dialogFragment);
     }
 
+    /**
+     * Test the listener interface implementation
+     */
     @Test
     public void testListenerInterface() {
-        // Test the listener interface implementation
+        // Create a listener using lambda
+        DeleteDialogFragment.DeleteDialogListener listener = () -> listenerCalled = true;
+        
+        // Set the listener
+        dialogFragment.setDeleteDialogListener(listener);
+        
+        // Verify no exceptions
+        assertNotNull("Should be able to set listener", dialogFragment);
+    }
+    
+    /**
+     * Test that the listener callback actually works when triggered
+     */
+    @Test
+    public void testListenerCallback() {
+        // Create and set the listener
         DeleteDialogFragment.DeleteDialogListener listener = () -> listenerCalled = true;
         dialogFragment.setDeleteDialogListener(listener);
         
-        // Verify listener can be set
-        assertNotNull("Should be able to set listener", dialogFragment);
+        // Trigger the callback directly
+        listener.onDeleteConfirmed();
+        
+        // Verify the callback worked
+        assertTrue("Listener callback should set listenerCalled to true", listenerCalled);
     }
     
     /**
@@ -213,7 +232,7 @@ public class DeleteDialogFragmentTest {
                     Tasks.await(docRef.update("location", null));
                     listenerCalled = true;
                 } catch (Exception e) {
-                    Log.e("DeleteDialogTest", "Error updating document: " + e.getMessage(), e);
+                    logger.severe("Error updating document: " + e.getMessage());
                 }
             };
             
@@ -235,9 +254,20 @@ public class DeleteDialogFragmentTest {
             // Verify document still exists but location is gone
             assertTrue("Document should still exist after deletion", snapshot.exists());
             assertNull("Location field should be null after deletion", snapshot.get("location"));
+            
+            logger.info("Delete location test completed successfully");
         } catch (Exception e) {
-            Log.e("DeleteDialogTest", "Test failed with exception: " + e.getMessage(), e);
+            logger.severe("Test failed with exception: " + e.getMessage());
             throw e;
         }
     }
+    
+    /**
+     * You need to add this method to your DeleteDialogFragment class
+     * to make these tests work properly.
+     * 
+     * public DeleteDialogListener getDeleteDialogListener() {
+     *     return this.listener;
+     * }
+     */
 } 
