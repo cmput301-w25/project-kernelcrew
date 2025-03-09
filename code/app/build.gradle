@@ -30,56 +30,38 @@ android {
 }
 
 dependencies {
-    implementation libs.appcompat
-    implementation libs.material
+    annotationProcessor libs.glide.compiler
+
     implementation libs.activity
-    implementation libs.constraintlayout
-    implementation libs.navigation.common
-    implementation libs.navigation.fragment
+    implementation libs.androidx.fragment.testing
     implementation libs.annotation
-    implementation libs.lifecycle.livedata.ktx
-    implementation libs.lifecycle.viewmodel.ktx
+    implementation libs.appcompat
+    implementation libs.constraintlayout
+    implementation libs.coordinatorlayout
+    implementation libs.core.ktx
     implementation libs.firebase.auth
     implementation libs.firebase.firestore
-    implementation libs.google.firebase.firestore
-    implementation libs.google.firebase.auth
     implementation libs.github.glide
-    implementation libs.github.glide
-    implementation libs.protobuf.javalite.v32112
-    implementation libs.coordinatorlayout.v120
-    implementation libs.core.ktx
-    implementation libs.appcompat
-    implementation libs.material.v180
-    implementation libs.coordinatorlayout
-    implementation libs.protobuf.javalite.v3180
+    implementation libs.material
+    implementation libs.navigation.common
+    implementation libs.navigation.fragment
     implementation(platform(libs.firebase.bom))
-    implementation libs.androidx.fragment.testing
-    androidTestImplementation("androidx.test.espresso:espresso-core:3.6.1")
-    androidTestImplementation(libs.androidx.runner)
-    androidTestImplementation(libs.ext.junit)
+
+    testImplementation libs.hamcrest
+    testImplementation libs.junit
+    testImplementation libs.mockito.android
     testImplementation(libs.mockito.core)
     testImplementation(libs.mockito.inline)
-    testImplementation libs.mockito.android
 
-    implementation 'com.github.bumptech.glide:glide:4.16.0'
-
-    annotationProcessor libs.glide.compiler
-    annotationProcessor libs.glide.compiler
-
-    testImplementation libs.junit
-    testImplementation libs.hamcrest
-    androidTestImplementation libs.ext.junit
-    androidTestImplementation libs.espresso.core
-    androidTestImplementation libs.junit.v115
-    androidTestImplementation libs.espresso.core.v351
-    androidTestImplementation libs.rules
-    androidTestImplementation libs.google.protobuf.javalite
     androidTestImplementation libs.androidx.espresso.intents
     androidTestImplementation libs.androidx.uiautomator
-
-    debugImplementation libs.androidx.fragment.testing.v162
+    androidTestImplementation libs.espresso.core
+    androidTestImplementation libs.ext.junit
     androidTestImplementation libs.mockito.android
-
+    androidTestImplementation libs.rules
+    androidTestImplementation(libs.androidx.runner)
+    androidTestImplementation(libs.espresso.core)
+    androidTestImplementation(libs.ext.junit)
 
     // Fix issue where protobuf class static method cannot be found.
     // See: https://stackoverflow.com/a/68675881/10970228
