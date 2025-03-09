@@ -71,6 +71,9 @@
         <action
             android:id="@+id/action_moodDetails_to_editMood"
             app:destination="@id/editMood" />
+        <action
+            android:id="@+id/action_moodDetails_to_myProfile"
+            app:destination="@id/myProfile" />
     </fragment>
 
     <fragment
@@ -88,6 +91,10 @@
         android:name="com.kernelcrew.moodapp.ui.MyProfile"
         android:label="fragment_my_profile"
         tools:layout="@layout/fragment_my_profile" >
+        <argument
+            android:name="uid"
+            app:argType="string"
+            android:defaultValue="" />
         <action
             android:id="@+id/action_myProfile_to_followersPage"
             app:destination="@id/followersFragment" />
