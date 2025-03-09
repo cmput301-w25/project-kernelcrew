@@ -10,6 +10,7 @@ firebaseAuth = "23.2.0"
 firebaseBom = "33.10.0"
 awaitility = "4.3.0"
 awaitilityVersion = "4.3.0"
+fragmentTestingVersion = "1.6.2"
 hamcrest = "2.1"
 firebaseBomVersion = "29.3.1"
 firebaseFirestore = "25.1.2"
@@ -23,6 +24,7 @@ material = "1.12.0"
 activity = "1.10.0"
 constraintlayout = "2.2.1"
 materialVersion = "1.8.0"
+mockitoAndroid = "5.15.2"
 mockitoCore = "5.7.0"
 mockitoInline = "5.2.0"
 navigationCommon = "2.8.8"
@@ -33,11 +35,16 @@ coordinatorlayout = "1.3.0"
 playServices = "17.0.0"
 protobufJavalite = "3.21.12"
 protobufJavaliteVersion = "3.25.1"
+robolectric = "4.6.1"
 rules = "1.6.1"
+runner = "1.6.2"
 uiautomator = "2.3.0"
+fragmentTesting = "1.8.6"
 
 [libraries]
 androidx-espresso-intents = { module = "androidx.test.espresso:espresso-intents", version.ref = "espressoContrib" }
+androidx-fragment-testing-v162 = { module = "androidx.fragment:fragment-testing", version.ref = "fragmentTestingVersion" }
+androidx-runner = { module = "androidx.test:runner", version.ref = "runner" }
 androidx-uiautomator = { module = "androidx.test.uiautomator:uiautomator", version.ref = "uiautomator" }
 espresso-contrib = { module = "androidx.test.espresso:espresso-contrib", version.ref = "espressoContrib" }
 awaitility-v410 = { module = "org.awaitility:awaitility", version.ref = "awaitilityVersion" }
@@ -63,6 +70,7 @@ material = { group = "com.google.android.material", name = "material", version.r
 activity = { group = "androidx.activity", name = "activity", version.ref = "activity" }
 constraintlayout = { group = "androidx.constraintlayout", name = "constraintlayout", version.ref = "constraintlayout" }
 material-v180 = { module = "com.google.android.material:material", version.ref = "materialVersion" }
+mockito-android = { module = "org.mockito:mockito-android", version.ref = "mockitoAndroid" }
 mockito-core = { module = "org.mockito:mockito-core", version.ref = "mockitoCore" }
 mockito-inline = { module = "org.mockito:mockito-inline", version.ref = "mockitoInline" }
 navigation-common = { module = "androidx.navigation:navigation-common", version.ref = "navigationCommon" }
@@ -74,8 +82,10 @@ coordinatorlayout = { group = "androidx.coordinatorlayout", name = "coordinatorl
 play-services = { module = "com.google.android.gms:play-services", version.ref = "playServices" }
 protobuf-javalite-v3180 = { module = "com.google.protobuf:protobuf-javalite", version.ref = "googleProtobufJavalite" }
 protobuf-javalite-v32112 = { module = "com.google.protobuf:protobuf-javalite", version.ref = "protobufJavalite" }
+robolectric = { module = "org.robolectric:robolectric", version.ref = "robolectric" }
 rules = { module = "androidx.test:rules", version.ref = "rules" }
 google-firebase-firestore = { group = "com.google.firebase", name = "firebase-firestore", version.ref = "firebaseFirestore" }
+androidx-fragment-testing = { group = "androidx.fragment", name = "fragment-testing", version.ref = "fragmentTesting" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

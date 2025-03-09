@@ -53,12 +53,15 @@ dependencies {
     implementation libs.coordinatorlayout
     implementation libs.protobuf.javalite.v3180
     implementation(platform(libs.firebase.bom))
+    implementation libs.androidx.fragment.testing
+    androidTestImplementation("androidx.test.espresso:espresso-core:3.6.1")
+    androidTestImplementation(libs.androidx.runner)
+    androidTestImplementation(libs.ext.junit)
     testImplementation(libs.mockito.core)
     testImplementation(libs.mockito.inline)
+    testImplementation libs.mockito.android
 
     implementation 'com.github.bumptech.glide:glide:4.16.0'
-//    implementation libs.recyclerview
-//    implementation libs.play.services
 
     annotationProcessor libs.glide.compiler
     annotationProcessor libs.glide.compiler
@@ -66,7 +69,6 @@ dependencies {
     testImplementation libs.junit
     testImplementation libs.hamcrest
     androidTestImplementation libs.ext.junit
-    androidTestImplementation libs.junit.v113
     androidTestImplementation libs.espresso.core
     androidTestImplementation libs.junit.v115
     androidTestImplementation libs.espresso.core.v351
@@ -74,6 +76,10 @@ dependencies {
     androidTestImplementation libs.google.protobuf.javalite
     androidTestImplementation libs.androidx.espresso.intents
     androidTestImplementation libs.androidx.uiautomator
+
+    debugImplementation libs.androidx.fragment.testing.v162
+    androidTestImplementation libs.mockito.android
+
 
     // Fix issue where protobuf class static method cannot be found.
     // See: https://stackoverflow.com/a/68675881/10970228
