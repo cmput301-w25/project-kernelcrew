@@ -7,6 +7,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.fragment.app.Fragment;
 import androidx.navigation.Navigation;
@@ -15,6 +16,7 @@ import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseAuthException;
+import com.google.firebase.auth.FirebaseUser;
 import com.kernelcrew.moodapp.R;
 
 import org.jetbrains.annotations.Nullable;
@@ -102,6 +104,11 @@ public class AuthSignIn extends Fragment {
                         .addOnCompleteListener(task -> {
                             if (task.isSuccessful()){
                                 Navigation.findNavController(btnView).navigate(R.id.action_authSignIn_to_homeFeed);
+                                FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+                                if (user != null) {
+                                    String email = user.getEmail();
+                                    Toast.makeText(requireContext(), "Signed in as: " + email, Toast.LENGTH_LONG).show();
+                                }
                             } else {
                                 setGeneralError(Objects.requireNonNull(task.getException()));
                             }
