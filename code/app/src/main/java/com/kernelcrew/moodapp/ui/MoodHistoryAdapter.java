@@ -9,7 +9,7 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.kernelcrew.moodapp.ui.Mood;
+import com.kernelcrew.moodapp.data.MoodEvent;
 import com.kernelcrew.moodapp.R;
 
 import java.text.SimpleDateFormat;
@@ -19,7 +19,7 @@ import java.util.List;
 import java.util.Locale;
 
 public class MoodHistoryAdapter extends RecyclerView.Adapter<MoodHistoryAdapter.MoodViewHolder> {
-    private List<Mood> moods;
+    private List<MoodEvent> moods;
     private SimpleDateFormat dateFormat = new SimpleDateFormat("MMM d, yyyy", Locale.ENGLISH);
 
     public interface OnItemClickListener {
@@ -28,9 +28,14 @@ public class MoodHistoryAdapter extends RecyclerView.Adapter<MoodHistoryAdapter.
 
     private OnItemClickListener listener;
 
-    public MoodHistoryAdapter(List<Mood> moods, OnItemClickListener listener) {
+    public MoodHistoryAdapter(List<MoodEvent> moods, OnItemClickListener listener) {
         this.moods = moods != null ? moods : new ArrayList<>();
         this.listener = listener;
+    }
+
+    public void setMoods(List<MoodEvent> moods) {
+        this.moods = moods;
+        notifyDataSetChanged();
     }
 
     @NonNull
@@ -42,10 +47,10 @@ public class MoodHistoryAdapter extends RecyclerView.Adapter<MoodHistoryAdapter.
 
     @Override
     public void onBindViewHolder(@NonNull MoodViewHolder holder, int position) {
-        Mood mood = moods.get(position);
+        MoodEvent mood = moods.get(position);
 
         // Convert timestamp to formatted date
-        String formattedDate = dateFormat.format(new Date(mood.getTimestamp()));
+        String formattedDate = dateFormat.format(mood.getCreated());
 
         holder.textDate.setText(formattedDate);
         holder.textMoodEventNumber.setText("Mood Event " + (position + 1));
@@ -63,7 +68,7 @@ public class MoodHistoryAdapter extends RecyclerView.Adapter<MoodHistoryAdapter.
         return moods.size();
     }
 
-    public List<Mood> getItems() {
+    public List<MoodEvent> getItems() {
         return new ArrayList<>(moods);
     }
 

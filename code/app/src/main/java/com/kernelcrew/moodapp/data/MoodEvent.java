@@ -109,4 +109,8 @@ public class MoodEvent implements Serializable {
     public void setLongitude(Double longitude) {
         this.longitude = longitude;
     }
+
+    public long getTimestamp() {
+        return this.created.getTime();
+    }
 }
