@@ -8,7 +8,6 @@
     android:background="#E9E9E9"
     tools:context="com.kernelcrew.moodapp.ui.RequestFragment">
 
-    <!-- Request Card -->
     <androidx.cardview.widget.CardView
         android:id="@+id/requestCard"
         android:layout_width="match_parent"
@@ -39,14 +38,14 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="Username is requesting to follow you"
+                android:text="User is requesting to follow you"
                 android:textColor="@android:color/black"
                 android:textSize="16sp"
-                android:textStyle="bold" />
+                android:textStyle="bold"
+                tools:text="User is requesting to follow you" />
         </LinearLayout>
     </androidx.cardview.widget.CardView>
 
-    <!-- Action Buttons -->
     <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -56,22 +55,22 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
 
-        <!-- Accept Button -->
         <com.google.android.material.button.MaterialButton
             android:id="@+id/acceptButton"
             android:layout_width="64dp"
             android:layout_height="64dp"
             app:cornerRadius="32dp"
-            app:icon="@drawable/ic_person"
+            app:icon="@drawable/ic_tick"
+            android:contentDescription="Accept follow request"
             android:layout_marginEnd="24dp" />
 
-        <!-- Deny Button -->
         <com.google.android.material.button.MaterialButton
             android:id="@+id/denyButton"
             android:layout_width="64dp"
             android:layout_height="64dp"
             app:cornerRadius="32dp"
-            app:icon="@drawable/ic_person" />
+            app:icon="@drawable/ic_cross"
+            android:contentDescription="Deny follow request" />
     </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
