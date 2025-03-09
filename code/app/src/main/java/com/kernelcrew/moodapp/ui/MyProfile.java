@@ -17,7 +17,6 @@ import com.google.firebase.auth.FirebaseUser;
 import com.kernelcrew.moodapp.R;
 import com.kernelcrew.moodapp.data.UserProvider;
 
-
 public class MyProfile extends Fragment {
     FirebaseAuth auth;
     FirebaseUser user;
@@ -51,20 +50,32 @@ public class MyProfile extends Fragment {
         followersButton.setOnClickListener(v -> Navigation.findNavController(v).navigate(R.id.action_myProfile_to_followersPage));
         followingButton.setOnClickListener(v -> Navigation.findNavController(v).navigate(R.id.action_myProfile_to_followingPage));
 
-        // User details
-        if (user != null) {
+        // Retrieve UID from arguments if available; otherwise, use the current user's UID.
+        String uidToLoad = null;
+        if (getArguments() != null) {
+            String uidArg = getArguments().getString("uid");
+            if (uidArg != null && !uidArg.isEmpty()) {
+                uidToLoad = uidArg;
+            }
+        }
+        if (uidToLoad == null && user != null) {
+            uidToLoad = user.getUid();
+        }
+
+        // If loading own profile, use auth user details first
+        if (user != null && uidToLoad.equals(user.getUid())) {
             usernameText.setText(user.getDisplayName() != null ? user.getDisplayName() : "Guest User");
             if (user.getPhotoUrl() != null) {
                 // Code to load the user photo from URL can be added here
             } else {
-                // Use ic_profile as the default profile image.
                 profileImage.setImageResource(R.drawable.ic_person);
             }
         }
 
-        if (user != null) {
+        // Listen for profile changes using the selected UID
+        if (uidToLoad != null) {
             UserProvider userProvider = UserProvider.getInstance();
-            userProvider.addSnapshotListenerForUser(user.getUid(), (documentSnapshot, error) -> {
+            userProvider.addSnapshotListenerForUser(uidToLoad, (documentSnapshot, error) -> {
                 if (error != null) {
                     followersButton.setText("Followers: 0");
                     followingButton.setText("Following: 0");
