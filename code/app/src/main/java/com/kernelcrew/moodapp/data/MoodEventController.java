@@ -33,6 +33,10 @@ public class MoodEventController {
         return collection.add(moodEvent);
     }
 
+    /**
+     * Get a collection of mood events from the DB.
+     * @return A collection of mood events
+     */
     public Task<QuerySnapshot> getMoodEvents(){
         return collection.get();
     }

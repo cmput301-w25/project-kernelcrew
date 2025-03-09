@@ -36,6 +36,7 @@ public class FirebaseEmulatorMixin {
             }
             return;
         }
+
         FirebaseFirestore.getInstance().useEmulator(androidLocalhost, databasePort);
         FirebaseAuth.getInstance().useEmulator(androidLocalhost, authPort);
         setupEmulator = true;
