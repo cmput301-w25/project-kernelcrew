@@ -3,5 +3,7 @@
     <style name="Base.Theme.MoodApp" parent="Theme.Material3.DayNight.NoActionBar">
         <!-- Customize your dark theme here. -->
         <!-- <item name="colorPrimary">@color/my_dark_primary</item> -->
+        <item name="android:textColorPrimary">@color/dark_textPrimary</item>
+        <item name="android:textColorSecondary">@color/dark_textSecondary</item>
     </style>
 </resources>

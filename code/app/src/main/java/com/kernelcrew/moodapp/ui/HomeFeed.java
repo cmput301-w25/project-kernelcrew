@@ -14,34 +14,26 @@ import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.google.android.gms.tasks.Tasks;
 import com.google.android.material.navigation.NavigationBarView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.firestore.CollectionReference;
-import com.google.firebase.firestore.EventListener;
-import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
-import com.google.firebase.firestore.QuerySnapshot;
 import com.kernelcrew.moodapp.R;
-import com.kernelcrew.moodapp.data.Emotion;
 import com.kernelcrew.moodapp.data.MoodEvent;
-import com.kernelcrew.moodapp.ui.Mood;
+import com.kernelcrew.moodapp.data.MoodEventProvider;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.ExecutionException;
 
 public class HomeFeed extends Fragment {
     FirebaseAuth auth;
     FirebaseUser user;
+    MoodEventProvider provider;
 
     TextView homeTextView;
     NavigationBarView navigationBar;
     BottomNavBarController navBarController;
     RecyclerView moodRecyclerView;
     MoodAdapter moodAdapter;
-    FirebaseFirestore firestore;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -50,6 +42,7 @@ public class HomeFeed extends Fragment {
 
         auth = FirebaseAuth.getInstance();
         user = auth.getCurrentUser();
+        provider = MoodEventProvider.getInstance();
 
         homeTextView = view.findViewById(R.id.homeTextView);
         navigationBar = view.findViewById(R.id.bottom_navigation);
@@ -57,51 +50,39 @@ public class HomeFeed extends Fragment {
 
         navBarController = new BottomNavBarController(navigationBar);
 
-        if (user == null) {
-            Log.w("HomeFeed", "No user is signed in.");
-            // TODO: Optionally navigate back to sign in or show an error
-            // Navigation.findNavController(view).popBackStack();
-        } else {
-            homeTextView.setText("Currently signed in as user: " + user.getDisplayName());
-        }
+        homeTextView.setText("Currently signed in as user: " + user.getDisplayName());
 
         // Setup RecyclerView
         moodRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         moodAdapter = new MoodAdapter();
         moodRecyclerView.setAdapter(moodAdapter);
 
-        // Initialize Firestore instance
-        firestore = FirebaseFirestore.getInstance();
+        if (auth.getCurrentUser() == null) {
+            Log.e("Home", "User not authenticated!");
+        }
 
         // Listen for changes in the "moods" collection
-        firestore.collection("moods")
-                .orderBy("timestamp")
-                .addSnapshotListener(new EventListener<QuerySnapshot>() {
-                    @Override
-                    public void onEvent(@Nullable QuerySnapshot snapshots, @Nullable FirebaseFirestoreException error) {
-                        if (error != null) {
-                            Log.w("HomeFeed", "Listen failed.", error);
-                            return;
-                        }
-                        List<Mood> moodList = new ArrayList<>();
-                        for (QueryDocumentSnapshot doc : snapshots) {
-                            Mood mood = doc.toObject(Mood.class);
-                            moodList.add(mood);
-                        }
-                        moodAdapter.setMoods(moodList);
-                    }
-                });
-
-        moodAdapter.setOnMoodClickListener(new MoodAdapter.OnMoodClickListener() {
-            @Override
-            public void onViewDetails(Mood mood) {
-                // Use mood.getId() (or however you retrieve the moodEventId) and navigate to MoodDetails.
-                Bundle args = new Bundle();
-                args.putString("moodEventId", mood.getId());
-                args.putString("sourceScreen", "home"); // or "filtered"
-                NavController navController = Navigation.findNavController(getActivity(), R.id.nav_host_fragment);
-                navController.navigate(R.id.action_homeFeed_to_moodDetails, args);
+        provider.addSnapshotListener((snapshots, error) -> {
+            if (error != null) {
+                Log.w("HomeFeed", "Listen failed.", error);
+                return;
             }
+
+            List<MoodEvent> moodList = new ArrayList<>();
+            for (QueryDocumentSnapshot doc : snapshots) {
+                MoodEvent mood = doc.toObject(MoodEvent.class);
+                moodList.add(mood);
+            }
+            Log.i("HomeFeed", Integer.toString(moodList.size()));
+            moodAdapter.setMoods(moodList);
+        });
+
+        moodAdapter.setOnMoodClickListener(mood -> {
+            Bundle args = new Bundle();
+            args.putString("moodEventId", mood.getId());
+            args.putString("sourceScreen", "home"); // or "filtered"
+            NavController navController = Navigation.findNavController(requireActivity(), R.id.nav_host_fragment);
+            navController.navigate(R.id.action_homeFeed_to_moodDetails, args);
         });
 
         return view;

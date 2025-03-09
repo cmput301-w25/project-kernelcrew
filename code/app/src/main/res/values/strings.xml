@@ -1,6 +1,18 @@
 <resources>
-    <string name="app_name">Mood App</string>
-    <!-- Strings related to login -->
+    <!-- App Strings -->
+    <string name="app_name">Generic Mood App #32</string>
+    <string name="app_slogan">Get a glimpse of emotions around you.</string>
+
+    <!-- Image Descriptions -->
+    <string name="imageDescription_hero">An image of a pot over on a windowsill.</string>
+    <string name="imageDescription_cat">An image of a cat looking at the user.</string>
+
+    <!-- Generic Strings -->
+    <string name="let_s_get_started">Let\'s get started.</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+
+    <!-- Login Strings-->
     <string name="prompt_email">Email</string>
     <string name="prompt_password">Password</string>
     <string name="action_sign_in">Sign In</string>
@@ -9,6 +21,25 @@
     <string name="invalid_username">Not a valid username</string>
     <string name="invalid_password">Password must be >5 characters</string>
     <string name="login_failed">"Login failed"</string>
+    <string name="sign_up">Sign Up</string>
+    <string name="welcome_back">Welcome Back</string>
+    <string name="action_sign_up">Sign Up</string>
+    <string name="create_an_account">Create an Account</string>
+    <string name="prompt_username">Username</string>
+    <string name="error_invalid_email">Invalid email format. Please check your email address.</string>
+    <string name="error_user_not_found">No account found with this email. Please sign up first.</string>
+    <string name="error_wrong_password">Incorrect password. Please try again.</string>
+    <string name="error_user_disabled">This account has been disabled. Contact support for help.</string>
+    <string name="error_too_many_requests">Too many failed attempts. Try again later.</string>
+    <string name="error_login_fail_default">Login failed. Please check your details and try again.</string>
+    <string name="error_unexpected">An unexpected error occurred. Please try again.</string>
+    <string name="error_account_with_email_exists_already">An account with this email already exists. Try logging in.</string>
+    <string name="error_password_is_too_weak">Password is too weak. Choose a stronger one.</string>
+    <string name="error_email_is_already_linked">This email is already linked to an account.</string>
+    <string name="error_sign_up_is_disabled">Sign-up is currently disabled. Contact support.</string>
+    <string name="no_internet_connection">No internet connection. Please check your network.</string>
+    <string name="error_account_creation_failed">Account creation failed. Please check your details and try again.</string>
+    <string name="error_insufficient_firestore_permissions">Insufficient permissions to write to the database. Please contact support.</string>
     <string name="search_hint_mood_feed">"Search words/emotional states"</string>
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
