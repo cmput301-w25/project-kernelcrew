@@ -55,6 +55,9 @@
         <action
             android:id="@+id/action_homeFeed_to_myProfile"
             app:destination="@id/myProfile" />
+        <action
+            android:id="@+id/action_homeFeed_to_moodHistory"
+            app:destination="@id/moodHistory" />
     </fragment>
     <fragment
         android:id="@+id/moodDetails"
@@ -102,7 +105,25 @@
             android:id="@+id/action_myProfile_to_followingPage"
             app:destination="@id/followingFragment" />
     </fragment>
-
+    <fragment
+        android:id="@+id/moodHistory"
+        android:name="com.kernelcrew.moodapp.ui.MoodHistory"
+        android:label="Mood History"
+        tools:layout="@layout/fragment_mood_history">
+        <argument
+            android:name="sourceScreen"
+            app:argType="string"
+            android:defaultValue="home" />
+        <argument
+            android:name="moodEventId"
+            app:argType="string" />
+        <action
+            android:id="@+id/action_moodHistory_to_homeFeed"
+            app:destination="@id/homeFeed" />
+        <action
+            android:id="@+id/action_moodHistory_to_moodDetails"
+            app:destination="@id/moodDetails" />
+    </fragment>
     <fragment
         android:id="@+id/followersFragment"
         android:name="com.kernelcrew.moodapp.ui.FollowersFragment"
