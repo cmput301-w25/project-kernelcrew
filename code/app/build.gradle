@@ -50,8 +50,8 @@ dependencies {
     testImplementation libs.hamcrest
     testImplementation libs.junit
     testImplementation libs.mockito.android
-    testImplementation(libs.mockito.core)
-    testImplementation(libs.mockito.inline)
+    testImplementation libs.mockito.core
+    testImplementation libs.mockito.inline
 
     androidTestImplementation libs.androidx.espresso.intents
     androidTestImplementation libs.androidx.uiautomator
