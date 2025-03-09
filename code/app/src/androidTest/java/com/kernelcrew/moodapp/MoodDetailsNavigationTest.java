@@ -4,8 +4,10 @@ import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.action.ViewActions.closeSoftKeyboard;
 import static androidx.test.espresso.action.ViewActions.replaceText;
 import static androidx.test.espresso.action.ViewActions.click;
+import static androidx.test.espresso.action.ViewActions.scrollTo;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
 import static androidx.test.espresso.contrib.RecyclerViewActions.actionOnItemAtPosition;
+import static androidx.test.espresso.matcher.ViewMatchers.isAssignableFrom;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
 import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
@@ -34,6 +36,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import java.util.Objects;
 import java.util.concurrent.ExecutionException;
 
 @RunWith(AndroidJUnit4.class)
@@ -152,48 +155,77 @@ public class MoodDetailsNavigationTest extends FirebaseEmulatorMixin {
         // Verify that key elements on the MoodDetails screen are displayed and have the correct text.
         onView(withId(R.id.tvMoodState))
                 .check(matches(isDisplayed()));
-//        onView(withId(R.id.tvMoodState))
-//                .check(matches(withText(DATA_EMOTION.toString())));
+        onView(withId(R.id.tvMoodState))
+                .check(matches(withText(DATA_EMOTION.toString())));
         onView(withId(R.id.tvTriggerValue))
                 .check(matches(withText(DATA_TRIGGER)));
-//        onView(withId(R.id.tvSocialSituationValue))
-//                .check(matches(withText(DATA_SOCIALSITUATION)));
-//        onView(withId(R.id.tvReasonValue))
-//                .check(matches(withText(DATA_REASON)));
+        onView(withId(R.id.tvSocialSituationValue))
+                .check(matches(withText(DATA_SOCIALSITUATION)));
+        onView(withId(R.id.tvReasonValue))
+                .check(matches(withText(DATA_REASON)));
     }
 
-//    @Test
-//    public void testViewProfileNavigationFromMoodDetails() throws InterruptedException {
-//        // Sign in
-//        onView(withText("Sign In")).perform(click());
-//        onView(withId(R.id.emailSignIn))
-//                .perform(replaceText(USER_EMAIL), closeSoftKeyboard());
-//        onView(withId(R.id.passwordSignIn))
-//                .perform(replaceText(USER_PASSWORD), closeSoftKeyboard());
-//
-//        // Click the sign in button on AuthSignIn.
-//        onView(withId(R.id.signInButtonAuthToHome))
-//                .perform(click());
-//        SystemClock.sleep(1000);
-//
-//        // On HomeFeed: Click on the first mood item's "View Details" button to navigate to MoodDetails.
-//        onView(withId(R.id.homeTextView))
-//                .check(matches(isDisplayed()));
-//
-//        // Click on the first mood item in the RecyclerView to view its details.
-//        onView(withId(R.id.moodRecyclerView))
-//                .perform(actionOnItemAtPosition(
-//                        0,
-//                        clickChildViewWithId(R.id.viewDetailsButton)));
-//
-//        // On MoodDetails: Scroll to and click the "View Profile" button.
-////        onView(withId(R.id.btnViewProfile))
-////                .perform(ViewActions.scrollTo(), click());
-////        SystemClock.sleep(3000);
-////
-////        // Verify that MyProfile screen is displayed (for example, the username_text view is visible).
-////        onView(withId(R.id.username_text)).check(matches(isDisplayed()));
-//    }
+    @Test
+    public void testViewProfileNavigationFromMoodDetails() throws InterruptedException, ExecutionException {
+        seedDatabase();
+
+        // Sign in
+        onView(withText("Sign In")).perform(click());
+        onView(withId(R.id.emailSignIn))
+                .perform(replaceText(USER_EMAIL), closeSoftKeyboard());
+        onView(withId(R.id.passwordSignIn))
+                .perform(replaceText(USER_PASSWORD), closeSoftKeyboard());
+        onView(withId(R.id.signInButtonAuthToHome))
+                .perform(click());
+
+        // Wait for HomeFeed to load data
+        SystemClock.sleep(3000);
+
+        // Click on the first mood item's "View Details" button.
+        onView(withId(R.id.moodRecyclerView))
+                .perform(actionOnItemAtPosition(0, clickChildViewWithId(R.id.viewDetailsButton)));
+
+        // Wait for the MoodDetails screen to load.
+        SystemClock.sleep(3000);
+
+        // Scroll the NestedScrollView to the bottom using a custom action.
+        onView(withId(R.id.nestedScrollView))
+                .perform(scrollNestedScrollViewToBottom());
+
+        // Now click the "View Profile" button.
+        onView(withId(R.id.btnViewProfile))
+                .perform(click());
+
+        // Wait for the MyProfile screen to load.
+        SystemClock.sleep(3000);
+
+        // Verify that the MyProfile screen is displayed (e.g., check that the sign-out button is visible).
+        onView(withId(R.id.signOutButton)).check(matches(isDisplayed()));
+    }
+
+    // Custom ViewAction to scroll a NestedScrollView to the bottom.
+    public static ViewAction scrollNestedScrollViewToBottom() {
+        return new ViewAction() {
+            @Override
+            public Matcher<View> getConstraints() {
+                // Ensure that this action is only used on a NestedScrollView (or its subclass).
+                return isAssignableFrom(androidx.core.widget.NestedScrollView.class);
+            }
+
+            @Override
+            public String getDescription() {
+                return "Scroll NestedScrollView to bottom";
+            }
+
+            @Override
+            public void perform(UiController uiController, View view) {
+                if (view instanceof androidx.core.widget.NestedScrollView) {
+                    ((androidx.core.widget.NestedScrollView) view).fullScroll(View.FOCUS_DOWN);
+                    uiController.loopMainThreadUntilIdle();
+                }
+            }
+        };
+    }
 
     @After
     public void signOutTheUser() {
