@@ -29,12 +29,16 @@ public class MoodDetails extends Fragment {
     private ImageView imageMoodIcon, ivMoodPhoto;
     private TextView tvMoodState, tvTriggerValue, tvSocialSituationValue, tvReasonValue;
     private Button btnEditMood;
+    private Button btnViewProfile;
     private FirebaseFirestore db;
     private MoodEventProvider provider;
 
     // Document ID for the mood event and source of navigation
     private String moodEventId;
     private String sourceScreen; // e.g., "home" or "filtered"
+
+    // Use UID to identify the user (instead of a username)
+    private String userId;
 
     public MoodDetails() {
         // Required empty public constructor
@@ -70,8 +74,21 @@ public class MoodDetails extends Fragment {
         tvReasonValue = view.findViewById(R.id.tvReasonValue);
         ivMoodPhoto = view.findViewById(R.id.ivMoodPhoto);
         btnEditMood = view.findViewById(R.id.btnEditMood);
+        btnViewProfile = view.findViewById(R.id.btnViewProfile);
 
         toolbar.setNavigationOnClickListener(v -> handleBackButton());
+
+        // Set up "View Profile" button click to navigate to MyProfile, passing UID
+        btnViewProfile.setOnClickListener(v -> {
+            if (userId != null && !userId.isEmpty()) {
+                Bundle args = new Bundle();
+                args.putString("uid", userId);
+                NavHostFragment.findNavController(this)
+                        .navigate(R.id.action_moodDetails_to_myProfile, args);
+            } else {
+                Toast.makeText(requireContext(), "User information unavailable.", Toast.LENGTH_SHORT).show();
+            }
+        });
 
         // Fetch mood details from Firestore
         fetchMoodDetails(moodEventId);
@@ -111,6 +128,9 @@ public class MoodDetails extends Fragment {
         tvTriggerValue.setText(moodEvent.getTrigger());
         tvSocialSituationValue.setText(moodEvent.getSocialSituation());
         tvReasonValue.setText(moodEvent.getReason());
+
+        // Retrieve the UID from the mood event
+        userId = moodEvent.getUid();
 
         int moodImageRes = getMoodIconResource(moodEvent.getEmotion().toString());
         imageMoodIcon.setImageResource(moodImageRes);

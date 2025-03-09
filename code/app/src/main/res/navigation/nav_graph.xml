@@ -71,10 +71,40 @@
     </fragment>
 
     <fragment
+        android:id="@+id/editMood"
+        android:name="com.kernelcrew.moodapp.ui.EditMood"
+        android:label="Edit Mood"
+        tools:layout="@layout/fragment_edit_mood">
+        <argument
+            android:name="moodEventId"
+            app:argType="string" />
+        <action
+            android:id="@+id/action_moodDetails_to_editMood"
+            app:destination="@id/editMood" />
+        <action
+            android:id="@+id/action_moodDetails_to_myProfile"
+            app:destination="@id/myProfile" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/editMood"
+        android:name="com.kernelcrew.moodapp.ui.EditMood"
+        android:label="Edit Mood"
+        tools:layout="@layout/fragment_edit_mood">
+        <argument
+            android:name="moodEventId"
+            app:argType="string" />
+    </fragment>
+
+    <fragment
         android:id="@+id/myProfile"
         android:name="com.kernelcrew.moodapp.ui.MyProfile"
         android:label="fragment_my_profile"
         tools:layout="@layout/fragment_my_profile" >
+        <argument
+            android:name="uid"
+            app:argType="string"
+            android:defaultValue="" />
         <action
             android:id="@+id/action_myProfile_to_followersPage"
             app:destination="@id/followersFragment" />
