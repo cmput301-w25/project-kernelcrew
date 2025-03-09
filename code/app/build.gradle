@@ -2,6 +2,7 @@ plugins {
     alias(libs.plugins.android.application)
     //Next line from Google cloud API documentation on maps and location, accessed 03-02-2025
     id 'com.google.gms.google-services'
+
 }
 
 // Code from Claude AI, Anthropic, "Configure Android project settings", accessed 03-06-2024
@@ -26,10 +27,10 @@ android {
         }
     }
 
-    //Code from Claude AI, Anthropic, "Configure Java 11 compatibility", accessed 03-05-2025
+    //Code from Claude AI, Anthropic, "Configure Java compatibility", accessed 05-14-2024
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_11
-        targetCompatibility = JavaVersion.VERSION_11
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
     }
 
     //Code from Claude AI, Anthropic, "Configure Android unit testing with JUnit", accessed 03-05-2025
@@ -37,13 +38,6 @@ android {
         unitTests {
             includeAndroidResources = true
             returnDefaultValues = true
-        }
-    }
-
-    // Code from Claude AI, Anthropic, "Fix Robolectric test failures in Android project", accessed 03-06-2024
-    testOptions {
-        unitTests {
-            includeAndroidResources = true
             
             all {
                 // Configure Robolectric properly
@@ -129,6 +123,8 @@ android {
     }
 }
 
+
+
 // Code from Claude AI, Anthropic, "Configure Android project dependencies", accessed 03-07-2024
 dependencies {
     implementation libs.appcompat
@@ -145,18 +141,22 @@ dependencies {
     //Next two lines from Google cloud API documentation on maps and location, accessed 03-02-2025
     implementation libs.play.services.maps
     implementation libs.play.services.location
+    implementation libs.firebase.firestore
 
     // Code from Claude AI, Anthropic, "Configure testing dependencies for Android project", accessed 03-07-2024
     // Testing dependencies
     testImplementation libs.junit
     
     // Robolectric - updated with proper configuration
-    // Code from Claude AI, Anthropic, "Fix ClassNotFoundException in Android unit tests with Robolectric", accessed 03-06-2024
-    testImplementation 'org.robolectric:robolectric:4.10.3'
-    testImplementation 'org.robolectric:shadows-framework:4.10.3'
+    // Code from Claude AI, Anthropic, "Fix Robolectric NullPointerException issues", accessed 05-14-2024
+    testImplementation 'org.robolectric:robolectric:4.11.1'
+    testImplementation 'org.robolectric:shadows-framework:4.11.1'
     testImplementation 'androidx.test:core:1.5.0'
     testImplementation 'androidx.test.ext:junit:1.1.5'
     debugImplementation 'androidx.fragment:fragment-testing:1.6.2'
+    
+    // For Firebase testing
+    testImplementation 'com.google.firebase:firebase-firestore:25.1.2'
     
     // Code from Claude AI, Anthropic, "Configure additional test support libraries", accessed 03-07-2024
     // Additional test support
