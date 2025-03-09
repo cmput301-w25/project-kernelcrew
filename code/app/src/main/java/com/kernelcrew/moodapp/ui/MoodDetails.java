@@ -84,7 +84,7 @@ public class MoodDetails extends Fragment {
                 Bundle args = new Bundle();
                 args.putString("uid", userId);
                 NavHostFragment.findNavController(this)
-                        .navigate(R.id.action_moodDetails_to_myProfile, args);
+                        .navigate(R.id.myProfile, args);
             } else {
                 Toast.makeText(requireContext(), "User information unavailable.", Toast.LENGTH_SHORT).show();
             }
