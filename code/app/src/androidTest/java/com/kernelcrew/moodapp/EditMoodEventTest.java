@@ -66,15 +66,15 @@ public class EditMoodEventTest extends FirebaseEmulatorMixin {
                         MoodDetailsNavigationTest.clickChildViewWithId(R.id.viewDetailsButton)));
 
         onView(withId(R.id.btnEditMood)).perform(click());
-        onView(withId(R.id.toggle_fear)).perform(click());
-        onView(withId(R.id.submit_button)).perform(click());
+        onView(withId(R.id.toggle_shame)).perform(click());
+        onView(withId(R.id.submit_button)).perform(scrollTo()).perform(click());
 
         await().atMost(10, TimeUnit.SECONDS)
                 .untilAsserted(() -> {
                     QuerySnapshot results = Tasks.await(db.collection("moodEvents").get());
                     List<DocumentSnapshot> moodEvents = results.getDocuments();
                     assertEquals(1, moodEvents.size());
-                    assertEquals("FEAR", moodEvents.get(0).get("emotion"));
+                    assertEquals("SHAME", moodEvents.get(0).get("emotion"));
                 });
     }
 }
