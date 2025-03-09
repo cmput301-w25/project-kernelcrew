@@ -82,8 +82,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="16dp"
                 app:cardCornerRadius="8dp"
-                app:cardElevation="4dp"
-                android:backgroundTint="@color/light_purple">
+                app:cardElevation="4dp">
 
                 <LinearLayout
                     android:layout_width="match_parent"

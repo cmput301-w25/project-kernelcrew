@@ -50,7 +50,7 @@ public class HomeFeed extends Fragment {
 
         navBarController = new BottomNavBarController(navigationBar);
 
-        homeTextView.setText("Currently signed in as user: " + user.getDisplayName());
+        homeTextView.setText("Currently signed in as: " + user.getEmail());
 
         // Setup RecyclerView
         moodRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
@@ -61,7 +61,7 @@ public class HomeFeed extends Fragment {
             Log.e("Home", "User not authenticated!");
         }
 
-        // Listen for changes in the "moods" collection
+        // Listen for changes in the "moodEvents" collection
         provider.addSnapshotListener((snapshots, error) -> {
             if (error != null) {
                 Log.w("HomeFeed", "Listen failed.", error);
@@ -69,6 +69,7 @@ public class HomeFeed extends Fragment {
             }
 
             List<MoodEvent> moodList = new ArrayList<>();
+            assert snapshots != null;
             for (QueryDocumentSnapshot doc : snapshots) {
                 MoodEvent mood = doc.toObject(MoodEvent.class);
                 moodList.add(mood);
