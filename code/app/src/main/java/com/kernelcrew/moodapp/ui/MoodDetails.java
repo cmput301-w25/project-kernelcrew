@@ -1,5 +1,7 @@
 package com.kernelcrew.moodapp.ui;
 
+import static com.kernelcrew.moodapp.ui.MoodIconUtil.getMoodIconResource;
+
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -114,8 +116,8 @@ public class MoodDetails extends Fragment {
         tvSocialSituationValue.setText(moodEvent.getSocialSituation());
         tvReasonValue.setText(moodEvent.getReason());
 
-        // TODO: Dynamically set the mood icon based on moodState if needed.
-        // e.g., if ("Happy".equalsIgnoreCase(moodState)) { imageMoodIcon.setImageResource(R.drawable.ic_happy_color); }
+        int moodImageRes = getMoodIconResource(moodEvent.getEmotion().toString());
+        imageMoodIcon.setImageResource(moodImageRes);
 
         // Load photo with Glide if a URL is available
         String photoUrl = moodEvent.getPhotoUrl();
