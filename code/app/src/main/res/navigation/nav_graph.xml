@@ -71,6 +71,15 @@
 <!--        <action-->
 <!--            android:id="@+id/action_moodDetails_to_editMood"-->
 <!--            app:destination="@id/editMood" />-->
+        <action
+            android:id="@+id/action_moodDetails_to_editMood"
+            app:destination="@id/editMood" />
+        <action
+            android:id="@+id/action_moodDetails_to_editMood"
+            app:destination="@id/editMood" />
+        <action
+            android:id="@+id/action_moodDetails_to_myProfile"
+            app:destination="@id/myProfile" />
     </fragment>
 
 <!--    <fragment-->
@@ -88,6 +97,10 @@
         android:name="com.kernelcrew.moodapp.ui.MyProfile"
         android:label="fragment_my_profile"
         tools:layout="@layout/fragment_my_profile" >
+        <argument
+            android:name="uid"
+            app:argType="string"
+            android:defaultValue="" />
         <action
             android:id="@+id/action_myProfile_to_followersPage"
             app:destination="@id/followersFragment" />
@@ -136,4 +149,19 @@
             android:id="@+id/action_moodHistory_to_moodDetails"
             app:destination="@id/moodDetails" />
     </fragment>
+
+    <fragment
+        android:id="@+id/requestFragment"
+        android:name="com.kernelcrew.moodapp.ui.RequestFragment"
+        android:label="Request"
+        tools:layout="@layout/fragment_request" />
+
+    <action
+        android:id="@+id/action_followersFragment_to_requestFragment"
+        app:destination="@id/requestFragment" />
+
+    <action
+        android:id="@+id/action_followingFragment_to_requestFragment"
+        app:destination="@id/requestFragment" />
+
 </navigation>

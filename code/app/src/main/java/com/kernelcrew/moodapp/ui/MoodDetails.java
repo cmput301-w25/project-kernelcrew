@@ -1,5 +1,7 @@
 package com.kernelcrew.moodapp.ui;
 
+import static com.kernelcrew.moodapp.ui.MoodIconUtil.getMoodIconResource;
+
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -27,12 +29,16 @@ public class MoodDetails extends Fragment {
     private ImageView imageMoodIcon, ivMoodPhoto;
     private TextView tvMoodState, tvTriggerValue, tvSocialSituationValue, tvReasonValue;
     private Button btnEditMood;
+    private Button btnViewProfile;
     private FirebaseFirestore db;
     private MoodEventProvider provider;
 
     // Document ID for the mood event and source of navigation
     private String moodEventId;
     private String sourceScreen; // e.g., "home" or "filtered"
+
+    // Use UID to identify the user (instead of a username)
+    private String userId;
 
     public MoodDetails() {
         // Required empty public constructor
@@ -68,8 +74,21 @@ public class MoodDetails extends Fragment {
         tvReasonValue = view.findViewById(R.id.tvReasonValue);
         ivMoodPhoto = view.findViewById(R.id.ivMoodPhoto);
         btnEditMood = view.findViewById(R.id.btnEditMood);
+        btnViewProfile = view.findViewById(R.id.btnViewProfile);
 
         toolbar.setNavigationOnClickListener(v -> handleBackButton());
+
+        // Set up "View Profile" button click to navigate to MyProfile, passing UID
+        btnViewProfile.setOnClickListener(v -> {
+            if (userId != null && !userId.isEmpty()) {
+                Bundle args = new Bundle();
+                args.putString("uid", userId);
+                NavHostFragment.findNavController(this)
+                        .navigate(R.id.action_moodDetails_to_myProfile, args);
+            } else {
+                Toast.makeText(requireContext(), "User information unavailable.", Toast.LENGTH_SHORT).show();
+            }
+        });
 
         // Fetch mood details from Firestore
         fetchMoodDetails(moodEventId);
@@ -79,9 +98,7 @@ public class MoodDetails extends Fragment {
             Bundle args = new Bundle();
             args.putString("moodEventId", moodEventId);
             // TODO: Pass any additional fields if needed
-
-            // Navigate to the EditMood fragment using the Navigation Component
-//            NavHostFragment.findNavController(this).navigate(R.id.action_moodDetails_to_editMood, args);
+            NavHostFragment.findNavController(this).navigate(R.id.action_moodDetails_to_editMood, args);
         });
 
         return view;
@@ -114,8 +131,11 @@ public class MoodDetails extends Fragment {
         tvSocialSituationValue.setText(moodEvent.getSocialSituation());
         tvReasonValue.setText(moodEvent.getReason());
 
-        // TODO: Dynamically set the mood icon based on moodState if needed.
-        // e.g., if ("Happy".equalsIgnoreCase(moodState)) { imageMoodIcon.setImageResource(R.drawable.ic_happy_color); }
+        // Retrieve the UID from the mood event
+        userId = moodEvent.getUid();
+
+        int moodImageRes = getMoodIconResource(moodEvent.getEmotion().toString());
+        imageMoodIcon.setImageResource(moodImageRes);
 
         // Load photo with Glide if a URL is available
         String photoUrl = moodEvent.getPhotoUrl();

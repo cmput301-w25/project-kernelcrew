@@ -64,8 +64,13 @@ public class MoodEvent implements Serializable {
     public Emotion getEmotion() {
         return emotion;
     }
-    public void setEmotion(Emotion emotion) {
-        this.emotion = emotion;
+    public void setEmotion(String emotionValue) {
+        try {
+            this.emotion = Emotion.valueOf(emotionValue.toUpperCase());
+        } catch (IllegalArgumentException e) {
+            // Fallback: assign a default emotion if conversion fails
+            this.emotion = Emotion.ERROR;
+        }
     }
 
     public String getTrigger() {
