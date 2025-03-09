@@ -76,14 +76,10 @@ public class MoodDetails extends Fragment {
         // Fetch mood details from Firestore
         fetchMoodDetails(moodEventId);
 
-        // TODO: Implement navigation to EditMood screen when ready
         btnEditMood.setOnClickListener(v -> {
             Bundle args = new Bundle();
             args.putString("moodEventId", moodEventId);
-            // TODO: Pass any additional fields if needed
-
-            // Navigate to the EditMood fragment using the Navigation Component
-            NavHostFragment.findNavController(this).navigate(R.id.action_moodDetails_to_editMood, args);
+            NavHostFragment.findNavController(this).navigate(R.id.editMoodEvent, args);
         });
 
         return view;

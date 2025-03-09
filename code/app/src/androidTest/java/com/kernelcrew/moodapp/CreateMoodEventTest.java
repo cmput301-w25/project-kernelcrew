@@ -18,6 +18,7 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.kernelcrew.moodapp.data.Emotion;
+import com.kernelcrew.moodapp.data.MoodEvent;
 import com.kernelcrew.moodapp.ui.MainActivity;
 import com.kernelcrew.moodapp.ui.components.EmotionPickerFragment;
 
@@ -62,7 +63,14 @@ public class CreateMoodEventTest extends FirebaseEmulatorMixin {
                     QuerySnapshot results = Tasks.await(db.collection("moodEvents").get());
                     List<DocumentSnapshot> moodEvents = results.getDocuments();
                     assertEquals(1, moodEvents.size());
-                    assertEquals("HAPPINESS", moodEvents.get(0).get("emotion"));
+                    MoodEvent newEvent = null;
+                    for (DocumentSnapshot snapshot : moodEvents) {
+                        MoodEvent event = snapshot.toObject(MoodEvent.class);
+                        if (event.getEmotion() == Emotion.HAPPINESS) {
+                            newEvent = event;
+                        }
+                    }
+                    assertNotNull(newEvent);
                 });
     }
 
