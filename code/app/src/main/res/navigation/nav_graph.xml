@@ -68,29 +68,10 @@
             android:name="sourceScreen"
             app:argType="string"
             android:defaultValue="home" />
-<!--        <action-->
-<!--            android:id="@+id/action_moodDetails_to_editMood"-->
-<!--            app:destination="@id/editMood" />-->
-        <action
-            android:id="@+id/action_moodDetails_to_editMood"
-            app:destination="@id/editMood" />
-        <action
-            android:id="@+id/action_moodDetails_to_editMood"
-            app:destination="@id/editMood" />
         <action
             android:id="@+id/action_moodDetails_to_myProfile"
             app:destination="@id/myProfile" />
     </fragment>
-
-<!--    <fragment-->
-<!--        android:id="@+id/editMood"-->
-<!--        android:name="com.kernelcrew.moodapp.ui.EditMood"-->
-<!--        android:label="Edit Mood"-->
-<!--        tools:layout="@layout/fragment_edit_mood">-->
-<!--        <argument-->
-<!--            android:name="moodEventId"-->
-<!--            app:argType="string" />-->
-<!--    </fragment>-->
 
     <fragment
         android:id="@+id/myProfile"

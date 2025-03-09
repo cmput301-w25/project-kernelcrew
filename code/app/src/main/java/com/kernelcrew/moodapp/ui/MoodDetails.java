@@ -98,7 +98,7 @@ public class MoodDetails extends Fragment {
             Bundle args = new Bundle();
             args.putString("moodEventId", moodEventId);
             // TODO: Pass any additional fields if needed
-            NavHostFragment.findNavController(this).navigate(R.id.action_moodDetails_to_editMood, args);
+            // NavHostFragment.findNavController(this).navigate(R.id.action_moodDetails_to_editMood, args);
         });
 
         return view;
