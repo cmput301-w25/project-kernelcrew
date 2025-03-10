@@ -150,8 +150,9 @@ public class MoodHistoryAdapter extends RecyclerView.Adapter<MoodHistoryAdapter.
      * Holds references to the views within each mood item layout.
      * </p>
      */
-    class MoodViewHolder extends RecyclerView.ViewHolder {
-        TextView textDate, textMoodEventNumber;
+    public class MoodViewHolder extends RecyclerView.ViewHolder {
+        public TextView textDate;
+        public TextView textMoodEventNumber;
 
         public MoodViewHolder(@NonNull View itemView) {
             super(itemView);
