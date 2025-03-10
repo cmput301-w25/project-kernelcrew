@@ -47,8 +47,14 @@ public class MyProfile extends Fragment {
 
         // Set click listeners
         signOutButton.setOnClickListener(this::onClickSignOut);
-        followersButton.setOnClickListener(v -> Navigation.findNavController(v).navigate(R.id.action_myProfile_to_followersPage));
-        followingButton.setOnClickListener(v -> Navigation.findNavController(v).navigate(R.id.action_myProfile_to_followingPage));
+//        followersButton.setOnClickListener(v -> Navigation.findNavController(v).navigate(R.id.action_myProfile_to_followersPage));
+//        followingButton.setOnClickListener(v -> Navigation.findNavController(v).navigate(R.id.action_myProfile_to_followingPage));
+        Bundle bundle = new Bundle();
+        bundle.putString("sourceScreen", "profile");
+        moodHistoryButton.setOnClickListener(v ->
+                Navigation.findNavController(v)
+                        .navigate(R.id.action_myProfile_to_moodHistoryPage, bundle)
+        );
 
         // Retrieve UID from arguments if available; otherwise, use the current user's UID.
         String uidToLoad = null;

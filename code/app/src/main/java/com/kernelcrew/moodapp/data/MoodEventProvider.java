@@ -11,6 +11,7 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.ListenerRegistration;
 import com.google.firebase.firestore.QuerySnapshot;
 
 public class MoodEventProvider {
@@ -99,6 +100,33 @@ public class MoodEventProvider {
      */
     public void addSnapshotListener(@NonNull EventListener<QuerySnapshot> listener) {
         collection.addSnapshotListener(listener);
+    }
+
+    /**
+     * Get a collection of mood events from the DB.
+     * @return A collection of mood events
+     */
+    public Task<QuerySnapshot> getMoodEvents(){
+        return collection.get();
+    }
+
+    /**
+     * Add a snapshot listener to the mood events collection, filtered by the current user's UID.
+     * This method returns a ListenerRegistration that can be used to remove the listener.
+     *
+     * @param listener Snapshot listener to add
+     * @return ListenerRegistration that can be used to remove the listener
+     */
+    public ListenerRegistration addUserFilteredSnapshotListener(@NonNull EventListener<QuerySnapshot> listener) {
+        FirebaseUser user = auth.getCurrentUser();
+        if (user != null) {
+            // Only listen for mood events belonging to the current user
+            return collection.whereEqualTo("uid", user.getUid())
+                    .addSnapshotListener(listener);
+        } else {
+            // If no user is logged in, listen to an empty query
+            return collection.limit(0).addSnapshotListener(listener);
+        }
     }
 
     /**
