@@ -27,10 +27,23 @@ android {
         sourceCompatibility JavaVersion.VERSION_11
         targetCompatibility JavaVersion.VERSION_11
     }
+    
+    testOptions {
+        unitTests {
+            includeAndroidResources = false
+        }
+    }
+    
+    packagingOptions {
+        exclude 'META-INF/LICENSE.md'
+        exclude 'META-INF/LICENSE-notice.md'
+    }
 }
+
 
 dependencies {
     implementation libs.play.services.location
+    testImplementation libs.ext.junit
     annotationProcessor libs.glide.compiler
 
     implementation libs.activity
@@ -49,26 +62,35 @@ dependencies {
     implementation(platform(libs.firebase.bom))
     implementation libs.play.services.location.v2101  // Use the latest version
 
-    testImplementation libs.hamcrest
-    testImplementation libs.junit
-    testImplementation libs.mockito.core
-    testImplementation libs.mockito.inline
-    implementation libs.byte.buddy // For mockito, but must be a full `implementation` dep
-
+    // Unit test dependencies - keep these minimal, avoid Android dependencies
+    testImplementation 'junit:junit:4.13.2'
+    testImplementation 'org.mockito:mockito-core:4.11.0'
+    testImplementation 'org.mockito:mockito-inline:4.11.0'
+    
+    // Required for AndroidJUnit4 in unit tests
+    testImplementation 'androidx.test:core:1.5.0'
+    testImplementation 'androidx.test:runner:1.5.2'
+    testImplementation 'androidx.test.ext:junit:1.1.5'
+    
+    // Instrumentation test dependencies - these need to match and work together
+    androidTestImplementation 'androidx.test:core:1.5.0'
+    androidTestImplementation 'androidx.test:runner:1.5.2'
+    androidTestImplementation 'androidx.test:rules:1.5.0'
+    androidTestImplementation 'androidx.test.ext:junit:1.1.5'
+    androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.1'
+    androidTestImplementation 'androidx.test.espresso:espresso-intents:3.5.1'
+    androidTestImplementation 'androidx.test.espresso:espresso-contrib:3.5.1', {
+        exclude group: 'org.checkerframework', module: 'checker'
+        exclude module: "protobuf-lite"
+    }
+    
+    // Existing dependencies
     androidTestImplementation libs.androidx.espresso.intents
     androidTestImplementation libs.androidx.uiautomator
     androidTestImplementation libs.espresso.core
     androidTestImplementation libs.ext.junit
     androidTestImplementation libs.rules
     androidTestImplementation(libs.androidx.runner)
-    androidTestImplementation(libs.espresso.core)
-    androidTestImplementation(libs.ext.junit)
-
-    // Fix issue where protobuf class static method cannot be found.
-    // See: https://stackoverflow.com/a/68675881/10970228
-    androidTestImplementation(libs.espresso.contrib){
-        exclude module: "protobuf-lite"
-    }
 
     // https://github.com/awaitility/awaitility/issues/194
     androidTestImplementation(libs.awaitility.v410) {
