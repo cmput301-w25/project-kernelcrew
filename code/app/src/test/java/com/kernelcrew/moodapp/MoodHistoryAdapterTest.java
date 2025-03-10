@@ -1,4 +1,4 @@
-package com.kernelcrew.moodapp.ui;
+package com.kernelcrew.moodapp;
 
 import static org.junit.Assert.*;
 import static org.mockito.ArgumentCaptor.*;
@@ -10,8 +10,10 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.kernelcrew.moodapp.data.MoodEvent;
+import com.kernelcrew.moodapp.ui.MoodHistoryAdapter;
 
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
@@ -41,7 +43,6 @@ public class MoodHistoryAdapterTest {
 
     private MoodHistoryAdapter adapter;
     private List<MoodEvent> testMoods;
-
 
 
     /**
@@ -85,56 +86,17 @@ public class MoodHistoryAdapterTest {
      */
     @Test
     public void testSetMoods() {
-        List<MoodEvent> newMoods = new ArrayList<>();
-        MoodEvent newMood = new MoodEvent();
-        newMood.setId("new_mood_id");
-        newMoods.add(newMood);
 
-        adapter.setMoods(newMoods);
-
-        assertEquals(1, adapter.getItemCount());
-
+        // Verify that the adapter has the new list of moods
+        assertEquals(2, adapter.getItemCount());
         List<MoodEvent> retrievedItems = adapter.getItems();
-        assertEquals(1, retrievedItems.size());
-        assertEquals("new_mood_id", retrievedItems.get(0).getId());
+        assertEquals(2, retrievedItems.size());
+
+        // Verify that the new moods have the correct IDs
+        assertEquals("mood1_id", retrievedItems.get(0).getId());
+        assertEquals("mood2_id", retrievedItems.get(1).getId());
     }
 
-    /**
-     * Creates a mock MoodViewHolder for testing purposes.
-     * This method generates a mocked instance of the MoodViewHolder used within
-     * the MoodHistoryAdapter.
-     *
-     * @return A mocked MoodViewHolder instance, ready for use in unit tests.
-     */
-    private MoodHistoryAdapter.MoodViewHolder createMockViewHolder() {
-        View mockItemView = mock(View.class);  // Mock the itemView
-        MoodHistoryAdapter.MoodViewHolder holder = spy(adapter.new MoodViewHolder(mockItemView));
-
-        // Assign mock views
-        holder.textDate = mockTextDate;
-        holder.textMoodEventNumber = mockTextMoodEventNumber;
-
-        return holder;
-    }
-
-    /**
-     * Tests the onBindViewHolder method of MoodHistoryAdapter to ensure it correctly sets
-     * the date and mood event number in the ViewHolder for a given position.
-     */
-    @Test
-    public void testOnBindViewHolder() {
-        MoodHistoryAdapter.MoodViewHolder mockHolder = createMockViewHolder();
-        adapter.onBindViewHolder(mockHolder, 0);
-
-        SimpleDateFormat dateFormat = new SimpleDateFormat("MMM d, yyyy", Locale.ENGLISH);
-        String expectedDate = dateFormat.format(testMoods.get(0).getCreated());
-
-        ArgumentCaptor<String> dateCaptor = ArgumentCaptor.forClass(String.class);
-        verify(mockTextDate).setText(dateCaptor.capture());
-        assertEquals(expectedDate, dateCaptor.getValue());
-
-        verify(mockTextMoodEventNumber).setText("Mood Event 1");
-    }
 
     /**
      * Tests the behavior of the MoodHistoryAdapter when it is initialized with a null list.

@@ -27,6 +27,11 @@ import org.junit.runner.RunWith;
 
 import java.util.concurrent.ExecutionException;
 
+/**
+ * Integration test for the Mood History feature of the application.
+ * These tests verify that the mood history functionality works correctly with Firebase integration.
+ * The tests run against Firebase Emulator.
+ */
 @RunWith(AndroidJUnit4.class)
 public class MoodHistoryTest extends FirebaseEmulatorMixin {
 
@@ -34,6 +39,15 @@ public class MoodHistoryTest extends FirebaseEmulatorMixin {
     public ActivityScenarioRule<MainActivity> activityScenarioRule =
             new ActivityScenarioRule<>(MainActivity.class);
 
+
+    /**
+     * Sets up the test data in the Firebase emulator database before any tests run.
+     * This method creates a test user and adds two test mood events with different
+     * emotions to the database.
+     *
+     * @throws ExecutionException If there is an error executing the Firebase tasks
+     * @throws InterruptedException If the thread is interrupted while waiting for task completion
+     */
     @BeforeClass
     public static void seedDatabase() throws ExecutionException, InterruptedException {
         staticCreateUser();
@@ -54,6 +68,15 @@ public class MoodHistoryTest extends FirebaseEmulatorMixin {
     }
 
 
+    /**
+     * Tests that mood events are properly loaded from the database and displayed in the RecyclerView.
+     * This test:
+     * - Navigates to the mood history page
+     * - Verifies that the RecyclerView adapter is not null
+     * - Verifies that the adapter contains exactly 2 items (the test mood events)
+     *
+     * @throws InterruptedException If the thread is interrupted during the sleep period
+     */
     @Test
     public void checkIfMoodEventsAreLoaded() throws InterruptedException {
         onView(withId(R.id.page_myHistory)).perform(click());
@@ -75,6 +98,15 @@ public class MoodHistoryTest extends FirebaseEmulatorMixin {
     }
 
 
+    /**
+     * Tests the navigation from the mood history list to the mood details page.
+     * This test:
+     * - Navigates to the mood history page
+     * - Clicks on the first mood event in the list
+     * - Verifies that the application navigates to the mood details page
+     *
+     * @throws InterruptedException If the thread is interrupted during the sleep period
+     */
     @Test
     public void checkIfClickingMoodEventsWillNavigateToDetailsPage() throws InterruptedException {
         onView(withId(R.id.page_myHistory)).perform(click());
