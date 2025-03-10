@@ -52,7 +52,6 @@ public class MoodHistoryAdapterTest {
     public void setup() {
         testMoods = createTestMoodEvents();
         adapter = Mockito.spy(new MoodHistoryAdapter(testMoods, mockListener));
-        doNothing().when(adapter).notifyDataSetChanged();
     }
 
     /**
