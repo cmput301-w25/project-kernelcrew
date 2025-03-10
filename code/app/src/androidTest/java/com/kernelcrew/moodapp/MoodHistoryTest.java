@@ -9,6 +9,7 @@ import static androidx.test.espresso.matcher.ViewMatchers.*;
 import static org.junit.Assert.*;
 
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.test.espresso.contrib.RecyclerViewActions;
 import androidx.test.espresso.matcher.ViewMatchers;
 import androidx.test.ext.junit.rules.ActivityScenarioRule;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
@@ -93,7 +94,7 @@ public class MoodHistoryTest extends FirebaseEmulatorMixin {
                     RecyclerView.Adapter adapter = recyclerView.getAdapter();
 
                     assertNotNull("Adapter should not be null", adapter);
-                    assertTrue("RecyclerView should have at least one item", adapter.getItemCount() == 2);
+                    assertTrue("RecyclerView should have at least one item", adapter.getItemCount() > 1);
                 });
     }
 

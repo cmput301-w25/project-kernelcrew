@@ -35,22 +35,14 @@ public class MoodHistoryAdapterTest {
     @Mock
     private MoodHistoryAdapter.OnItemClickListener mockListener;
 
-    @Mock
-    private TextView mockTextDate;
-
-    @Mock
-    private TextView mockTextMoodEventNumber;
-
     private MoodHistoryAdapter adapter;
-    private List<MoodEvent> testMoods;
-
 
     /**
      * Sets up the test environment before each test method is executed.
      */
     @Before
     public void setup() {
-        testMoods = createTestMoodEvents();
+        List<MoodEvent> testMoods = createTestMoodEvents();
         adapter = Mockito.spy(new MoodHistoryAdapter(testMoods, mockListener));
     }
 
