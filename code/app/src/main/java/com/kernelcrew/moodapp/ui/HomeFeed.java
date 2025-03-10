@@ -17,9 +17,12 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.google.android.material.navigation.NavigationBarView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.kernelcrew.moodapp.R;
 import com.kernelcrew.moodapp.data.MoodEvent;
+import com.kernelcrew.moodapp.data.MoodEventFilter;
 import com.kernelcrew.moodapp.data.MoodEventProvider;
 import java.util.ArrayList;
 import java.util.List;
@@ -62,22 +65,32 @@ public class HomeFeed extends Fragment {
         }
 
         // Listen for changes in the "moodEvents" collection
-        provider.addSnapshotListener((snapshots, error) -> {
-            if (error != null) {
-                Log.w("HomeFeed", "Listen failed.", error);
-                return;
-            }
+        // Create a filter that orders by "created" descending (newest first)
+        new MoodEventFilter(provider)
+                .setSortField("created", Query.Direction.DESCENDING)
+                .buildQuery()
+                .addSnapshotListener((snapshots, error) -> {
+                    if (error != null) {
+                        Log.w("HomeFeed", "Listen failed.", error);
+                        return;
+                    }
 
-            List<MoodEvent> moodList = new ArrayList<>();
-            assert snapshots != null;
-            for (QueryDocumentSnapshot doc : snapshots) {
-                MoodEvent mood = doc.toObject(MoodEvent.class);
-                mood.setId(doc.getId());
-                moodList.add(mood);
-            }
-            Log.i("HomeFeed", Integer.toString(moodList.size()));
-            moodAdapter.setMoods(moodList);
-        });
+                    if (snapshots == null) {
+                        Log.w("HomeFeed", "No snapshot data received.");
+                        return;
+                    }
+
+                    List<MoodEvent> moodList = new ArrayList<>();
+                    for (DocumentSnapshot doc : snapshots.getDocuments()) {
+                        MoodEvent mood = doc.toObject(MoodEvent.class);
+                        if (mood != null) {
+                            mood.setId(doc.getId());
+                            moodList.add(mood);
+                        }
+                    }
+                    Log.i("HomeFeed", Integer.toString(moodList.size()));
+                    moodAdapter.setMoods(moodList);
+                });
 
         moodAdapter.setOnMoodClickListener(mood -> {
             Bundle args = new Bundle();
