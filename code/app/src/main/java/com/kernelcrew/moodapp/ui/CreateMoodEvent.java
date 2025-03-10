@@ -5,6 +5,7 @@ import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentContainer;
 import androidx.fragment.app.FragmentContainerView;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
@@ -59,12 +60,25 @@ public class CreateMoodEvent extends Fragment {
         navBarController.bind(view);
         navController = Navigation.findNavController(view);
 
-        FragmentContainerView formFragmentContainer =
-                view.findViewById(R.id.mood_event_form);
-        assert formFragmentContainer != null;
-        MoodEventForm form = formFragmentContainer.getFragment();
-        assert form != null;
+        // Get fragments
+        FragmentContainerView formFragmentContainer = view.findViewById(R.id.mood_event_form);
+        FragmentContainerView locationFragmentContainer = view.findViewById(R.id.location_fragment);
 
+        // Check nulls first
+        assert formFragmentContainer != null;
+        assert locationFragmentContainer != null;
+
+        MoodEventForm form = formFragmentContainer.getFragment();
+        LocationFragment locationFragment = locationFragmentContainer.getFragment();
+
+        // Check nulls again
+        assert form != null;
+        assert locationFragment != null;
+
+        // First set update listener to connect fragments
+        locationFragment.setUpdateListener(form);
+
+        // Then set submit callback
         form.onSubmit(this::handleSubmit);
 
         provider = MoodEventProvider.getInstance();
