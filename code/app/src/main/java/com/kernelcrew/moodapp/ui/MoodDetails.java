@@ -23,13 +23,15 @@ import com.kernelcrew.moodapp.R;
 import com.kernelcrew.moodapp.data.MoodEvent;
 import com.kernelcrew.moodapp.data.MoodEventProvider;
 
-public class MoodDetails extends Fragment {
+public class MoodDetails extends Fragment implements DeleteDialogFragment.DeleteDialogListener {
 
     private MaterialToolbar toolbar;
     private ImageView imageMoodIcon, ivMoodPhoto;
     private TextView tvMoodState, tvTriggerValue, tvSocialSituationValue, tvReasonValue;
     private Button btnEditMood;
     private Button btnViewProfile;
+
+    private Button btnDeleteMood;
     private FirebaseFirestore db;
     private MoodEventProvider provider;
 
@@ -74,6 +76,7 @@ public class MoodDetails extends Fragment {
         tvReasonValue = view.findViewById(R.id.tvReasonValue);
         ivMoodPhoto = view.findViewById(R.id.ivMoodPhoto);
         btnEditMood = view.findViewById(R.id.btnEditMood);
+        btnDeleteMood = view.findViewById(R.id.btnDeleteMood);
         btnViewProfile = view.findViewById(R.id.btnViewProfile);
 
         toolbar.setNavigationOnClickListener(v -> handleBackButton());
@@ -98,8 +101,18 @@ public class MoodDetails extends Fragment {
             args.putString("moodEventId", moodEventId);
             NavHostFragment.findNavController(this).navigate(R.id.editMoodEvent, args);
         });
+        //Logic to delete a mood
+        btnDeleteMood.setOnClickListener(v -> {
+            Bundle args = new Bundle();
+            args.putString("moodEventId", moodEventId);
+            DeleteDialogFragment dialogFragment = new DeleteDialogFragment();
+            dialogFragment.setArguments(args);
+            dialogFragment.setDeleteDialogListener(this); // Add this line
+            dialogFragment.show(getParentFragmentManager(), "delete_dialog");
+        });
 
         return view;
+
     }
 
     /**
@@ -144,10 +157,18 @@ public class MoodDetails extends Fragment {
         }
     }
 
+
     /**
      * Handles the back button behavior.
      */
     private void handleBackButton() {
         NavHostFragment.findNavController(this).popBackStack();
+    }
+
+    @Override
+    public void onDeleteConfirmed() {
+        Toast.makeText(requireContext(), "Mood deleted successfully", Toast.LENGTH_SHORT).show();
+        // Navigate back to home screen
+        NavHostFragment.findNavController(this).navigate(R.id.homeFeed);
     }
 }
