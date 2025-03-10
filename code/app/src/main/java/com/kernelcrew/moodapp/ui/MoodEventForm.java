@@ -1,11 +1,11 @@
 package com.kernelcrew.moodapp.ui;
 
 import static android.app.Activity.RESULT_OK;
+import static android.view.View.INVISIBLE;
+import static android.view.View.VISIBLE;
 
 import android.content.Intent;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.graphics.Picture;
 import android.net.Uri;
 import android.os.Bundle;
 
@@ -32,12 +32,7 @@ import com.kernelcrew.moodapp.data.MoodEvent;
 import com.kernelcrew.moodapp.ui.components.EmotionPickerFragment;
 import com.kernelcrew.moodapp.utils.PhotoUtils;
 
-import java.io.ByteArrayOutputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 
 /**
  * Fragment controller for MoodEventForm.
@@ -54,6 +49,7 @@ public class MoodEventForm extends Fragment {
 
     private Bitmap photo;
     private ImageButton photoButton;
+    private Button photoResetButton;
     private TextView photoButtonError;
 
     /**
@@ -78,6 +74,16 @@ public class MoodEventForm extends Fragment {
     }
 
     /**
+     * Clear the currently selected photo.
+     */
+    private void resetPhoto() {
+        photo = null;
+        photoButton.setImageResource(R.drawable.upload_splash);
+
+        updateResetPhotoVisibility();
+    }
+
+    /**
      * Change the photo button image
      * @param imageUri URI of image to set
      */
@@ -86,10 +92,18 @@ public class MoodEventForm extends Fragment {
             Bitmap bitmap = MediaStore.Images.Media.getBitmap(this.requireActivity().getContentResolver(), imageUri);
             photo = bitmap;
             photoButton.setImageBitmap(bitmap);
+            updateResetPhotoVisibility();
         } catch (IOException e) {
             Toast.makeText(requireContext(), "Failed to upload image", Toast.LENGTH_SHORT).show();
             Log.e("MoodEventForm", e.toString());
         }
+    }
+
+    /**
+     * Update the visibility of the reset photo button based on the current value of photo.
+     */
+    private void updateResetPhotoVisibility() {
+        photoResetButton.setVisibility(photo == null ? INVISIBLE : VISIBLE);
     }
 
     private MoodEventFormSubmitCallback callback;
@@ -164,6 +178,8 @@ public class MoodEventForm extends Fragment {
 
         photo = details.photo;
         photoButton.setImageBitmap(details.photo);
+
+        updateResetPhotoVisibility();
     }
 
     private @Nullable MoodEventDetails validateFields() {
@@ -237,6 +253,10 @@ public class MoodEventForm extends Fragment {
 
         photoButton = view.findViewById(R.id.photo_button);
         photoButton.setOnClickListener(_v -> openImagePicker());
+        photoResetButton = view.findViewById(R.id.photo_reset_button);
+        photoResetButton.setOnClickListener(_v -> resetPhoto());
         photoButtonError = view.findViewById(R.id.photo_button_error);
+
+        updateResetPhotoVisibility();
     }
 }
