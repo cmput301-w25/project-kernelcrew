@@ -15,6 +15,13 @@ android {
         versionName "1.0"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+
+        // Add VM argument for ByteBuddy experimental support for Java 21
+        testOptions {
+            unitTests.all {
+                jvmArgs '-Dnet.bytebuddy.experimental=true'
+            }
+        }
     }
 
     buildTypes {
@@ -27,10 +34,22 @@ android {
         sourceCompatibility JavaVersion.VERSION_11
         targetCompatibility JavaVersion.VERSION_11
     }
+
+    testOptions {
+        unitTests {
+            includeAndroidResources = false
+        }
+    }
+
+    packagingOptions {
+        exclude 'META-INF/LICENSE.md'
+        exclude 'META-INF/LICENSE-notice.md'
+    }
 }
 
 dependencies {
     implementation libs.play.services.location
+    testImplementation libs.ext.junit
     annotationProcessor libs.glide.compiler
 
     implementation libs.activity
@@ -48,12 +67,29 @@ dependencies {
     implementation libs.navigation.fragment
     implementation(platform(libs.firebase.bom))
 
-    testImplementation libs.hamcrest
-    testImplementation libs.junit
-    testImplementation libs.mockito.core
-    testImplementation libs.mockito.inline
-    implementation libs.byte.buddy
+    // Unit test dependencies - keep these minimal, avoid Android dependencies
+    testImplementation 'junit:junit:4.13.2'
+    testImplementation 'org.mockito:mockito-core:4.11.0'
+    testImplementation 'org.mockito:mockito-inline:4.11.0'
 
+    // Required for AndroidJUnit4 in unit tests
+    testImplementation 'androidx.test:core:1.5.0'
+    testImplementation 'androidx.test:runner:1.5.2'
+    testImplementation 'androidx.test.ext:junit:1.1.5'
+
+    // Instrumentation test dependencies - these need to match and work together
+    androidTestImplementation 'androidx.test:core:1.5.0'
+    androidTestImplementation 'androidx.test:runner:1.5.2'
+    androidTestImplementation 'androidx.test:rules:1.5.0'
+    androidTestImplementation 'androidx.test.ext:junit:1.1.5'
+    androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.1'
+    androidTestImplementation 'androidx.test.espresso:espresso-intents:3.5.1'
+    androidTestImplementation 'androidx.test.espresso:espresso-contrib:3.5.1', {
+        exclude group: 'org.checkerframework', module: 'checker'
+        exclude module: "protobuf-lite"
+    }
+
+    // Existing dependencies
     androidTestImplementation libs.androidx.espresso.intents
     androidTestImplementation libs.androidx.uiautomator
     androidTestImplementation libs.espresso.core
