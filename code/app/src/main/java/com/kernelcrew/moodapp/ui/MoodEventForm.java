@@ -18,7 +18,9 @@ import androidx.fragment.app.FragmentContainerView;
 
 import android.provider.MediaStore;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.ImageButton;
@@ -31,7 +33,6 @@ import com.kernelcrew.moodapp.data.Emotion;
 import com.kernelcrew.moodapp.data.MoodEvent;
 import com.kernelcrew.moodapp.ui.components.EmotionPickerFragment;
 import com.kernelcrew.moodapp.utils.PhotoUtils;
-
 import java.io.IOException;
 
 /**
@@ -41,12 +42,15 @@ import java.io.IOException;
  * To listen to submissions, attach an onSubmit listener using the .onSubmit() method.
  * When editing a mood event, update the form state per a mood event using the .bind() method.
  */
-public class MoodEventForm extends Fragment {
+public class MoodEventForm extends Fragment implements LocationUpdateListener {
     private EmotionPickerFragment emotionPickerFragment;
     private TextInputEditText triggerEditText;
+
+    private Button addLocation;
     private AutoCompleteTextView situationAutoComplete;
     private TextInputEditText reasonEditText;
-
+    private Double currentLatitude = null;
+    private Double currentLongitude = null;
     private Bitmap photo;
     private ImageButton photoButton;
     private Button photoResetButton;
@@ -128,6 +132,8 @@ public class MoodEventForm extends Fragment {
         String trigger;
         String socialSituation;
         String reason;
+        Double lat;
+        Double lon;
         Bitmap photo;
 
         /**
@@ -144,6 +150,8 @@ public class MoodEventForm extends Fragment {
             trigger = moodEvent.getTrigger();
             socialSituation = moodEvent.getSocialSituation();
             reason = moodEvent.getReason();
+            lat = moodEvent.getLatitude();
+            lon = moodEvent.getLongitude();
             photo = moodEvent.getPhoto();
         }
 
@@ -159,9 +167,9 @@ public class MoodEventForm extends Fragment {
                     trigger,
                     socialSituation,
                     reason,
-                    "",
-                    0.0, // lat
-                    0.0 // lng
+                    "", // photoUrl,
+                    lat,
+                    lon
             );
 
             moodEvent.setPhoto(photo);
@@ -175,7 +183,13 @@ public class MoodEventForm extends Fragment {
         triggerEditText.setText(details.trigger);
         situationAutoComplete.setText(details.socialSituation);
         reasonEditText.setText(details.reason);
-
+        if (details.lat != null && details.lon != null) {
+            // Update UI to show location is set
+            this.currentLatitude = details.lat;
+            this.currentLongitude = details.lon;
+        } else {
+            // locationStatusTextView.setText("No location set");
+        }
         photo = details.photo;
         photoButton.setImageBitmap(details.photo);
 
@@ -210,7 +224,8 @@ public class MoodEventForm extends Fragment {
             photoButtonError.setText("Image too large");
             return null;
         }
-
+        details.lat = currentLatitude;
+        details.lon = currentLongitude;
         return details;
     }
 
@@ -219,6 +234,7 @@ public class MoodEventForm extends Fragment {
         if (details == null) {
             return;
         }
+        Log.d("MoodEventForm", "Submitting form with location: lat=" + details.lat + ", lon=" + details.lon);
 
         callback.handleSubmit(details);
     }
@@ -250,7 +266,6 @@ public class MoodEventForm extends Fragment {
         triggerEditText = view.findViewById(R.id.emotion_trigger);
         situationAutoComplete = view.findViewById(R.id.emotion_situation);
         reasonEditText = view.findViewById(R.id.emotion_reason);
-
         photoButton = view.findViewById(R.id.photo_button);
         photoButton.setOnClickListener(_v -> openImagePicker());
         photoResetButton = view.findViewById(R.id.photo_reset_button);
@@ -258,5 +273,12 @@ public class MoodEventForm extends Fragment {
         photoButtonError = view.findViewById(R.id.photo_button_error);
 
         updateResetPhotoVisibility();
+        addLocation = view.findViewById(R.id.add_location_button);
+    }
+    @Override
+    public void onLocationUpdated(Double latitude, Double longitude) {
+        Log.d("MoodEventForm", "Location updated: lat=" + latitude + ", lon=" + longitude);
+        this.currentLatitude = latitude;
+        this.currentLongitude = longitude;
     }
 }
