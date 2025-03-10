@@ -1,6 +1,14 @@
-//Code from OpenAi, ChatGPT, "Build location fragment using google maps API in java in android studio requesting the user for permission to get their location and handling error gracefully if location can't be reached",accessed 03-02-2025
-//Modified by Anthropic, Claude 3.7 Sonnet, "Fix LocationFragment to properly handle location permissions and services", accessed 03-09-2025
-//Modified by Anthropic, Claude 3.7 Sonnet, "Update to use modern Activity Result API", accessed 03-10-2025
+/**
+ * LocationFragment - Handles location functionality for mood events
+ * 
+ * This fragment manages all location-related operations including:
+ * - Requesting and handling location permissions
+ * - Getting the user's current location coordinates using FusedLocationProviderClient
+ * - Providing location data to other components through the LocationUpdateListener interface
+ * - Displaying UI for location functionality in the mood creation workflow
+ * 
+ * Created by Anthropic, Claude 3.7 Sonnet, "Create LocationFragment class", accessed 03-10-2025
+ */
 
 package com.kernelcrew.moodapp.ui;
 

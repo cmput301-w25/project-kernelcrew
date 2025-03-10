@@ -1,4 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!--
+  fragment_location.xml - Layout for location functionality
+  
+  This layout defines the UI components for the LocationFragment, containing:
+  - A button that allows users to add their current location to mood events
+  
+  This layout is included in the mood event creation screen and provides
+  the visual interface for location-related interactions.
+-->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
