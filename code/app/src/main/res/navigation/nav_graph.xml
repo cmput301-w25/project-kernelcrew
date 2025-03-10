@@ -68,6 +68,22 @@
             android:name="sourceScreen"
             app:argType="string"
             android:defaultValue="home" />
+        <action
+            android:id="@+id/action_moodDetails_to_editMood"
+            app:destination="@id/editMood" />
+        <action
+            android:id="@+id/action_moodDetails_to_myProfile"
+            app:destination="@id/myProfile" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/editMood"
+        android:name="com.kernelcrew.moodapp.ui.EditMood"
+        android:label="Edit Mood"
+        tools:layout="@layout/fragment_edit_mood">
+        <argument
+            android:name="moodEventId"
+            app:argType="string" />
     </fragment>
 
     <fragment
@@ -85,6 +101,9 @@
         <action
             android:id="@+id/action_myProfile_to_followingPage"
             app:destination="@id/followingFragment" />
+        <action
+            android:id="@+id/action_myProfile_to_moodHistoryPage"
+            app:destination="@id/moodHistory" />
     </fragment>
 
     <fragment
@@ -110,6 +129,26 @@
         android:name="com.kernelcrew.moodapp.ui.EditMoodEvent"
         android:label="fragment_edit_mood_event"
         tools:layout="@layout/fragment_edit_mood_event" />
+
+    <fragment
+        android:id="@+id/moodHistory"
+        android:name="com.kernelcrew.moodapp.ui.MoodHistory"
+        android:label="fragment_mood_history"
+        tools:layout="@layout/fragment_mood_history">
+        <argument
+            android:name="sourceScreen"
+            app:argType="string"
+            android:defaultValue="home"/>
+        <argument
+            android:name="moodEventId"
+            app:argType="string"/>
+        <action
+            android:id="@+id/action_moodHistory_to_homeFeed"
+            app:destination="@id/homeFeed" />
+        <action
+            android:id="@+id/action_moodHistory_to_moodDetails"
+            app:destination="@id/moodDetails" />
+    </fragment>
 
     <fragment
         android:id="@+id/requestFragment"
