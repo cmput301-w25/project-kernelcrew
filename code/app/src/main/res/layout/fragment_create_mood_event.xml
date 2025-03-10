@@ -24,24 +24,32 @@ tools:context=".ui.CreateMoodEvent">
             app:titleCentered="true" />
     </com.google.android.material.appbar.AppBarLayout>
 
-    <androidx.fragment.app.FragmentContainerView
-        android:id="@+id/location_fragment"
-        android:name="com.kernelcrew.moodapp.ui.LocationFragment"
+    <androidx.core.widget.NestedScrollView
+        android:id="@+id/scroll_container"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        app:layout_constraintBottom_toTopOf="@id/mood_event_form"
+        android:fillViewport="true"
         app:layout_constraintTop_toBottomOf="@id/appBarLayout2"
-        app:layout_constraintVertical_bias="0.0" />
+        app:layout_constraintBottom_toTopOf="@id/bottom_navigation">
 
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
 
-    <!-- Add LocationFragment here -->
-    <androidx.fragment.app.FragmentContainerView
-        android:id="@+id/mood_event_form"
-        android:name="com.kernelcrew.moodapp.ui.MoodEventForm"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        app:layout_constraintBottom_toTopOf="@id/bottom_navigation"
-        app:layout_constraintTop_toBottomOf="@id/location_fragment" />
+            <androidx.fragment.app.FragmentContainerView
+                android:id="@+id/location_fragment"
+                android:name="com.kernelcrew.moodapp.ui.LocationFragment"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+
+            <androidx.fragment.app.FragmentContainerView
+                android:id="@+id/mood_event_form"
+                android:name="com.kernelcrew.moodapp.ui.MoodEventForm"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+        </LinearLayout>
+    </androidx.core.widget.NestedScrollView>
 
     <com.google.android.material.bottomnavigation.BottomNavigationView
         android:id="@+id/bottom_navigation"
