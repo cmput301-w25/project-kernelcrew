@@ -169,6 +169,6 @@ public class MoodDetails extends Fragment implements DeleteDialogFragment.Delete
     public void onDeleteConfirmed() {
         Toast.makeText(requireContext(), "Mood deleted successfully", Toast.LENGTH_SHORT).show();
         // Navigate back to home screen
-        NavHostFragment.findNavController(this).navigate(R.id.homeFeed);
+        NavHostFragment.findNavController(this).popBackStack();
     }
 }
