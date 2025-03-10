@@ -1,3 +1,10 @@
+/**
+ * //Anthropic, Claude, "Generate source code descriptive comments for 301 rubric", 03-10-2025
+ *
+ * This fragment displays the list of users that the current user follows.
+ * It shows following information and provides options to manage
+ * following relationships, including the ability to unfollow users.
+ */
 package com.kernelcrew.moodapp.ui;
 
 import android.os.Bundle;

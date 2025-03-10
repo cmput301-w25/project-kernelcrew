@@ -1,3 +1,11 @@
+/**
+ * //Anthropic, Claude, "Generate source code descriptive comments for 301 rubric", 03-10-2025
+ *
+ * This fragment displays the home feed of mood events.
+ * It shows the user's own recent moods as well as those from followed users,
+ * providing a social overview of mood events in chronological order.
+ * The feed automatically updates when new mood events are added.
+ */
 package com.kernelcrew.moodapp.ui;
 
 import android.os.Bundle;

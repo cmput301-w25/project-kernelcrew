@@ -1,3 +1,11 @@
+/**
+ * //Anthropic, Claude, "Generate source code descriptive comments for 301 rubric", 03-10-2025
+ *
+ * This fragment displays the user's history of mood events.
+ * It shows a list of past mood events in chronological order,
+ * provides filtering options, and manages real-time updates from Firestore.
+ * Optimizes performance by properly handling snapshot listeners during lifecycle events.
+ */
 package com.kernelcrew.moodapp.ui;
 
 import android.os.Bundle;

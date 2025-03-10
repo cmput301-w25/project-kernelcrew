@@ -1,3 +1,10 @@
+/**
+ * //Anthropic, Claude, "Generate source code descriptive comments for 301 rubric", 03-10-2025
+ *
+ * This fragment handles editing of existing mood events.
+ * It pre-populates the mood form with existing data and
+ * manages the update process for modified mood events.
+ */
 package com.kernelcrew.moodapp.ui;
 
 import android.os.Bundle;

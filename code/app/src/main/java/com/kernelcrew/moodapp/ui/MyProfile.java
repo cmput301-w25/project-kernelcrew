@@ -1,3 +1,11 @@
+/**
+ * //Anthropic, Claude, "Generate source code descriptive comments for 301 rubric", 03-10-2025
+ *
+ * This fragment displays the user's profile information.
+ * It shows user details, provides access to followers/following lists,
+ * mood history, and contains user-specific settings including sign out.
+ * Can also be used to view other users' profiles through navigation arguments.
+ */
 package com.kernelcrew.moodapp.ui;
 
 import android.os.Bundle;

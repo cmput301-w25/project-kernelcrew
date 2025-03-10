@@ -1,3 +1,11 @@
+/**
+ * //Anthropic, Claude, "Generate source code descriptive comments for 301 rubric", 03-10-2025
+ *
+ * This fragment manages follow requests between users.
+ * It displays pending requests, allows users to accept or reject requests,
+ * and handles the follow/unfollow functionality through confirmation dialogs.
+ * Supports multiple request types through navigation arguments.
+ */
 package com.kernelcrew.moodapp.ui;
 
 import android.os.Bundle;

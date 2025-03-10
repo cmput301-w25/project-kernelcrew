@@ -1,4 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!--
+//Anthropic, Claude, "Generate source code descriptive comments for 301 rubric", 03-10-2025
+This layout file defines the UI for creating a new mood event in the application.
+It serves as a container that holds the mood event form fragment and navigation elements.
+
+Components:
+- AppBar: Displays the "Log Mood" title at the top of the screen
+- MoodEventForm Fragment: Main form for entering mood event details including mood selection, 
+  triggers, and other input fields
+- BottomNavigationView: Provides access to main app sections, fixed at the bottom
+
+Outstanding issues:
+- Components may appear off-screen on smaller devices without proper scrolling
+- MoodEventForm may require scrolling capability for smaller screens to show all elements
+-->
 <androidx.constraintlayout.widget.ConstraintLayout
 xmlns:android="http://schemas.android.com/apk/res/android"
 xmlns:tools="http://schemas.android.com/tools"

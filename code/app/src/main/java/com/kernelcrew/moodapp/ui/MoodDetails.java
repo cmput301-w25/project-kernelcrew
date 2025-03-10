@@ -1,3 +1,11 @@
+/**
+ * //Anthropic, Claude, "Generate source code descriptive comments for 301 rubric", 03-10-2025
+ *
+ * This fragment displays the detailed view of a selected mood event.
+ * It shows all information about a mood including emotion type, date/time,
+ * reason, trigger, social situation, location, and attached photo.
+ * Provides options to edit or delete the mood event and view the creator's profile.
+ */
 package com.kernelcrew.moodapp.ui;
 
 import static com.kernelcrew.moodapp.ui.MoodIconUtil.getMoodIconResource;

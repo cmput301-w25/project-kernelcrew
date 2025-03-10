@@ -1,3 +1,11 @@
+/**
+ * //Anthropic, Claude, "Generate source code descriptive comments for 301 rubric", 03-10-2025
+ *
+ * Utility class that maps mood types to their corresponding icons.
+ * It provides helper methods to retrieve the appropriate drawable
+ * resource for different emotion types, ensuring consistent visual
+ * representation of moods throughout the application.
+ */
 package com.kernelcrew.moodapp.ui;
 
 import com.kernelcrew.moodapp.R;
