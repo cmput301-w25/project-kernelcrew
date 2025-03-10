@@ -49,15 +49,14 @@ dependencies {
 
     testImplementation libs.hamcrest
     testImplementation libs.junit
-    testImplementation libs.mockito.android
     testImplementation libs.mockito.core
     testImplementation libs.mockito.inline
+    implementation libs.byte.buddy // For mockito, but must be a full `implementation` dep
 
     androidTestImplementation libs.androidx.espresso.intents
     androidTestImplementation libs.androidx.uiautomator
     androidTestImplementation libs.espresso.core
     androidTestImplementation libs.ext.junit
-    androidTestImplementation libs.mockito.android
     androidTestImplementation libs.rules
     androidTestImplementation(libs.androidx.runner)
     androidTestImplementation(libs.espresso.core)

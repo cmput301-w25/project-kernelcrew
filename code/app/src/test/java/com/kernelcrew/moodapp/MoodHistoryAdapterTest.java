@@ -34,15 +34,6 @@ public class MoodHistoryAdapterTest {
     private MoodHistoryAdapter.OnItemClickListener mockListener;
 
     @Mock
-    private View mockItemView;
-
-    @Mock
-    private ViewGroup mockParent;
-
-    @Mock
-    private LayoutInflater mockInflater;
-
-    @Mock
     private TextView mockTextDate;
 
     @Mock
@@ -144,7 +135,6 @@ public class MoodHistoryAdapterTest {
 
         verify(mockTextMoodEventNumber).setText("Mood Event 1");
     }
-
 
     /**
      * Tests the behavior of the MoodHistoryAdapter when it is initialized with a null list.
