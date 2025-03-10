@@ -7,10 +7,12 @@ import com.google.firebase.firestore.Query;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.UUID;
 
 public class MoodEventFilter {
     private final CollectionReference collectionReference;
     private final List<Emotion> emotions;
+    private String userId;
     private Date startDate;
     private Date endDate;
     private String sortField;
@@ -85,6 +87,18 @@ public class MoodEventFilter {
     }
 
     /**
+     * Set a user to filter by (ie if you are on a persons profile you get only their posts).
+     *
+     * @param userId The user you want to filter by.
+     *
+     * @return Current instance.
+     */
+    public MoodEventFilter setUser(String userId) {
+        this.userId = userId;
+        return this;
+    }
+
+    /**
      * Builds a Firestore Query using the applied filters and sort orders.
      * This query can then be used by a provider (calling .get() or adding a snapshot listener).
      *
@@ -93,13 +107,16 @@ public class MoodEventFilter {
     public Query buildQuery() {
         Query query = collectionReference;
 
-        // Filter by emotions if provided.
         if (emotions != null && !emotions.isEmpty()) {
             List<String> emotionStrings = new ArrayList<>();
             for (Emotion emotion : emotions) {
                 emotionStrings.add(emotion.name());
             }
             query = query.whereIn("emotion", emotionStrings);
+        }
+
+        if (userId != null) {
+            query = query.whereEqualTo("uid", userId);
         }
 
         if (startDate != null) {

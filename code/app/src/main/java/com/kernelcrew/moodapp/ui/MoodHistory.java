@@ -13,9 +13,12 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.appbar.MaterialToolbar;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.kernelcrew.moodapp.R;
 import com.kernelcrew.moodapp.data.MoodEvent;
+import com.kernelcrew.moodapp.data.MoodEventFilter;
 import com.kernelcrew.moodapp.data.MoodEventProvider;
 
 import java.util.ArrayList;
@@ -94,24 +97,28 @@ public class MoodHistory extends Fragment implements MoodHistoryAdapter.OnItemCl
         removeFirestoreListener();
 
         // Set up a new listener
-        snapshotListener = provider.addUserFilteredSnapshotListener((snapshots, error) -> {
-            if (error != null) {
-                Log.w("MoodHistory", "Listen failed.", error);
-                return;
-            }
+        snapshotListener = new MoodEventFilter(provider)
+            .setUser(FirebaseAuth.getInstance().getCurrentUser().getUid())
+            .setSortField("created", Query.Direction.DESCENDING)
+            .buildQuery()
+            .addSnapshotListener((snapshots, error) -> {
+                if (error != null) {
+                    Log.w("MoodHistory", "Listen failed.", error);
+                    return;
+                }
 
-            List<MoodEvent> moodList = new ArrayList<>();
-            for (QueryDocumentSnapshot doc : snapshots) {
-                MoodEvent moodFromDB = doc.toObject(MoodEvent.class);
-                moodList.add(moodFromDB);
-            }
+                List<MoodEvent> moodList = new ArrayList<>();
+                for (QueryDocumentSnapshot doc : snapshots) {
+                    MoodEvent moodFromDB = doc.toObject(MoodEvent.class);
+                    moodList.add(moodFromDB);
+                }
 
-            // Sort moods by timestamp in descending order
-            moodList.sort((mood1, mood2) -> Long.compare(mood2.getTimestamp(), mood1.getTimestamp()));
+                // Sort moods by timestamp in descending order
+                moodList.sort((mood1, mood2) -> Long.compare(mood2.getTimestamp(), mood1.getTimestamp()));
 
-            // Update the adapter with the new mood list
-            adapter.setMoods(moodList);
-        });
+                // Update the adapter with the new mood list
+                adapter.setMoods(moodList);
+            });
     }
 
     /**
