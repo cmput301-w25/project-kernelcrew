@@ -1,6 +1,6 @@
-//Code from OpenAi, ChatGPT, "Build location fragment using google maps API in java in android studio requesting the user for permission to get their location and handling error gracefully if location can't be reached", accessed 03-02-2025
-//Modified by Anthropic, Claude 3.7 Sonnet, "Fix LocationFragment to properly handle location permissions and services", accessed 05-12-2024
-//Modified by Anthropic, Claude 3.7 Sonnet, "Update to use modern Activity Result API", accessed 05-13-2024
+//Code from OpenAi, ChatGPT, "Build location fragment using google maps API in java in android studio requesting the user for permission to get their location and handling error gracefully if location can't be reached",accessed 03-02-2025
+//Modified by Anthropic, Claude 3.7 Sonnet, "Fix LocationFragment to properly handle location permissions and services", accessed 03-09-2025
+//Modified by Anthropic, Claude 3.7 Sonnet, "Update to use modern Activity Result API", accessed 03-10-2025
 
 package com.kernelcrew.moodapp.ui;
 
@@ -30,8 +30,15 @@ import androidx.fragment.app.Fragment;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
 import com.kernelcrew.moodapp.R;
+import com.google.android.gms.location.LocationRequest;
+import com.google.android.gms.location.LocationCallback;
+import com.google.android.gms.location.LocationResult;
+import android.os.Looper;
+import android.location.Location;
 
 public class LocationFragment extends Fragment {
+
+    private LocationUpdateListener updateListener;
     /**
      * Main client for interacting with the fused location provider.
      * Provides access to device location with the appropriate permissions.
@@ -61,11 +68,11 @@ public class LocationFragment extends Fragment {
      * Uses the modern Activity Result API instead of onRequestPermissionsResult.
      */
     private ActivityResultLauncher<String> requestPermissionLauncher;
+    private LocationUpdateListener listener;
 
     /**
      * Listener for location updates.
      */
-    private LocationUpdateListener updateListener;
 
     /**
      * Creates the fragment view and initializes location services.
@@ -257,54 +264,108 @@ public class LocationFragment extends Fragment {
         }
 
         try {
-            // Make a single request for the last known location
+            // First try getLastLocation
             Log.i("LocationFragment", "Requesting last known location");
             fusedLocationClient.getLastLocation()
                     .addOnSuccessListener(requireActivity(), location -> {
                         if (location != null) {
-                            // We got a valid location
-                            Log.i("LocationFragment", "Last known location retrieved: "
-                                    + "Lat=" + location.getLatitude()
-                                    + ", Lng=" + location.getLongitude());
-
-                            // Store the location coordinates
-                            latitude = location.getLatitude();
-                            longitude = location.getLongitude();
-
-                            // Notify listener about the location update
-                            if (updateListener != null) {
-                                updateListener.onLocationUpdated(latitude, longitude);
-                            }
-
-                            // Save the mood event with location
-                            saveMoodEventWithLocation(latitude, longitude);
-
-                            // Show success message
-                            Toast.makeText(getContext(), "Location was successfully added", Toast.LENGTH_SHORT).show();
+                            // We got a valid location from getLastLocation
+                            handleLocationSuccess(location);
                         } else {
-                            // No location available
-                            Log.i("LocationFragment", "getLastLocation returned null - no location available");
-                            saveMoodEventWithoutLocation();
-
-                            // Show message that location couldn't be fetched
-                            Toast.makeText(getContext(), "Location was unable to be fetched", Toast.LENGTH_SHORT).show();
+                            // No last location available, request a new location update
+                            Log.i("LocationFragment", "No last location available, requesting location updates");
+                            requestNewLocation();
                         }
                     })
                     .addOnFailureListener(e -> {
                         // Handle any errors during location retrieval
                         Log.e("LocationFragment", "Error getting last location: " + e.getMessage(), e);
-                        saveMoodEventWithoutLocation();
-
-                        // Show message that location couldn't be fetched
-                        Toast.makeText(getContext(), "Location was unable to be fetched", Toast.LENGTH_SHORT).show();
+                        // Try requesting a new location instead
+                        requestNewLocation();
                     });
         } catch (Exception e) {
             Log.e("LocationFragment", "Exception requesting last location: " + e.getMessage(), e);
+            Toast.makeText(getContext(), "Error accessing location services", Toast.LENGTH_SHORT).show();
             saveMoodEventWithoutLocation();
-
-            // Show message that location couldn't be fetched
-            Toast.makeText(getContext(), "Location was unable to be fetched", Toast.LENGTH_SHORT).show();
         }
+    }
+
+    // Add this method to request a new location (not just the last known one)
+    private void requestNewLocation() {
+        if (ContextCompat.checkSelfPermission(requireContext(),
+                Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            return;
+        }
+
+        try {
+            // Create location request
+            LocationRequest locationRequest = LocationRequest.create()
+                    .setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY)
+                    .setInterval(10000)
+                    .setFastestInterval(5000)
+                    .setNumUpdates(1); // We only need one location update
+
+            // Create location callback
+            LocationCallback locationCallback = new LocationCallback() {
+                @Override
+                public void onLocationResult(LocationResult locationResult) {
+                    if (locationResult == null) {
+                        Log.i("LocationFragment", "Location update returned null result");
+                        saveMoodEventWithoutLocation();
+                        return;
+                    }
+
+                    // Get the newest location
+                    Location location = locationResult.getLastLocation();
+                    if (location != null) {
+                        // We got a valid location from the update
+                        handleLocationSuccess(location);
+                    } else {
+                        // This shouldn't happen if locationResult is not null
+                        Log.i("LocationFragment", "Location update returned null location");
+                        saveMoodEventWithoutLocation();
+                    }
+
+                    // Remove updates after getting the location
+                    fusedLocationClient.removeLocationUpdates(this);
+                }
+            };
+
+            // Request location updates
+            fusedLocationClient.requestLocationUpdates(
+                    locationRequest,
+                    locationCallback,
+                    Looper.getMainLooper());
+
+            // Show a toast that we're fetching location
+            Toast.makeText(getContext(), "Fetching your location...", Toast.LENGTH_SHORT).show();
+
+        } catch (Exception e) {
+            Log.e("LocationFragment", "Error requesting location updates: " + e.getMessage(), e);
+            saveMoodEventWithoutLocation();
+        }
+    }
+
+    // Helper method to handle successful location retrieval
+    private void handleLocationSuccess(Location location) {
+        Log.i("LocationFragment", "Location retrieved: "
+                + "Lat=" + location.getLatitude()
+                + ", Lng=" + location.getLongitude());
+
+        // Store the location coordinates
+        latitude = location.getLatitude();
+        longitude = location.getLongitude();
+
+        // Notify listener about the location update
+        if (updateListener != null) {
+            Log.d("LocationDebug", "Calling onLocationUpdated");
+            updateListener.onLocationUpdated(latitude, longitude);
+        } else{
+            Log.d("LocationDebug", "updateListener is null!");
+        }
+
+        // Show success message
+        Toast.makeText(getContext(), "Location was successfully added", Toast.LENGTH_SHORT).show();
     }
 
     /**
@@ -312,7 +373,6 @@ public class LocationFragment extends Fragment {
      */
     public void saveMoodEventWithoutLocation() {
         Log.i("LocationFragment", "Saving mood event without location.");
-        // Show message that location couldn't be fetched
         Toast.makeText(getContext(), "Location was unable to be fetched", Toast.LENGTH_SHORT).show();
         // TODO: Implement saving logic here
     }
@@ -324,14 +384,6 @@ public class LocationFragment extends Fragment {
      * @param lat The latitude coordinate to save
      * @param lon The longitude coordinate to save
      */
-    public void saveMoodEventWithLocation(double lat, double lon) {
-        Log.i("LocationFragment", "Saving mood event with location - Lat: " + lat + ", Lng: " + lon);
-        // TODO: Implement saving logic here
-
-        // Store the coordinates for retrieval by getters
-        this.latitude = lat;
-        this.longitude = lon;
-    }
 
     /**
      * Gets the latitude coordinate from the last successful location retrieval.
@@ -358,6 +410,10 @@ public class LocationFragment extends Fragment {
      */
     public void setLocationUpdateListener(LocationUpdateListener listener) {
         this.updateListener = listener;
+    }
+
+    public void setUpdateListener(MoodEventForm form) {
+        this.updateListener = form;
     }
 
     /**

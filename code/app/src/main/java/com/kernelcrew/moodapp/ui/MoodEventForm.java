@@ -100,7 +100,8 @@ public class MoodEventForm extends Fragment implements LocationUpdateListener {
         reasonEditText.setText(details.reason);
         if (details.lat != null && details.lon != null) {
             // Update UI to show location is set
-            // locationStatusTextView.setText("Location set: " + details.lat + ", " + details.lon);
+            this.currentLatitude = details.lat;
+            this.currentLongitude = details.lon;
         } else {
             // locationStatusTextView.setText("No location set");
         }
@@ -135,6 +136,7 @@ public class MoodEventForm extends Fragment implements LocationUpdateListener {
         if (details == null) {
             return;
         }
+        Log.d("MoodEventForm", "Submitting form with location: lat=" + details.lat + ", lon=" + details.lon);
 
         callback.handleSubmit(details);
     }
@@ -172,8 +174,8 @@ public class MoodEventForm extends Fragment implements LocationUpdateListener {
 
     @Override
     public void onLocationUpdated(Double latitude, Double longitude) {
+        Log.d("MoodEventForm", "Location updated: lat=" + latitude + ", lon=" + longitude);
         this.currentLatitude = latitude;
         this.currentLongitude = longitude;
-        // Update UI if needed
     }
 }
