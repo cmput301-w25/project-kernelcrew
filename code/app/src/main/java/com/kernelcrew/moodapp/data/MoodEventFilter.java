@@ -117,54 +117,37 @@ public class MoodEventFilter {
      * @return A query with applied filtering and sorting.
      */
     public Query buildQuery() {
-        Query chainQuery = null;
-        boolean anyChainable = false;
+        if (collectionReference == null) {
+            throw new IllegalStateException("Collection reference cannot be null.");
+        }
+
+        // Start with the collection reference
+        Query query = collectionReference;
+
+        if (userId != null) {
+            query = query.whereEqualTo("uid", userId);
+        }
 
         if (emotions != null && !emotions.isEmpty()) {
-            List<String> uniqueEmotions = new ArrayList<>();
+            Set<String> distinct = new LinkedHashSet<>();
             for (Emotion e : emotions) {
-                String name = e.name();
-                if (!uniqueEmotions.contains(name)) {
-                    uniqueEmotions.add(name);
-                }
+                distinct.add(e.name());
             }
-            chainQuery = collectionReference.whereIn("emotion", uniqueEmotions);
-            anyChainable = true;
+            query = query.whereIn("emotion", new ArrayList<>(distinct));
         }
 
         if (startDate != null) {
-            if (chainQuery == null) {
-                chainQuery = collectionReference.whereIn("dummy", new ArrayList<>());
-                anyChainable = true;
-            }
-            chainQuery = chainQuery.whereGreaterThanOrEqualTo("created", startDate);
+            query = query.whereGreaterThanOrEqualTo("created", startDate);
         }
-
         if (endDate != null) {
-            if (chainQuery == null) {
-                chainQuery = collectionReference.whereIn("dummy", new ArrayList<>());
-                anyChainable = true;
-            }
-            chainQuery = chainQuery.whereLessThanOrEqualTo("created", endDate);
+            query = query.whereLessThanOrEqualTo("created", endDate);
         }
 
         if (sortField != null) {
-            if (chainQuery == null) {
-                chainQuery = collectionReference.whereIn("dummy", new ArrayList<>());
-                anyChainable = true;
-            }
-            chainQuery = chainQuery.orderBy(sortField, sortDirection);
+            query = query.orderBy(sortField, sortDirection);
         }
 
-        if (userId != null) {
-            if (anyChainable) {
-                collectionReference.whereEqualTo("uid", userId);
-            } else {
-                chainQuery = collectionReference.whereEqualTo("uid", userId);
-            }
-        }
-
-        return (chainQuery == null) ? collectionReference : chainQuery;
+        return query;
     }
 }
 
