@@ -20,11 +20,16 @@ import com.kernelcrew.moodapp.data.Emotion;
 import com.kernelcrew.moodapp.data.MoodEvent;
 import com.kernelcrew.moodapp.ui.components.EmotionPickerFragment;
 
-public class MoodEventForm extends Fragment {
+public class MoodEventForm extends Fragment implements LocationUpdateListener {
     private EmotionPickerFragment emotionPickerFragment;
     private TextInputEditText triggerEditText;
+
+    private Button addLocation;
     private AutoCompleteTextView situationAutoComplete;
     private TextInputEditText reasonEditText;
+
+    private Double currentLatitude = null;
+    private Double currentLongitude = null;
 
     private MoodEventFormSubmitCallback callback;
 
@@ -48,6 +53,8 @@ public class MoodEventForm extends Fragment {
         String trigger;
         String socialSituation;
         String reason;
+        Double lat;
+        Double lon;
 
         /**
          * Empty constructor which initializes everything to null.
@@ -63,6 +70,8 @@ public class MoodEventForm extends Fragment {
             trigger = moodEvent.getTrigger();
             socialSituation = moodEvent.getSocialSituation();
             reason = moodEvent.getReason();
+            lat = moodEvent.getLatitude();
+            lon = moodEvent.getLongitude();
         }
 
         /**
@@ -78,8 +87,8 @@ public class MoodEventForm extends Fragment {
                     socialSituation,
                     reason,
                     "", // photoUrl,
-                    0.0, // lat
-                    0.0 // lng
+                    lat,
+                    lon
             );
         }
     }
@@ -89,6 +98,12 @@ public class MoodEventForm extends Fragment {
         triggerEditText.setText(details.trigger);
         situationAutoComplete.setText(details.socialSituation);
         reasonEditText.setText(details.reason);
+        if (details.lat != null && details.lon != null) {
+            // Update UI to show location is set
+            // locationStatusTextView.setText("Location set: " + details.lat + ", " + details.lon);
+        } else {
+            // locationStatusTextView.setText("No location set");
+        }
     }
 
     private @Nullable MoodEventDetails validateFields() {
@@ -108,6 +123,9 @@ public class MoodEventForm extends Fragment {
             reasonEditText.setError("Reason must be less than 20 characters or 3 words");
             return null;
         }
+
+        details.lat = currentLatitude;
+        details.lon = currentLongitude;
 
         return details;
     }
@@ -148,5 +166,14 @@ public class MoodEventForm extends Fragment {
         triggerEditText = view.findViewById(R.id.emotion_trigger);
         situationAutoComplete = view.findViewById(R.id.emotion_situation);
         reasonEditText = view.findViewById(R.id.emotion_reason);
+
+        addLocation = view.findViewById(R.id.add_location_button);
+    }
+
+    @Override
+    public void onLocationUpdated(Double latitude, Double longitude) {
+        this.currentLatitude = latitude;
+        this.currentLongitude = longitude;
+        // Update UI if needed
     }
 }

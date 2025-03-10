@@ -6,10 +6,8 @@ package com.kernelcrew.moodapp.ui;
 
 import android.Manifest;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.location.Location;
 import android.location.LocationManager;
 import android.net.Uri;
 import android.os.Bundle;
@@ -21,7 +19,6 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.Toast;
 
-import androidx.activity.result.ActivityResultCallback;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
@@ -34,22 +31,6 @@ import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
 import com.kernelcrew.moodapp.R;
 
-/**
- * Fragment responsible for handling location functionality in the MoodApp.
- * <p>
- * This fragment provides functionality to request and handle location permissions,
- * retrieve current device location using the FusedLocationProviderClient, and
- * save mood events with or without location data depending on permission status.
- * <p>
- * The fragment handles different scenarios:
- * - Location permissions granted: retrieves location and saves mood with location
- * - Location permissions denied: saves mood without location data
- * - Location services disabled: alerts user and saves mood without location
- *
- * @author OpenAI, ChatGPT (base implementation)
- * @author Anthropic, Claude 3.7 Sonnet (enhancements and fixes)
- * @version 1.0
- */
 public class LocationFragment extends Fragment {
     /**
      * Main client for interacting with the fused location provider.
@@ -82,6 +63,11 @@ public class LocationFragment extends Fragment {
     private ActivityResultLauncher<String> requestPermissionLauncher;
 
     /**
+     * Listener for location updates.
+     */
+    private LocationUpdateListener updateListener;
+
+    /**
      * Creates the fragment view and initializes location services.
      * Sets up the location button and location client.
      *
@@ -106,7 +92,7 @@ public class LocationFragment extends Fragment {
         }
 
         // Find the button in the layout
-        requestLocationButton = view.findViewById(R.id.request_location_button);
+        requestLocationButton = view.findViewById(R.id.add_location_button);
 
         // Code from Claude AI, Anthropic, "Fix permission dialog not appearing", accessed 03-07-2024
         // Set up the button click listener to start the location request process
@@ -285,6 +271,11 @@ public class LocationFragment extends Fragment {
                             latitude = location.getLatitude();
                             longitude = location.getLongitude();
 
+                            // Notify listener about the location update
+                            if (updateListener != null) {
+                                updateListener.onLocationUpdated(latitude, longitude);
+                            }
+
                             // Save the mood event with location
                             saveMoodEventWithLocation(latitude, longitude);
 
@@ -359,4 +350,19 @@ public class LocationFragment extends Fragment {
     public Double getLongitude() {
         return longitude;
     }
+
+    /**
+     * Sets the location update listener.
+     *
+     * @param listener The location update listener to set
+     */
+    public void setLocationUpdateListener(LocationUpdateListener listener) {
+        this.updateListener = listener;
+    }
+
+    /**
+     * Listener for location updates.
+     */
+
 }
+

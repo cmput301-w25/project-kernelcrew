@@ -47,6 +47,7 @@ dependencies {
     implementation libs.navigation.common
     implementation libs.navigation.fragment
     implementation(platform(libs.firebase.bom))
+    implementation libs.play.services.location.v2101  // Use the latest version
 
     testImplementation libs.hamcrest
     testImplementation libs.junit
