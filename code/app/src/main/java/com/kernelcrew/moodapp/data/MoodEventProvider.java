@@ -100,4 +100,15 @@ public class MoodEventProvider {
     public void addSnapshotListener(@NonNull EventListener<QuerySnapshot> listener) {
         collection.addSnapshotListener(listener);
     }
+
+    /**
+     * Returns the Firestore CollectionReference for filtering purposes.
+     * This reference can be then in filtering to build queries or perform Firestore operations,
+     * like adding snapshot listeners or inserting and updating documents.
+     *
+     * @return the CollectionReference instance for the mood events.
+     */
+    public CollectionReference getCollectionReference() {
+        return collection;
+    }
 }
