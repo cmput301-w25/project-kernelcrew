@@ -84,7 +84,7 @@ public class MoodDetails extends Fragment {
                 Bundle args = new Bundle();
                 args.putString("uid", userId);
                 NavHostFragment.findNavController(this)
-                        .navigate(R.id.action_moodDetails_to_myProfile, args);
+                        .navigate(R.id.myProfile, args);
             } else {
                 Toast.makeText(requireContext(), "User information unavailable.", Toast.LENGTH_SHORT).show();
             }
@@ -93,12 +93,10 @@ public class MoodDetails extends Fragment {
         // Fetch mood details from Firestore
         fetchMoodDetails(moodEventId);
 
-        // TODO: Implement navigation to EditMood screen when ready
         btnEditMood.setOnClickListener(v -> {
             Bundle args = new Bundle();
             args.putString("moodEventId", moodEventId);
-            // TODO: Pass any additional fields if needed
-            // NavHostFragment.findNavController(this).navigate(R.id.action_moodDetails_to_editMood, args);
+            NavHostFragment.findNavController(this).navigate(R.id.editMoodEvent, args);
         });
 
         return view;

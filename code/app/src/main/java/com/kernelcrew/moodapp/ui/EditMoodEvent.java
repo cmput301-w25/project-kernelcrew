@@ -1,6 +1,11 @@
 package com.kernelcrew.moodapp.ui;
 
 import android.os.Bundle;
+import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -9,12 +14,6 @@ import androidx.fragment.app.FragmentContainerView;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 
-import android.util.Log;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.Toast;
-
 import com.google.android.material.navigation.NavigationBarView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -22,7 +21,9 @@ import com.kernelcrew.moodapp.R;
 import com.kernelcrew.moodapp.data.MoodEvent;
 import com.kernelcrew.moodapp.data.MoodEventProvider;
 
-public class CreateMoodEvent extends Fragment {
+public class EditMoodEvent extends Fragment {
+    private String moodEventId;
+
     private NavController navController;
     private BottomNavBarController navBarController;
 
@@ -31,13 +32,14 @@ public class CreateMoodEvent extends Fragment {
 
     private void handleSubmit(MoodEventForm.MoodEventDetails details) {
         MoodEvent moodEvent = details.toMoodEvent(currentUser.getUid());
-        provider.insertMoodEvent(moodEvent)
+        moodEvent.setId(moodEventId);
+        provider.updateMoodEvent(moodEventId, moodEvent)
                 .addOnSuccessListener(_result -> {
-                    navController.navigate(R.id.homeFeed);
+                    navController.popBackStack();
                 })
                 .addOnFailureListener(error -> {
                     Toast.makeText(getContext(), error.getMessage(), Toast.LENGTH_LONG).show();
-                    Log.e("CreateMoodEvent", error.toString());
+                    Log.e("EditMoodEvent", error.toString());
                 });
     }
 
@@ -47,7 +49,7 @@ public class CreateMoodEvent extends Fragment {
         View view = inflater.inflate(R.layout.fragment_create_mood_event, container, false);
 
         NavigationBarView navigationBarView = view.findViewById(R.id.bottom_navigation);
-        navigationBarView.setSelectedItemId(R.id.page_createMoodEvent);
+        navigationBarView.setSelected(false);
         navBarController = new BottomNavBarController(navigationBarView);
 
         return view;
@@ -67,8 +69,14 @@ public class CreateMoodEvent extends Fragment {
 
         form.onSubmit(this::handleSubmit);
 
+        moodEventId = getArguments().getString("moodEventId");
+
         provider = MoodEventProvider.getInstance();
         currentUser = FirebaseAuth.getInstance().getCurrentUser();
         assert currentUser != null;
+
+        provider.getMoodEvent(moodEventId)
+                .addOnSuccessListener(moodEvent ->
+                    form.bind(new MoodEventForm.MoodEventDetails(moodEvent)));
     }
 }

@@ -71,6 +71,22 @@
         <action
             android:id="@+id/action_moodDetails_to_myProfile"
             app:destination="@id/myProfile" />
+        <action
+            android:id="@+id/action_moodDetails_to_editMood"
+            app:destination="@id/editMood" />
+        <action
+            android:id="@+id/action_moodDetails_to_myProfile"
+            app:destination="@id/myProfile" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/editMood"
+        android:name="com.kernelcrew.moodapp.ui.EditMood"
+        android:label="Edit Mood"
+        tools:layout="@layout/fragment_edit_mood">
+        <argument
+            android:name="moodEventId"
+            app:argType="string" />
     </fragment>
 
     <fragment
@@ -112,6 +128,12 @@
         tools:layout="@layout/fragment_create_mood_event" />
 
     <fragment
+        android:id="@+id/editMoodEvent"
+        android:name="com.kernelcrew.moodapp.ui.EditMoodEvent"
+        android:label="fragment_edit_mood_event"
+        tools:layout="@layout/fragment_edit_mood_event" />
+
+    <fragment
         android:id="@+id/moodHistory"
         android:name="com.kernelcrew.moodapp.ui.MoodHistory"
         android:label="fragment_mood_history"
@@ -144,5 +166,4 @@
     <action
         android:id="@+id/action_followingFragment_to_requestFragment"
         app:destination="@id/requestFragment" />
-
 </navigation>

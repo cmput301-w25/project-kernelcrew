@@ -1,5 +1,7 @@
 package com.kernelcrew.moodapp.data;
 
+import android.util.Log;
+
 import androidx.annotation.NonNull;
 
 import com.google.android.gms.tasks.Task;
@@ -51,6 +53,26 @@ public class MoodEventProvider {
 
         // Ensure the MoodEvent has the correct userId
         moodEvent.setUid(user.getUid());
+
+        return collection.document(moodEvent.getId()).set(moodEvent);
+    }
+
+    /**
+     * Update an existing mood event in DB.
+     * @param moodId ID of mood event to update
+     * @param moodEvent Mood event details to update with
+     * @return Update task
+     */
+    public Task<Void> updateMoodEvent(String moodId, MoodEvent moodEvent) {
+        if (moodId == null) {
+            throw new IllegalArgumentException("moodID cannot be null");
+        }
+        if (moodEvent == null) {
+            throw new IllegalArgumentException("moodEvent cannot be null");
+        }
+        if (!moodId.equals(moodEvent.getId())) {
+            throw new IllegalArgumentException("moodEvent.getId() must equal moodId");
+        }
 
         return collection.document(moodEvent.getId()).set(moodEvent);
     }
