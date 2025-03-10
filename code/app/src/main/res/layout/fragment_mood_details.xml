@@ -51,7 +51,7 @@
 
                 <TextView
                     android:id="@+id/tvMoodState"
-                    android:layout_width="0dp"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:text="Happy"
@@ -64,13 +64,32 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="16dp"
-                    android:text="Edit Mood"
-                    android:textColor="@android:color/white"
+                    android:layout_weight="1"
                     android:backgroundTint="@color/button_purple"
+                    android:text="Edit"
+                    android:textColor="@android:color/white"
                     app:cornerRadius="999dp" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnDeleteMood"
+                    style="@style/Widget.MaterialComponents.Button"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="16dp"
+                    android:backgroundTint="@color/button_purple"
+                    android:text="Delete"
+                    android:textColor="@android:color/white"
+                    app:cornerRadius="999dp" />
+
             </LinearLayout>
 
             <!-- Divider -->
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="horizontal"></LinearLayout>
+
             <View
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
