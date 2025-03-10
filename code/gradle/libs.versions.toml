@@ -25,6 +25,7 @@ navigationCommon = "2.8.8"
 rules = "1.6.1"
 runner = "1.6.2"
 uiautomator = "2.3.0"
+playServicesLocation = "21.3.0"
 
 [libraries]
 activity = { group = "androidx.activity", name = "activity", version.ref = "activity" }
@@ -55,6 +56,7 @@ mockito-inline = { module = "org.mockito:mockito-inline", version.ref = "mockito
 navigation-common = { module = "androidx.navigation:navigation-common", version.ref = "navigationCommon" }
 navigation-fragment = { module = "androidx.navigation:navigation-fragment", version.ref = "navigationCommon" }
 rules = { module = "androidx.test:rules", version.ref = "rules" }
+play-services-location = { group = "com.google.android.gms", name = "play-services-location", version.ref = "playServicesLocation" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

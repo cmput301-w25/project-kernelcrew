@@ -1,11 +1,11 @@
-arguments=--init-script /var/folders/4_/1yfywhw94dq87zfqspchzysr0000gn/T/db3b08fc4a9ef609cb16b96b200fa13e563f396e9bb1ed0905fdab7bc3bc513b.gradle --init-script /var/folders/4_/1yfywhw94dq87zfqspchzysr0000gn/T/52cde0cfcf3e28b8b7510e992210d9614505e0911af0c190bd590d7158574963.gradle
-auto.sync=false
+arguments=--init-script /var/folders/jv/_4ml9_nx5j5c9mv0w74qcn100000gn/T/db3b08fc4a9ef609cb16b96b200fa13e563f396e9bb1ed0905fdab7bc3bc513b.gradle --init-script /var/folders/jv/_4ml9_nx5j5c9mv0w74qcn100000gn/T/52cde0cfcf3e28b8b7510e992210d9614505e0911af0c190bd590d7158574963.gradle
+auto.sync=true
 build.scans.enabled=false
 connection.gradle.distribution=GRADLE_DISTRIBUTION(WRAPPER)
 connection.project.dir=
 eclipse.preferences.version=1
 gradle.user.home=
-java.home=/Users/tahakamil/.vscode/extensions/redhat.java-1.39.0-darwin-arm64/jre/21.0.5-macosx-aarch64
+java.home=/Library/Java/JavaVirtualMachines/jdk-17.jdk/Contents/Home
 jvm.arguments=
 offline.mode=false
 override.workspace.settings=true
