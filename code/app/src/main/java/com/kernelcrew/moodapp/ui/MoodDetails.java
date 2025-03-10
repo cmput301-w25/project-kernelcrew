@@ -2,6 +2,7 @@ package com.kernelcrew.moodapp.ui;
 
 import static com.kernelcrew.moodapp.ui.MoodIconUtil.getMoodIconResource;
 
+import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -135,12 +136,9 @@ public class MoodDetails extends Fragment {
         int moodImageRes = getMoodIconResource(moodEvent.getEmotion().toString());
         imageMoodIcon.setImageResource(moodImageRes);
 
-        // Load photo with Glide if a URL is available
-        String photoUrl = moodEvent.getPhotoUrl();
-        if (photoUrl != null && !photoUrl.isEmpty()) {
-            Glide.with(requireContext())
-                    .load(photoUrl)
-                    .into(ivMoodPhoto);
+        Bitmap photo = moodEvent.getPhoto();
+        if (photo != null) {
+            ivMoodPhoto.setImageBitmap(photo);
         }
     }
 

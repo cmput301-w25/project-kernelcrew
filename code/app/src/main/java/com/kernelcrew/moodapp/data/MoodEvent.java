@@ -1,7 +1,20 @@
 package com.kernelcrew.moodapp.data;
 
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.net.Uri;
+import android.util.Log;
+
+import androidx.annotation.Nullable;
+
+import com.google.firebase.firestore.Exclude;
+import com.kernelcrew.moodapp.utils.PhotoUtils;
+
+import java.io.ByteArrayOutputStream;
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.UUID;
 
 /**
@@ -15,18 +28,21 @@ public class MoodEvent implements Serializable {
     private String trigger;
     private String socialSituation;
     private String reason;
-    private String photoUrl;
+    private Bitmap photo;
     private Double latitude;
     private Double longitude;
 
-    // Empty constructor for Firestore deserialization
+    /**
+     * Empty constructor for Firestore deserialization. Do not use.
+     */
     public MoodEvent() { }
 
     /**
      * Constructor for a new MoodEvent with additional details.
+     * Will assign this mood event a new random id.
      */
     public MoodEvent(String uid, Emotion emotion, String trigger, String socialSituation,
-                     String reason, String photoUrl, Double latitude, Double longitude) {
+                     String reason, String _photoUrl, Double latitude, Double longitude) {
         this.id = UUID.randomUUID().toString();
         this.uid = uid;
         this.created = new Date();
@@ -34,12 +50,10 @@ public class MoodEvent implements Serializable {
         this.trigger = trigger;
         this.socialSituation = socialSituation;
         this.reason = reason;
-        this.photoUrl = photoUrl;
         this.latitude = latitude;
         this.longitude = longitude;
     }
 
-    // Getters and setters
     public String getId() {
         return id;
     }
@@ -94,11 +108,40 @@ public class MoodEvent implements Serializable {
         this.reason = reason;
     }
 
-    public String getPhotoUrl() {
-        return photoUrl;
+    @Exclude // Don't serialize the Bitmap into firestore
+    public Bitmap getPhoto() {
+        return photo;
     }
-    public void setPhotoUrl(String photoUrl) {
-        this.photoUrl = photoUrl;
+    public void setPhoto(Bitmap photo) {
+        this.photo = photo;
+    }
+
+    /**
+     * PNG encode the photo as a list of bytes (each an int so that it is serializable by
+     * Firestore.)
+     * @return PNG encoded photo or null
+     */
+    @Nullable
+    public List<Integer> getPhotoBytes() {
+        if (photo == null) {
+            return null;
+        }
+
+        return PhotoUtils.compressPhoto(photo);
+    }
+
+    /**
+     * Set the photo associated with this mood event.
+     * The photo bytes must be PNG encoded as a list of bytes (store as integers in Firestore).
+     * @param byteList List of bytes encoding the PNG photo
+     */
+    public void setPhotoBytes(@Nullable List<Integer> byteList) {
+        if (byteList == null) {
+            photo = null;
+            return;
+        }
+
+        photo = PhotoUtils.decodePhoto(byteList);
     }
 
     public Double getLatitude() {
