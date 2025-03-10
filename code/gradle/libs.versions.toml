@@ -33,6 +33,7 @@ protobufJavalite = "3.21.12"
 protobufJavaliteVersion = "3.25.1"
 rules = "1.6.1"
 uiautomator = "2.3.0"
+espressoRemote = "3.6.1"
 
 [libraries]
 androidx-espresso-intents = { module = "androidx.test.espresso:espresso-intents", version.ref = "espressoContrib" }
@@ -72,6 +73,7 @@ protobuf-javalite-v3180 = { module = "com.google.protobuf:protobuf-javalite", ve
 protobuf-javalite-v32112 = { module = "com.google.protobuf:protobuf-javalite", version.ref = "protobufJavalite" }
 rules = { module = "androidx.test:rules", version.ref = "rules" }
 google-firebase-firestore = { group = "com.google.firebase", name = "firebase-firestore", version.ref = "firebaseFirestore" }
+androidx-espresso-remote = { group = "androidx.test.espresso", name = "espresso-remote", version.ref = "espressoRemote" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

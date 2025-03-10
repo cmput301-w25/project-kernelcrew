@@ -55,6 +55,9 @@ dependencies {
     implementation(platform(libs.firebase.bom))
 //    implementation libs.recyclerview
 //    implementation libs.play.services
+    implementation 'de.ohmesoftware:classestoplantuml:0.0.3-SNAPSHOT'
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+    implementation libs.androidx.espresso.remote
 
     annotationProcessor libs.glide.compiler
     annotationProcessor libs.glide.compiler
