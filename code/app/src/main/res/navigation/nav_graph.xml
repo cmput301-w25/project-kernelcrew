@@ -69,9 +69,6 @@
             app:argType="string"
             android:defaultValue="home" />
         <action
-            android:id="@+id/action_moodDetails_to_myProfile"
-            app:destination="@id/myProfile" />
-        <action
             android:id="@+id/action_moodDetails_to_editMood"
             app:destination="@id/editMood" />
         <action
