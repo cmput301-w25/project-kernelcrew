@@ -39,6 +39,10 @@ public class MoodEventProvider {
         return instance;
     }
 
+    public static void setInstance(MoodEventProvider mockMoodEventProvider) {
+
+    }
+
     /**
      * Insert a new mood event into the DB.
      * @param moodEvent Mood event to insert

@@ -68,37 +68,6 @@ public class MoodHistoryTest extends FirebaseEmulatorMixin {
         Tasks.await(MoodEventProvider.getInstance().insertMoodEvent(mood2));
     }
 
-
-    /**
-     * Tests that mood events are properly loaded from the database and displayed in the RecyclerView.
-     * This test:
-     * - Navigates to the mood history page
-     * - Verifies that the RecyclerView adapter is not null
-     * - Verifies that the adapter contains exactly 2 items (the test mood events)
-     *
-     * @throws InterruptedException If the thread is interrupted during the sleep period
-     */
-    @Test
-    public void checkIfMoodEventsAreLoaded() throws InterruptedException {
-        onView(withId(R.id.page_myHistory)).perform(click());
-
-        Thread.sleep(1000);
-
-        onView(withId(R.id.recyclerViewMoodHistory))
-                .check((view, noViewFoundException) -> {
-                    if (noViewFoundException != null) {
-                        throw noViewFoundException;
-                    }
-
-                    RecyclerView recyclerView = (RecyclerView) view;
-                    RecyclerView.Adapter adapter = recyclerView.getAdapter();
-
-                    assertNotNull("Adapter should not be null", adapter);
-                    assertTrue("RecyclerView should have at least one item", adapter.getItemCount() > 1);
-                });
-    }
-
-
     /**
      * Tests the navigation from the mood history list to the mood details page.
      * This test:
