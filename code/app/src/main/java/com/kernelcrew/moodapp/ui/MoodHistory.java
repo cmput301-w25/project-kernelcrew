@@ -16,7 +16,6 @@ import com.google.android.material.appbar.MaterialToolbar;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.kernelcrew.moodapp.R;
 import com.kernelcrew.moodapp.data.MoodEvent;
-import com.kernelcrew.moodapp.data.MoodEventController;
 import com.kernelcrew.moodapp.data.MoodEventProvider;
 
 import java.util.ArrayList;
