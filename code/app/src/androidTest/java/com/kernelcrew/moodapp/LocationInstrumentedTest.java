@@ -42,7 +42,7 @@ import java.util.concurrent.TimeUnit;
  * 
  * This class tests the UI elements and user interactions of the LocationFragment.
  * 
- * @author Claude AI, Anthropic, "Generate comprehensive UI tests for LocationFragment", accessed 07-03-2024
+ * @author Claude AI, Anthropic, "Generate comprehensive UI tests for LocationFragment", accessed 10-03-2025
  */
 @RunWith(AndroidJUnit4.class)
 public class LocationInstrumentedTest extends FirebaseEmulatorMixin {
