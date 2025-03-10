@@ -100,4 +100,12 @@ public class MoodEventProvider {
     public void addSnapshotListener(@NonNull EventListener<QuerySnapshot> listener) {
         collection.addSnapshotListener(listener);
     }
+
+    /**
+     * Get a collection of mood events from the DB.
+     * @return A collection of mood events
+     */
+    public Task<QuerySnapshot> getMoodEvents(){
+        return collection.get();
+    }
 }

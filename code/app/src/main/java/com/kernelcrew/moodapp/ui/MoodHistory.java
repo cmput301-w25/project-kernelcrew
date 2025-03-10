@@ -16,7 +16,6 @@ import com.google.android.material.appbar.MaterialToolbar;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.kernelcrew.moodapp.R;
 import com.kernelcrew.moodapp.data.MoodEvent;
-import com.kernelcrew.moodapp.data.MoodEventController;
 import com.kernelcrew.moodapp.data.MoodEventProvider;
 
 import java.util.ArrayList;
@@ -78,7 +77,7 @@ public class MoodHistory extends Fragment implements MoodHistoryAdapter.OnItemCl
      * </p>
      */
     private void fetchMoodEvents() {
-        MoodEventController.getInstance().getMoodEvents().addOnCompleteListener(task -> {
+        MoodEventProvider.getInstance().getMoodEvents().addOnCompleteListener(task -> {
             if (task.isSuccessful()) {
 
                 // Listen for changes in the "moods" collection
