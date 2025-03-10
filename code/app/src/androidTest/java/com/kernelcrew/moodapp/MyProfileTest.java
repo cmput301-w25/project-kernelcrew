@@ -91,7 +91,7 @@ public class MyProfileTest extends FirebaseEmulatorMixin {
 
 
     @Test
-    public void testProfilePageLoadsAndSignOutWorks() {
+    public void testProfilePageLoadsAndSignOutWorks() throws InterruptedException {
         // --- Sign In Flow ---
         FirebaseAuth.getInstance().signOut();
 
@@ -113,6 +113,7 @@ public class MyProfileTest extends FirebaseEmulatorMixin {
         Espresso.onView(ViewMatchers.withId(R.id.signInButtonAuthToHome))
                 .perform(ViewActions.click());
 
+        Thread.sleep(1000);
         // --- Verify HomeFeed is loaded ---
         onView(withId(R.id.homeTextView)).check(matches(isDisplayed()));
 
