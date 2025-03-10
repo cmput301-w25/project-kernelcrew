@@ -109,7 +109,7 @@ public class CreateMoodEvent extends Fragment {
         assert locationFragment != null;
 
         // Set the location update listener
-        locationFragment.setListener(form);
+        locationFragment.setUpdateListener(form);
 
         // Callback for form submission
         form.onSubmit(this::handleSubmit);
