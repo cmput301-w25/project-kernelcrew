@@ -15,6 +15,13 @@ android {
         versionName "1.0"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        
+        // Add VM argument for ByteBuddy experimental support for Java 21
+        testOptions {
+            unitTests.all {
+                jvmArgs '-Dnet.bytebuddy.experimental=true'
+            }
+        }
     }
 
     buildTypes {
@@ -39,7 +46,6 @@ android {
         exclude 'META-INF/LICENSE-notice.md'
     }
 }
-
 
 dependencies {
     implementation libs.play.services.location
