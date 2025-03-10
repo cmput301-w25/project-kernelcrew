@@ -6,7 +6,9 @@ import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.Query;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 public class MoodEventFilter {
@@ -67,6 +69,10 @@ public class MoodEventFilter {
      * @return Current instance.
      */
     public MoodEventFilter setDateRange(@Nullable Date startDate, @Nullable Date endDate) {
+        if (startDate != null && endDate != null && startDate.after(endDate)) {
+            throw new IllegalArgumentException("Start date must not be after end date.");
+        }
+
         this.startDate = startDate;
         this.endDate = endDate;
         return this;
@@ -81,6 +87,12 @@ public class MoodEventFilter {
      * @return Current instance.
      */
     public MoodEventFilter setSortField(String field, Query.Direction direction) {
+        if (field == null || field.isBlank()) {
+            throw new IllegalArgumentException("Sort field must be a non-empty string.");
+        }
+        if (direction == null) {
+            throw new IllegalArgumentException("Sort direction must not be null.");
+        }
         this.sortField = field;
         this.sortDirection = direction;
         return this;
@@ -105,32 +117,54 @@ public class MoodEventFilter {
      * @return A query with applied filtering and sorting.
      */
     public Query buildQuery() {
-        Query query = collectionReference;
+        Query chainQuery = null;
+        boolean anyChainable = false;
 
         if (emotions != null && !emotions.isEmpty()) {
-            List<String> emotionStrings = new ArrayList<>();
-            for (Emotion emotion : emotions) {
-                emotionStrings.add(emotion.name());
+            List<String> uniqueEmotions = new ArrayList<>();
+            for (Emotion e : emotions) {
+                String name = e.name();
+                if (!uniqueEmotions.contains(name)) {
+                    uniqueEmotions.add(name);
+                }
             }
-            query = query.whereIn("emotion", emotionStrings);
-        }
-
-        if (userId != null) {
-            query = query.whereEqualTo("uid", userId);
+            chainQuery = collectionReference.whereIn("emotion", uniqueEmotions);
+            anyChainable = true;
         }
 
         if (startDate != null) {
-            query = query.whereGreaterThanOrEqualTo("created", startDate);
+            if (chainQuery == null) {
+                chainQuery = collectionReference.whereIn("dummy", new ArrayList<>());
+                anyChainable = true;
+            }
+            chainQuery = chainQuery.whereGreaterThanOrEqualTo("created", startDate);
         }
 
         if (endDate != null) {
-            query = query.whereLessThanOrEqualTo("created", endDate);
+            if (chainQuery == null) {
+                chainQuery = collectionReference.whereIn("dummy", new ArrayList<>());
+                anyChainable = true;
+            }
+            chainQuery = chainQuery.whereLessThanOrEqualTo("created", endDate);
         }
 
         if (sortField != null) {
-            query = query.orderBy(sortField, sortDirection);
+            if (chainQuery == null) {
+                chainQuery = collectionReference.whereIn("dummy", new ArrayList<>());
+                anyChainable = true;
+            }
+            chainQuery = chainQuery.orderBy(sortField, sortDirection);
         }
-        return query;
+
+        if (userId != null) {
+            if (anyChainable) {
+                collectionReference.whereEqualTo("uid", userId);
+            } else {
+                chainQuery = collectionReference.whereEqualTo("uid", userId);
+            }
+        }
+
+        return (chainQuery == null) ? collectionReference : chainQuery;
     }
 }
 
