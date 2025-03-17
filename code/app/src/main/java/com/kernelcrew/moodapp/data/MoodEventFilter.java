@@ -9,6 +9,9 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 
+/**
+ * A class for filtering mood events in Firestore queries.
+ */
 public class MoodEventFilter {
     private final CollectionReference collectionReference;
     private final Set<Emotion> emotions = new HashSet<>();
@@ -24,6 +27,8 @@ public class MoodEventFilter {
     /**
      * Constructor accepting a CollectionReference directly.
      * This is useful if you have the Firestore collection from your provider.
+     *
+     * @param collectionReference The Firestore collection reference for mood events.
      */
     public MoodEventFilter(CollectionReference collectionReference) {
         this.collectionReference = collectionReference;
@@ -31,7 +36,9 @@ public class MoodEventFilter {
 
     /**
      * Constructor accepting a MoodEventProvider.
-     * This uses the provider's underlying collection reference.
+     * Uses the provider's underlying collection reference.
+     *
+     * @param provider The MoodEventProvider instance to get the collection reference.
      */
     public MoodEventFilter(MoodEventProvider provider) {
         this.collectionReference = provider.getCollectionReference();
@@ -51,7 +58,7 @@ public class MoodEventFilter {
     /**
      * Add multiple emotions.
      *
-     * @param emotions The list of emotions to filter by.
+     * @param emotions The set of emotions to filter by.
      * @return Current instance.
      */
     public MoodEventFilter addEmotions(Set<Emotion> emotions) {
@@ -59,12 +66,26 @@ public class MoodEventFilter {
         return this;
     }
 
+    /**
+     * Sets the emotions filter, replacing any previously set emotions.
+     *
+     * @param emotions The new set of emotions.
+     * @return The current instance of MoodEventFilter.
+     */
     public MoodEventFilter setEmotions(Set<Emotion> emotions) {
         this.emotions.clear();
         this.emotions.addAll(emotions);
         return this;
     }
 
+    /**
+     * Sets a location filter for mood events.
+     *
+     * @param latitude  The latitude coordinate.
+     * @param longitude The longitude coordinate.
+     * @param radius    The radius in kilometers.
+     * @return The current instance of MoodEventFilter.
+     */
     public MoodEventFilter setLocation(Double latitude, Double longitude, double radius) {
         if (latitude == null || longitude == null || radius <= 0) {
             // Clear location filter if parameters are invalid
@@ -129,33 +150,25 @@ public class MoodEventFilter {
         return this;
     }
 
+    /**
+     * Counts the number of filters applied.
+     *
+     * @return The number of active filters.
+     */
     public int count() {
         int c = 0;
-
-        if (userId != null)
-            ++c;
-
-        if (!emotions.isEmpty())
-            ++c;
-
-        if (startDate != null || endDate != null)
-            ++c;
-
-        if (sortField != null)
-            ++c;
-
-        if (longitude != null || latitude != null || radius != null)
-            ++c;
-
+        if (userId != null) c++;
+        if (!emotions.isEmpty()) c++;
+        if (startDate != null || endDate != null) c++;
+        if (sortField != null) c++;
+        if (longitude != null || latitude != null || radius != null) c++;
         return c;
     }
 
     /**
      * Clears all applied filters.
-     *
-     * @return Current instance.
      */
-    public MoodEventFilter clearFilters() {
+    public void clearFilters() {
         userId = null;
         emotions.clear();
         startDate = null;
@@ -165,7 +178,6 @@ public class MoodEventFilter {
         latitude = null;
         longitude = null;
         radius = null;
-        return this;
     }
 
     /**
@@ -229,9 +241,8 @@ public class MoodEventFilter {
         if (latitude != null && longitude != null && radius != null) {
             // Taha used the following resources,
             // https://en.wikipedia.org/wiki/Great-circle_distance
-            // https://stackoverflow.com/questions/27928/calculate-distance-between-two-latitude-longitude-points-haversine-formula
-            // https://stackoverflow.com/questions/15372705/calculating-a-radius-with-longitude-and-latitude
-            // Calculate bounding box for the given center and radius.
+            // https://www.movable-type.co.uk/scripts/latlong.html
+
             double earthRadius = 6371.0;
             double latDelta = Math.toDegrees(radius / earthRadius);
             double lonDelta = Math.toDegrees(radius / (earthRadius * Math.cos(Math.toRadians(latitude))));
