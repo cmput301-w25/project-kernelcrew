@@ -6,6 +6,7 @@ import static androidx.test.espresso.action.ViewActions.closeSoftKeyboard;
 import static androidx.test.espresso.action.ViewActions.replaceText;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
 import static androidx.test.espresso.contrib.RecyclerViewActions.actionOnItemAtPosition;
+import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
 
@@ -17,11 +18,14 @@ import androidx.test.ext.junit.rules.ActivityScenarioRule;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.gms.tasks.Tasks;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.WriteBatch;
 import com.kernelcrew.moodapp.data.Emotion;
 import com.kernelcrew.moodapp.data.MoodEvent;
 import com.kernelcrew.moodapp.data.MoodEventProvider;
 import com.kernelcrew.moodapp.ui.MainActivity;
+import org.hamcrest.Matchers;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -68,16 +72,24 @@ public class OtherProfilePageNavigationTest extends FirebaseEmulatorMixin {
         Tasks.await(auth.signInWithEmailAndPassword(USER_EMAIL, USER_PASSWORD));
 
         // Get the current user's UID.
-        String uid = Objects.requireNonNull(auth.getCurrentUser()).getUid();
+        String uid = auth.getCurrentUser().getUid();
+
+        // Generate a unique username (to pass the uniqueness rule).
+        String uniqueUsername = EXPECTED_USERNAME + System.currentTimeMillis();
 
         // Seed a user document in the "users" collection.
         Map<String, Object> userData = new HashMap<>();
         userData.put("uid", uid);
         userData.put("email", USER_EMAIL);
-        userData.put("username", EXPECTED_USERNAME);
+        userData.put("username", uniqueUsername);
         Tasks.await(db.collection("users").document(uid).set(userData));
 
-        // Seed a MoodEvent document.
+        // Seed the corresponding username document in the "usernames" collection.
+        Map<String, Object> usernameData = new HashMap<>();
+        usernameData.put("uid", uid);
+        Tasks.await(db.collection("usernames").document(uniqueUsername).set(usernameData));
+
+        // Seed a MoodEvent document with the same UID.
         MoodEvent testEvent = new MoodEvent(
                 uid,
                 DATA_EMOTION,
@@ -100,8 +112,6 @@ public class OtherProfilePageNavigationTest extends FirebaseEmulatorMixin {
 
     @Test
     public void testViewOtherProfilePageNavigationFromMoodDetails() throws InterruptedException, ExecutionException {
-        seedDatabase();
-
         // Sign in
         onView(withText("Sign In")).perform(click());
         onView(withId(R.id.emailSignIn))
@@ -111,27 +121,31 @@ public class OtherProfilePageNavigationTest extends FirebaseEmulatorMixin {
         onView(withId(R.id.signInButtonAuthToHome))
                 .perform(click());
 
-        // Wait for HomeFeed to load data
-        SystemClock.sleep(1000);
+        // Wait for HomeFeed to load data.
+        SystemClock.sleep(3000);
 
+        // Click on the first mood item's "View Details" button.
         onView(withId(R.id.moodRecyclerView))
                 .perform(actionOnItemAtPosition(0, clickChildViewWithId(R.id.viewDetailsButton)));
 
-        // Wait for the MoodDetails screen to load
-        SystemClock.sleep(1000);
+        // Wait for the MoodDetails screen to load.
+        SystemClock.sleep(3000);
 
-        // Scroll the NestedScrollView to the bottom
+        // Scroll the NestedScrollView to the bottom.
         onView(withId(R.id.nestedScrollView))
                 .perform(scrollNestedScrollViewToBottom());
 
+        // Click the "View Profile" button.
         onView(withId(R.id.btnViewProfile))
                 .perform(click());
 
-        // Wait for the OtherUserProfile screen to load
-        SystemClock.sleep(1000);
+        // Wait for the OtherUserProfile screen to load.
+        SystemClock.sleep(3000);
 
-        // Verify that the OtherUserProfile screen displays the expected username and email.
-        onView(withId(R.id.username_text)).check(matches(withText(EXPECTED_USERNAME)));
+        // Verify that the OtherUserProfile screen displays the expected username (contains "testUser")
+        // and that the email matches.
+        onView(withId(R.id.username_text))
+                .check(matches(withText(Matchers.containsString(EXPECTED_USERNAME))));
         onView(withId(R.id.email_text)).check(matches(withText(USER_EMAIL)));
     }
 
