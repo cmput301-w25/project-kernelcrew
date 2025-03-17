@@ -49,6 +49,6 @@ public class HomeFeedNavigationTest extends FirebaseEmulatorMixin {
 
         onView(withId(R.id.signInButtonAuthToHome)).perform(click());
         await().atMost(10, TimeUnit.SECONDS)
-                .untilAsserted(() -> onView(withId(R.id.homeTextView)).check(matches(isDisplayed())));
+                .untilAsserted(() -> onView(withId(R.id.filterBarFragment)).check(matches(isDisplayed())));
     }
 }
