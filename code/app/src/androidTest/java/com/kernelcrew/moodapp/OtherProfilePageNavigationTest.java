@@ -9,7 +9,6 @@ import static androidx.test.espresso.contrib.RecyclerViewActions.actionOnItemAtP
 import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
-
 import static com.kernelcrew.moodapp.MoodDetailsNavigationTest.clickChildViewWithId;
 import static com.kernelcrew.moodapp.MoodDetailsNavigationTest.scrollNestedScrollViewToBottom;
 
@@ -18,9 +17,8 @@ import androidx.test.ext.junit.rules.ActivityScenarioRule;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.gms.tasks.Tasks;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.WriteBatch;
+import com.google.firebase.firestore.SetOptions;
 import com.kernelcrew.moodapp.data.Emotion;
 import com.kernelcrew.moodapp.data.MoodEvent;
 import com.kernelcrew.moodapp.data.MoodEventProvider;
@@ -34,7 +32,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Objects;
 import java.util.concurrent.ExecutionException;
 
 @RunWith(AndroidJUnit4.class)
@@ -68,26 +65,39 @@ public class OtherProfilePageNavigationTest extends FirebaseEmulatorMixin {
             }
         }
 
-        // Sign in so Firestore security rules allow write operations.
+        // Sign in so that Firestore security rules allow write operations.
         Tasks.await(auth.signInWithEmailAndPassword(USER_EMAIL, USER_PASSWORD));
 
         // Get the current user's UID.
         String uid = auth.getCurrentUser().getUid();
 
-        // Generate a unique username (to pass the uniqueness rule).
-        String uniqueUsername = EXPECTED_USERNAME + System.currentTimeMillis();
+        // Use a fixed username for testing.
+        String fixedUsername = EXPECTED_USERNAME;
 
-        // Seed a user document in the "users" collection.
+        // Clean up any preexisting documents for this test user and username.
+        try {
+            Tasks.await(db.collection("users").document(uid).delete());
+        } catch (Exception ignored) { }
+        try {
+            Tasks.await(db.collection("usernames").document(fixedUsername).delete());
+        } catch (Exception ignored) { }
+
+        // Seed a user document in the "users" collection using merge to update if it exists.
         Map<String, Object> userData = new HashMap<>();
         userData.put("uid", uid);
         userData.put("email", USER_EMAIL);
-        userData.put("username", uniqueUsername);
-        Tasks.await(db.collection("users").document(uid).set(userData));
+        userData.put("username", fixedUsername);
+        Tasks.await(db.collection("users").document(uid).set(userData, SetOptions.merge()));
 
         // Seed the corresponding username document in the "usernames" collection.
         Map<String, Object> usernameData = new HashMap<>();
         usernameData.put("uid", uid);
-        Tasks.await(db.collection("usernames").document(uniqueUsername).set(usernameData));
+        try {
+            // We catch errors here in case the document already exists and the security rule disallows updates.
+            Tasks.await(db.collection("usernames").document(fixedUsername).set(usernameData));
+        } catch (Exception e) {
+            // Ignoring error; document may already exist.
+        }
 
         // Seed a MoodEvent document with the same UID.
         MoodEvent testEvent = new MoodEvent(
@@ -112,7 +122,6 @@ public class OtherProfilePageNavigationTest extends FirebaseEmulatorMixin {
 
     @Test
     public void testViewOtherProfilePageNavigationFromMoodDetails() throws InterruptedException, ExecutionException {
-        // Sign in
         onView(withText("Sign In")).perform(click());
         onView(withId(R.id.emailSignIn))
                 .perform(replaceText(USER_EMAIL), closeSoftKeyboard());
@@ -150,7 +159,22 @@ public class OtherProfilePageNavigationTest extends FirebaseEmulatorMixin {
     }
 
     @After
-    public void signOutTheUser() {
-        FirebaseAuth.getInstance().signOut();
+    public void cleanup() throws ExecutionException, InterruptedException {
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        FirebaseAuth auth = FirebaseAuth.getInstance();
+
+        // Clean up the test data in Firestore.
+        String uid = auth.getCurrentUser() != null ? auth.getCurrentUser().getUid() : null;
+        if (uid != null) {
+            try {
+                Tasks.await(db.collection("users").document(uid).delete());
+            } catch (Exception ignored) { }
+            try {
+                Tasks.await(db.collection("usernames").document(EXPECTED_USERNAME).delete());
+            } catch (Exception ignored) { }
+            // Optionally: Delete any mood events associated with this UID if needed.
+        }
+        // Sign out the user.
+        auth.signOut();
     }
 }
