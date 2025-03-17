@@ -6,6 +6,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
@@ -13,6 +15,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.appbar.MaterialToolbar;
+import com.google.android.material.navigation.NavigationBarView;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.kernelcrew.moodapp.R;
 import com.kernelcrew.moodapp.data.MoodEvent;
@@ -30,6 +33,8 @@ import com.google.firebase.firestore.ListenerRegistration;
 public class MoodHistory extends Fragment implements MoodHistoryAdapter.OnItemClickListener {
     /** RecyclerView for displaying mood history items */
     private RecyclerView recyclerView;
+    NavigationBarView navigationBar;
+    private BottomNavBarController navBarController;
     /** Adapter for binding mood data to the RecyclerView */
     public MoodHistoryAdapter adapter;
     /** Provider for accessing mood events data */
@@ -58,7 +63,18 @@ public class MoodHistory extends Fragment implements MoodHistoryAdapter.OnItemCl
         recyclerView.setAdapter(adapter);
 
         toolbar.setNavigationOnClickListener(v -> handleBackButton());
+
+        navigationBar = view.findViewById(R.id.bottom_navigation);
+        navBarController = new BottomNavBarController(navigationBar);
+        navigationBar.setSelectedItemId(R.id.page_myHistory);
+
         return view;
+    }
+
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        navBarController.bind(view);
     }
 
     /**

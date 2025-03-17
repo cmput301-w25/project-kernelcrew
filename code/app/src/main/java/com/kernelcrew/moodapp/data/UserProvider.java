@@ -17,13 +17,9 @@ import java.util.List;
 
 public class UserProvider {
     private final FirebaseFirestore db;
-    FirebaseAuth auth;
-    FirebaseUser user;
 
     private UserProvider() {
         db = FirebaseFirestore.getInstance();
-        auth = FirebaseAuth.getInstance();
-        user = auth.getCurrentUser();
     }
 
     private static UserProvider instance;
@@ -37,14 +33,6 @@ public class UserProvider {
             instance = new UserProvider();
         }
         return instance;
-    }
-
-    /** Fetch the current user's username.
-     * @return The current user's username.
-     */
-
-    public String getCurrentUsersUsername() {
-        return user.getDisplayName();
     }
 
     /**

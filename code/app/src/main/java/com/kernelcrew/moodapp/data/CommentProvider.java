@@ -21,13 +21,10 @@ import java.util.List;
 
 public class CommentProvider {
     private final CollectionReference collection;
-    private final FirebaseAuth auth;
 
     private CommentProvider() {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         collection = db.collection("comments");
-
-        auth = FirebaseAuth.getInstance();
     }
 
     private static CommentProvider instance;
@@ -65,60 +62,12 @@ public class CommentProvider {
                             }
                         }
                     } else {
-                        // Handle the error
                         Exception exception = task.getException();
                         if (exception != null) {
-                            exception.printStackTrace();
                             Log.e("CommentProvider", "Error fetching comments: " + exception.getMessage());
                         }
                     }
                     return comments;
                 });
-    }
-
-    /**
-     * Add a snapshot listener to the comments collection
-     * @param listener Snapshot listener to add
-     */
-    public void addSnapshotListener(@NonNull EventListener<QuerySnapshot> listener) {
-        collection.addSnapshotListener(listener);
-    }
-
-    /**
-     * Get a collection of comments from the DB.
-     * @return A collection of comments
-     */
-    public Task<QuerySnapshot> getComments(){
-        return collection.get();
-    }
-
-    /**
-     * Returns the Firestore CollectionReference for filtering purposes.
-     * This reference can be then in filtering to build queries or perform Firestore operations,
-     * like adding snapshot listeners or inserting and updating documents.
-     *
-     * @return the CollectionReference instance for the comments.
-     */
-    public CollectionReference getCollectionReference() {
-        return collection;
-    }
-
-    /**
-     * Add a snapshot listener to the comments collection, filtered by the current user's UID.
-     * This method returns a ListenerRegistration that can be used to remove the listener.
-     *
-     * @param listener Snapshot listener to add
-     * @return ListenerRegistration that can be used to remove the listener
-     */
-    public ListenerRegistration addUserFilteredSnapshotListener(@NonNull EventListener<QuerySnapshot> listener) {
-        FirebaseUser user = auth.getCurrentUser();
-        if (user != null) {
-            // Only listen for comments belonging to the current user
-            return collection.whereEqualTo("uid", user.getUid())
-                    .addSnapshotListener(listener);
-        } else {
-            // If no user is logged in, listen to an empty query
-            return collection.limit(0).addSnapshotListener(listener);
-        }
     }
 }

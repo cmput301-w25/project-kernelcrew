@@ -53,6 +53,7 @@ import java.util.Locale;
 public class MoodComments extends Fragment implements MoodHistoryAdapter.OnItemClickListener {
     /** RecyclerView for displaying mood comment items */
     private RecyclerView recyclerView;
+    NavigationBarView navigationBar;
     private BottomNavBarController navBarController;
     private ImageView imageMoodIcon;
     private TextView tvMoodState, usernameText, dayTimeText, commentCountText;
@@ -129,23 +130,22 @@ public class MoodComments extends Fragment implements MoodHistoryAdapter.OnItemC
             onItemClick(moodEventId);
         });
 
-        NavigationBarView navigationBarView = view.findViewById(R.id.bottom_navigation);
-        navigationBarView.setSelectedItemId(R.id.page_createMoodEvent);
-        navBarController = new BottomNavBarController(navigationBarView);
+        navigationBar = view.findViewById(R.id.bottom_navigation);
+        navBarController = new BottomNavBarController(navigationBar);
+        navigationBar.setSelectedItemId(R.id.page_createMoodEvent);
 
-        // Initialize the comment input components
         searchInputLayout = view.findViewById(R.id.searchInputLayout);
         searchInput = view.findViewById(R.id.searchInput);
 
         // Set up the send button click listener
         setupCommentSendButton();
 
-        // Set up RecyclerView
         recyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
         toolbar.setNavigationOnClickListener(v -> handleBackButton());
 
-        // Fetch mood details from Firestore
+        // Fetch mood details from DB
         fetchMoodDetails(moodEventId);
+
         return view;
     }
 
@@ -203,7 +203,6 @@ public class MoodComments extends Fragment implements MoodHistoryAdapter.OnItemC
             return;
         }
 
-        // Create a CommentAdapter
         CommentAdapter commentAdapter = new CommentAdapter();
         recyclerView.setAdapter(commentAdapter);
 
@@ -251,7 +250,6 @@ public class MoodComments extends Fragment implements MoodHistoryAdapter.OnItemC
 
         dayTimeText.setText(formattedDate);
 
-        // Retrieve the UID from the mood event
         userId = moodEvent.getUid();
         usernameText.setText(moodEvent.getUsername());
 
@@ -265,7 +263,6 @@ public class MoodComments extends Fragment implements MoodHistoryAdapter.OnItemC
             return;
         }
 
-        // Get the current adapter from the RecyclerView
         CommentAdapter adapter = (CommentAdapter) recyclerView.getAdapter();
 
         // Query comments for this mood event

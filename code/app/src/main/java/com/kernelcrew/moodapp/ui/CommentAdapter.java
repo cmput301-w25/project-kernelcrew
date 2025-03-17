@@ -58,7 +58,6 @@ public class CommentAdapter extends RecyclerView.Adapter<CommentAdapter.CommentV
         public void bind(Comment comment) {
             commentText.setText(comment.getCommentText());
 
-            // Format timestamp
             SimpleDateFormat sdf = new SimpleDateFormat("MMM d, h:mm a", Locale.getDefault());
             String formattedDate = sdf.format(comment.getCreated());
             timestampText.setText(formattedDate);

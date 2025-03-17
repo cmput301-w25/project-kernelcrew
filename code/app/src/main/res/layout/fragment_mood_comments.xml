@@ -5,7 +5,6 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:fitsSystemWindows="true"
     tools:context="com.kernelcrew.moodapp.ui.MoodComments">
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -44,7 +43,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:gravity="start"
-                android:text="Username"
+                android:text=""
                 android:paddingStart="16dp"
                 android:paddingEnd="16dp"
                 android:paddingTop="16dp">
@@ -63,8 +62,7 @@
                 <ImageView
                     android:id="@+id/imageMoodIcon"
                     android:layout_width="40dp"
-                    android:layout_height="40dp"
-                    android:src="@drawable/ic_confused" />
+                    android:layout_height="40dp"/>
 
                 <LinearLayout
                     android:layout_width="0dp"
@@ -77,7 +75,6 @@
                         android:id="@+id/tvMoodState"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Confused"
                         android:textStyle="bold"
                         android:textSize="16sp" />
 
@@ -85,7 +82,6 @@
                         android:id="@+id/dayTimeText"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Thu 10am"
                         android:textSize="14sp" />
                 </LinearLayout>
 
@@ -108,7 +104,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:gravity="start"
-                    android:text="N"
+                    android:text=""
                     android:paddingStart="16dp"
                     android:paddingTop="5dp"
                     android:paddingBottom="5dp">
