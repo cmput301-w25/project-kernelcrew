@@ -93,7 +93,7 @@ public class CreateMoodEventTest extends FirebaseEmulatorMixin {
         onView(withId(R.id.toggle_happy)).perform(click());
 
         onView(withId(R.id.emotion_reason))
-                .perform(typeText("This is a really long string with too many characters"));
+                .perform(scrollTo(), typeText("This is a really long string with too many characters"));
         Espresso.closeSoftKeyboard();
 
         onView(withId(R.id.submit_button)).perform(scrollTo()).perform(click());
@@ -108,7 +108,7 @@ public class CreateMoodEventTest extends FirebaseEmulatorMixin {
         onView(withId(R.id.toggle_happy)).perform(click());
 
         onView(withId(R.id.emotion_reason))
-                .perform(typeText("AAAAAAAAAAA AAAAAAAAAAAAAAAA AAAAAAAAAAAAAA AAA"));
+                .perform(scrollTo(), typeText("AAAAAAAAAAA AAAAAAAAAAAAAAAA AAAAAAAAAAAAAA AAA"));
         Espresso.closeSoftKeyboard();
 
         onView(withId(R.id.submit_button)).perform(scrollTo()).perform(click());
@@ -125,7 +125,7 @@ public class CreateMoodEventTest extends FirebaseEmulatorMixin {
         onView(withId(R.id.toggle_anger)).perform(click());
 
         onView(withId(R.id.emotion_reason))
-                .perform(typeText("AAAAAAAAAAA AAAAAAAAAAAAAAAA AAAAAAAAAAAAAAAAAA"));
+                .perform(scrollTo(), typeText("AAAAAAAAAAA AAAAAAAAAAAAAAAA AAAAAAAAAAAAAAAAAA"));
         Espresso.closeSoftKeyboard();
 
         onView(withId(R.id.submit_button)).perform(scrollTo()).perform(click());

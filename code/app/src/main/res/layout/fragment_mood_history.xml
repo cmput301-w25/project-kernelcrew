@@ -31,42 +31,14 @@
             app:layout_constraintEnd_toEndOf="parent" />
 
         <!-- Search Bar -->
-        <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/searchInputLayout"
-            android:layout_width="0dp"
-            android:layout_height="40dp"
-            android:background="@drawable/rounded_search_bar"
-            app:boxBackgroundMode="none"
-            android:layout_marginStart="16dp"
-            android:layout_marginEnd="16dp"
-            android:layout_marginTop="16dp"
-            android:gravity="center_vertical"
-            app:startIconDrawable="@drawable/ic_filter_list"
-            app:endIconDrawable="@drawable/ic_search_icon"
-            app:endIconMode="custom"
-            app:startIconCheckable="false"
-            app:layout_constraintTop_toBottomOf="@id/topAppBar"
-            app:layout_constraintStart_toStartOf="parent"
+        <androidx.fragment.app.FragmentContainerView
+            android:id="@+id/moodhistory_filterBarFragment"
+            android:name="com.kernelcrew.moodapp.ui.components.FilterBarFragment"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
             app:layout_constraintEnd_toEndOf="parent"
-            app:hintEnabled="false"
-            app:hintAnimationEnabled="false"
-            android:paddingTop="0dp"
-            android:paddingBottom="0dp"
-            >
-
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/searchInput"
-                android:layout_width="match_parent"
-                android:layout_height="40dp"
-                android:paddingStart="56dp"
-                android:paddingEnd="56dp"
-                android:gravity="center_vertical"
-                android:background="@android:color/transparent"
-                android:hint="@string/search_hint_mood_feed"
-                android:paddingTop="0dp"
-                android:paddingBottom="0dp"
-                />
-        </com.google.android.material.textfield.TextInputLayout>
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/topAppBar" />
 
         <!-- Recycler View -->
         <androidx.recyclerview.widget.RecyclerView
@@ -81,7 +53,7 @@
             android:paddingBottom="10dp"
             android:layout_marginEnd="16dp"
             android:layout_marginStart="16dp"
-            app:layout_constraintTop_toBottomOf="@id/searchInputLayout"
+            app:layout_constraintTop_toBottomOf="@id/moodhistory_filterBarFragment"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
