@@ -19,6 +19,9 @@ import com.google.android.material.navigation.NavigationBarView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.ListenerRegistration;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.ListenerRegistration;
 import com.kernelcrew.moodapp.R;
 import com.kernelcrew.moodapp.data.MoodEvent;
 import com.kernelcrew.moodapp.data.MoodEventProvider;
@@ -38,6 +41,7 @@ public class MoodHistory extends Fragment implements MoodHistoryAdapter.OnItemCl
     NavigationBarView navigationBar;
 
     private BottomNavBarController navBarController;
+
 
     /** Adapter for binding mood data to the RecyclerView */
     public MoodHistoryAdapter adapter;
