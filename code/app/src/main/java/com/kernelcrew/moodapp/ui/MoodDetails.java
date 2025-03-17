@@ -87,7 +87,7 @@ public class MoodDetails extends Fragment implements DeleteDialogFragment.Delete
             if (userId != null && !userId.isEmpty()) {
                 Bundle args = new Bundle();
                 args.putString("uid", userId);
-                // Navigate to OtherUserProfile; ensure your nav_graph.xml has a destination with this ID.
+                // Ensure your nav_graph.xml includes a destination for OtherUserProfile with the ID otherUserProfile
                 NavHostFragment.findNavController(this)
                         .navigate(R.id.otherUserProfile, args);
             } else {

@@ -167,7 +167,6 @@
         android:id="@+id/otherUserProfile"
         android:name="com.kernelcrew.moodapp.ui.OtherUserProfile"
         android:label="Other User Profile" >
-        <!-- Define any arguments if needed -->
         <argument
             android:name="uid"
             app:argType="string" />
