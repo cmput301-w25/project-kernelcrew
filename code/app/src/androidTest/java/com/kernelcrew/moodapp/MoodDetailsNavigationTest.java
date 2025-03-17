@@ -140,7 +140,7 @@ public class MoodDetailsNavigationTest extends FirebaseEmulatorMixin {
         SystemClock.sleep(1000);
 
         // On HomeFeed screen: Verify that the homeTextView is displayed.
-        onView(withId(R.id.homeTextView))
+        onView(withId(R.id.filterBarFragment))
                 .check(matches(isDisplayed()));
 
         // Click on the first mood item in the RecyclerView to view its details.

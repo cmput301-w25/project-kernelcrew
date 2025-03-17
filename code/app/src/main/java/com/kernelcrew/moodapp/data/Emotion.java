@@ -177,4 +177,14 @@ public enum Emotion {
      * @return Color resource ID
      */
     public abstract int getColorRes();
+
+    public static Emotion fromString(String emotionString) {
+        for (Emotion emotion : Emotion.values()) {
+            if (emotion.toString().equalsIgnoreCase(emotionString)) {
+                return emotion;
+            }
+        }
+        return null;
+    }
+
 }
