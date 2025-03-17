@@ -2,7 +2,7 @@
 
 Give a brief summery of what has been implemented
 
-Resolves: #...
+Resolves #...
 
 ## Testing
 
