@@ -13,23 +13,19 @@ jobs:
     steps:
       - name: Checkout the code
         uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
       - name: Set up Java JDK 17
         uses: actions/setup-java@v3
         with:
           distribution: 'temurin'
           java-version: '17'
+      - name: Validate Gradle wrapper
+        uses: gradle/wrapper-validation-action@v1
       - name: Inflate google-services.json
         run: scripts/ci.sh inflate-ci-googleservices
         env:
           ACTIONS_GOOGLESERVICES: ${{ secrets.ACTIONS_GOOGLESERVICES }}
-      - name: Update Gradle Wrapper
-        run: |
-          cd code
-          ./gradlew wrapper --gradle-version 8.5
-      - name: Clean Gradle Cache
-        run: |
-          cd code
-          ./gradlew clean
       - name: Run lint
         run: scripts/ci.sh lint
       - name: Upload html test report
@@ -45,23 +41,19 @@ jobs:
     steps:
       - name: Checkout the code
         uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
       - name: Set up Java JDK 17
         uses: actions/setup-java@v3
         with:
           distribution: 'temurin'
           java-version: '17'
+      - name: Validate Gradle wrapper
+        uses: gradle/wrapper-validation-action@v1
       - name: Inflate google-services.json
         run: scripts/ci.sh inflate-ci-googleservices
         env:
           ACTIONS_GOOGLESERVICES: ${{ secrets.ACTIONS_GOOGLESERVICES }}
-      - name: Update Gradle Wrapper
-        run: |
-          cd code
-          ./gradlew wrapper --gradle-version 8.5
-      - name: Clean Gradle Cache
-        run: |
-          cd code
-          ./gradlew clean
       - name: Run tests
         run: scripts/ci.sh unit-test
       - name: Upload test report
@@ -77,23 +69,19 @@ jobs:
     steps:
       - name: Checkout the code
         uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
       - name: Set up Java JDK 17
         uses: actions/setup-java@v3
         with:
           distribution: 'temurin'
           java-version: '17'
+      - name: Validate Gradle wrapper
+        uses: gradle/wrapper-validation-action@v1
       - name: Inflate google-services.json
         run: scripts/ci.sh inflate-ci-googleservices
         env:
           ACTIONS_GOOGLESERVICES: ${{ secrets.ACTIONS_GOOGLESERVICES }}
-      - name: Update Gradle Wrapper
-        run: |
-          cd code
-          ./gradlew wrapper --gradle-version 8.5
-      - name: Clean Gradle Cache
-        run: |
-          cd code
-          ./gradlew clean
       - name: Setup firebase
         run: scripts/ci.sh setup-firebaserc
         env:
@@ -128,23 +116,19 @@ jobs:
     steps:
       - name: Checkout the code
         uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
       - name: Set up Java JDK 17
         uses: actions/setup-java@v3
         with:
           distribution: 'temurin'
           java-version: '17'
+      - name: Validate Gradle wrapper
+        uses: gradle/wrapper-validation-action@v1
       - name: Inflate google-services.json
         run: scripts/ci.sh inflate-ci-googleservices
         env:
           ACTIONS_GOOGLESERVICES: ${{ secrets.ACTIONS_GOOGLESERVICES }}
-      - name: Update Gradle Wrapper
-        run: |
-          cd code
-          ./gradlew wrapper --gradle-version 8.5
-      - name: Clean Gradle Cache
-        run: |
-          cd code
-          ./gradlew clean
       - name: Build debug APK
         run: scripts/ci.sh build-dbg-apk
       - name: Upload APK
