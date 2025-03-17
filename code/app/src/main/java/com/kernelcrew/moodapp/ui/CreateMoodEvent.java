@@ -31,6 +31,7 @@ public class CreateMoodEvent extends Fragment {
     private MoodEventProvider provider;
 
     private void handleSubmit(MoodEventForm.MoodEventDetails details) {
+        details.username = currentUser.getDisplayName();
         MoodEvent moodEvent = details.toMoodEvent(currentUser.getUid());
         provider.insertMoodEvent(moodEvent)
                 .addOnSuccessListener(_result -> {
