@@ -6,7 +6,6 @@ import android.text.Editable;
 import android.text.SpannableString;
 import android.text.TextWatcher;
 import android.text.style.ForegroundColorSpan;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
@@ -32,21 +31,38 @@ import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 
+/**
+ * A fragment that interfaces the filtering options for mood events.
+ */
 public class FilterBarFragment extends Fragment {
+    // Current filters in use
+    private MoodEventFilter moodEventFilter;
+    private Set<Emotion> selectedEmotions = new HashSet<>();
+
+    // Listener for public interface
+    private OnFilterChangedListener listener;
+
+    /**
+     * Interface to notify when filters are changed.
+     */
     public interface OnFilterChangedListener {
+        /**
+         * Called when the filter has been updated.
+         * @param filter The updated filter object.
+         */
         void onFilterChanged(MoodEventFilter filter);
     }
 
-    private MoodEventFilter moodEventFilter;
-    private OnFilterChangedListener listener;
-
+    // UI Elements
     private TextInputEditText searchEditText;
     private MaterialButton filterEmotion;
     private MaterialButton filterCountAndEdit;
     private MaterialButton filterTimeRange;
     private MaterialButton filterLocation;
-    private Set<Emotion> selectedEmotions = new HashSet<>();
 
+    /**
+     * Inflates the filter bar layout and initializes filter options.
+     */
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater,
@@ -57,13 +73,14 @@ public class FilterBarFragment extends Fragment {
         View view = inflater.inflate(R.layout.layout_filter_bar, container, false);
 
         // Initialize Views
-        searchEditText          = view.findViewById(R.id.filterSearchEditText);
-        filterEmotion           = view.findViewById(R.id.filter_emotion);
-        filterCountAndEdit      = view.findViewById(R.id.filterCountAndEdit);
-        filterTimeRange         = view.findViewById(R.id.filter_timeRange);
-        filterLocation          = view.findViewById(R.id.filter_location);
+        searchEditText = view.findViewById(R.id.filterSearchEditText);
+        filterEmotion = view.findViewById(R.id.filter_emotion);
+        filterCountAndEdit = view.findViewById(R.id.filterCountAndEdit);
+        filterTimeRange = view.findViewById(R.id.filter_timeRange);
+        filterLocation = view.findViewById(R.id.filter_location);
 
-        // Event Listeners
+        // -- Event Listeners -----------------
+        // Search bar listener
         searchEditText.addTextChangedListener(new TextWatcher() {
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {}
@@ -73,6 +90,7 @@ public class FilterBarFragment extends Fragment {
             }
         });
 
+        // Filter count and edit popup menu
         filterCountAndEdit.setOnClickListener(v -> {
             PopupMenu popup = new PopupMenu(requireContext(), filterCountAndEdit);
 
@@ -102,6 +120,7 @@ public class FilterBarFragment extends Fragment {
         // Taha used the following resources,
         // https://stackoverflow.com/questions/21329132/android-custom-dropdown-popup-menu
         // https://stackoverflow.com/questions/13784088/setting-popupmenu-menu-items-programmatically
+        // Emotion filter popup menu
         filterEmotion.setOnClickListener(v -> {
             PopupMenu popup = new PopupMenu(requireContext(), filterEmotion);
 
@@ -150,6 +169,7 @@ public class FilterBarFragment extends Fragment {
             popup.show();
         });
 
+        // Time range filter popup menu
         filterTimeRange.setOnClickListener(v -> {
             PopupMenu popup = new PopupMenu(requireContext(), filterTimeRange);
             popup.getMenu().add("Today");
@@ -211,6 +231,7 @@ public class FilterBarFragment extends Fragment {
             popup.show();
         });
 
+        // Location filter popup menu
         filterLocation.setOnClickListener(v -> {
             PopupMenu popup = new PopupMenu(requireContext(), filterLocation);
 
@@ -236,12 +257,25 @@ public class FilterBarFragment extends Fragment {
             popup.show();
         });
 
-        // Refresh after creation
+        // ...
+        // TODO: Maybe add more filters, I do not know what/how the app will look like in the future
+        //          so currently the implementation only has filters for things I could think of.
+        // If you want to add a filter, just copy the (one of the preexisting) xml buttons and
+        //      and simply change the ID and android:text. Then use the above as a template, all the
+        //      buttons should have very similar if not the same pop-up menu logic.
+        // ...
+
+        // Display the initial mood list with 0 filters.
         notifyFilterChanged();
 
         return view;
     }
 
+    /**
+     * Retrieves the current mood event filter or creates a new one if not initialized.
+     *
+     * @return The current {@link MoodEventFilter} instance.
+     */
     public MoodEventFilter getMoodEventFilter() {
         if (moodEventFilter == null) {
             moodEventFilter = new MoodEventFilter(MoodEventProvider.getInstance());
@@ -249,16 +283,29 @@ public class FilterBarFragment extends Fragment {
         return moodEventFilter;
     }
 
+    /**
+     * Sets a listener to be notified when the filter changes.
+     *
+     * @param listener The listener to notify.
+     */
     public void setOnFilterChangedListener(OnFilterChangedListener listener) {
         this.listener = listener;
     }
 
+    /**
+     * Notifies the listener that the filter has changed.
+     */
     private void notifyFilterChanged() {
         getMoodEventFilter().setSortField("created", Query.Direction.DESCENDING);
         filterCountAndEdit.setText(String.valueOf(getMoodEventFilter().count() - 1));
         listener.onFilterChanged(getMoodEventFilter());
     }
 
+    /**
+     * Resets the time of a calendar instance to the start of the day.
+     *
+     * @param calendar The calendar instance to reset.
+     */
     private void resetTime(Calendar calendar) {
         calendar.set(Calendar.HOUR_OF_DAY, 0);
         calendar.set(Calendar.MINUTE, 0);

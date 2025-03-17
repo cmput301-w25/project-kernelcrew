@@ -1,4 +1,3 @@
-// File: FilterBarFragmentMockitoTest.java
 package com.kernelcrew.moodapp;
 
 import static org.junit.Assert.*;
@@ -12,7 +11,6 @@ import androidx.fragment.app.testing.FragmentScenario;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
 import com.google.android.material.button.MaterialButton;
-import com.kernelcrew.moodapp.FirebaseEmulatorMixin;
 import com.kernelcrew.moodapp.data.Emotion;
 import com.kernelcrew.moodapp.data.MoodEventFilter;
 import com.kernelcrew.moodapp.ui.components.FilterBarFragment;
@@ -26,12 +24,7 @@ import java.util.Date;
 import java.util.HashSet;
 
 @RunWith(AndroidJUnit4.class)
-public class FilterBarFragmentMockitoTest extends FirebaseEmulatorMixin {
-
-    /**
-     * Custom FragmentFactory that sets a given listener on the FilterBarFragment
-     * before onCreateView is invoked.
-     */
+public class FilterBarFragmentTest extends FirebaseEmulatorMixin {
     public static class TestFilterBarFragmentFactory extends FragmentFactory {
         private final FilterBarFragment.OnFilterChangedListener listener;
         public TestFilterBarFragmentFactory(FilterBarFragment.OnFilterChangedListener listener) {
@@ -48,9 +41,6 @@ public class FilterBarFragmentMockitoTest extends FirebaseEmulatorMixin {
         }
     }
 
-    /**
-     * Helper method to invoke the private notifyFilterChanged() method via reflection.
-     */
     private void invokeNotifyFilterChanged(FilterBarFragment fragment) {
         try {
             Method method = FilterBarFragment.class.getDeclaredMethod("notifyFilterChanged");
@@ -61,10 +51,6 @@ public class FilterBarFragmentMockitoTest extends FirebaseEmulatorMixin {
         }
     }
 
-    /**
-     * Verifies that when a filter is changed, the OnFilterChangedListener is called
-     * with a MoodEventFilter containing the expected values.
-     */
     @Test
     public void testOnFilterChangedListenerIsCalled() {
         // Create a mock listener.
@@ -97,9 +83,6 @@ public class FilterBarFragmentMockitoTest extends FirebaseEmulatorMixin {
         });
     }
 
-    /**
-     * Verifies that after applying several filters, the filter count button is updated correctly.
-     */
     @Test
     public void testFilterCountButtonUpdate() {
         // For this test, a dummy listener is sufficient.
