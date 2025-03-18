@@ -9,7 +9,7 @@
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
         android:orientation="vertical"
         android:padding="8dp">
 
@@ -17,8 +17,8 @@
             android:id="@+id/textView4"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Select a Mood*"
-            android:textAppearance="@style/TextAppearance.Material3.LabelMedium"
+            android:text="How are you feeling?"
+            android:textSize="20sp"
             android:textStyle="bold" />
 
         <androidx.fragment.app.FragmentContainerView
@@ -27,6 +27,14 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp" />
+
+        <TextView
+            android:id="@+id/textView5"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="What caused this feeling?"
+            android:textSize="20sp"
+            android:textStyle="bold" />
 
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/layout_trigger"
@@ -69,12 +77,11 @@
         </com.google.android.material.textfield.TextInputLayout>
 
         <TextView
+            android:id="@+id/textView6"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:layout_marginBottom="8dp"
-            android:text="Photo"
-            android:textAppearance="@style/TextAppearance.Material3.LabelMedium"
+            android:text="Is there asscociated images?"
+            android:textSize="20sp"
             android:textStyle="bold" />
 
         <ImageButton
