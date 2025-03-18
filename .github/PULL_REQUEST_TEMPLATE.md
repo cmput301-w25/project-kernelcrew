@@ -1,4 +1,4 @@
-## Summery
+## Summary
 
 Give a brief summery of what has been implemented
 
@@ -16,7 +16,7 @@ Resolves: #...
 
 ---
 
-**Reviewer's Checklist**
+**Checklist**
 - [ ] Are all relevant issues referenced by this PR?
 - [ ] Does the app still build (locally)?
 - [ ] Do all tests pass?
@@ -24,3 +24,6 @@ Resolves: #...
 - [ ] Does this feature preserve the app’s existing stability?  
 - [ ] Is the description of the changes correct/present?
 - [ ] Have new tests been created or existing tests updated as needed?
+
+---
+
