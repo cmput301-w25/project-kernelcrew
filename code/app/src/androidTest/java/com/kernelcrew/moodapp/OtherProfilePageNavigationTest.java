@@ -123,6 +123,8 @@ public class OtherProfilePageNavigationTest extends FirebaseEmulatorMixin {
     @Test
     public void testViewOtherProfilePageNavigationFromMoodDetails() throws InterruptedException, ExecutionException {
         onView(withText("Sign In")).perform(click());
+        SystemClock.sleep(3000);
+
         onView(withId(R.id.emailSignIn))
                 .perform(replaceText(USER_EMAIL), closeSoftKeyboard());
         onView(withId(R.id.passwordSignIn))
