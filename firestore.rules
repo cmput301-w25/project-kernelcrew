@@ -5,6 +5,7 @@ service cloud.firestore {
     // can create user if and only if they have a valid user (which involves having a valid username)
     match /users/{userId} {
         allow create: if request.auth.uid == userId && isUniqueUsernameAndOwner(request.resource.data.username);
+        allow read;
     }
 
     // makes sure that only unique usernames can be added to usernames
@@ -14,6 +15,12 @@ service cloud.firestore {
     }
 
     match /moodEvents/{eventId} {
+      allow create: if request.auth != null && request.auth.uid == request.resource.data.uid;
+      allow read;
+      allow update, delete: if request.auth != null && request.auth.uid == resource.data.uid;
+    }
+    
+    match /comments/{commentId} {
       allow create: if request.auth != null && request.auth.uid == request.resource.data.uid;
       allow read;
       allow update, delete: if request.auth != null && request.auth.uid == resource.data.uid;
@@ -30,3 +37,4 @@ service cloud.firestore {
     }
   }
 }
+
