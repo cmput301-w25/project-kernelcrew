@@ -186,5 +186,12 @@
     <action
         android:id="@+id/action_followingFragment_to_requestFragment"
         app:destination="@id/requestFragment" />
-
+    <fragment
+        android:id="@+id/otherUserProfile"
+        android:name="com.kernelcrew.moodapp.ui.OtherUserProfile"
+        android:label="Other User Profile" >
+        <argument
+            android:name="uid"
+            app:argType="string" />
+    </fragment>
 </navigation>

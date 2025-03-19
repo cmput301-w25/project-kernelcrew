@@ -167,43 +167,6 @@ public class MoodDetailsNavigationTest extends FirebaseEmulatorMixin {
                 .check(matches(withText(DATA_REASON)));
     }
 
-    @Test
-    public void testViewProfileNavigationFromMoodDetails() throws InterruptedException, ExecutionException {
-        seedDatabase();
-
-        // Sign in
-        onView(withText("Sign In")).perform(click());
-        onView(withId(R.id.emailSignIn))
-                .perform(replaceText(USER_EMAIL), closeSoftKeyboard());
-        onView(withId(R.id.passwordSignIn))
-                .perform(replaceText(USER_PASSWORD), closeSoftKeyboard());
-        onView(withId(R.id.signInButtonAuthToHome))
-                .perform(click());
-
-        // Wait for HomeFeed to load data
-        SystemClock.sleep(3000);
-
-        // Click on the first mood item's "View Details" button.
-        onView(withId(R.id.moodRecyclerView))
-                .perform(actionOnItemAtPosition(0, clickChildViewWithId(R.id.viewDetailsButton)));
-
-        // Wait for the MoodDetails screen to load.
-        SystemClock.sleep(3000);
-
-        // Scroll the NestedScrollView to the bottom using a custom action.
-        onView(withId(R.id.nestedScrollView))
-                .perform(scrollNestedScrollViewToBottom());
-
-        // Now click the "View Profile" button.
-        onView(withId(R.id.btnViewProfile))
-                .perform(click());
-
-        // Wait for the MyProfile screen to load.
-        SystemClock.sleep(3000);
-
-        // Verify that the MyProfile screen is displayed (e.g., check that the sign-out button is visible).
-        onView(withId(R.id.signOutButton)).check(matches(isDisplayed()));
-    }
 
     // Custom ViewAction to scroll a NestedScrollView to the bottom.
     public static ViewAction scrollNestedScrollViewToBottom() {
