@@ -83,6 +83,17 @@
 
             </LinearLayout>
 
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnViewProfile"
+                style="@style/Widget.MaterialComponents.Button"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="24dp"
+                android:text="View Profile"
+                android:textColor="@android:color/white"
+                android:backgroundTint="@color/button_purple"
+                app:cornerRadius="12dp" />
+
             <!-- Divider -->
 
             <LinearLayout
@@ -235,16 +246,6 @@
                             android:background="@android:color/darker_gray" />
                     </com.google.android.material.card.MaterialCardView>
 
-                    <com.google.android.material.button.MaterialButton
-                        android:id="@+id/btnViewProfile"
-                        style="@style/Widget.MaterialComponents.Button"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="24dp"
-                        android:text="View Profile"
-                        android:textColor="@android:color/white"
-                        android:backgroundTint="@color/button_purple"
-                        app:cornerRadius="12dp" />
 
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
