@@ -83,17 +83,29 @@
 
             </LinearLayout>
 
-            <TextView
+            <com.google.android.material.chip.Chip
                 android:id="@+id/tvUsernameDisplay"
+                style="@style/Widget.MaterialComponents.Chip.Action"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:text="Username"
-                android:textAppearance="?attr/textAppearanceBody1"
-                android:textColor="@android:color/black"
+                android:layout_marginTop="16dp"
+
                 android:clickable="true"
                 android:focusable="true"
-                android:padding="4dp" />
+                android:text="@string/dummy_username"
+                android:textStyle="bold"
+                android:textColor="@android:color/white"
+                android:paddingStart="8dp"
+                android:paddingEnd="16dp"
+
+                app:chipBackgroundColor="@color/button_purple"
+                app:chipCornerRadius="16dp"
+                app:chipIcon="@drawable/ic_person"
+                app:chipIconTint="@android:color/white"
+                app:chipIconVisible="true"
+                app:closeIconEnabled="false"
+                app:iconStartPadding="8dp"
+                app:iconEndPadding="8dp" />
 
             <!-- Divider -->
 

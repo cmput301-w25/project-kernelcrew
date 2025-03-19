@@ -18,6 +18,7 @@ import androidx.fragment.app.Fragment;
 import androidx.navigation.fragment.NavHostFragment;
 
 import com.google.android.material.appbar.MaterialToolbar;
+import com.google.android.material.chip.Chip;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.kernelcrew.moodapp.R;
 import com.kernelcrew.moodapp.data.MoodEvent;
@@ -27,7 +28,8 @@ public class MoodDetails extends Fragment implements DeleteDialogFragment.Delete
 
     private MaterialToolbar toolbar;
     private ImageView imageMoodIcon, ivMoodPhoto;
-    private TextView tvMoodState, tvTriggerValue, tvSocialSituationValue, tvReasonValue, tvUsernameDisplay;
+    private TextView tvMoodState, tvTriggerValue, tvSocialSituationValue, tvReasonValue;
+    private Chip tvUsernameDisplay;
     private Button btnEditMood;
 
     private Button btnDeleteMood;
@@ -66,6 +68,7 @@ public class MoodDetails extends Fragment implements DeleteDialogFragment.Delete
                              @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_mood_details, container, false);
 
+        tvUsernameDisplay = view.findViewById(R.id.tvUsernameDisplay);
         toolbar = view.findViewById(R.id.moodDetailsToolbar);
         imageMoodIcon = view.findViewById(R.id.imageMoodIcon);
         tvMoodState = view.findViewById(R.id.tvMoodState);
@@ -142,11 +145,20 @@ public class MoodDetails extends Fragment implements DeleteDialogFragment.Delete
                             if (username == null) {
                                 username = documentSnapshot.getString("name");
                             }
-                            if (username != null) {
-                                tvUsernameDisplay.setText(username);
-                            } else {
-                                tvUsernameDisplay.setText("Unknown User");
+
+                            if (username == null) {
+                                username = "UnknownUser";
                             }
+                            tvUsernameDisplay.setText("@" + username);
+
+                            // Navigate to OtherUserProfile on click
+                            tvUsernameDisplay.setOnClickListener(v -> {
+                                Bundle args = new Bundle();
+                                args.putString("uid", userId);
+                                NavHostFragment.findNavController(MoodDetails.this)
+                                        .navigate(R.id.otherUserProfile, args);
+                            });
+
                         } else {
                             tvUsernameDisplay.setText("User not found");
                         }
@@ -154,15 +166,6 @@ public class MoodDetails extends Fragment implements DeleteDialogFragment.Delete
                     .addOnFailureListener(e -> {
                         tvUsernameDisplay.setText("Error loading user");
                     });
-
-            // CHANGES: Make the username clickable
-            tvUsernameDisplay.setOnClickListener(v -> {
-                // Navigate to OtherUserProfile
-                Bundle args = new Bundle();
-                args.putString("uid", userId);
-                NavHostFragment.findNavController(MoodDetails.this)
-                        .navigate(R.id.otherUserProfile, args);
-            });
         } else {
             // If no user ID, show something else or keep blank
             tvUsernameDisplay.setText("No user ID provided");
