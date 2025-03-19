@@ -83,16 +83,17 @@
 
             </LinearLayout>
 
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btnViewProfile"
-                style="@style/Widget.MaterialComponents.Button"
-                android:layout_width="match_parent"
+            <TextView
+                android:id="@+id/tvUsernameDisplay"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="24dp"
-                android:text="View Profile"
-                android:textColor="@android:color/white"
-                android:backgroundTint="@color/button_purple"
-                app:cornerRadius="12dp" />
+                android:layout_marginTop="8dp"
+                android:text="Username"
+                android:textAppearance="?attr/textAppearanceBody1"
+                android:textColor="@android:color/black"
+                android:clickable="true"
+                android:focusable="true"
+                android:padding="4dp" />
 
             <!-- Divider -->
 
