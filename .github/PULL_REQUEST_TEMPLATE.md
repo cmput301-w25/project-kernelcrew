@@ -1,18 +1,22 @@
 ## Summary
 
-Give a brief summery of what has been implemented
+A brief summary of features implemented
 
 Resolves: #...
 
 ## Testing
 
 - How should a reviewer test this feature, fix, or UI?
+     - 
 - Are there any specific commands, steps, or credentials needed?
+     - 
 
 ## Merge Instructions
 
 - Any considerations that other PR's may need to take into note? 
+     - 
 - Should the reviewer delete the branch on merge? Y/N
+     - 
 
 ---
 
