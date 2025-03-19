@@ -42,4 +42,15 @@
     <string name="search_hint_mood_feed">"Search words/emotional states"</string>
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="dummy_username">username</string>
+    <string name="delete_button_text">Delete</string>
+    <string name="edit_button_text">Edit</string>
+    <string name="mood_type_text">Mood</string>
+    <string name="trigger_heading">Trigger</string>
+    <string name="trigger_box_text">Trigger</string>
+    <string name="social_situation_heading">Social Situation</string>
+    <string name="social_situation_box_text">Social Situation</string>
+    <string name="reason_heading">Reason</string>
+    <string name="reason_box_text">Reason</string>
+    <string name="photo_heading">Photo</string>
+    <string name="location_heading">Location</string>
 </resources>
