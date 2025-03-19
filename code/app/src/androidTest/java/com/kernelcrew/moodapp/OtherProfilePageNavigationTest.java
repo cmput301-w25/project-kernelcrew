@@ -6,15 +6,15 @@ import static androidx.test.espresso.action.ViewActions.closeSoftKeyboard;
 import static androidx.test.espresso.action.ViewActions.replaceText;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
 import static androidx.test.espresso.contrib.RecyclerViewActions.actionOnItemAtPosition;
-import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
 import static com.kernelcrew.moodapp.MoodDetailsNavigationTest.clickChildViewWithId;
-import static com.kernelcrew.moodapp.MoodDetailsNavigationTest.scrollNestedScrollViewToBottom;
 
 import android.os.SystemClock;
+
 import androidx.test.ext.junit.rules.ActivityScenarioRule;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
+
 import com.google.android.gms.tasks.Tasks;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -23,6 +23,7 @@ import com.kernelcrew.moodapp.data.Emotion;
 import com.kernelcrew.moodapp.data.MoodEvent;
 import com.kernelcrew.moodapp.data.MoodEventProvider;
 import com.kernelcrew.moodapp.ui.MainActivity;
+
 import org.hamcrest.Matchers;
 import org.junit.After;
 import org.junit.Before;
@@ -30,6 +31,7 @@ import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
@@ -139,15 +141,8 @@ public class OtherProfilePageNavigationTest extends FirebaseEmulatorMixin {
         onView(withId(R.id.moodRecyclerView))
                 .perform(actionOnItemAtPosition(0, clickChildViewWithId(R.id.viewDetailsButton)));
 
-        // Wait for the MoodDetails screen to load.
-        SystemClock.sleep(3000);
-
-        // Scroll the NestedScrollView to the bottom.
-        onView(withId(R.id.nestedScrollView))
-                .perform(scrollNestedScrollViewToBottom());
-
         // Click the "View Profile" button.
-        onView(withId(R.id.btnViewProfile))
+        onView(withId(R.id.tvUsernameDisplay))
                 .perform(click());
 
         // Wait for the OtherUserProfile screen to load.
