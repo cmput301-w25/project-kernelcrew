@@ -194,6 +194,7 @@ public class MoodComments extends Fragment implements MoodHistoryAdapter.OnItemC
                 })
                 .addOnFailureListener(error -> {
                     Toast.makeText(getContext(), "Failed to add comment: " + error.getMessage(), Toast.LENGTH_LONG).show();
+                    Log.e("MoodComments", "Comment: " + comment.logging());
                     Log.e("MoodComments", "Error adding comment: " + error);
                 });
     }
@@ -249,10 +250,7 @@ public class MoodComments extends Fragment implements MoodHistoryAdapter.OnItemC
         String formattedDate = sdf.format(moodEvent.getCreated());
 
         dayTimeText.setText(formattedDate);
-
-        userId = moodEvent.getUid();
         usernameText.setText(moodEvent.getUsername());
-
     }
 
     /**

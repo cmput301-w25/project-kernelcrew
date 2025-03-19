@@ -42,6 +42,10 @@ public class Comment implements Serializable {
         this.commentText = commentText;
     }
 
+    public String logging() {
+        return "id: " + id + ", uid: " + uid + ", username: " + username + ", moodEventId: " + moodEventId + ", created: " + created + ", commentText: " + commentText;
+    }
+
     public String getId() {
         return id;
     }
