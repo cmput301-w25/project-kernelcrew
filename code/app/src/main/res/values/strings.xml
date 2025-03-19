@@ -40,6 +40,12 @@
     <string name="error_account_creation_failed">Account creation failed. Please check your details and try again.</string>
     <string name="error_insufficient_firestore_permissions">Insufficient permissions to write to the database. Please contact support.</string>
     <string name="search_hint_mood_feed">"Search words/emotional states"</string>
+    <string name="accept">Accept</string>
+    <string name="deny">Deny</string>
+    <string name="request_follow_message">%1$s is requesting to follow you</string>
+    <string name="content_desc_user_icon">View user’s profile</string>
+    <string name="content_desc_accept">Accept follow request</string>
+    <string name="content_desc_deny">Deny follow request</string>
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>
