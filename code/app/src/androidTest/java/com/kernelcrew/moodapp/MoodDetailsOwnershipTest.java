@@ -7,14 +7,15 @@ import static androidx.test.espresso.action.ViewActions.replaceText;
 import static androidx.test.espresso.action.ViewActions.scrollTo;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
 import static androidx.test.espresso.contrib.RecyclerViewActions.actionOnItemAtPosition;
-import static androidx.test.espresso.matcher.ViewMatchers.Visibility;
 import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static androidx.test.espresso.matcher.ViewMatchers.withEffectiveVisibility;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
+import static androidx.test.espresso.matcher.ViewMatchers.withText;
 
 import android.os.SystemClock;
 import android.view.View;
 
+import androidx.test.espresso.matcher.ViewMatchers;
 import androidx.test.ext.junit.rules.ActivityScenarioRule;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
@@ -29,15 +30,17 @@ import com.kernelcrew.moodapp.ui.MainActivity;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
+import org.junit.FixMethodOrder;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.junit.runners.MethodSorters;
 
 import java.util.List;
-import java.util.concurrent.ExecutionException;
 
 @RunWith(AndroidJUnit4.class)
 @LargeTest
+@FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class MoodDetailsOwnershipTest extends FirebaseEmulatorMixin {
 
     // User 1 credentials
@@ -98,7 +101,7 @@ public class MoodDetailsOwnershipTest extends FirebaseEmulatorMixin {
         // Delete any preexisting test users so that sign-up does not fail.
         deleteTestUser(USER1_EMAIL, USER1_PASSWORD, USER1_USERNAME);
         deleteTestUser(USER2_EMAIL, USER2_PASSWORD, USER2_USERNAME);
-        // You can also seed additional data here if needed.
+        // Optionally, seed additional data here if needed.
     }
 
     @Before
@@ -147,13 +150,13 @@ public class MoodDetailsOwnershipTest extends FirebaseEmulatorMixin {
     }
 
     /**
-     * Test 2: User 2 creates a mood and then:
-     * - For User 2's own mood, Edit/Delete buttons are visible.
-     * - When viewing User 1's mood, these buttons are not visible.
+     * Test 2:
+     * User 2 signs up, creates a mood, verifies that for their own mood the Edit and Delete buttons are visible,
+     * then clicks Edit to verify navigation, and finally signs out.
      */
     @Test
-    public void testVisibilityForOwnAndOtherMoods_User2() throws InterruptedException, ExecutionException {
-        // --- Sign Up and Sign In as User 2 via GUI ---
+    public void testEditVisibilityForOwnMood_User2() throws InterruptedException {
+        // --- Sign Up and Sign In as User 2 ---
         onView(withId(R.id.buttonInitialToSignUp)).perform(click());
         onView(withId(R.id.username)).perform(replaceText(USER2_USERNAME));
         onView(withId(R.id.emailSignUp)).perform(replaceText(USER2_EMAIL));
@@ -170,38 +173,65 @@ public class MoodDetailsOwnershipTest extends FirebaseEmulatorMixin {
                 .perform(scrollTo(), replaceText(MOOD2_TRIGGER), closeSoftKeyboard());
         onView(withId(R.id.emotion_reason))
                 .perform(scrollTo(), replaceText(MOOD2_REASON), closeSoftKeyboard());
-        // Use a different emotion toggle; here, assume "toggle_anger" exists
+        // Use an emotion toggle (assume "toggle_anger" exists in the layout)
         onView(withId(R.id.toggle_anger)).perform(click());
         onView(withId(R.id.submit_button))
                 .perform(scrollTo(), click());
         SystemClock.sleep(3000);
 
-        // --- For User 2's own mood: open details (assumed at position 0) ---
+        // --- For User 2's own mood: Open details (assumed at position 0 in the RecyclerView) ---
         onView(withId(R.id.moodRecyclerView))
                 .perform(actionOnItemAtPosition(0, clickChildViewWithId(R.id.viewDetailsButton)));
         SystemClock.sleep(3000);
+
+        // Verify that the Edit and Delete buttons are visible.
         onView(withId(R.id.btnEditMood)).check(matches(isDisplayed()));
         onView(withId(R.id.btnDeleteMood)).check(matches(isDisplayed()));
-        // Click Edit and verify navigation.
+
+        // Click Edit and verify navigation to the Edit Mood screen.
         onView(withId(R.id.btnEditMood)).perform(click());
         SystemClock.sleep(3000);
+        onView(withText("Edit Mood")).check(matches(isDisplayed()));
 
-        // --- Now, view User 1's mood ---
-        // Assuming both moods are listed and User 1's mood is at position 1.
+        // Sign out User 2.
+        FirebaseAuth.getInstance().signOut();
+        SystemClock.sleep(2000);
+    }
+
+    /**
+     * Test 3:
+     * Sign in as User 2, view a mood created by User 1,
+     * and verify that the Edit and Delete buttons are NOT visible.
+     */
+    @Test
+    public void testNoEditVisibilityForOtherMood_User2() throws InterruptedException {
+        // --- Sign In as User 2 (assuming the user already exists) ---
+        onView(withId(R.id.buttonInitialToSignIn)).perform(click());
+        onView(withId(R.id.emailSignIn)).perform(replaceText(USER2_EMAIL), closeSoftKeyboard());
+        onView(withId(R.id.passwordSignIn)).perform(replaceText(USER2_PASSWORD), closeSoftKeyboard());
+        onView(withId(R.id.signInButtonAuthToHome)).perform(click());
+        SystemClock.sleep(3000);
+
+        // --- View User 1's mood ---
+        // Assuming both moods are listed and that User 1's mood is at position 1.
         onView(withId(R.id.moodRecyclerView))
                 .perform(actionOnItemAtPosition(1, clickChildViewWithId(R.id.viewDetailsButton)));
         SystemClock.sleep(3000);
-        // For a mood not owned by User 2, Edit and Delete buttons should not be visible.
-        onView(withId(R.id.btnEditMood)).check(matches(withEffectiveVisibility(Visibility.GONE)));
-        onView(withId(R.id.btnDeleteMood)).check(matches(withEffectiveVisibility(Visibility.GONE)));
+
+        // Verify that the Edit and Delete buttons are NOT visible for a mood not owned by User 2.
+        onView(withId(R.id.btnEditMood)).check(matches(withEffectiveVisibility(ViewMatchers.Visibility.GONE)));
+        onView(withId(R.id.btnDeleteMood)).check(matches(withEffectiveVisibility(ViewMatchers.Visibility.GONE)));
+
+        // Sign out User 2.
+        FirebaseAuth.getInstance().signOut();
+        SystemClock.sleep(2000);
     }
 
     @After
     public void tearDown() throws Exception {
-        // Cleanup: Optionally delete test moods from Firestore if your test framework supports it.
+        // Cleanup: Delete test moods if necessary and sign out.
         FirebaseFirestore db = FirebaseFirestore.getInstance();
-        // For example, you might query and delete documents where email equals one of your test emails.
-        // ...
+        // Optionally, add deletion logic here.
         FirebaseAuth.getInstance().signOut();
         SystemClock.sleep(1000);
     }
