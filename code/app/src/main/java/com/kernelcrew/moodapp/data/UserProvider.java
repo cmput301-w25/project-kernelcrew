@@ -88,4 +88,29 @@ public class UserProvider {
     public void addSnapshotListenerForUser(@NonNull String uid, @NonNull EventListener<DocumentSnapshot> listener) {
         db.collection("users").document(uid).addSnapshotListener(listener);
     }
+
+    /**
+     * Search users by username (case-insensitive, partial-match) while excluding the current user.
+     *
+     * @param query The search string.
+     * @param currentUserId The current user's ID to exclude.
+     * @return A Task that returns a List of matching Users.
+     */
+    public Task<List<User>> searchUsers(String query, @NonNull String currentUserId) {
+        // Convert query to lowercase for case-insensitive comparison
+        final String lowerQuery = query.toLowerCase();
+
+        // Fetch all users – in a production app you might index this differently
+        return db.collection("users").get().onSuccessTask(querySnapshot -> {
+            List<User> results = new ArrayList<>();
+            for (DocumentSnapshot doc : querySnapshot.getDocuments()) {
+                // Assuming username is stored as the document id
+                String username = doc.getId();
+                if (!username.equals(currentUserId) && username.toLowerCase().contains(lowerQuery)) {
+                    results.add(new User(username, false)); // The second parameter can be set as needed
+                }
+            }
+            return Tasks.forResult(results);
+        });
+    }
 }
