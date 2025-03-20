@@ -1,5 +1,6 @@
 package com.kernelcrew.moodapp.ui.components;
 
+import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.text.Editable;
@@ -19,11 +20,13 @@ import androidx.fragment.app.Fragment;
 
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.textfield.TextInputEditText;
+import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.firestore.Query;
 import com.kernelcrew.moodapp.R;
 import com.kernelcrew.moodapp.data.Emotion;
 import com.kernelcrew.moodapp.data.MoodEventFilter;
 import com.kernelcrew.moodapp.data.MoodEventProvider;
+import com.kernelcrew.moodapp.ui.SearchUsers;
 
 import java.util.Calendar;
 import java.util.Date;
@@ -80,13 +83,27 @@ public class FilterBarFragment extends Fragment {
         filterLocation = view.findViewById(R.id.filter_location);
 
         // -- Event Listeners -----------------
+        TextInputLayout searchLayout = view.findViewById(R.id.filterSearchLayout);
+        searchLayout.setStartIconOnClickListener(v -> {
+            String query = searchEditText.getText().toString().trim();
+            if (!query.isEmpty()) {
+                // Launch the SearchUsers activity with the entered query
+                Intent intent = new Intent(requireContext(), SearchUsers.class);
+                intent.putExtra("search_query", query);
+                startActivity(intent);
+            } else {
+                Toast.makeText(requireContext(), "Please enter a search query", Toast.LENGTH_SHORT).show();
+            }
+        });
+
         // Search bar listener
         searchEditText.addTextChangedListener(new TextWatcher() {
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {}
-            @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) { }
-            @Override public void afterTextChanged(Editable s) {
-                // TODO: Implement Search
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) { }
+            @Override
+            public void afterTextChanged(Editable s) {
             }
         });
 
@@ -135,7 +152,7 @@ public class FilterBarFragment extends Fragment {
             popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
                 @Override
                 public boolean onMenuItemClick(MenuItem item) {
-                    item.setChecked(!item.isChecked());
+                item.setChecked(!item.isChecked());
 
                     if (item.isChecked()) {
                         selectedEmotions.add(Emotion.fromString(Objects.requireNonNull(item.getTitle()).toString()));
@@ -156,7 +173,7 @@ public class FilterBarFragment extends Fragment {
                             return false;
                         }
                     });
-                    return false;
+                return false;
                 }
             });
 
