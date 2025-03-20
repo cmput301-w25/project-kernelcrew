@@ -53,6 +53,9 @@
             android:id="@+id/action_homeFeed_to_moodDetails"
             app:destination="@id/moodDetails" />
         <action
+            android:id="@+id/action_homeFeed_to_moodComments"
+            app:destination="@id/commentsFragment" />
+        <action
             android:id="@+id/action_homeFeed_to_myProfile"
             app:destination="@id/myProfile" />
     </fragment>
@@ -147,6 +150,26 @@
             app:destination="@id/homeFeed" />
         <action
             android:id="@+id/action_moodHistory_to_moodDetails"
+            app:destination="@id/moodDetails" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/commentsFragment"
+        android:name="com.kernelcrew.moodapp.ui.MoodComments"
+        android:label="fragment_comments"
+        tools:layout="@layout/fragment_mood_comments">
+        <argument
+            android:name="sourceScreen"
+            app:argType="string"
+            android:defaultValue="home"/>
+        <argument
+            android:name="moodEventId"
+            app:argType="string"/>
+        <action
+            android:id="@+id/action_commentsFragment_to_homeFeed"
+            app:destination="@id/homeFeed" />
+        <action
+            android:id="@+id/action_commentsFragment_to_moodDetails"
             app:destination="@id/moodDetails" />
     </fragment>
 

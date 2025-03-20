@@ -37,6 +37,7 @@ import java.util.concurrent.ExecutionException;
 @RunWith(AndroidJUnit4.class)
 public class OtherProfilePageNavigationTest extends FirebaseEmulatorMixin {
     private static final String USER_EMAIL = "test@kernelcrew.com";
+    private static final String DATA_USERNAME = "testUser";
     private static final String USER_PASSWORD = "Password@1234";
     private static final String EXPECTED_USERNAME = "testUser";
     private static final Emotion DATA_EMOTION = Emotion.HAPPINESS;
@@ -102,6 +103,7 @@ public class OtherProfilePageNavigationTest extends FirebaseEmulatorMixin {
         // Seed a MoodEvent document with the same UID.
         MoodEvent testEvent = new MoodEvent(
                 uid,
+                DATA_USERNAME,
                 DATA_EMOTION,
                 DATA_TRIGGER,         // trigger
                 DATA_SOCIALSITUATION,   // socialSituation

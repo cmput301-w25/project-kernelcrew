@@ -128,6 +128,7 @@ public class MoodEventForm extends Fragment implements LocationUpdateListener {
     }
 
     public static class MoodEventDetails {
+        String username;
         Emotion emotion;
         String trigger;
         String socialSituation;
@@ -146,6 +147,7 @@ public class MoodEventForm extends Fragment implements LocationUpdateListener {
          * @param moodEvent MoodEvent to extract details from
          */
         public MoodEventDetails(MoodEvent moodEvent) {
+            username = moodEvent.getUsername();
             emotion = moodEvent.getEmotion();
             trigger = moodEvent.getTrigger();
             socialSituation = moodEvent.getSocialSituation();
@@ -163,6 +165,7 @@ public class MoodEventForm extends Fragment implements LocationUpdateListener {
         public MoodEvent toMoodEvent(String uid) {
             MoodEvent moodEvent = new MoodEvent(
                     uid,
+                    username,
                     emotion,
                     trigger,
                     socialSituation,

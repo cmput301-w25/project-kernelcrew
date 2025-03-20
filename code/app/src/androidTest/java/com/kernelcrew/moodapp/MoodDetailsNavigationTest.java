@@ -42,6 +42,7 @@ import java.util.concurrent.ExecutionException;
 @RunWith(AndroidJUnit4.class)
 public class MoodDetailsNavigationTest extends FirebaseEmulatorMixin {
     private static final String USER_EMAIL = "test@kernelcrew.com";
+    private static final String USERNAME = "Test User";
     private static final String USER_PASSWORD = "Password@1234";
     private static final Emotion DATA_EMOTION = Emotion.HAPPINESS;
     private static final String DATA_TRIGGER = "Morning Coffee";
@@ -99,6 +100,7 @@ public class MoodDetailsNavigationTest extends FirebaseEmulatorMixin {
         // Seed a detailed MoodEvent document used in the MoodDetails screen.
         MoodEvent testEvent = new MoodEvent(
                 uid,
+                USERNAME,
                 DATA_EMOTION,
                 DATA_TRIGGER,       // trigger
                 DATA_SOCIALSITUATION, // socialSituation

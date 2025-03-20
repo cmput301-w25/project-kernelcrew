@@ -23,6 +23,7 @@ import java.util.UUID;
 public class MoodEvent implements Serializable {
     private String id;
     private String uid;
+    private String username;
     private Date created;
     private Emotion emotion;
     private String trigger;
@@ -41,10 +42,11 @@ public class MoodEvent implements Serializable {
      * Constructor for a new MoodEvent with additional details.
      * Will assign this mood event a new random id.
      */
-    public MoodEvent(String uid, Emotion emotion, String trigger, String socialSituation,
+    public MoodEvent(String uid, String username, Emotion emotion, String trigger, String socialSituation,
                      String reason, String _photoUrl, Double latitude, Double longitude) {
         this.id = UUID.randomUUID().toString();
         this.uid = uid;
+        this.username = username;
         this.created = new Date();
         this.emotion = emotion;
         this.trigger = trigger;
@@ -66,6 +68,13 @@ public class MoodEvent implements Serializable {
     }
     public void setUid(String uid) {
         this.uid = uid;
+    }
+
+    public String getUsername() {
+        return username;
+    }
+    public void setUsername(String username) {
+        this.username = username;
     }
 
     public Date getCreated() {

@@ -4,6 +4,8 @@ import androidx.annotation.NonNull;
 
 import com.google.android.gms.tasks.Task;
 import com.google.android.gms.tasks.Tasks;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -31,6 +33,27 @@ public class UserProvider {
             instance = new UserProvider();
         }
         return instance;
+    }
+
+    /**
+     * Fetch the username of a specific user.
+     *
+     * @param uid The user to find the username of.
+     * @return The user's username.
+     */
+    public Task<String> getUsername(@NonNull String uid) {
+        return db.collection("users").document(uid).get()
+                .onSuccessTask(documentSnapshot -> {
+                    if (documentSnapshot.exists()) {
+                        String username = documentSnapshot.getString("username");
+                        if (username != null) {
+                            return Tasks.forResult(username);
+                        }
+                    } else {
+                        return Tasks.forException(new Exception("User document not found"));
+                    }
+                    return Tasks.forException(null);
+                });
     }
 
     /**
