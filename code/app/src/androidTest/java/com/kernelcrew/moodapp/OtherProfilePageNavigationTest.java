@@ -125,7 +125,7 @@ public class OtherProfilePageNavigationTest extends FirebaseEmulatorMixin {
     @Test
     public void testViewOtherProfilePageNavigationFromMoodDetails() throws InterruptedException, ExecutionException {
         onView(withText("Sign In")).perform(click());
-        SystemClock.sleep(3000);
+        SystemClock.sleep(500);
 
         onView(withId(R.id.emailSignIn))
                 .perform(replaceText(USER_EMAIL), closeSoftKeyboard());
@@ -135,7 +135,7 @@ public class OtherProfilePageNavigationTest extends FirebaseEmulatorMixin {
                 .perform(click());
 
         // Wait for HomeFeed to load data.
-        SystemClock.sleep(3000);
+        SystemClock.sleep(500);
 
         // Click on the first mood item's "View Details" button.
         onView(withId(R.id.moodRecyclerView))
@@ -146,7 +146,7 @@ public class OtherProfilePageNavigationTest extends FirebaseEmulatorMixin {
                 .perform(click());
 
         // Wait for the OtherUserProfile screen to load.
-        SystemClock.sleep(3000);
+        SystemClock.sleep(500);
 
         // Verify that the OtherUserProfile screen displays the expected username (contains "testUser")
         // and that the email matches.
