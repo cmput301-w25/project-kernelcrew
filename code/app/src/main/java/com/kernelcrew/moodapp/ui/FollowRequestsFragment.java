@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+
 public class FollowRequestsFragment extends Fragment {
     private final FirebaseFirestore db = FirebaseFirestore.getInstance();
     private final List<String> requestList = new ArrayList<>();
@@ -46,51 +47,50 @@ public class FollowRequestsFragment extends Fragment {
                 .collection("followRequests")
                 .addSnapshotListener((snap, err) -> {
                     requestList.clear();
-                    if (snap != null) for (var doc : snap.getDocuments()) requestList.add(doc.getId());
+                    if (snap != null) {
+                        for (com.google.firebase.firestore.DocumentSnapshot doc : snap.getDocuments()) {
+                            requestList.add(doc.getId());
+                        }
+                    }
                     adapter.notifyDataSetChanged();
                 });
     }
 
-    private void acceptFollowRequest(String requesterUid) {
+    public void accept(String requesterUid) {
         String currentUid = FirebaseAuth.getInstance().getCurrentUser().getUid();
         FirebaseFirestore db = FirebaseFirestore.getInstance();
 
         WriteBatch batch = db.batch();
 
-        // Remove the incoming request
         DocumentReference requestRef = db.collection("users")
                 .document(currentUid)
                 .collection("followRequests")
                 .document(requesterUid);
         batch.delete(requestRef);
 
-        // Add to my followers
         DocumentReference myFollowersRef = db.collection("users")
                 .document(currentUid)
                 .collection("followers")
                 .document(requesterUid);
         batch.set(myFollowersRef, Collections.singletonMap("isFollowingBack", false));
 
-        // Add to requester’s following
         DocumentReference requesterFollowingRef = db.collection("users")
                 .document(requesterUid)
                 .collection("following")
                 .document(currentUid);
         batch.set(requesterFollowingRef, Collections.singletonMap("isFollowed", true));
 
-        // Increment counts on both user docs
         DocumentReference myUserDoc = db.collection("users").document(currentUid);
         DocumentReference requesterUserDoc = db.collection("users").document(requesterUid);
         batch.update(myUserDoc, "followersCount", FieldValue.increment(1));
         batch.update(requesterUserDoc, "followingCount", FieldValue.increment(1));
 
-        // Commit all writes in one atomic transaction
         batch.commit()
                 .addOnSuccessListener(unused -> Navigation.findNavController(requireView()).popBackStack())
                 .addOnFailureListener(e -> Log.e("RequestFragment", "Failed to accept follow", e));
     }
 
-    private void denyFollowRequest(String requesterUid) {
+    public void deny(String requesterUid) {
         String currentUid = FirebaseAuth.getInstance().getCurrentUser().getUid();
         FirebaseFirestore db = FirebaseFirestore.getInstance();
 
