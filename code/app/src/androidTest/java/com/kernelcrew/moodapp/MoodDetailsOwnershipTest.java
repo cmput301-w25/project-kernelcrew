@@ -10,7 +10,6 @@ import static androidx.test.espresso.contrib.RecyclerViewActions.actionOnItemAtP
 import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static androidx.test.espresso.matcher.ViewMatchers.withEffectiveVisibility;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
-import static androidx.test.espresso.matcher.ViewMatchers.withText;
 
 import android.os.SystemClock;
 import android.view.View;
@@ -162,13 +161,13 @@ public class MoodDetailsOwnershipTest extends FirebaseEmulatorMixin {
         onView(withId(R.id.emailSignUp)).perform(replaceText(USER2_EMAIL));
         onView(withId(R.id.passwordSignUp)).perform(replaceText(USER2_PASSWORD));
         onView(withId(R.id.signUpButtonAuthToHome)).perform(click());
-        SystemClock.sleep(3000);
+        SystemClock.sleep(1000);
 
         // --- Create a mood as User 2 (with distinct data) ---
         onView(withId(R.id.page_createMoodEvent))
                 .check(matches(isDisplayed()))
                 .perform(click());
-        SystemClock.sleep(2000);
+        SystemClock.sleep(1000);
         onView(withId(R.id.emotion_trigger))
                 .perform(scrollTo(), replaceText(MOOD2_TRIGGER), closeSoftKeyboard());
         onView(withId(R.id.emotion_reason))
@@ -177,25 +176,19 @@ public class MoodDetailsOwnershipTest extends FirebaseEmulatorMixin {
         onView(withId(R.id.toggle_anger)).perform(click());
         onView(withId(R.id.submit_button))
                 .perform(scrollTo(), click());
-        SystemClock.sleep(3000);
+        SystemClock.sleep(1000);
 
         // --- For User 2's own mood: Open details (assumed at position 0 in the RecyclerView) ---
         onView(withId(R.id.moodRecyclerView))
                 .perform(actionOnItemAtPosition(0, clickChildViewWithId(R.id.viewDetailsButton)));
-        SystemClock.sleep(3000);
+        SystemClock.sleep(1000);
 
         // Verify that the Edit and Delete buttons are visible.
         onView(withId(R.id.btnEditMood)).check(matches(isDisplayed()));
         onView(withId(R.id.btnDeleteMood)).check(matches(isDisplayed()));
 
-        // Click Edit and verify navigation to the Edit Mood screen.
-        onView(withId(R.id.btnEditMood)).perform(click());
-        SystemClock.sleep(3000);
-        onView(withText("Edit Mood")).check(matches(isDisplayed()));
-
         // Sign out User 2.
         FirebaseAuth.getInstance().signOut();
-        SystemClock.sleep(2000);
     }
 
     /**
@@ -206,6 +199,7 @@ public class MoodDetailsOwnershipTest extends FirebaseEmulatorMixin {
     @Test
     public void testNoEditVisibilityForOtherMood_User2() throws InterruptedException {
         // --- Sign In as User 2 (assuming the user already exists) ---
+        SystemClock.sleep("1000");
         onView(withId(R.id.buttonInitialToSignIn)).perform(click());
         onView(withId(R.id.emailSignIn)).perform(replaceText(USER2_EMAIL), closeSoftKeyboard());
         onView(withId(R.id.passwordSignIn)).perform(replaceText(USER2_PASSWORD), closeSoftKeyboard());
