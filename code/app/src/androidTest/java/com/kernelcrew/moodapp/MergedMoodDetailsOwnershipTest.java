@@ -98,24 +98,14 @@ public class MergedMoodDetailsOwnershipTest extends FirebaseEmulatorMixin {
 
     @AfterClass
     public static void cleanUpAfterAllTests() throws Exception {
-        // Final cleanup in case any test left the users
         FirebaseAuth.getInstance().signOut();
         deleteTestUser(USER1_EMAIL, USER1_PASSWORD, USER1_USERNAME);
         deleteTestUser(USER2_EMAIL, USER2_PASSWORD, USER2_USERNAME);
     }
 
-    /**
-     * Single merged test that does:
-     *  1) User1 signs up, creates mood, verifies Edit/Delete visible.
-     *  2) User2 signs up, creates mood, verifies Edit/Delete visible for own mood.
-     *  3) User2 re-signs in, opens User1's mood, verifies Edit/Delete are NOT visible.
-     */
     @Test
     public void testMergedMoodDetailsOwnership() throws InterruptedException, ExecutionException {
-        //
-        // --------------------------------------------------
-        // Step 1: Launch app fresh, Sign up as User1, create mood, verify
-        // --------------------------------------------------
+        // Test01: User1 signs up, creates mood, verifies Edit/Delete visible
         ActivityScenario<MainActivity> scenario = ActivityScenario.launch(MainActivity.class);
         SystemClock.sleep(3000);
 
@@ -141,7 +131,7 @@ public class MergedMoodDetailsOwnershipTest extends FirebaseEmulatorMixin {
                 .perform(scrollTo(), click());
         SystemClock.sleep(3000);
 
-        // Open the newly created mood's details (assumed at position 0).
+        // Open the newly created mood's details (default at position 0)
         onView(withId(R.id.moodRecyclerView))
                 .perform(actionOnItemAtPosition(0, clickChildViewWithId(R.id.viewDetailsButton)));
         SystemClock.sleep(3000);
@@ -159,10 +149,20 @@ public class MergedMoodDetailsOwnershipTest extends FirebaseEmulatorMixin {
         scenario = ActivityScenario.launch(MainActivity.class);
         SystemClock.sleep(3000);
 
-        //
-        // --------------------------------------------------
-        // Step 2: Sign up as User2, create mood, verify
-        // --------------------------------------------------
+
+
+
+
+
+
+
+
+
+
+
+
+
+        // Test02: User2 signs up, creates mood, verifies Edit/Delete visible for own mood
         onView(withId(R.id.buttonInitialToSignUp)).perform(click());
         onView(withId(R.id.username)).perform(replaceText(USER2_USERNAME));
         onView(withId(R.id.emailSignUp)).perform(replaceText(USER2_EMAIL));
@@ -183,7 +183,7 @@ public class MergedMoodDetailsOwnershipTest extends FirebaseEmulatorMixin {
                 .perform(scrollTo(), click());
         SystemClock.sleep(3000);
 
-        // Open the newly created mood's details (position 0).
+        // Open the newly created mood's details (default at position 0)
         onView(withId(R.id.moodRecyclerView))
                 .perform(actionOnItemAtPosition(0, clickChildViewWithId(R.id.viewDetailsButton)));
         SystemClock.sleep(3000);
@@ -201,10 +201,25 @@ public class MergedMoodDetailsOwnershipTest extends FirebaseEmulatorMixin {
         scenario = ActivityScenario.launch(MainActivity.class);
         SystemClock.sleep(3000);
 
-        //
-        // --------------------------------------------------
-        // Step 3: Sign in as User2, view User1's mood, verify no Edit/Delete
-        // --------------------------------------------------
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        // Test03: User2 re-signs in, opens User1's mood, verifies Edit/Delete are NOT visible.
         onView(withId(R.id.buttonInitialToSignIn)).perform(click());
         onView(withId(R.id.emailSignIn)).perform(replaceText(USER2_EMAIL), closeSoftKeyboard());
         onView(withId(R.id.passwordSignIn)).perform(replaceText(USER2_PASSWORD), closeSoftKeyboard());
