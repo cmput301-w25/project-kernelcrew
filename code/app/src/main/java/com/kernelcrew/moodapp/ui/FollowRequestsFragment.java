@@ -5,27 +5,28 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.firestore.DocumentReference;
-import com.google.firebase.firestore.FieldValue;
-import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.WriteBatch;
-import com.kernelcrew.moodapp.R;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
 
+import com.google.android.material.appbar.MaterialToolbar;
+import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.kernelcrew.moodapp.R;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class FollowRequestsFragment extends Fragment {
     private final FirebaseFirestore db = FirebaseFirestore.getInstance();
     private final List<String> requestList = new ArrayList<>();
     private FollowRequestAdapter adapter;
+    private BottomNavBarController navBarController;
 
     @Nullable
     @Override
@@ -36,11 +37,23 @@ public class FollowRequestsFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+
+        MaterialToolbar toolbar = view.findViewById(R.id.topAppBar);
+        toolbar.setNavigationOnClickListener(v ->
+                Navigation.findNavController(v).navigate(R.id.myProfile)
+        );
+
         RecyclerView rv = view.findViewById(R.id.followRequestsRecyclerView);
         rv.setLayoutManager(new LinearLayoutManager(requireContext()));
         adapter = new FollowRequestAdapter(requestList, this);
         rv.setAdapter(adapter);
 
+        BottomNavigationView bottomNav = view.findViewById(R.id.bottom_navigation);
+        bottomNav.setSelectedItemId(R.id.page_myProfile);
+        navBarController = new BottomNavBarController(bottomNav);
+        navBarController.bind(view);
+
+        // Firestore snapshot listener
         String me = FirebaseAuth.getInstance().getCurrentUser().getUid();
         db.collection("users")
                 .document(me)
@@ -48,7 +61,7 @@ public class FollowRequestsFragment extends Fragment {
                 .addSnapshotListener((snap, err) -> {
                     requestList.clear();
                     if (snap != null) {
-                        for (com.google.firebase.firestore.DocumentSnapshot doc : snap.getDocuments()) {
+                        for (var doc : snap.getDocuments()) {
                             requestList.add(doc.getId());
                         }
                     }
@@ -59,48 +72,38 @@ public class FollowRequestsFragment extends Fragment {
     public void accept(String requesterUid) {
         String currentUid = FirebaseAuth.getInstance().getCurrentUser().getUid();
         FirebaseFirestore db = FirebaseFirestore.getInstance();
-
-        WriteBatch batch = db.batch();
-
-        DocumentReference requestRef = db.collection("users")
-                .document(currentUid)
-                .collection("followRequests")
-                .document(requesterUid);
-        batch.delete(requestRef);
-
-        DocumentReference myFollowersRef = db.collection("users")
-                .document(currentUid)
-                .collection("followers")
-                .document(requesterUid);
-        batch.set(myFollowersRef, Collections.singletonMap("isFollowingBack", false));
-
-        DocumentReference requesterFollowingRef = db.collection("users")
-                .document(requesterUid)
-                .collection("following")
-                .document(currentUid);
-        batch.set(requesterFollowingRef, Collections.singletonMap("isFollowed", true));
-
-        DocumentReference myUserDoc = db.collection("users").document(currentUid);
-        DocumentReference requesterUserDoc = db.collection("users").document(requesterUid);
-        batch.update(myUserDoc, "followersCount", FieldValue.increment(1));
-        batch.update(requesterUserDoc, "followingCount", FieldValue.increment(1));
-
-        batch.commit()
-                .addOnSuccessListener(unused -> Navigation.findNavController(requireView()).popBackStack())
-                .addOnFailureListener(e -> Log.e("RequestFragment", "Failed to accept follow", e));
-    }
-
-    public void deny(String requesterUid) {
-        String currentUid = FirebaseAuth.getInstance().getCurrentUser().getUid();
-        FirebaseFirestore db = FirebaseFirestore.getInstance();
-
         db.collection("users")
                 .document(currentUid)
                 .collection("followRequests")
                 .document(requesterUid)
                 .delete()
-                .addOnSuccessListener(unused -> Navigation.findNavController(requireView()).popBackStack())
-                .addOnFailureListener(e -> Log.e("RequestFragment", "Failed to deny follow", e));
+                .addOnSuccessListener(unused -> {
+                    db.collection("users")
+                            .document(currentUid)
+                            .collection("followers")
+                            .document(requesterUid)
+                            .set(null);
+                    db.collection("users")
+                            .document(requesterUid)
+                            .collection("following")
+                            .document(currentUid)
+                            .set(null);
+                    Navigation.findNavController(requireView()).navigate(R.id.myProfile);
+                })
+                .addOnFailureListener(e -> Log.e("FollowRequestsFragment", "Accept failed", e));
     }
 
+    public void deny(String requesterUid) {
+        String currentUid = FirebaseAuth.getInstance().getCurrentUser().getUid();
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        db.collection("users")
+                .document(currentUid)
+                .collection("followRequests")
+                .document(requesterUid)
+                .delete()
+                .addOnSuccessListener(unused ->
+                        Navigation.findNavController(requireView()).navigate(R.id.myProfile)
+                )
+                .addOnFailureListener(e -> Log.e("RequestFragment", "Failed to deny follow", e));
+    }
 }
