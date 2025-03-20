@@ -7,7 +7,6 @@ import androidx.fragment.app.Fragment;
 import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -15,16 +14,15 @@ import android.view.ViewGroup;
 import android.widget.CheckBox;
 import android.widget.TextView;
 import android.widget.Toast;
-
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.navigation.NavigationBarView;
 import com.google.android.material.imageview.ShapeableImageView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.FirebaseFirestore;
 import com.kernelcrew.moodapp.R;
 import com.kernelcrew.moodapp.data.User;
 import com.kernelcrew.moodapp.data.UserProvider;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -98,7 +96,24 @@ public class FollowingFragment extends Fragment {
         @Override
         public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
             User user = users.get(position);
-            holder.usernameTextView.setText(user.getName());
+            String uid = user.getName();
+
+            // Fetch the username from Firestore
+            FirebaseFirestore.getInstance().collection("users").document(uid)
+                    .get()
+                    .addOnSuccessListener(doc -> {
+                        if (doc.exists()) {
+                            String realName = doc.getString("username");
+                            if (realName == null || realName.isEmpty()) {
+                                realName = uid;
+                            }
+                            holder.usernameTextView.setText(realName);
+                        } else {
+                            holder.usernameTextView.setText(uid);
+                        }
+                    })
+                    .addOnFailureListener(e -> holder.usernameTextView.setText(uid));
+
             holder.avatarImageView.setImageResource(R.drawable.ic_person);
             holder.followCheckBox.setChecked(true);
 
@@ -106,12 +121,11 @@ public class FollowingFragment extends Fragment {
                 if (!isChecked) {
                     Bundle bundle = new Bundle();
                     bundle.putString("requestType", "unfollow_confirmation");
-                    bundle.putString("username", user.getName());
+                    bundle.putString("username", uid);  // Consider fetching the real name here too
                     Navigation.findNavController(buttonView).navigate(R.id.action_followingFragment_to_requestFragment, bundle);
                 }
             });
         }
-
 
         @Override
         public int getItemCount() {
