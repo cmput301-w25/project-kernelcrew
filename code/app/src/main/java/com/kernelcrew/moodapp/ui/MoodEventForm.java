@@ -85,6 +85,7 @@ public class MoodEventForm extends Fragment implements LocationUpdateListener {
         photoButton.setImageResource(R.drawable.upload_splash);
 
         updateResetPhotoVisibility();
+        resetPhotoButtonError(); // Clear any error if present
     }
 
     /**
@@ -108,6 +109,10 @@ public class MoodEventForm extends Fragment implements LocationUpdateListener {
      */
     private void updateResetPhotoVisibility() {
         photoResetButton.setVisibility(photo == null ? INVISIBLE : VISIBLE);
+
+        ViewGroup.LayoutParams layoutParams = photoResetButton.getLayoutParams();
+        layoutParams.height = photo == null ? 0 : ViewGroup.LayoutParams.WRAP_CONTENT;
+        photoResetButton.setLayoutParams(layoutParams);
     }
 
     private MoodEventFormSubmitCallback callback;
@@ -192,8 +197,15 @@ public class MoodEventForm extends Fragment implements LocationUpdateListener {
         }
         photo = details.photo;
         photoButton.setImageBitmap(details.photo);
-
         updateResetPhotoVisibility();
+
+    private void resetPhotoButtonError() {
+        photoButtonError.setText(null);
+
+        // Hide the photo button error element
+        ViewGroup.LayoutParams layoutParams = photoButtonError.getLayoutParams();
+        layoutParams.height = 0;
+        photoButtonError.setLayoutParams(layoutParams);
     }
 
     private @Nullable MoodEventDetails validateFields() {
@@ -201,7 +213,7 @@ public class MoodEventForm extends Fragment implements LocationUpdateListener {
 
         emotionPickerFragment.setError(null);
         reasonEditText.setError(null);
-        photoButtonError.setText(null);
+        resetPhotoButtonError();
 
         details.emotion = emotionPickerFragment.getSelected();
         if (details.emotion == null) {
@@ -222,10 +234,15 @@ public class MoodEventForm extends Fragment implements LocationUpdateListener {
         if (photo != null && PhotoUtils.compressPhoto(photo).size() > 65536) {
             Log.i("MoodEventForm", "Image too large");
             photoButtonError.setText("Image too large");
+
+            ViewGroup.LayoutParams layoutParams = photoButtonError.getLayoutParams();
+            layoutParams.height = ViewGroup.LayoutParams.WRAP_CONTENT;
+            photoButtonError.setLayoutParams(layoutParams);
             return null;
         }
         details.lat = currentLatitude;
         details.lon = currentLongitude;
+
         return details;
     }
 
