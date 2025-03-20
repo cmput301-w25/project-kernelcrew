@@ -15,8 +15,8 @@ Resolves: #...
 
 - Any considerations that other PR's may need to take into note? 
      - 
-- Should the reviewer delete the branch on merge? Y/N
-     - 
+- Should the reviewer delete the branch on merge? 
+     - Yes/No
 
 ---
 
