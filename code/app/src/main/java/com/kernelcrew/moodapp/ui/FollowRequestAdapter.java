@@ -10,6 +10,8 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.RecyclerView;
+
+import com.google.firebase.firestore.FirebaseFirestore;
 import com.kernelcrew.moodapp.R;
 import java.util.List;
 
@@ -30,17 +32,44 @@ public class FollowRequestAdapter extends RecyclerView.Adapter<FollowRequestAdap
     }
 
     @Override
-    public void onBindViewHolder(@NonNull ViewHolder holder, int pos) {
-        String uid = items.get(pos);
-        holder.requestMessage.setText(holder.itemView.getContext().getString(R.string.request_follow_message, uid));
+    public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
+        String requestorUid = items.get(position);
+
+        // 1) Fetch the requestor’s user doc
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        db.collection("users").document(requestorUid).get()
+                .addOnSuccessListener(doc -> {
+                    if (doc.exists()) {
+                        // 2) If user doc found, get their username or fallback to doc ID
+                        String userName = doc.getString("username");
+                        if (userName == null || userName.isEmpty()) {
+                            userName = requestorUid; // fallback to UID if no username
+                        }
+                        // 3) "X is requesting to follow you"
+                        String msg = userName + " is requesting to follow you";
+                        holder.requestMessage.setText(msg);
+                    } else {
+                        // If doc doesn’t exist, fallback
+                        holder.requestMessage.setText(requestorUid + " is requesting to follow you");
+                    }
+                })
+                .addOnFailureListener(e -> {
+                    // If Firestore read fails, fallback to UID
+                    holder.requestMessage.setText(requestorUid + " is requesting to follow you");
+                });
+
+        // 4) The small avatar
         holder.uid.setOnClickListener(v -> {
             Bundle args = new Bundle();
-            args.putString("uid", uid);
+            args.putString("uid", requestorUid);
             Navigation.findNavController(v).navigate(R.id.otherUserProfile, args);
         });
-        holder.acceptButton.setOnClickListener(v -> fragment.accept(uid));
-        holder.denyButton.setOnClickListener(v -> fragment.deny(uid));
+
+        // 5) Accept & Deny
+        holder.acceptButton.setOnClickListener(v -> fragment.accept(requestorUid));
+        holder.denyButton.setOnClickListener(v -> fragment.deny(requestorUid));
     }
+
 
     @Override
     public int getItemCount() { return items.size(); }
