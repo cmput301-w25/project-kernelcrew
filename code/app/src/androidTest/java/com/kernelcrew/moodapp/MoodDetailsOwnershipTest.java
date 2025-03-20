@@ -36,7 +36,6 @@ import org.junit.runner.RunWith;
 import org.junit.runners.MethodSorters;
 
 import java.util.List;
-import java.util.concurrent.ExecutionException;
 
 @RunWith(AndroidJUnit4.class)
 @LargeTest
@@ -64,27 +63,23 @@ public class MoodDetailsOwnershipTest extends FirebaseEmulatorMixin {
             new ActivityScenarioRule<>(MainActivity.class);
 
     /**
-     * Helper method that deletes a test user (if exists) from Firebase Auth and Firestore.
+     * Helper method to delete a test user if exists.
      */
     private static void deleteTestUser(String email, String password, String username) throws Exception {
         FirebaseAuth auth = FirebaseAuth.getInstance();
         try {
-            // Attempt to sign in; if the user exists, this will succeed.
             Tasks.await(auth.signInWithEmailAndPassword(email, password));
             FirebaseUser user = auth.getCurrentUser();
             if (user != null) {
-                System.out.println("Deleting FirebaseAuth user: " + user.getUid());
                 Tasks.await(user.delete());
             }
         } catch (Exception e) {
-            System.out.println("User sign in failed (likely does not exist): " + e.getMessage());
+            // User likely doesn't exist
         } finally {
             auth.signOut();
         }
-        // Delete Firestore documents
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         try {
-            System.out.println("Deleting Firestore document in 'usernames' for username: " + username);
             Tasks.await(db.collection("usernames").document(username).delete());
         } catch (Exception ignored) { }
         try {
@@ -92,35 +87,32 @@ public class MoodDetailsOwnershipTest extends FirebaseEmulatorMixin {
                     db.collection("users").whereEqualTo("email", email).get()
             ).getDocuments();
             for (DocumentSnapshot doc : docs) {
-                System.out.println("Deleting Firestore user document: " + doc.getId());
                 Tasks.await(db.collection("users").document(doc.getId()).delete());
             }
         } catch (Exception ignored) { }
     }
 
-    /**
-     * 1) Before all tests, delete any existing user data so sign-ups won't fail with "username already taken."
-     * 2) We do NOT create users here; the tests sign up via the UI.
-     */
     @BeforeClass
     public static void cleanUpExistingUsers() throws Exception {
-        // Delete User 1
         System.out.println("Deleting test user 1 if exists...");
         deleteTestUser(USER1_EMAIL, USER1_PASSWORD, USER1_USERNAME);
-        // Delete User 2
         System.out.println("Deleting test user 2 if exists...");
         deleteTestUser(USER2_EMAIL, USER2_PASSWORD, USER2_USERNAME);
-        // Wait a few seconds to ensure deletion propagates.
+        // Allow deletion to propagate.
         SystemClock.sleep(5000);
     }
 
     /**
-     * This runs before each test. We sign out the current user if any.
+     * Ensure each test starts fresh: sign out and recreate the activity.
      */
     @Before
-    public void setUp() throws InterruptedException, ExecutionException {
+    public void setUp() throws InterruptedException {
+        // Sign out any existing user.
         FirebaseAuth.getInstance().signOut();
-        SystemClock.sleep(1000);
+        // Force a full activity restart so that the authentication UI is shown.
+        activityScenarioRule.getScenario().recreate();
+        // Wait for the UI to update.
+        SystemClock.sleep(2000);
     }
 
     /**
@@ -128,7 +120,7 @@ public class MoodDetailsOwnershipTest extends FirebaseEmulatorMixin {
      */
     @Test
     public void test01_EditVisibilityForOwnMood_User1() throws InterruptedException {
-        // --- Sign Up as User 1 via GUI ---
+        // Sign up as User 1 via the UI.
         onView(withId(R.id.buttonInitialToSignUp)).perform(click());
         onView(withId(R.id.username)).perform(replaceText(USER1_USERNAME));
         onView(withId(R.id.emailSignUp)).perform(replaceText(USER1_EMAIL));
@@ -136,110 +128,106 @@ public class MoodDetailsOwnershipTest extends FirebaseEmulatorMixin {
         onView(withId(R.id.signUpButtonAuthToHome)).perform(click());
         SystemClock.sleep(3000);
 
-        // --- Create a mood as User 1 ---
+        // Create a mood as User 1.
         onView(withId(R.id.page_createMoodEvent))
                 .check(matches(isDisplayed()))
                 .perform(click());
-        SystemClock.sleep(2000);
-
+        SystemClock.sleep(3000);
         onView(withId(R.id.emotion_trigger))
                 .perform(scrollTo(), replaceText(MOOD1_TRIGGER), closeSoftKeyboard());
         onView(withId(R.id.emotion_reason))
                 .perform(scrollTo(), replaceText(MOOD1_REASON), closeSoftKeyboard());
-
-        // Assume there's a toggle_happy to pick an emotion
+        // Select an emotion toggle (e.g., toggle_happy).
         onView(withId(R.id.toggle_happy)).perform(click());
         onView(withId(R.id.submit_button))
                 .perform(scrollTo(), click());
-        SystemClock.sleep(2000);
+        SystemClock.sleep(3000);
 
-        // --- Open the newly created mood details (position 0) ---
+        // Open the newly created mood's details (assumed at position 0).
         onView(withId(R.id.moodRecyclerView))
                 .perform(actionOnItemAtPosition(0, clickChildViewWithId(R.id.viewDetailsButton)));
-        SystemClock.sleep(2000);
+        SystemClock.sleep(3000);
 
-        // Verify Edit & Delete are visible
+        // Verify that Edit and Delete buttons are visible.
         onView(withId(R.id.btnEditMood)).check(matches(isDisplayed()));
         onView(withId(R.id.btnDeleteMood)).check(matches(isDisplayed()));
     }
 
     /**
-     * Test 2:
-     * User 2 signs up, creates a mood, verifies that for their own mood
+     * Test 2: User 2 signs up, creates a mood, and verifies that for their own mood,
      * the Edit and Delete buttons are visible.
      */
     @Test
     public void test02_EditVisibilityForOwnMood_User2() throws InterruptedException {
-        // --- Sign Up as User 2 ---
+        // Sign up as User 2.
         onView(withId(R.id.buttonInitialToSignUp)).perform(click());
         onView(withId(R.id.username)).perform(replaceText(USER2_USERNAME));
         onView(withId(R.id.emailSignUp)).perform(replaceText(USER2_EMAIL));
         onView(withId(R.id.passwordSignUp)).perform(replaceText(USER2_PASSWORD));
         onView(withId(R.id.signUpButtonAuthToHome)).perform(click());
-        SystemClock.sleep(2000);
+        SystemClock.sleep(3000);
 
-        // --- Create a mood as User 2 ---
+        // Create a mood as User 2.
         onView(withId(R.id.page_createMoodEvent))
                 .check(matches(isDisplayed()))
                 .perform(click());
-        SystemClock.sleep(1000);
-
+        SystemClock.sleep(2000);
         onView(withId(R.id.emotion_trigger))
                 .perform(scrollTo(), replaceText(MOOD2_TRIGGER), closeSoftKeyboard());
         onView(withId(R.id.emotion_reason))
                 .perform(scrollTo(), replaceText(MOOD2_REASON), closeSoftKeyboard());
-
-        // Suppose there's a toggle_anger for user 2
+        // Use an emotion toggle; here, assume "toggle_anger" exists.
         onView(withId(R.id.toggle_anger)).perform(click());
         onView(withId(R.id.submit_button))
                 .perform(scrollTo(), click());
-        SystemClock.sleep(1000);
+        SystemClock.sleep(3000);
 
-        // --- Open details for user 2's newly created mood (position 0) ---
+        // Open details for User 2's mood (position 0).
         onView(withId(R.id.moodRecyclerView))
                 .perform(actionOnItemAtPosition(0, clickChildViewWithId(R.id.viewDetailsButton)));
-        SystemClock.sleep(1000);
+        SystemClock.sleep(3000);
 
-        // Edit & Delete should be visible
+        // Verify that Edit and Delete buttons are visible.
         onView(withId(R.id.btnEditMood)).check(matches(isDisplayed()));
         onView(withId(R.id.btnDeleteMood)).check(matches(isDisplayed()));
+
+        // Sign out User 2.
+        FirebaseAuth.getInstance().signOut();
+        SystemClock.sleep(2000);
     }
 
     /**
-     * Test 3:
-     * Still as User 2, view a mood created by User 1 (assumed to be position 1),
-     * verify that Edit & Delete are NOT visible.
+     * Test 3: Sign in as User 2 and view a mood created by User 1 to verify that
+     * the Edit and Delete buttons are NOT visible.
      */
     @Test
     public void test03_NoEditVisibilityForOtherMood_User2() throws InterruptedException {
-        // Already signed in as user 2 from test02 (since we haven't signed out).
-        SystemClock.sleep(2000);
+        // Sign in as User 2.
+        onView(withId(R.id.buttonInitialToSignIn)).perform(click());
+        onView(withId(R.id.emailSignIn)).perform(replaceText(USER2_EMAIL), closeSoftKeyboard());
+        onView(withId(R.id.passwordSignIn)).perform(replaceText(USER2_PASSWORD), closeSoftKeyboard());
+        onView(withId(R.id.signInButtonAuthToHome)).perform(click());
+        SystemClock.sleep(3000);
 
-        // Now, the RecyclerView should have two moods: user1's at position 1
+        // Open User 1's mood (assumed to be at position 1 in the RecyclerView).
         onView(withId(R.id.moodRecyclerView))
                 .perform(actionOnItemAtPosition(1, clickChildViewWithId(R.id.viewDetailsButton)));
-        SystemClock.sleep(2000);
+        SystemClock.sleep(3000);
 
-        // Verify Edit and Delete are GONE for user 1's mood
+        // Verify that Edit and Delete buttons are not visible.
         onView(withId(R.id.btnEditMood))
                 .check(matches(withEffectiveVisibility(ViewMatchers.Visibility.GONE)));
         onView(withId(R.id.btnDeleteMood))
                 .check(matches(withEffectiveVisibility(ViewMatchers.Visibility.GONE)));
+
+        // Sign out User 2.
+        FirebaseAuth.getInstance().signOut();
+        SystemClock.sleep(2000);
     }
 
     /**
-     * After all tests, we delete user1 and user2 again so future runs don't fail with "username taken."
+     * Helper method: Click a child view with a given ID inside a RecyclerView item.
      */
-    @AfterClass
-    public static void cleanUpAfterAllTests() throws Exception {
-        // Sign out any leftover user
-        FirebaseAuth.getInstance().signOut();
-        // Delete test users
-        deleteTestUser(USER1_EMAIL, USER1_PASSWORD, USER1_USERNAME);
-        deleteTestUser(USER2_EMAIL, USER2_PASSWORD, USER2_USERNAME);
-    }
-
-    // Helper method: Click a child view with a given ID inside a RecyclerView item.
     public static androidx.test.espresso.ViewAction clickChildViewWithId(final int id) {
         return new androidx.test.espresso.ViewAction() {
             @Override
@@ -258,5 +246,12 @@ public class MoodDetailsOwnershipTest extends FirebaseEmulatorMixin {
                 }
             }
         };
+    }
+
+    @AfterClass
+    public static void cleanUpAfterAllTests() throws Exception {
+        FirebaseAuth.getInstance().signOut();
+        deleteTestUser(USER1_EMAIL, USER1_PASSWORD, USER1_USERNAME);
+        deleteTestUser(USER2_EMAIL, USER2_PASSWORD, USER2_USERNAME);
     }
 }
