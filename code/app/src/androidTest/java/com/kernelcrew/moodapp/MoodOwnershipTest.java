@@ -8,14 +8,12 @@ import static androidx.test.espresso.action.ViewActions.scrollTo;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
 import static androidx.test.espresso.contrib.RecyclerViewActions.actionOnItemAtPosition;
 import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
-import static androidx.test.espresso.matcher.ViewMatchers.withEffectiveVisibility;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
+import static com.kernelcrew.moodapp.MoodDetailsNavigationTest.clickChildViewWithId;
 
 import android.os.SystemClock;
-import android.view.View;
 
 import androidx.test.core.app.ActivityScenario;
-import androidx.test.espresso.matcher.ViewMatchers;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
 
@@ -38,7 +36,7 @@ import java.util.List;
 @RunWith(AndroidJUnit4.class)
 @LargeTest
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
-public class MoodDetailsOwnershipTest extends FirebaseEmulatorMixin {
+public class MoodOwnershipTest extends FirebaseEmulatorMixin {
 
     // User 1 credentials
     private static final String USER1_USERNAME = "automatedtests1";
@@ -94,13 +92,11 @@ public class MoodDetailsOwnershipTest extends FirebaseEmulatorMixin {
         deleteTestUser(USER1_EMAIL, USER1_PASSWORD, USER1_USERNAME);
         System.out.println("Deleting test user 2 if exists...");
         deleteTestUser(USER2_EMAIL, USER2_PASSWORD, USER2_USERNAME);
-        // Allow deletion to propagate.
         SystemClock.sleep(4000);
     }
 
     @AfterClass
     public static void cleanUpAfterAllTests() throws Exception {
-        // Final cleanup
         FirebaseAuth.getInstance().signOut();
         deleteTestUser(USER1_EMAIL, USER1_PASSWORD, USER1_USERNAME);
         deleteTestUser(USER2_EMAIL, USER2_PASSWORD, USER2_USERNAME);
@@ -197,61 +193,5 @@ public class MoodDetailsOwnershipTest extends FirebaseEmulatorMixin {
         SystemClock.sleep(1000);
 
         scenario.close();
-    }
-
-    /**
-     * Test #3: User2 re-signs in, opens User1's mood, verifies Edit/Delete are NOT visible.
-     * This test depends on the mood that User1 created in test01_User1CreatesMood().
-     */
-    @Test
-    public void test03_User2ViewsUser1Mood() throws InterruptedException {
-        // Launch fresh
-        ActivityScenario<MainActivity> scenario = ActivityScenario.launch(MainActivity.class);
-        SystemClock.sleep(3000);
-
-        // Sign in as User2
-        onView(withId(R.id.buttonInitialToSignIn)).perform(click());
-        onView(withId(R.id.emailSignIn)).perform(replaceText(USER2_EMAIL), closeSoftKeyboard());
-        onView(withId(R.id.passwordSignIn)).perform(replaceText(USER2_PASSWORD), closeSoftKeyboard());
-        onView(withId(R.id.signInButtonAuthToHome)).perform(click());
-        SystemClock.sleep(3000);
-
-        // Now we expect that the RecyclerView has:
-        //   - position 0: user2's own mood
-        //   - position 1: user1's mood from test01
-        onView(withId(R.id.moodRecyclerView))
-                .perform(actionOnItemAtPosition(1, clickChildViewWithId(R.id.viewDetailsButton)));
-        SystemClock.sleep(3000);
-
-        // Verify Edit/Delete are GONE for user1's mood when viewed by user2
-        onView(withId(R.id.btnEditMood))
-                .check(matches(withEffectiveVisibility(ViewMatchers.Visibility.GONE)));
-        onView(withId(R.id.btnDeleteMood))
-                .check(matches(withEffectiveVisibility(ViewMatchers.Visibility.GONE)));
-
-        scenario.close();
-    }
-
-    /**
-     * Helper method: Click a child view with a given ID inside a RecyclerView item.
-     */
-    public static androidx.test.espresso.ViewAction clickChildViewWithId(final int id) {
-        return new androidx.test.espresso.ViewAction() {
-            @Override
-            public org.hamcrest.Matcher<View> getConstraints() {
-                return isDisplayed();
-            }
-            @Override
-            public String getDescription() {
-                return "Click on a child view with specified id.";
-            }
-            @Override
-            public void perform(androidx.test.espresso.UiController uiController, View view) {
-                View childView = view.findViewById(id);
-                if (childView != null && childView.isClickable()) {
-                    childView.performClick();
-                }
-            }
-        };
     }
 }
