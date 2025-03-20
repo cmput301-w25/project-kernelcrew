@@ -205,8 +205,8 @@ public class MoodEventForm extends Fragment implements LocationUpdateListener {
         details.socialSituation = situationAutoComplete.getText().toString();
 
         details.reason = reasonEditText.getText().toString();
-        if (details.reason.length() > 20 && details.reason.split(" ").length > 3) {
-            reasonEditText.setError("Reason must be less than 20 characters or 3 words");
+        if (details.reason.length() > 200) {
+            reasonEditText.setError("Reason must be less than 200 characters");
             return null;
         }
 
