@@ -1,6 +1,5 @@
 package com.kernelcrew.moodapp.ui;
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -14,6 +13,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.material.appbar.MaterialToolbar;
 import com.google.firebase.auth.FirebaseAuth;
 import com.kernelcrew.moodapp.R;
 import com.kernelcrew.moodapp.data.User;
@@ -33,6 +33,8 @@ public class SearchUsers extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.fragment_search_users_results_page);
 
+        MaterialToolbar topAppBar = findViewById(R.id.topAppBar);
+
         recyclerView = findViewById(R.id.searchResultsRecyclerView);
         progressBar = findViewById(R.id.searchProgressBar);
         noResultsText = findViewById(R.id.noResultsTextView);
@@ -40,6 +42,7 @@ public class SearchUsers extends AppCompatActivity {
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         adapter = new SearchUsersAdapter();
         recyclerView.setAdapter(adapter);
+        topAppBar.setNavigationOnClickListener(v -> finish());
 
         // Get the search query passed via intent extra "search_query"
         String searchQuery = getIntent().getStringExtra("search_query");
