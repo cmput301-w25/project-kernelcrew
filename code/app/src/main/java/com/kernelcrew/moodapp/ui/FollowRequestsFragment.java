@@ -81,13 +81,11 @@ public class FollowRequestsFragment extends Fragment {
                     db.collection("users")
                             .document(currentUid)
                             .collection("followers")
-                            .document(requesterUid)
-                            .set(null);
+                            .document(requesterUid);
                     db.collection("users")
                             .document(requesterUid)
                             .collection("following")
-                            .document(currentUid)
-                            .set(null);
+                            .document(currentUid);
                     Navigation.findNavController(requireView()).navigate(R.id.myProfile);
                 })
                 .addOnFailureListener(e -> Log.e("FollowRequestsFragment", "Accept failed", e));
