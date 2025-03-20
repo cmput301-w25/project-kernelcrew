@@ -80,7 +80,7 @@ public class CreateMoodEventTest extends FirebaseEmulatorMixin {
 
         onView(withId(R.id.page_createMoodEvent)).perform(click());
 
-        onView(withId(R.id.toggle_fear)).perform(click());
+        onView(withId(R.id.toggle_sadness)).perform(click());
         onView(withId(R.id.visible_private_button)).perform(scrollTo()).perform(click());
         onView(withId(R.id.submit_button)).perform(scrollTo()).perform(click());
 
@@ -92,7 +92,7 @@ public class CreateMoodEventTest extends FirebaseEmulatorMixin {
                     for (DocumentSnapshot snapshot : moodEvents) {
                         MoodEvent event = snapshot.toObject(MoodEvent.class);
                         assertNotNull(event);
-                        if (event.getEmotion() == Emotion.FEAR) {
+                        if (event.getEmotion() == Emotion.SADNESS) {
                             newEvent = event;
                         }
                     }
