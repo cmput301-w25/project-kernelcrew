@@ -19,6 +19,8 @@ import androidx.navigation.fragment.NavHostFragment;
 
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.chip.Chip;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.kernelcrew.moodapp.R;
 import com.kernelcrew.moodapp.data.MoodEvent;
@@ -118,6 +120,9 @@ public class MoodDetails extends Fragment implements DeleteDialogFragment.Delete
                 });
     }
 
+    /**
+     * Binds MoodEvent data to the UI components.
+     */
     private void bindMoodData(MoodEvent moodEvent) {
         tvMoodState.setText(moodEvent.getEmotion().toString());
         tvTriggerValue.setText(moodEvent.getTrigger());
@@ -169,6 +174,21 @@ public class MoodDetails extends Fragment implements DeleteDialogFragment.Delete
         } else {
             // If no user ID, show something else or keep blank
             tvUsernameDisplay.setText("No user ID provided");
+        }
+
+        // 1) Get the current user from FirebaseAuth
+        FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
+        String currentUserUid = currentUser.getUid();
+
+        // 2) Compare the mood's owner (userId) to the current user’s UID
+        if (currentUser != null && userId != null && userId.equals(currentUserUid)) {
+            // The current user OWNS this mood => show the edit/delete buttons
+            btnEditMood.setVisibility(View.VISIBLE);
+            btnDeleteMood.setVisibility(View.VISIBLE);
+        } else {
+            // The current user does NOT own it => hide them
+            btnEditMood.setVisibility(View.GONE);
+            btnDeleteMood.setVisibility(View.GONE);
         }
     }
 
