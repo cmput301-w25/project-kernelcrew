@@ -15,6 +15,7 @@ import androidx.navigation.fragment.NavHostFragment;
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.kernelcrew.moodapp.R;
 import com.kernelcrew.moodapp.data.UserProvider;
@@ -95,7 +96,37 @@ public class OtherUserProfile extends Fragment {
 
         // Initialize and wire up the Follow button
         followButton = view.findViewById(R.id.followButton);
-        followButton.setOnClickListener(v -> sendFollowRequest());
+
+        // If it's your own profile, hide or disable the follow button
+        if (currentUser != null && uidToLoad != null && uidToLoad.equals(currentUser.getUid())) {
+            followButton.setVisibility(View.GONE);
+        } else {
+            // Otherwise, check if you've already sent a follow request
+            if (currentUser != null && uidToLoad != null) {
+                FirebaseFirestore db = FirebaseFirestore.getInstance();
+                db.collection("users")
+                        .document(uidToLoad)
+                        .collection("followRequests")
+                        .document(currentUser.getUid())
+                        .get()
+                        .addOnSuccessListener(doc -> {
+                            if (doc.exists()) {
+                                // Already requested
+                                followButton.setEnabled(false);
+                                followButton.setText("Requested");
+                            } else {
+                                // Not requested yet
+                                followButton.setEnabled(true);
+                                followButton.setText("Follow");
+                            }
+                        })
+                        .addOnFailureListener(e ->
+                                Log.e(TAG, "Failed to check followRequests doc", e)
+                        );
+            }
+
+            followButton.setOnClickListener(v -> sendFollowRequest());
+        }
 
         return view;
     }
