@@ -14,8 +14,10 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.Toast;
 
+import com.google.android.material.button.MaterialButton;
 import com.google.android.material.navigation.NavigationBarView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -24,22 +26,26 @@ import com.kernelcrew.moodapp.data.MoodEvent;
 import com.kernelcrew.moodapp.data.MoodEventProvider;
 
 public class CreateMoodEvent extends Fragment {
-    private NavController navController;
     private BottomNavBarController navBarController;
 
     private FirebaseUser currentUser;
     private MoodEventProvider provider;
 
+    public CreateMoodEvent() {}
+
     private void handleSubmit(MoodEventForm.MoodEventDetails details) {
         MoodEvent moodEvent = details.toMoodEvent(currentUser.getUid());
         provider.insertMoodEvent(moodEvent)
-                .addOnSuccessListener(_result -> {
-                    navController.navigate(R.id.homeFeed);
+                .addOnSuccessListener(aVoid -> {
+                    Bundle args = new Bundle();
+                    args.putString("sourceScreen", "createScreen");
+                    Navigation.findNavController(requireActivity(), R.id.nav_host_fragment).popBackStack();
                 })
-                .addOnFailureListener(error -> {
-                    Toast.makeText(getContext(), error.getMessage(), Toast.LENGTH_LONG).show();
-                    Log.e("CreateMoodEvent", error.toString());
+                .addOnFailureListener(e -> {
+                    Toast.makeText(getContext(), e.getMessage(), Toast.LENGTH_LONG).show();
+                    Log.e("CreateMoodEvent", e.toString());
                 });
+
     }
 
     @Override
@@ -58,7 +64,6 @@ public class CreateMoodEvent extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         navBarController.bind(view);
-        navController = Navigation.findNavController(view);
 
         // Get fragments
         FragmentContainerView formFragmentContainer = view.findViewById(R.id.mood_event_form);
@@ -78,8 +83,14 @@ public class CreateMoodEvent extends Fragment {
         // First set update listener to connect fragments
         locationFragment.setUpdateListener(form);
 
-        // Then set submit callback
-        form.onSubmit(this::handleSubmit);
+        MaterialButton submitButton = view.findViewById(R.id.submit_button);
+        submitButton.setOnClickListener(v -> {
+            // Validate fields from form
+            MoodEventForm.MoodEventDetails details = form.validateFields();
+            if (details != null) {
+                handleSubmit(details);
+            }
+        });
 
         provider = MoodEventProvider.getInstance();
         currentUser = FirebaseAuth.getInstance().getCurrentUser();

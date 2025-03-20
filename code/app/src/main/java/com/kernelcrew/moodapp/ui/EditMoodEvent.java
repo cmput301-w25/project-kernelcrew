@@ -14,6 +14,7 @@ import androidx.fragment.app.FragmentContainerView;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 
+import com.google.android.material.button.MaterialButton;
 import com.google.android.material.navigation.NavigationBarView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -24,18 +25,21 @@ import com.kernelcrew.moodapp.data.MoodEventProvider;
 public class EditMoodEvent extends Fragment {
     private String moodEventId;
 
-    private NavController navController;
     private BottomNavBarController navBarController;
 
     private FirebaseUser currentUser;
     private MoodEventProvider provider;
+
+    public EditMoodEvent() {}
 
     private void handleSubmit(MoodEventForm.MoodEventDetails details) {
         MoodEvent moodEvent = details.toMoodEvent(currentUser.getUid());
         moodEvent.setId(moodEventId);
         provider.updateMoodEvent(moodEventId, moodEvent)
                 .addOnSuccessListener(_result -> {
-                    navController.popBackStack();
+                    Bundle args = new Bundle();
+                    args.putString("sourceScreen", "editMoodScreen");
+                    Navigation.findNavController(requireActivity(), R.id.nav_host_fragment).popBackStack();
                 })
                 .addOnFailureListener(error -> {
                     Toast.makeText(getContext(), error.getMessage(), Toast.LENGTH_LONG).show();
@@ -46,7 +50,7 @@ public class EditMoodEvent extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_create_mood_event, container, false);
+        View view = inflater.inflate(R.layout.fragment_edit_mood_event, container, false);
 
         NavigationBarView navigationBarView = view.findViewById(R.id.bottom_navigation);
         navigationBarView.setSelected(false);
@@ -59,15 +63,12 @@ public class EditMoodEvent extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         navBarController.bind(view);
-        navController = Navigation.findNavController(view);
 
         FragmentContainerView formFragmentContainer =
                 view.findViewById(R.id.mood_event_form);
         assert formFragmentContainer != null;
         MoodEventForm form = formFragmentContainer.getFragment();
         assert form != null;
-
-        form.onSubmit(this::handleSubmit);
 
         moodEventId = getArguments().getString("moodEventId");
 
@@ -78,5 +79,13 @@ public class EditMoodEvent extends Fragment {
         provider.getMoodEvent(moodEventId)
                 .addOnSuccessListener(moodEvent ->
                     form.bind(new MoodEventForm.MoodEventDetails(moodEvent)));
+
+        MaterialButton submitButton = view.findViewById(R.id.submit_button);
+        submitButton.setOnClickListener(v -> {
+            MoodEventForm.MoodEventDetails details = form.validateFields();
+            if (details != null) {
+                handleSubmit(details);
+            }
+        });
     }
 }

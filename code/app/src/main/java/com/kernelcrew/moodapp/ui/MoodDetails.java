@@ -15,6 +15,7 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.navigation.Navigation;
 import androidx.navigation.fragment.NavHostFragment;
 
 import com.bumptech.glide.Glide;
@@ -101,7 +102,7 @@ public class MoodDetails extends Fragment implements DeleteDialogFragment.Delete
         btnEditMood.setOnClickListener(v -> {
             Bundle args = new Bundle();
             args.putString("moodEventId", moodEventId);
-            NavHostFragment.findNavController(this).navigate(R.id.editMoodEvent, args);
+            Navigation.findNavController(requireActivity(), R.id.nav_host_fragment).navigate(R.id.editMoodEvent, args);
         });
         //Logic to delete a mood
         btnDeleteMood.setOnClickListener(v -> {

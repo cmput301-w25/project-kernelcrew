@@ -54,8 +54,9 @@ public class MoodEventProvider {
         }
 
         FirebaseUser user = auth.getCurrentUser();
-        assert user != null;
-
+        if (user == null) {
+            throw new IllegalStateException("User must be logged in");
+        }
         // Ensure the MoodEvent has the correct userId
         moodEvent.setUid(user.getUid());
 

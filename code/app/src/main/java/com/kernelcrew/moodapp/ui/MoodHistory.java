@@ -101,9 +101,6 @@ public class MoodHistory extends Fragment implements MoodHistoryAdapter.OnItemCl
                                 }
                             }
 
-                            // If you want them sorted newest-first by timestamp, do so here:
-                            moodList.sort((m1, m2) -> Long.compare(m2.getTimestamp(), m1.getTimestamp()));
-
                             // Update the adapter
                             adapter.setMoods(moodList);
                         });
