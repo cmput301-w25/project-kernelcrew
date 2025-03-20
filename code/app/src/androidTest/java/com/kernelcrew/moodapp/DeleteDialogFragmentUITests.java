@@ -47,10 +47,8 @@ public class DeleteDialogFragmentUITests extends FirebaseEmulatorMixin {
         MoodEvent moodEvent = new MoodEvent(
                 auth.getCurrentUser().getUid(),
                 Emotion.HAPPINESS,
-                "Test Trigger",
                 "Test Social Situation",
                 "Test Reason",
-                "",
                 0.0,
                 0.0
         );
@@ -121,10 +119,8 @@ public class DeleteDialogFragmentUITests extends FirebaseEmulatorMixin {
             MoodEvent moodEvent = new MoodEvent(
                     auth.getCurrentUser().getUid(),
                     Emotion.ANGER,
-                    "Test Mood",
                     "Test Social Situation",
                     "Test Reason",
-                    "",
                     0.0,
                     0.0
             );
