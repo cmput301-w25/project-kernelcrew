@@ -48,7 +48,7 @@ public class OtherUserProfile extends Fragment {
             Log.d(TAG, "UID to load: " + uidToLoad);
         }
 
-        if (uidToLoad != null) {
+        if (uidToLoad != "") {
             UserProvider.getInstance().addSnapshotListenerForUser(uidToLoad, (documentSnapshot, error) -> {
                 if (error != null) {
                     Log.e(TAG, "Error loading user: ", error);

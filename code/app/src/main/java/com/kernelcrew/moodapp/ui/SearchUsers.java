@@ -58,7 +58,7 @@ public class SearchUsers extends AppCompatActivity {
         // Get the current user id
         String currentUserId = FirebaseAuth.getInstance().getCurrentUser() != null ?
                 FirebaseAuth.getInstance().getCurrentUser().getUid() : "";
-
+        Log.e("CurrentUSERId", currentUserId);
         // Show the loading spinner
         progressBar.setVisibility(View.VISIBLE);
         noResultsText.setVisibility(View.GONE);

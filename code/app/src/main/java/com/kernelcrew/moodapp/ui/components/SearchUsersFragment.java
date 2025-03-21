@@ -1,6 +1,7 @@
 package com.kernelcrew.moodapp.ui.components;
 
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -15,8 +16,13 @@ import androidx.navigation.fragment.NavHostFragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QuerySnapshot;
 import com.kernelcrew.moodapp.R;
 import com.kernelcrew.moodapp.data.User;
 import com.kernelcrew.moodapp.data.UserProvider;
@@ -29,6 +35,9 @@ public class SearchUsersFragment extends Fragment {
     private ProgressBar progressBar;
     private TextView noResultsText;
     private SearchUsersAdapter adapter;
+
+    private String uid = "";
+
 
     public SearchUsersFragment() {
         // Required empty public constructor
@@ -128,10 +137,53 @@ public class SearchUsersFragment extends Fragment {
                 // Use NavHostFragment.findNavController to navigate when an item is clicked
                 itemView.setOnClickListener(v -> {
                     Bundle args = new Bundle();
+                    String username = usernameTextView.getText().toString();
+                    FirebaseFirestore.getInstance()
+                            .collection("users")
+                            .whereEqualTo("username", username)
+                            .get()
+                            .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
+                                @Override
+                                public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
+                                    if (!queryDocumentSnapshots.isEmpty()){
+                                        DocumentSnapshot doc = queryDocumentSnapshots.getDocuments().get(0);
+                                        uid = doc.getString("uid");
+                                        Log.e("Search User uid", uid);
+                                        Log.e("Search User uid", uid);
+                                        Log.e("Search User uid", uid);
+                                        Log.e("Search User uid", uid);
+                                        Log.e("Search User uid", uid);
+                                        Log.e("Search User uid", uid);
+                                        Log.e("Search User uid", uid);
+                                        Log.e("Search User uid", uid);
+                                        Log.e("Search User uid", uid);
+                                    }
+                                }
+                            })
+                            .addOnFailureListener(new OnFailureListener() {
+                                @Override
+                                public void onFailure(@NonNull Exception e) {
+                                    Log.e("TESTING", "testing");
+                                    Log.e("TESTING", "testing");
+                                    Log.e("TESTING", "testing");
+                                    Log.e("TESTING", "testing");
+                                    Log.e("TESTING", "testing");
+                                    Log.e("TESTING", "testing");
+                                    Log.e("TESTING", "testing");
+                                    Log.e("TESTING", "testing");
+                                    Log.e("TESTING", "testing");
+                                    Log.e("TESTING", "testing");
+                                    Log.e("TESTING", "testing");
+                                    Log.e("TESTING", "testing");
+                                    Log.e("TESTING", "testing");
+                                }
+                            });
+
                     // Passing the username as uid here; adjust if your User model contains a dedicated id field
-                    args.putString("uid", usernameTextView.getText().toString());
+                    args.putString("uid", uid);
                     NavHostFragment.findNavController(SearchUsersFragment.this)
                             .navigate(R.id.otherUserProfile, args);
+
                 });
             }
 
