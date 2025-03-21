@@ -107,6 +107,7 @@ public class SearchUsers extends AppCompatActivity {
 
         class UserViewHolder extends RecyclerView.ViewHolder {
             private final TextView usernameTextView;
+            private User currentUser;  // store the user object
 
             public UserViewHolder(@NonNull View itemView) {
                 super(itemView);
@@ -117,10 +118,10 @@ public class SearchUsers extends AppCompatActivity {
                 followCheckBox.setVisibility(View.GONE);
 
                 usernameTextView.setOnClickListener(v -> {
-                    String usernameOnScreen = usernameTextView.getText().toString();
-                    if (usernameOnScreen != null && !usernameOnScreen.isEmpty()) {
+                    if (currentUser != null) {
                         Bundle args = new Bundle();
-                        args.putString("uid", usernameOnScreen);
+                        // Use the actual uid from the User object instead of the username text
+                        args.putString("uid", currentUser.getUid());
                         // Retrieve NavController from the NavHostFragment in the activity layout
                         View navHost = ((AppCompatActivity) itemView.getContext()).findViewById(R.id.nav_host_fragment);
                         Navigation.findNavController(navHost).navigate(R.id.otherUserProfile, args);
@@ -131,6 +132,7 @@ public class SearchUsers extends AppCompatActivity {
             }
 
             public void bind(User user) {
+                this.currentUser = user;  // save the user object for later use
                 usernameTextView.setText(user.getName());
             }
         }
