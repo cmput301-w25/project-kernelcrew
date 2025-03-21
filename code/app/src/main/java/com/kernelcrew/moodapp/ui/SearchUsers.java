@@ -1,6 +1,7 @@
 package com.kernelcrew.moodapp.ui;
 
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -11,7 +12,6 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -19,6 +19,8 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
 import com.kernelcrew.moodapp.R;
 import com.kernelcrew.moodapp.data.User;
 import com.kernelcrew.moodapp.data.UserProvider;
@@ -119,14 +121,41 @@ public class SearchUsers extends AppCompatActivity {
 
                 usernameTextView.setOnClickListener(v -> {
                     if (currentUser != null) {
-                        Bundle args = new Bundle();
-                        // Use the actual uid from the User object instead of the username text
-                        args.putString("uid", currentUser.getUid());
-                        // Retrieve NavController from the NavHostFragment in the activity layout
-                        View navHost = ((AppCompatActivity) itemView.getContext()).findViewById(R.id.nav_host_fragment);
-                        Navigation.findNavController(navHost).navigate(R.id.otherUserProfile, args);
+                        // We'll get the username from your user object
+                        String clickedUsername = currentUser.getName();
+
+                        // Query for the real doc ID based on "username" field
+                        FirebaseFirestore.getInstance().collection("users")
+                                .whereEqualTo("username", clickedUsername)
+                                .limit(1)
+                                .get()
+                                .addOnSuccessListener(querySnapshot -> {
+                                    if (!querySnapshot.isEmpty()) {
+                                        DocumentSnapshot doc = querySnapshot.getDocuments().get(0);
+                                        String realUid = doc.getId(); // e.g. GRERxDX8NXdUj3jwKFbXxR7vq1s2
+
+                                        Bundle args = new Bundle();
+                                        args.putString("uid", realUid);
+
+                                        View navHost = ((AppCompatActivity) itemView.getContext())
+                                                .findViewById(R.id.nav_host_fragment);
+                                        Navigation.findNavController(navHost)
+                                                .navigate(R.id.otherUserProfile, args);
+                                    } else {
+                                        Toast.makeText(itemView.getContext(),
+                                                "No user doc found with username: " + clickedUsername,
+                                                Toast.LENGTH_SHORT).show();
+                                    }
+                                })
+                                .addOnFailureListener(e -> {
+                                    Toast.makeText(itemView.getContext(),
+                                            "Error retrieving user: " + e.getMessage(),
+                                            Toast.LENGTH_SHORT).show();
+                                });
                     } else {
-                        Toast.makeText(itemView.getContext(), "User information unavailable.", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(itemView.getContext(),
+                                "User information unavailable.",
+                                Toast.LENGTH_SHORT).show();
                     }
                 });
             }
