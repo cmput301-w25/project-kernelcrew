@@ -55,7 +55,11 @@
         <action
             android:id="@+id/action_homeFeed_to_myProfile"
             app:destination="@id/myProfile" />
+        <action
+            android:id="@+id/action_homeFeed_to_searchUsersFragment"
+            app:destination="@id/searchUsersFragment" />
     </fragment>
+
     <fragment
         android:id="@+id/moodDetails"
         android:name="com.kernelcrew.moodapp.ui.MoodDetails"
@@ -163,6 +167,7 @@
     <action
         android:id="@+id/action_followingFragment_to_requestFragment"
         app:destination="@id/requestFragment" />
+
     <fragment
         android:id="@+id/otherUserProfile"
         android:name="com.kernelcrew.moodapp.ui.OtherUserProfile"
@@ -171,4 +176,10 @@
             android:name="uid"
             app:argType="string" />
     </fragment>
+
+    <fragment
+        android:id="@+id/searchUsersFragment"
+        android:name="com.kernelcrew.moodapp.ui.SearchUsersFragment"
+        android:label="Search Users"
+        tools:layout="@layout/fragment_search_users_results_page" />
 </navigation>

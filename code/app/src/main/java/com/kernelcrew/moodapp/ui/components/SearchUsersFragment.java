@@ -1,4 +1,4 @@
-package com.kernelcrew.moodapp.ui;
+package com.kernelcrew.moodapp.ui.components;
 
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -7,14 +7,14 @@ import android.view.ViewGroup;
 import android.widget.CheckBox;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.navigation.Navigation;
+import androidx.fragment.app.Fragment;
+import androidx.navigation.fragment.NavHostFragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.firebase.auth.FirebaseAuth;
 import com.kernelcrew.moodapp.R;
@@ -23,61 +23,71 @@ import com.kernelcrew.moodapp.data.UserProvider;
 
 import java.util.List;
 
-public class SearchUsers extends AppCompatActivity {
+public class SearchUsersFragment extends Fragment {
 
     private RecyclerView recyclerView;
     private ProgressBar progressBar;
     private TextView noResultsText;
     private SearchUsersAdapter adapter;
 
+    public SearchUsersFragment() {
+        // Required empty public constructor
+    }
+
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.fragment_search_users_results_page);
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
+        // Inflate the layout for this fragment
+        View view = inflater.inflate(R.layout.fragment_search_users_results_page, container, false);
 
-        MaterialToolbar topAppBar = findViewById(R.id.topAppBar);
+        MaterialToolbar topAppBar = view.findViewById(R.id.topAppBar);
+        // Use NavHostFragment.findNavController(this) to handle back navigation
+        topAppBar.setNavigationOnClickListener(v -> NavHostFragment.findNavController(SearchUsersFragment.this).navigateUp());
 
-        recyclerView = findViewById(R.id.searchResultsRecyclerView);
-        progressBar = findViewById(R.id.searchProgressBar);
-        noResultsText = findViewById(R.id.noResultsTextView);
+        recyclerView = view.findViewById(R.id.searchResultsRecyclerView);
+        progressBar = view.findViewById(R.id.searchProgressBar);
+        noResultsText = view.findViewById(R.id.noResultsTextView);
 
-        recyclerView.setLayoutManager(new LinearLayoutManager(this));
+        recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         adapter = new SearchUsersAdapter();
         recyclerView.setAdapter(adapter);
-        topAppBar.setNavigationOnClickListener(v -> finish());
 
-        // Get the search query passed via intent extra "search_query"
-        String searchQuery = getIntent().getStringExtra("search_query");
-        if (searchQuery == null) {
-            searchQuery = "";
+        // Retrieve the search query from fragment arguments (set this when navigating to SearchUsersFragment)
+        String searchQuery = "";
+        Bundle args = getArguments();
+        if (args != null) {
+            searchQuery = args.getString("search_query", "");
         }
 
         // Get the current user id
         String currentUserId = FirebaseAuth.getInstance().getCurrentUser() != null ?
                 FirebaseAuth.getInstance().getCurrentUser().getUid() : "";
 
-        // Show the loading spinner
+        // Show loading spinner
         progressBar.setVisibility(View.VISIBLE);
         noResultsText.setVisibility(View.GONE);
         recyclerView.setVisibility(View.GONE);
 
-        // Call the searchUsers method from UserProvider
+        // Perform user search
         UserProvider.getInstance().searchUsers(searchQuery, currentUserId)
-                .addOnSuccessListener(new OnSuccessListener<List<User>>() {
-                    @Override
-                    public void onSuccess(List<User> users) {
-                        progressBar.setVisibility(View.GONE);
-                        if (users.isEmpty()) {
-                            noResultsText.setVisibility(View.VISIBLE);
-                        } else {
-                            recyclerView.setVisibility(View.VISIBLE);
-                            adapter.setUsers(users);
-                        }
+                .addOnSuccessListener(users -> {
+                    progressBar.setVisibility(View.GONE);
+                    if (users.isEmpty()) {
+                        noResultsText.setVisibility(View.VISIBLE);
+                    } else {
+                        recyclerView.setVisibility(View.VISIBLE);
+                        adapter.setUsers(users);
                     }
+                })
+                .addOnFailureListener(e -> {
+                    progressBar.setVisibility(View.GONE);
+                    Toast.makeText(getContext(), "Search failed: " + e.getMessage(), Toast.LENGTH_SHORT).show();
                 });
+
+        return view;
     }
 
-    // Inner adapter class for displaying user search results
+    // Inner adapter class for displaying search results
     private class SearchUsersAdapter extends RecyclerView.Adapter<SearchUsersAdapter.UserViewHolder> {
         private List<User> users;
 
@@ -111,15 +121,16 @@ public class SearchUsers extends AppCompatActivity {
                 super(itemView);
                 usernameTextView = itemView.findViewById(R.id.usernameTextView);
 
-                // Hide the checkbox only for search results
+                // Hide the checkbox for search results
                 CheckBox followCheckBox = itemView.findViewById(R.id.followCheckBox);
                 followCheckBox.setVisibility(View.GONE);
 
-                // Use Navigation Component to go to OtherUserProfile fragment on click
+                // Use NavHostFragment.findNavController to navigate when an item is clicked
                 itemView.setOnClickListener(v -> {
                     Bundle args = new Bundle();
+                    // Passing the username as uid here; adjust if your User model contains a dedicated id field
                     args.putString("uid", usernameTextView.getText().toString());
-                    Navigation.findNavController(SearchUsers.this, R.id.nav_host_fragment)
+                    NavHostFragment.findNavController(SearchUsersFragment.this)
                             .navigate(R.id.otherUserProfile, args);
                 });
             }
