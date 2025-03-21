@@ -4,11 +4,13 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.CheckBox;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -108,13 +110,17 @@ public class SearchUsers extends AppCompatActivity {
             public UserViewHolder(@NonNull View itemView) {
                 super(itemView);
                 usernameTextView = itemView.findViewById(R.id.usernameTextView);
-                // Set click listener to navigate to the user's profile
+
+                // Hide the checkbox only for search results
+                CheckBox followCheckBox = itemView.findViewById(R.id.followCheckBox);
+                followCheckBox.setVisibility(View.GONE);
+
+                // Use Navigation Component to go to OtherUserProfile fragment on click
                 itemView.setOnClickListener(v -> {
-                    // TODO: Implement navigation to user profile
-                    // For example:
-                    // Intent intent = new Intent(SearchUsers.this, UserProfileActivity.class);
-                    // intent.putExtra("username", usernameTextView.getText().toString());
-                    // startActivity(intent);
+                    Bundle args = new Bundle();
+                    // Pass the "uid" argument – adjust if your User model provides a proper uid
+                    args.putString("uid", usernameTextView.getText().toString());
+                    Navigation.findNavController(itemView).navigate(R.id.otherUserProfile, args);
                 });
             }
 

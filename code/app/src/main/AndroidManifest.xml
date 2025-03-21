@@ -29,5 +29,6 @@
             </intent-filter>
         </activity>
         <activity android:name="com.kernelcrew.moodapp.ui.SearchUsers" />
+        <activity android:name="com.kernelcrew.moodapp.ui.OtherUserProfile" />
     </application>
 </manifest>
