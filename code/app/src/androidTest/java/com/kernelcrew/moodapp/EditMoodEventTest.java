@@ -49,8 +49,6 @@ public class EditMoodEventTest extends FirebaseEmulatorMixin {
                 Emotion.DISGUST,
                 "",
                 "",
-                "",
-                "",
                 0.0,
                 0.0
         );

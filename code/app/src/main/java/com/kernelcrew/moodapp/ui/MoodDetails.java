@@ -75,7 +75,6 @@ public class MoodDetails extends Fragment implements DeleteDialogFragment.Delete
         toolbar = view.findViewById(R.id.moodDetailsToolbar);
         imageMoodIcon = view.findViewById(R.id.imageMoodIcon);
         tvMoodState = view.findViewById(R.id.tvMoodState);
-        tvTriggerValue = view.findViewById(R.id.tvTriggerValue);
         tvSocialSituationValue = view.findViewById(R.id.tvSocialSituationValue);
         tvReasonValue = view.findViewById(R.id.tvReasonValue);
         ivMoodPhoto = view.findViewById(R.id.ivMoodPhoto);
@@ -150,7 +149,6 @@ public class MoodDetails extends Fragment implements DeleteDialogFragment.Delete
      */
     private void bindMoodData(MoodEvent moodEvent) {
         tvMoodState.setText(moodEvent.getEmotion().toString());
-        tvTriggerValue.setText(moodEvent.getTrigger());
         tvSocialSituationValue.setText(moodEvent.getSocialSituation());
         tvReasonValue.setText(moodEvent.getReason());
 

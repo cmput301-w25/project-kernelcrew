@@ -26,7 +26,6 @@ public class MoodEvent implements Serializable {
     private String username;
     private Date created;
     private Emotion emotion;
-    private String trigger;
     private String socialSituation;
     private String reason;
     private Bitmap photo;
@@ -42,14 +41,13 @@ public class MoodEvent implements Serializable {
      * Constructor for a new MoodEvent with additional details.
      * Will assign this mood event a new random id.
      */
-    public MoodEvent(String uid, String username, Emotion emotion, String trigger, String socialSituation,
-                     String reason, String _photoUrl, Double latitude, Double longitude) {
+    public MoodEvent(String uid, String username, Emotion emotion, String socialSituation, String reason,
+                     Double latitude, Double longitude) {
         this.id = UUID.randomUUID().toString();
         this.uid = uid;
         this.username = username;
         this.created = new Date();
         this.emotion = emotion;
-        this.trigger = trigger;
         this.socialSituation = socialSituation;
         this.reason = reason;
         this.latitude = latitude;
@@ -94,13 +92,6 @@ public class MoodEvent implements Serializable {
             // Fallback: assign a default emotion if conversion fails
             this.emotion = Emotion.ERROR;
         }
-    }
-
-    public String getTrigger() {
-        return trigger;
-    }
-    public void setTrigger(String trigger) {
-        this.trigger = trigger;
     }
 
     public String getSocialSituation() {

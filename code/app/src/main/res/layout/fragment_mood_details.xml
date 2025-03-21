@@ -110,30 +110,6 @@
                     android:orientation="vertical"
                     android:padding="16dp">
 
-                    <!-- Trigger Field -->
-                    <com.google.android.material.textfield.TextInputLayout
-                        android:id="@+id/tvTriggerLabel"
-                        style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="16dp"
-                        android:hint="Trigger"
-                        app:boxCornerRadiusTopStart="12dp"
-                        app:boxCornerRadiusTopEnd="12dp"
-                        app:boxCornerRadiusBottomStart="12dp"
-                        app:boxCornerRadiusBottomEnd="12dp"
-                        app:boxBackgroundColor="@color/light_gray"
-                        app:boxStrokeWidth="0dp"
-                        app:boxStrokeWidthFocused="2dp">
-
-                        <com.google.android.material.textfield.TextInputEditText
-                            android:id="@+id/tvTriggerValue"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:text="Some Trigger"
-                            android:enabled="false" />
-                    </com.google.android.material.textfield.TextInputLayout>
-
                     <!-- Social Situation Field -->
                     <com.google.android.material.textfield.TextInputLayout
                         android:id="@+id/tvSocialSituationLabel"

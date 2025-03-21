@@ -61,10 +61,8 @@ public class LocationInstrumentedTest extends FirebaseEmulatorMixin {
                 auth.getCurrentUser().getUid(),
                 "Username",
                 Emotion.HAPPINESS,
-                "Test Trigger",
                 "Test Social Situation",
                 "Test Reason",
-                "",
                 null,
                 null
         );
@@ -125,14 +123,14 @@ public class LocationInstrumentedTest extends FirebaseEmulatorMixin {
         
         // Select an emotion
         onView(withId(R.id.toggle_happy)).perform(click());
-        
+
         // Scroll to the trigger field first to ensure it's visible
-        onView(withId(R.id.emotion_trigger)).perform(scrollTo());
-        
+        onView(withId(R.id.emotion_reason)).perform(scrollTo());
+
         // Add some text to the trigger field - separate actions for stability
-        onView(withId(R.id.emotion_trigger)).perform(replaceText("Location Test"));
-        onView(withId(R.id.emotion_trigger)).perform(closeSoftKeyboard());
-        
+        onView(withId(R.id.emotion_reason)).perform(replaceText("Location Test"));
+        onView(withId(R.id.emotion_reason)).perform(closeSoftKeyboard());
+
         // Wait to ensure keyboard is closed
         SystemClock.sleep(500);
         
@@ -154,7 +152,7 @@ public class LocationInstrumentedTest extends FirebaseEmulatorMixin {
                     // Find the mood event with our test trigger
                     boolean foundTestMood = false;
                     for (DocumentSnapshot doc : moodEvents) {
-                        if ("Location Test".equals(doc.getString("trigger"))) {
+                        if ("Location Test".equals(doc.getString("reason"))) {
                             foundTestMood = true;
                             
                             // Verify location is null or empty
