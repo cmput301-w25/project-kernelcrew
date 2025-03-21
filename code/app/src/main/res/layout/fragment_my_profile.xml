@@ -20,9 +20,9 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:minHeight="?attr/actionBarSize"
-            app:titleCentered="true"
             app:menu="@menu/top_app_bar"
-            app:title="My Profile" />
+            app:title="My Profile"
+            app:titleCentered="true" />
     </com.google.android.material.appbar.AppBarLayout>
 
     <androidx.cardview.widget.CardView
@@ -77,6 +77,19 @@
 
 
     <Button
+        android:id="@+id/followRequestsButton"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="24dp"
+        android:layout_marginTop="20dp"
+        android:layout_marginEnd="24dp"
+        android:text="Follow Requests"
+        android:textSize="16sp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/followers_button" />
+
+    <Button
         android:id="@+id/followers_button"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -102,8 +115,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/followers_button" />
-
+        app:layout_constraintTop_toBottomOf="@+id/followRequestsButton" />
 
     <com.google.android.material.button.MaterialButton
         android:id="@+id/signOutButton"
@@ -111,7 +123,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginStart="24dp"
-        android:layout_marginTop="24dp"
+        android:layout_marginTop="20dp"
         android:layout_marginEnd="24dp"
         android:text="Sign Out"
         app:layout_constraintEnd_toEndOf="parent"

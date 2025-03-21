@@ -44,11 +44,15 @@ public class MyProfile extends Fragment {
         navigationBarView = view.findViewById(R.id.bottom_navigation);
         navigationBarView.setSelectedItemId(R.id.page_myProfile);
         navBarController = new BottomNavBarController(navigationBarView);
+        Button followRequestsButton = view.findViewById(R.id.followRequestsButton);
+        followRequestsButton.setOnClickListener(v ->
+                Navigation.findNavController(v).navigate(R.id.action_myProfile_to_followRequestsFragment)
+        );
 
         // Set click listeners
         signOutButton.setOnClickListener(this::onClickSignOut);
-//        followersButton.setOnClickListener(v -> Navigation.findNavController(v).navigate(R.id.action_myProfile_to_followersPage));
-//        followingButton.setOnClickListener(v -> Navigation.findNavController(v).navigate(R.id.action_myProfile_to_followingPage));
+        followersButton.setOnClickListener(v -> Navigation.findNavController(v).navigate(R.id.action_myProfile_to_followersPage));
+        followingButton.setOnClickListener(v -> Navigation.findNavController(v).navigate(R.id.action_myProfile_to_followingPage));
         Bundle bundle = new Bundle();
         bundle.putString("sourceScreen", "profile");
         moodHistoryButton.setOnClickListener(v ->
