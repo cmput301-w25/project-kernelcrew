@@ -18,7 +18,6 @@ import androidx.fragment.app.FragmentContainerView;
 
 import android.provider.MediaStore;
 import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AutoCompleteTextView;
@@ -27,10 +26,12 @@ import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.material.button.MaterialButtonToggleGroup;
 import com.google.android.material.textfield.TextInputEditText;
 import com.kernelcrew.moodapp.R;
 import com.kernelcrew.moodapp.data.Emotion;
 import com.kernelcrew.moodapp.data.MoodEvent;
+import com.kernelcrew.moodapp.data.MoodEventVisibility;
 import com.kernelcrew.moodapp.ui.components.EmotionPickerFragment;
 import com.kernelcrew.moodapp.utils.PhotoUtils;
 import java.io.IOException;
@@ -53,6 +54,7 @@ public class MoodEventForm extends Fragment implements LocationUpdateListener {
     private ImageButton photoButton;
     private Button photoResetButton;
     private TextView photoButtonError;
+    private MaterialButtonToggleGroup visibilityToggle;
 
     /**
      * Handler for the image picker submission action.
@@ -83,6 +85,7 @@ public class MoodEventForm extends Fragment implements LocationUpdateListener {
         photoButton.setImageResource(R.drawable.upload_splash);
 
         updateResetPhotoVisibility();
+        resetPhotoButtonError(); // Clear any error if present
     }
 
     /**
@@ -106,6 +109,10 @@ public class MoodEventForm extends Fragment implements LocationUpdateListener {
      */
     private void updateResetPhotoVisibility() {
         photoResetButton.setVisibility(photo == null ? INVISIBLE : VISIBLE);
+
+        ViewGroup.LayoutParams layoutParams = photoResetButton.getLayoutParams();
+        layoutParams.height = photo == null ? 0 : ViewGroup.LayoutParams.WRAP_CONTENT;
+        photoResetButton.setLayoutParams(layoutParams);
     }
 
     private MoodEventFormSubmitCallback callback;
@@ -132,6 +139,7 @@ public class MoodEventForm extends Fragment implements LocationUpdateListener {
         Double lat;
         Double lon;
         Bitmap photo;
+        MoodEventVisibility visibility;
 
         /**
          * Empty constructor which initializes everything to null.
@@ -149,6 +157,7 @@ public class MoodEventForm extends Fragment implements LocationUpdateListener {
             lat = moodEvent.getLatitude();
             lon = moodEvent.getLongitude();
             photo = moodEvent.getPhoto();
+            visibility = moodEvent.getVisibility();
         }
 
         /**
@@ -167,6 +176,7 @@ public class MoodEventForm extends Fragment implements LocationUpdateListener {
             );
 
             moodEvent.setPhoto(photo);
+            moodEvent.setVisibility(visibility);
 
             return moodEvent;
         }
@@ -185,8 +195,26 @@ public class MoodEventForm extends Fragment implements LocationUpdateListener {
         }
         photo = details.photo;
         photoButton.setImageBitmap(details.photo);
-
         updateResetPhotoVisibility();
+
+        visibilityToggle.clearChecked();
+        switch (details.visibility) {
+            case PUBLIC:
+                visibilityToggle.check(R.id.visible_public_button);
+                break;
+            case PRIVATE:
+                visibilityToggle.check(R.id.visible_private_button);
+                break;
+        }
+    }
+
+    private void resetPhotoButtonError() {
+        photoButtonError.setText(null);
+
+        // Hide the photo button error element
+        ViewGroup.LayoutParams layoutParams = photoButtonError.getLayoutParams();
+        layoutParams.height = 0;
+        photoButtonError.setLayoutParams(layoutParams);
     }
 
     private @Nullable MoodEventDetails validateFields() {
@@ -194,7 +222,7 @@ public class MoodEventForm extends Fragment implements LocationUpdateListener {
 
         emotionPickerFragment.setError(null);
         reasonEditText.setError(null);
-        photoButtonError.setText(null);
+        resetPhotoButtonError();
 
         details.emotion = emotionPickerFragment.getSelected();
         if (details.emotion == null) {
@@ -214,10 +242,23 @@ public class MoodEventForm extends Fragment implements LocationUpdateListener {
         if (photo != null && PhotoUtils.compressPhoto(photo).size() > 65536) {
             Log.i("MoodEventForm", "Image too large");
             photoButtonError.setText("Image too large");
+
+            ViewGroup.LayoutParams layoutParams = photoButtonError.getLayoutParams();
+            layoutParams.height = ViewGroup.LayoutParams.WRAP_CONTENT;
+            photoButtonError.setLayoutParams(layoutParams);
             return null;
         }
+
+        int checkedButton = visibilityToggle.getCheckedButtonId();
+        if (checkedButton == R.id.visible_public_button) {
+            details.visibility = MoodEventVisibility.PUBLIC;
+        } else if (checkedButton == R.id.visible_private_button) {
+            details.visibility = MoodEventVisibility.PRIVATE;
+        }
+
         details.lat = currentLatitude;
         details.lon = currentLongitude;
+
         return details;
     }
 
@@ -262,6 +303,7 @@ public class MoodEventForm extends Fragment implements LocationUpdateListener {
         photoResetButton = view.findViewById(R.id.photo_reset_button);
         photoResetButton.setOnClickListener(_v -> resetPhoto());
         photoButtonError = view.findViewById(R.id.photo_button_error);
+        visibilityToggle = view.findViewById(R.id.visibility_button);
 
         updateResetPhotoVisibility();
         addLocation = view.findViewById(R.id.add_location_button);

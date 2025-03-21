@@ -1,18 +1,14 @@
 package com.kernelcrew.moodapp.data;
 
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.net.Uri;
-import android.util.Log;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.google.firebase.firestore.Exclude;
 import com.kernelcrew.moodapp.utils.PhotoUtils;
 
-import java.io.ByteArrayOutputStream;
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
@@ -30,6 +26,8 @@ public class MoodEvent implements Serializable {
     private Bitmap photo;
     private Double latitude;
     private Double longitude;
+
+    private @NonNull MoodEventVisibility visibility = MoodEventVisibility.PUBLIC;
 
     /**
      * Empty constructor for Firestore deserialization. Do not use.
@@ -151,5 +149,21 @@ public class MoodEvent implements Serializable {
 
     public long getTimestamp() {
         return this.created.getTime();
+    }
+
+    public @NonNull MoodEventVisibility getVisibility() {
+        return visibility;
+    }
+
+    /**
+     * Update the visibility. Cannot change visibility to null.
+     * @param visibility New visibility. If null, no change is made.
+     */
+    public void setVisibility(MoodEventVisibility visibility) {
+        if (visibility == null) {
+            return;
+        }
+
+        this.visibility = visibility;
     }
 }
