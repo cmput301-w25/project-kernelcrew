@@ -87,7 +87,6 @@ public class HomeFeed extends Fragment {
                             }
                             moodAdapter.setMoods(moodList);
                         });
-
             });
         }
 
@@ -98,7 +97,6 @@ public class HomeFeed extends Fragment {
             NavController navController = Navigation.findNavController(requireActivity(), R.id.nav_host_fragment);
             navController.navigate(R.id.action_homeFeed_to_moodDetails, args);
         });
-
 
         return view;
     }

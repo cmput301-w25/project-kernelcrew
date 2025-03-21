@@ -11,6 +11,7 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -34,8 +35,7 @@ public class SearchUsers extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.fragment_search_users_results_page);
-
+        setContentView(R.layout.activity_search_users);
         MaterialToolbar topAppBar = findViewById(R.id.topAppBar);
 
         recyclerView = findViewById(R.id.searchResultsRecyclerView);
@@ -121,8 +121,9 @@ public class SearchUsers extends AppCompatActivity {
                     if (usernameOnScreen != null && !usernameOnScreen.isEmpty()) {
                         Bundle args = new Bundle();
                         args.putString("uid", usernameOnScreen);
-                        Navigation.findNavController(v)
-                                .navigate(R.id.otherUserProfile, args);
+                        // Retrieve NavController from the NavHostFragment in the activity layout
+                        View navHost = ((AppCompatActivity) itemView.getContext()).findViewById(R.id.nav_host_fragment);
+                        Navigation.findNavController(navHost).navigate(R.id.otherUserProfile, args);
                     } else {
                         Toast.makeText(itemView.getContext(), "User information unavailable.", Toast.LENGTH_SHORT).show();
                     }

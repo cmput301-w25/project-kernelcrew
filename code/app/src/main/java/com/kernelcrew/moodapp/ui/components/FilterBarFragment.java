@@ -1,6 +1,5 @@
 package com.kernelcrew.moodapp.ui.components;
 
-import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.text.Editable;
@@ -17,6 +16,8 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.navigation.NavController;
+import androidx.navigation.Navigation;
 
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.textfield.TextInputEditText;
@@ -26,7 +27,6 @@ import com.kernelcrew.moodapp.R;
 import com.kernelcrew.moodapp.data.Emotion;
 import com.kernelcrew.moodapp.data.MoodEventFilter;
 import com.kernelcrew.moodapp.data.MoodEventProvider;
-import com.kernelcrew.moodapp.ui.SearchUsers;
 
 import java.util.Calendar;
 import java.util.Date;
@@ -87,10 +87,10 @@ public class FilterBarFragment extends Fragment {
         searchLayout.setStartIconOnClickListener(v -> {
             String query = searchEditText.getText().toString().trim();
             if (!query.isEmpty()) {
-                // Launch the SearchUsers activity with the entered query
-                Intent intent = new Intent(requireContext(), SearchUsers.class);
-                intent.putExtra("search_query", query);
-                startActivity(intent);
+                Bundle args = new Bundle();
+                args.putString("search_query", query);
+                NavController navController = Navigation.findNavController(requireActivity(), R.id.nav_host_fragment);
+                navController.navigate(R.id.action_homeFeed_to_searchUsersFragment, args);
             } else {
                 Toast.makeText(requireContext(), "Please enter a search query", Toast.LENGTH_SHORT).show();
             }
@@ -152,7 +152,7 @@ public class FilterBarFragment extends Fragment {
             popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
                 @Override
                 public boolean onMenuItemClick(MenuItem item) {
-                item.setChecked(!item.isChecked());
+                    item.setChecked(!item.isChecked());
 
                     if (item.isChecked()) {
                         selectedEmotions.add(Emotion.fromString(Objects.requireNonNull(item.getTitle()).toString()));
@@ -173,7 +173,7 @@ public class FilterBarFragment extends Fragment {
                             return false;
                         }
                     });
-                return false;
+                    return false;
                 }
             });
 
