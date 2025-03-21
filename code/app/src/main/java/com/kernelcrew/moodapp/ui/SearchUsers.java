@@ -7,6 +7,7 @@ import android.view.ViewGroup;
 import android.widget.CheckBox;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -115,12 +116,16 @@ public class SearchUsers extends AppCompatActivity {
                 CheckBox followCheckBox = itemView.findViewById(R.id.followCheckBox);
                 followCheckBox.setVisibility(View.GONE);
 
-                // Use Navigation Component to go to OtherUserProfile fragment on click
-                itemView.setOnClickListener(v -> {
-                    Bundle args = new Bundle();
-                    args.putString("uid", usernameTextView.getText().toString());
-                    Navigation.findNavController(SearchUsers.this, R.id.nav_host_fragment)
-                            .navigate(R.id.otherUserProfile, args);
+                usernameTextView.setOnClickListener(v -> {
+                    String usernameOnScreen = usernameTextView.getText().toString();
+                    if (usernameOnScreen != null && !usernameOnScreen.isEmpty()) {
+                        Bundle args = new Bundle();
+                        args.putString("uid", usernameOnScreen);
+                        Navigation.findNavController(v)
+                                .navigate(R.id.otherUserProfile, args);
+                    } else {
+                        Toast.makeText(itemView.getContext(), "User information unavailable.", Toast.LENGTH_SHORT).show();
+                    }
                 });
             }
 

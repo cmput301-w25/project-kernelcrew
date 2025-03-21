@@ -179,7 +179,12 @@
 
     <fragment
         android:id="@+id/searchUsersFragment"
-        android:name="com.kernelcrew.moodapp.ui.SearchUsersFragment"
+        android:name="com.kernelcrew.moodapp.ui.components.SearchUsersFragment"
         android:label="Search Users"
-        tools:layout="@layout/fragment_search_users_results_page" />
+        tools:layout="@layout/fragment_search_users_results_page" >
+    <action
+        android:id="@+id/action_searchUsersFragment_to_otherUserProfile"
+        app:destination="@id/otherUserProfile" />
+    </fragment>
+
 </navigation>
