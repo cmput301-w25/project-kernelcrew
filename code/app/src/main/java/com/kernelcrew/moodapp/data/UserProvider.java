@@ -97,17 +97,15 @@ public class UserProvider {
      * @return A Task that returns a List of matching Users.
      */
     public Task<List<User>> searchUsers(String query, @NonNull String currentUserId) {
-        // Convert query to lowercase for case-insensitive comparison
         final String lowerQuery = query.toLowerCase();
-
-        // Fetch all users – in a production app you might index this differently
         return db.collection("users").get().onSuccessTask(querySnapshot -> {
             List<User> results = new ArrayList<>();
             for (DocumentSnapshot doc : querySnapshot.getDocuments()) {
-                // Assuming username is stored as the document id
-                String username = doc.getId();
-                if (!username.equals(currentUserId) && username.toLowerCase().contains(lowerQuery)) {
-                    results.add(new User(username, false)); // The second parameter can be set as needed
+                if (doc.getId().equals(currentUserId)) continue;
+
+                String username = doc.getString("username");
+                if (username != null && username.toLowerCase().contains(lowerQuery)) {
+                    results.add(new User(username, false));
                 }
             }
             return Tasks.forResult(results);
