@@ -43,10 +43,8 @@ import java.io.IOException;
  * When editing a mood event, update the form state per a mood event using the .bind() method.
  */
 public class MoodEventForm extends Fragment implements LocationUpdateListener {
-    private EmotionPickerFragment emotionPickerFragment;
-    private TextInputEditText triggerEditText;
-
     private Button addLocation;
+    private EmotionPickerFragment emotionPickerFragment;
     private AutoCompleteTextView situationAutoComplete;
     private TextInputEditText reasonEditText;
     private Double currentLatitude = null;
@@ -129,7 +127,6 @@ public class MoodEventForm extends Fragment implements LocationUpdateListener {
 
     public static class MoodEventDetails {
         Emotion emotion;
-        String trigger;
         String socialSituation;
         String reason;
         Double lat;
@@ -147,7 +144,6 @@ public class MoodEventForm extends Fragment implements LocationUpdateListener {
          */
         public MoodEventDetails(MoodEvent moodEvent) {
             emotion = moodEvent.getEmotion();
-            trigger = moodEvent.getTrigger();
             socialSituation = moodEvent.getSocialSituation();
             reason = moodEvent.getReason();
             lat = moodEvent.getLatitude();
@@ -164,10 +160,8 @@ public class MoodEventForm extends Fragment implements LocationUpdateListener {
             MoodEvent moodEvent = new MoodEvent(
                     uid,
                     emotion,
-                    trigger,
                     socialSituation,
                     reason,
-                    "", // photoUrl,
                     lat,
                     lon
             );
@@ -180,7 +174,6 @@ public class MoodEventForm extends Fragment implements LocationUpdateListener {
 
     public void bind(MoodEventDetails details) {
         emotionPickerFragment.setSelected(details.emotion);
-        triggerEditText.setText(details.trigger);
         situationAutoComplete.setText(details.socialSituation);
         reasonEditText.setText(details.reason);
         if (details.lat != null && details.lon != null) {
@@ -209,12 +202,11 @@ public class MoodEventForm extends Fragment implements LocationUpdateListener {
             return null;
         }
 
-        details.trigger = triggerEditText.getText().toString();
         details.socialSituation = situationAutoComplete.getText().toString();
 
         details.reason = reasonEditText.getText().toString();
-        if (details.reason.length() > 20 && details.reason.split(" ").length > 3) {
-            reasonEditText.setError("Reason must be less than 20 characters or 3 words");
+        if (details.reason.length() > 200) {
+            reasonEditText.setError("Reason must be less than 200 characters");
             return null;
         }
 
@@ -263,7 +255,6 @@ public class MoodEventForm extends Fragment implements LocationUpdateListener {
             return;
         }
 
-        triggerEditText = view.findViewById(R.id.emotion_trigger);
         situationAutoComplete = view.findViewById(R.id.emotion_situation);
         reasonEditText = view.findViewById(R.id.emotion_reason);
         photoButton = view.findViewById(R.id.photo_button);

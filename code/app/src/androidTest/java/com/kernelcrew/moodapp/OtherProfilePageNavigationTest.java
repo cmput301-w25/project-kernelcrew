@@ -40,10 +40,8 @@ public class OtherProfilePageNavigationTest extends FirebaseEmulatorMixin {
     private static final String USER_PASSWORD = "Password@1234";
     private static final String EXPECTED_USERNAME = "testUser";
     private static final Emotion DATA_EMOTION = Emotion.HAPPINESS;
-    private static final String DATA_TRIGGER = "Morning Coffee";
     private static final String DATA_SOCIALSITUATION = "With Friends";
     private static final String DATA_REASON = "Celebration";
-    private static final String DATA_PHOTOURL = "https://example.com/photo.jpg";
     private static final double DATA_LATITUDE = 34.052235;
     private static final double DATA_LONGITUDE = -118.243683;
 
@@ -103,12 +101,10 @@ public class OtherProfilePageNavigationTest extends FirebaseEmulatorMixin {
         MoodEvent testEvent = new MoodEvent(
                 uid,
                 DATA_EMOTION,
-                DATA_TRIGGER,         // trigger
-                DATA_SOCIALSITUATION,   // socialSituation
-                DATA_REASON,          // reason
-                DATA_PHOTOURL,        // photoUrl
-                DATA_LATITUDE,        // latitude
-                DATA_LONGITUDE        // longitude
+                DATA_SOCIALSITUATION,
+                DATA_REASON,
+                DATA_LATITUDE,
+                DATA_LONGITUDE
         );
         Tasks.await(MoodEventProvider.getInstance().insertMoodEvent(testEvent));
 
