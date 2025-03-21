@@ -77,7 +77,7 @@ public class FollowRequestsFragment extends Fragment {
                 .collection("followRequests")
                 .document(requesterUid)
                 .delete()
-                .addOnSuccessListener(unused -> {
+                 .addOnSuccessListener(unused -> {
                     db.collection("users")
                             .document(currentUid)
                             .collection("followers")
