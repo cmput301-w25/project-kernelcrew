@@ -53,4 +53,6 @@
     <string name="reason_box_text">Reason</string>
     <string name="photo_heading">Photo</string>
     <string name="location_heading">Location</string>
+    <string name="error_loading_user">Error loading user</string>
+    <string name="no_user_id_provided">No user ID provided</string>
 </resources>

@@ -25,6 +25,7 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.kernelcrew.moodapp.R;
 import com.kernelcrew.moodapp.data.MoodEvent;
 import com.kernelcrew.moodapp.data.MoodEventProvider;
+import com.kernelcrew.moodapp.data.UserProvider;
 
 public class MoodDetails extends Fragment implements DeleteDialogFragment.DeleteDialogListener {
 
@@ -33,7 +34,6 @@ public class MoodDetails extends Fragment implements DeleteDialogFragment.Delete
     private TextView tvMoodState, tvTriggerValue, tvSocialSituationValue, tvReasonValue;
     private Chip tvUsernameDisplay;
     private Button btnEditMood;
-
     private Button btnDeleteMood;
     private FirebaseFirestore db;
     private MoodEventProvider provider;
@@ -136,54 +136,36 @@ public class MoodDetails extends Fragment implements DeleteDialogFragment.Delete
             ivMoodPhoto.setImageBitmap(photo);
         }
 
-        // Once we have userId, fetch user doc from Firestore
+        // Fetch username via UserProvider
         if (userId != null && !userId.isEmpty()) {
-            db.collection("users")
-                    .document(userId)
-                    .get()
-                    .addOnSuccessListener(documentSnapshot -> {
-                        if (documentSnapshot.exists()) {
-                            String username = documentSnapshot.getString("username");
-                            if (username == null) {
-                                username = documentSnapshot.getString("name");
-                            }
-
-                            if (username == null) {
-                                username = "UnknownUser";
-                            }
-                            tvUsernameDisplay.setText("@" + username);
-
-                            // Navigate to OtherUserProfile on click
-                            tvUsernameDisplay.setOnClickListener(v -> {
-                                Bundle args = new Bundle();
-                                args.putString("uid", userId);
-                                NavHostFragment.findNavController(MoodDetails.this)
-                                        .navigate(R.id.otherUserProfile, args);
-                            });
-
-                        } else {
-                            tvUsernameDisplay.setText("User not found");
-                        }
+            UserProvider.getInstance().fetchUsername(userId)
+                    .addOnSuccessListener(username -> {
+                        tvUsernameDisplay.setText("@" + username);
+                        // Navigate to OtherUserProfile on click
+                        tvUsernameDisplay.setOnClickListener(v -> {
+                            Bundle args = new Bundle();
+                            args.putString("uid", userId);
+                            NavHostFragment.findNavController(MoodDetails.this)
+                                    .navigate(R.id.otherUserProfile, args);
+                        });
                     })
                     .addOnFailureListener(e -> {
-                        tvUsernameDisplay.setText("Error loading user");
+                        tvUsernameDisplay.setText(R.string.error_loading_user);
                     });
         } else {
-            // If no user ID, show something else or keep blank
-            tvUsernameDisplay.setText("No user ID provided");
+            tvUsernameDisplay.setText(R.string.no_user_id_provided);
         }
 
-        // 1) Get the current user from FirebaseAuth
+        // Get the current user from FirebaseAuth and compare IDs to determine button visibility
         FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
         String currentUserUid = currentUser.getUid();
 
-        // 2) Compare the mood's owner (userId) to the current user’s UID
         if (currentUser != null && userId != null && userId.equals(currentUserUid)) {
-            // The current user OWNS this mood => show the edit/delete buttons
+            // The current user owns this mood => show the edit/delete buttons
             btnEditMood.setVisibility(View.VISIBLE);
             btnDeleteMood.setVisibility(View.VISIBLE);
         } else {
-            // The current user does NOT own it => hide them
+            // The current user does NOT own it => hide the buttons
             btnEditMood.setVisibility(View.GONE);
             btnDeleteMood.setVisibility(View.GONE);
         }
