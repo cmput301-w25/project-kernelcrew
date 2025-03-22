@@ -1,18 +1,14 @@
 package com.kernelcrew.moodapp.data;
 
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.net.Uri;
-import android.util.Log;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.google.firebase.firestore.Exclude;
 import com.kernelcrew.moodapp.utils.PhotoUtils;
 
-import java.io.ByteArrayOutputStream;
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
@@ -25,12 +21,13 @@ public class MoodEvent implements Serializable {
     private String uid;
     private Date created;
     private Emotion emotion;
-    private String trigger;
     private String socialSituation;
     private String reason;
     private Bitmap photo;
     private Double latitude;
     private Double longitude;
+
+    private @NonNull MoodEventVisibility visibility = MoodEventVisibility.PUBLIC;
 
     /**
      * Empty constructor for Firestore deserialization. Do not use.
@@ -41,13 +38,12 @@ public class MoodEvent implements Serializable {
      * Constructor for a new MoodEvent with additional details.
      * Will assign this mood event a new random id.
      */
-    public MoodEvent(String uid, Emotion emotion, String trigger, String socialSituation,
-                     String reason, String _photoUrl, Double latitude, Double longitude) {
+    public MoodEvent(String uid, Emotion emotion, String socialSituation, String reason,
+                     Double latitude, Double longitude) {
         this.id = UUID.randomUUID().toString();
         this.uid = uid;
         this.created = new Date();
         this.emotion = emotion;
-        this.trigger = trigger;
         this.socialSituation = socialSituation;
         this.reason = reason;
         this.latitude = latitude;
@@ -85,13 +81,6 @@ public class MoodEvent implements Serializable {
             // Fallback: assign a default emotion if conversion fails
             this.emotion = Emotion.ERROR;
         }
-    }
-
-    public String getTrigger() {
-        return trigger;
-    }
-    public void setTrigger(String trigger) {
-        this.trigger = trigger;
     }
 
     public String getSocialSituation() {
@@ -160,5 +149,21 @@ public class MoodEvent implements Serializable {
 
     public long getTimestamp() {
         return this.created.getTime();
+    }
+
+    public @NonNull MoodEventVisibility getVisibility() {
+        return visibility;
+    }
+
+    /**
+     * Update the visibility. Cannot change visibility to null.
+     * @param visibility New visibility. If null, no change is made.
+     */
+    public void setVisibility(MoodEventVisibility visibility) {
+        if (visibility == null) {
+            return;
+        }
+
+        this.visibility = visibility;
     }
 }
