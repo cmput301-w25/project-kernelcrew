@@ -53,9 +53,15 @@ public class MoodEventProvider {
             throw new IllegalArgumentException("MoodEvent cannot be null");
         }
 
-        FirebaseUser user = auth.getCurrentUser();
-        assert user != null;
+        if (moodEvent.getId() == null || moodEvent.getId().isEmpty()) {
+            String generatedId = collection.document().getId();
+            moodEvent.setId(generatedId);
+        }
 
+        FirebaseUser user = auth.getCurrentUser();
+        if (user == null) {
+            throw new IllegalStateException("User must be logged in");
+        }
         // Ensure the MoodEvent has the correct userId
         moodEvent.setUid(user.getUid());
 

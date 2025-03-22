@@ -6,6 +6,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
@@ -19,15 +20,17 @@ import com.google.firebase.firestore.ListenerRegistration;
 import com.kernelcrew.moodapp.R;
 import com.kernelcrew.moodapp.data.MoodEvent;
 import com.kernelcrew.moodapp.data.MoodEventProvider;
+import com.kernelcrew.moodapp.ui.components.DefaultFilterBarFragment;
 import com.kernelcrew.moodapp.ui.components.FilterBarFragment;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * Fragment responsible for displaying a history of user's mood events using the new filtering logic.
  */
-public class MoodHistory extends Fragment implements MoodHistoryAdapter.OnItemClickListener {
+public class MoodHistory extends DefaultFilterBarFragment implements MoodHistoryAdapter.OnItemClickListener {
 
     /** RecyclerView for displaying mood history items */
     private RecyclerView recyclerView;
@@ -45,7 +48,7 @@ public class MoodHistory extends Fragment implements MoodHistoryAdapter.OnItemCl
     private FilterBarFragment searchNFilterFragment;
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_mood_history, container, false);
 
         // Initialize the provider
@@ -70,7 +73,7 @@ public class MoodHistory extends Fragment implements MoodHistoryAdapter.OnItemCl
         // When FilterBar changes, build the Firestore query and listen for changes
         if (searchNFilterFragment != null) {
             searchNFilterFragment.setOnFilterChangedListener(filter -> {
-                 filter.setUser(FirebaseAuth.getInstance().getCurrentUser().getUid());
+                 filter.setUsers(Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid());
 
                 // Remove any existing snapshot listener to avoid duplicates
                 if (snapshotListener != null) {
@@ -100,9 +103,6 @@ public class MoodHistory extends Fragment implements MoodHistoryAdapter.OnItemCl
                                     moodList.add(mood);
                                 }
                             }
-
-                            // If you want them sorted newest-first by timestamp, do so here:
-                            moodList.sort((m1, m2) -> Long.compare(m2.getTimestamp(), m1.getTimestamp()));
 
                             // Update the adapter
                             adapter.setMoods(moodList);

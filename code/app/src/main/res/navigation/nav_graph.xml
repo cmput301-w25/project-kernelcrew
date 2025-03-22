@@ -78,9 +78,9 @@
 
     <fragment
         android:id="@+id/editMood"
-        android:name="com.kernelcrew.moodapp.ui.EditMood"
+        android:name="com.kernelcrew.moodapp.ui.EditMoodEvent"
         android:label="Edit Mood"
-        tools:layout="@layout/fragment_edit_mood">
+        tools:layout="@layout/fragment_edit_mood_event">
         <argument
             android:name="moodEventId"
             app:argType="string" />

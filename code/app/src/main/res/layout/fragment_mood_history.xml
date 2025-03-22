@@ -33,7 +33,7 @@
         <!-- Search Bar -->
         <androidx.fragment.app.FragmentContainerView
             android:id="@+id/moodhistory_filterBarFragment"
-            android:name="com.kernelcrew.moodapp.ui.components.FilterBarFragment"
+            android:name="com.kernelcrew.moodapp.ui.components.DefaultFilterBarFragment"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             app:layout_constraintEnd_toEndOf="parent"
