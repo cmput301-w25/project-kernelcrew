@@ -589,7 +589,7 @@ public abstract class FilterBarFragment extends Fragment {
         getMoodEventFilter().setSortField("created", Query.Direction.DESCENDING);
 
         // We no longer base the count on whether there's a search query.
-        filterCountAndEdit.setText(String.valueOf(getMoodEventFilter().count()));
+        filterCountAndEdit.setText(String.valueOf(getMoodEventFilter().count() - 1));
 
         if (listener != null) {
             listener.onFilterChanged(getMoodEventFilter());
