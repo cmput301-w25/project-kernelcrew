@@ -19,6 +19,7 @@ import androidx.fragment.app.FragmentContainerView;
 import android.provider.MediaStore;
 import android.util.Log;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.ImageButton;
@@ -121,14 +122,6 @@ public class MoodEventForm extends Fragment implements LocationUpdateListener {
      */
     public interface MoodEventFormSubmitCallback {
         void handleSubmit(MoodEventDetails details);
-    }
-
-    /**
-     * Register a on submit callback listener for the submit form action
-     * @param callback Callback to register
-     */
-    public void onSubmit(MoodEventFormSubmitCallback callback) {
-        this.callback = callback;
     }
 
     public static class MoodEventDetails {

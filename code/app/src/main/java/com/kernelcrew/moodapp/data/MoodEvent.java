@@ -56,6 +56,18 @@ public class MoodEvent implements Serializable {
         this.longitude = longitude;
     }
 
+    public MoodEvent(String uid, Emotion emotion, String socialSituation, String reason, Double lat, Double lon) {
+        this.id = UUID.randomUUID().toString();
+        this.uid = uid;
+        this.created = new Date();
+        this.emotion = emotion;
+        this.socialSituation = socialSituation;
+        this.reason = reason;
+        this.photoUrl = "";
+        this.longitude = lon;
+        this.latitude = lat;
+    }
+
     public String getId() {
         return id;
     }
@@ -104,14 +116,6 @@ public class MoodEvent implements Serializable {
         } catch (IllegalArgumentException e) {
             this.emotion = Emotion.ERROR;
         }
-    }
-
-    public String getTrigger() {
-        return trigger;
-    }
-
-    public void setTrigger(String trigger) {
-        this.trigger = trigger;
     }
 
     public String getSocialSituation() {
