@@ -156,11 +156,26 @@ public class MoodDetails extends Fragment implements DeleteDialogFragment.Delete
             tvUsernameDisplay.setText(R.string.no_user_id_provided);
         }
 
-        // Get the current user from FirebaseAuth and compare IDs to determine button visibility
-        FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
-        String currentUserUid = currentUser.getUid();
+        // Update edit/delete button visibility based on ownership
+        handleOwnershipUI(userId);
+    }
 
-        if (currentUser != null && userId != null && userId.equals(currentUserUid)) {
+    /**
+     * Checks if the current user owns the mood, and updates the edit/delete button visibility.
+     */
+    private void handleOwnershipUI(String moodOwnerUid) {
+        FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
+
+        // If no one is logged in or we have no owner, hide everything
+        if (currentUser == null || moodOwnerUid == null) {
+            btnEditMood.setVisibility(View.GONE);
+            btnDeleteMood.setVisibility(View.GONE);
+            return;
+        }
+
+        // Compare the mood's owner ID to the current user's ID
+        String currentUserUid = currentUser.getUid();
+        if (moodOwnerUid.equals(currentUserUid)) {
             // The current user owns this mood => show the edit/delete buttons
             btnEditMood.setVisibility(View.VISIBLE);
             btnDeleteMood.setVisibility(View.VISIBLE);
