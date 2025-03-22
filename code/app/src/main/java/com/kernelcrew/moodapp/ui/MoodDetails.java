@@ -77,7 +77,6 @@ public class MoodDetails extends Fragment implements DeleteDialogFragment.Delete
         tvSocialSituationValue = view.findViewById(R.id.tvSocialSituationValue);
         tvReasonValue = view.findViewById(R.id.tvReasonValue);
         ivMoodPhoto = view.findViewById(R.id.ivMoodPhoto);
-        tvUsernameDisplay = view.findViewById(R.id.tvUsernameDisplay);
         btnEditMood = view.findViewById(R.id.btnEditMood);
         btnDeleteMood = view.findViewById(R.id.btnDeleteMood);
 
