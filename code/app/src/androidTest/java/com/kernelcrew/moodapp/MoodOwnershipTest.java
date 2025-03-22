@@ -123,8 +123,6 @@ public class MoodOwnershipTest extends FirebaseEmulatorMixin {
         onView(withId(R.id.page_createMoodEvent)).perform(click());
         SystemClock.sleep(2000);
 
-        onView(withId(R.id.emotion_trigger))
-                .perform(scrollTo(), replaceText(MOOD1_TRIGGER), closeSoftKeyboard());
         onView(withId(R.id.emotion_reason))
                 .perform(scrollTo(), replaceText(MOOD1_REASON), closeSoftKeyboard());
         onView(withId(R.id.toggle_happy)).perform(click());
@@ -170,8 +168,6 @@ public class MoodOwnershipTest extends FirebaseEmulatorMixin {
         onView(withId(R.id.page_createMoodEvent)).perform(click());
         SystemClock.sleep(2000);
 
-        onView(withId(R.id.emotion_trigger))
-                .perform(scrollTo(), replaceText(MOOD2_TRIGGER), closeSoftKeyboard());
         onView(withId(R.id.emotion_reason))
                 .perform(scrollTo(), replaceText(MOOD2_REASON), closeSoftKeyboard());
         onView(withId(R.id.toggle_anger)).perform(click());
