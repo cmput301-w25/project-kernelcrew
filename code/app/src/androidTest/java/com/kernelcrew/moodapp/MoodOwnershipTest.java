@@ -10,8 +10,10 @@ import static androidx.test.espresso.contrib.RecyclerViewActions.actionOnItemAtP
 import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static com.kernelcrew.moodapp.MoodDetailsNavigationTest.clickChildViewWithId;
+import static org.hamcrest.Matchers.not;
 
 import android.os.SystemClock;
+import android.util.Log;
 
 import androidx.test.core.app.ActivityScenario;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
@@ -24,6 +26,7 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.kernelcrew.moodapp.ui.MainActivity;
 
+import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.FixMethodOrder;
@@ -31,7 +34,13 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.MethodSorters;
 
+import java.io.IOException;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.List;
+import java.util.Objects;
+import java.util.concurrent.ExecutionException;
 
 @RunWith(AndroidJUnit4.class)
 @LargeTest
@@ -104,7 +113,7 @@ public class MoodOwnershipTest extends FirebaseEmulatorMixin {
      * Test #1: User1 signs up, creates a mood, verifies Edit/Delete are visible, then signs out.
      */
     @Test
-    public void test01_User1CreatesMood() throws InterruptedException {
+    public void test01_User1CreatesMoodAndVerifiesEditAndDeleteButtonsAreDisplayedOnOwnMood() throws InterruptedException, ExecutionException {
         // Launch app fresh
         ActivityScenario<MainActivity> scenario = ActivityScenario.launch(MainActivity.class);
         SystemClock.sleep(3000);
@@ -137,6 +146,9 @@ public class MoodOwnershipTest extends FirebaseEmulatorMixin {
         onView(withId(R.id.btnEditMood)).check(matches(isDisplayed()));
         onView(withId(R.id.btnDeleteMood)).check(matches(isDisplayed()));
 
+        // Delete the current user from Firebase Auth
+        Tasks.await(Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).delete());
+
         // Sign out User1
         FirebaseAuth.getInstance().signOut();
         SystemClock.sleep(1000);
@@ -149,7 +161,8 @@ public class MoodOwnershipTest extends FirebaseEmulatorMixin {
      * Test #2: User2 signs up, creates a mood, verifies Edit/Delete are visible for own mood, then signs out.
      */
     @Test
-    public void test02_User2CreatesMood() throws InterruptedException {
+    public void test02_User2CreatesMoodAndVerifiesEditAndDeleteButtonsAreNotDisplayedOnUserOnesMood() throws InterruptedException, ExecutionException {
+        test01_User1CreatesMoodAndVerifiesEditAndDeleteButtonsAreDisplayedOnOwnMood();
         // Launch fresh
         ActivityScenario<MainActivity> scenario = ActivityScenario.launch(MainActivity.class);
         SystemClock.sleep(3000);
@@ -162,30 +175,50 @@ public class MoodOwnershipTest extends FirebaseEmulatorMixin {
         onView(withId(R.id.signUpButtonAuthToHome)).perform(click());
         SystemClock.sleep(3000);
 
-        // Create a mood as User2
-        onView(withId(R.id.page_createMoodEvent)).perform(click());
-        SystemClock.sleep(2000);
-
-        onView(withId(R.id.emotion_reason))
-                .perform(scrollTo(), replaceText(MOOD2_REASON), closeSoftKeyboard());
-        onView(withId(R.id.toggle_anger)).perform(click());
-        onView(withId(R.id.submit_button))
-                .perform(scrollTo(), click());
-        SystemClock.sleep(3000);
-
         // Open the newly created mood's details (position 0)
         onView(withId(R.id.moodRecyclerView))
                 .perform(actionOnItemAtPosition(0, clickChildViewWithId(R.id.viewDetailsButton)));
         SystemClock.sleep(3000);
 
         // Verify Edit/Delete are visible for User2's own mood
-        onView(withId(R.id.btnEditMood)).check(matches(isDisplayed()));
-        onView(withId(R.id.btnDeleteMood)).check(matches(isDisplayed()));
+        onView(withId(R.id.btnEditMood)).check(matches(not(isDisplayed())));
+        onView(withId(R.id.btnDeleteMood)).check(matches(not(isDisplayed())));
+
+        // Delete the current user from Firebase Auth
+        if (FirebaseAuth.getInstance().getCurrentUser() != null) {
+            Tasks.await(FirebaseAuth.getInstance().getCurrentUser().delete());
+        }
 
         // Sign out User2
         FirebaseAuth.getInstance().signOut();
         SystemClock.sleep(1000);
 
         scenario.close();
+    }
+
+    // code from lab 7
+    @After
+    public void tearDown() {
+        String projectId = "kernel-crew-mood-app";
+        URL url = null;
+        try {
+            url = new URL("http://10.0.2.2:8080/emulator/v1/projects/" + projectId + "/databases/(default)/documents");
+        } catch (MalformedURLException exception) {
+            Log.e("URL Error", Objects.requireNonNull(exception.getMessage()));
+        }
+        HttpURLConnection urlConnection = null;
+        try {
+            assert url != null;
+            urlConnection = (HttpURLConnection) url.openConnection();
+            urlConnection.setRequestMethod("DELETE");
+            int response = urlConnection.getResponseCode();
+            Log.i("Response Code", "Response Code: " + response);
+        } catch (IOException exception) {
+            Log.e("IO Error", Objects.requireNonNull(exception.getMessage()));
+        } finally {
+            if (urlConnection != null) {
+                urlConnection.disconnect();
+            }
+        }
     }
 }
