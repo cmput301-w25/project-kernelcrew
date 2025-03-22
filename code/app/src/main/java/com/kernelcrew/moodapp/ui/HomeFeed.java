@@ -1,10 +1,13 @@
 package com.kernelcrew.moodapp.ui;
 
+import android.annotation.SuppressLint;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.EditText;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -24,12 +27,13 @@ import com.kernelcrew.moodapp.R;
 import com.kernelcrew.moodapp.data.MoodEvent;
 import com.kernelcrew.moodapp.data.MoodEventFilter;
 import com.kernelcrew.moodapp.data.MoodEventProvider;
+import com.kernelcrew.moodapp.ui.components.DefaultFilterBarFragment;
 import com.kernelcrew.moodapp.ui.components.FilterBarFragment;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class HomeFeed extends Fragment {
+public class HomeFeed extends DefaultFilterBarFragment {
     FirebaseAuth auth;
     FirebaseUser user;
     MoodEventProvider provider;
@@ -40,6 +44,7 @@ public class HomeFeed extends Fragment {
     RecyclerView moodRecyclerView;
     MoodAdapter moodAdapter;
 
+    @SuppressLint("ClickableViewAccessibility")
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -101,7 +106,6 @@ public class HomeFeed extends Fragment {
             NavController navController = Navigation.findNavController(requireActivity(), R.id.nav_host_fragment);
             navController.navigate(R.id.action_homeFeed_to_moodDetails, args);
         });
-
 
         return view;
     }

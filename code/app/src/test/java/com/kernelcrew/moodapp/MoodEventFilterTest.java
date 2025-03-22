@@ -60,7 +60,7 @@ public class MoodEventFilterTest {
         Date endDate = new Date(2000L);
 
         MoodEventFilter filter = new MoodEventFilter(mockCollectionReference)
-                .addEmotion(Emotion.ANGER)
+                .addEmotions(Emotion.ANGER)
                 .setDateRange(startDate, endDate)
                 .setSortField("created", Query.Direction.ASCENDING)
                 .setUser("user123");
@@ -97,7 +97,7 @@ public class MoodEventFilterTest {
     @Test
     public void testBuildQueryWithOnlyEmotion() {
         MoodEventFilter filter = new MoodEventFilter(mockCollectionReference)
-                .addEmotion(Emotion.HAPPINESS);
+                .addEmotions(Emotion.HAPPINESS);
         Query builtQuery = filter.buildQuery();
 
         verify(mockCollectionReference).whereIn(eq("emotion"), anyList());
@@ -110,9 +110,9 @@ public class MoodEventFilterTest {
     @Test
     public void testBuildQueryWithMultipleEmotions() {
         MoodEventFilter filter = new MoodEventFilter(mockCollectionReference)
-                .addEmotion(Emotion.SADNESS)
-                .addEmotion(Emotion.HAPPINESS)
-                .addEmotion(Emotion.ANGER);
+                .addEmotions(Emotion.SADNESS)
+                .addEmotions(Emotion.HAPPINESS)
+                .addEmotions(Emotion.ANGER);
         Query builtQuery = filter.buildQuery();
 
         verify(mockCollectionReference).whereIn(eq("emotion"), anyList());
@@ -125,10 +125,10 @@ public class MoodEventFilterTest {
     @Test
     public void testBuildQueryWithDuplicateEmotions() {
         MoodEventFilter filter = new MoodEventFilter(mockCollectionReference)
-                .addEmotion(Emotion.SADNESS)
-                .addEmotion(Emotion.SADNESS)
-                .addEmotion(Emotion.HAPPINESS)
-                .addEmotion(Emotion.HAPPINESS);
+                .addEmotions(Emotion.SADNESS)
+                .addEmotions(Emotion.SADNESS)
+                .addEmotions(Emotion.HAPPINESS)
+                .addEmotions(Emotion.HAPPINESS);
 
         Query builtQuery = filter.buildQuery();
 
@@ -262,11 +262,11 @@ public class MoodEventFilterTest {
     @Test
     public void testMultipleCallsToAddEmotion() {
         MoodEventFilter filter = new MoodEventFilter(mockCollectionReference)
-                .addEmotion(Emotion.ANGER)
-                .addEmotion(Emotion.HAPPINESS)
-                .addEmotion(Emotion.SADNESS)
-                .addEmotion(Emotion.ANGER)
-                .addEmotion(Emotion.HAPPINESS);
+                .addEmotions(Emotion.ANGER)
+                .addEmotions(Emotion.HAPPINESS)
+                .addEmotions(Emotion.SADNESS)
+                .addEmotions(Emotion.ANGER)
+                .addEmotions(Emotion.HAPPINESS);
 
         Query builtQuery = filter.buildQuery();
 
@@ -352,9 +352,9 @@ public class MoodEventFilterTest {
         emotionsList.add(Emotion.ANGER);
 
         MoodEventFilter filter = new MoodEventFilter(mockCollectionReference)
-                .addEmotion(Emotion.SADNESS)
+                .addEmotions(Emotion.SADNESS)
                 .addEmotions(emotionsList)
-                .addEmotion(Emotion.HAPPINESS);
+                .addEmotions(Emotion.HAPPINESS);
 
         Query builtQuery = filter.buildQuery();
 

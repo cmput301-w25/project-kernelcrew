@@ -3,7 +3,10 @@ package com.kernelcrew.moodapp.data;
 import androidx.annotation.Nullable;
 
 import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.Filter;
 import com.google.firebase.firestore.Query;
+
+import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
@@ -15,6 +18,7 @@ import java.util.Set;
 public class MoodEventFilter {
     private final CollectionReference collectionReference;
     private final Set<Emotion> emotions = new HashSet<>();
+    private final Set<String> socialSituations = new HashSet<>();
     private String userId;
     private Date startDate;
     private Date endDate;
@@ -23,6 +27,8 @@ public class MoodEventFilter {
     private Double latitude;
     private Double longitude;
     private Double radius;
+    private Integer limit;
+    private String searchQuery;
 
     /**
      * Constructor accepting a CollectionReference directly.
@@ -50,7 +56,7 @@ public class MoodEventFilter {
      * @param emotion The emotion to filter by.
      * @return Current instance.
      */
-    public MoodEventFilter addEmotion(Emotion emotion) {
+    public MoodEventFilter addEmotions(Emotion emotion) {
         this.emotions.add(emotion);
         return this;
     }
@@ -151,6 +157,58 @@ public class MoodEventFilter {
     }
 
     /**
+     * Add a limiter on the query
+     * @param limit The amount to limit the results by.
+     * @return Current Instance
+     */
+    public MoodEventFilter setLimit(int limit) {
+        this.limit = limit;
+        return this;
+    }
+
+    /**
+     * Set a search query to filter mood events by their trigger field.
+     *
+     * @param query The text to search for.
+     * @return The current instance.
+     */
+    public MoodEventFilter setSearchQuery(String query) {
+        this.searchQuery = query;
+        return this;
+    }
+    
+    /**
+     * Add a single social instance to filter by 
+     * 
+     * @param socialSituation The single instance to add
+     * @return The current instance.
+     * */
+    public MoodEventFilter setSocialSituations(String socialSituation) {
+        this.socialSituations.add(socialSituation);
+        return this;
+    }
+
+    /**
+     * Add a single social instance to filter by
+     *
+     * @param socialSituation The single instance to add
+     * @return The current instance.
+     * */
+    public MoodEventFilter setSocialSituations(Set<String> socialSituation) {
+        this.socialSituations.addAll(socialSituation);
+        return this;
+    }
+
+    /**
+     * Get the current searchQuery
+     *
+     * @return The current search
+     */
+    public String getSearchQuery() {
+        return searchQuery;
+    }
+
+    /**
      * Counts the number of filters applied.
      *
      * @return The number of active filters.
@@ -162,6 +220,9 @@ public class MoodEventFilter {
         if (startDate != null || endDate != null) c++;
         if (sortField != null) c++;
         if (longitude != null || latitude != null || radius != null) c++;
+        if (limit != null) c++;
+        if (searchQuery != null) c++;
+        if (!socialSituations.isEmpty()) c++;
         return c;
     }
 
@@ -178,6 +239,9 @@ public class MoodEventFilter {
         latitude = null;
         longitude = null;
         radius = null;
+        limit = null;
+        searchQuery = null;
+        socialSituations.clear();
     }
 
     /**
@@ -202,6 +266,15 @@ public class MoodEventFilter {
         if (sortField != null) {
             sb.append("Sort: ").append(sortField).append(" (").append(sortDirection).append(")\n");
         }
+        if (searchQuery != null) {
+            sb.append("Search Query: ").append(searchQuery).append("\n");
+        }
+        if (!socialSituations.isEmpty()) {
+            sb.append("Social Situations: ").append(socialSituations.toString()).append("\n");
+        }
+        if (limit != null) {
+            sb.append("Limit: ").append(limit).append("\n");
+        }
         if (sb.length() == 0) {
             sb.append("No filters applied.");
         }
@@ -215,7 +288,6 @@ public class MoodEventFilter {
      * @return A query with applied filtering and sorting.
      */
     public Query buildQuery() {
-        // Start with the collection reference
         Query query = collectionReference;
 
         if (userId != null) {
@@ -258,6 +330,28 @@ public class MoodEventFilter {
                     .whereLessThanOrEqualTo("latitude", maxLat)
                     .whereGreaterThanOrEqualTo("longitude", minLon)
                     .whereLessThanOrEqualTo("longitude", maxLon);
+        }
+
+        if (searchQuery != null && !searchQuery.isBlank()) {
+            Filter triggerFilter = Filter.and(
+                    Filter.greaterThanOrEqualTo("trigger", searchQuery),
+                    Filter.lessThanOrEqualTo("trigger", searchQuery + "\uf8ff")
+            );
+
+            Filter reasonFilter = Filter.and(
+                    Filter.greaterThanOrEqualTo("reason", searchQuery),
+                    Filter.lessThanOrEqualTo("reason", searchQuery + "\uf8ff")
+            );
+
+            query = query.where(Filter.or(triggerFilter, reasonFilter));
+        }
+
+        if (!socialSituations.isEmpty()) {
+            query = query.whereIn("socialSituation", new ArrayList<>(socialSituations));
+        }
+
+        if (limit != null) {
+            query = query.limit(limit);
         }
 
         return query;

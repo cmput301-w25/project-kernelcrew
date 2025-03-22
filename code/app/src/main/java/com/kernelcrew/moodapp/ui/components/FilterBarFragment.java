@@ -1,16 +1,25 @@
 package com.kernelcrew.moodapp.ui.components;
 
+import android.annotation.SuppressLint;
+import android.content.Context;
 import android.graphics.Color;
+import android.graphics.Rect;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.SpannableString;
 import android.text.TextWatcher;
 import android.text.style.ForegroundColorSpan;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.EditorInfo;
+import android.view.inputmethod.InputMethodManager;
+import android.widget.EditText;
 import android.widget.PopupMenu;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -24,6 +33,7 @@ import com.kernelcrew.moodapp.R;
 import com.kernelcrew.moodapp.data.Emotion;
 import com.kernelcrew.moodapp.data.MoodEventFilter;
 import com.kernelcrew.moodapp.data.MoodEventProvider;
+import com.kernelcrew.moodapp.ui.Utility;
 
 import java.util.Calendar;
 import java.util.Date;
@@ -34,10 +44,10 @@ import java.util.Set;
 /**
  * A fragment that interfaces the filtering options for mood events.
  */
-public class FilterBarFragment extends Fragment {
+public abstract class FilterBarFragment extends Fragment {
     // Current filters in use
     private MoodEventFilter moodEventFilter;
-    private Set<Emotion> selectedEmotions = new HashSet<>();
+    private final Set<Emotion> selectedEmotions = new HashSet<>();
 
     // Listener for public interface
     private OnFilterChangedListener listener;
@@ -51,6 +61,19 @@ public class FilterBarFragment extends Fragment {
          * @param filter The updated filter object.
          */
         void onFilterChanged(MoodEventFilter filter);
+    }
+
+    /**
+     * Auto-wire the listener from parent Activity or Fragment if available.
+     */
+    @Override
+    public void onAttach(@NonNull Context context) {
+        super.onAttach(context);
+        if (context instanceof OnFilterChangedListener) {
+            listener = (OnFilterChangedListener) context;
+        } else if (getParentFragment() instanceof OnFilterChangedListener) {
+            listener = (OnFilterChangedListener) getParentFragment();
+        }
     }
 
     // UI Elements
@@ -69,7 +92,7 @@ public class FilterBarFragment extends Fragment {
                              @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
 
-        // Inflate your fragment's layout
+        // Inflate fragment's layout
         View view = inflater.inflate(R.layout.layout_filter_bar, container, false);
 
         // Initialize Views
@@ -79,14 +102,29 @@ public class FilterBarFragment extends Fragment {
         filterTimeRange = view.findViewById(R.id.filter_timeRange);
         filterLocation = view.findViewById(R.id.filter_location);
 
+        // Call the abstract setupUI to enforce keyboard-hiding and other UI setups.
+        assert getParentFragment() != null;
+        setupKeyboardHiding(getParentFragment().getView());
+
         // -- Event Listeners -----------------
         // Search bar listener
-        searchEditText.addTextChangedListener(new TextWatcher() {
+        // Taha used the following resources,
+        // https://stackoverflow.com/questions/3205339/android-how-to-make-keyboard-enter-button-say-search-and-handle-its-click
+        // https://stackoverflow.com/questions/2004344/how-do-i-handle-imeoptions-done-button-click
+        searchEditText.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {}
-            @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) { }
-            @Override public void afterTextChanged(Editable s) {
-                // TODO: Implement Search
+            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+                if (actionId == EditorInfo.IME_ACTION_SEARCH
+                        || actionId == EditorInfo.IME_ACTION_DONE
+                        || (event != null
+                            && event.getAction() == KeyEvent.ACTION_DOWN
+                            && event.getKeyCode() == KeyEvent.KEYCODE_ENTER
+                        )) {
+                    getMoodEventFilter().setSearchQuery(v.getText().toString());
+                    notifyFilterChanged();
+                    return true;
+                }
+                return false;
             }
         });
 
@@ -208,11 +246,6 @@ public class FilterBarFragment extends Fragment {
                         calendar.add(Calendar.MILLISECOND, -1);
                         endDate = calendar.getTime();
                         break;
-                    case "All Time":
-                        // Clear any date range filter
-                        startDate = null;
-                        endDate = null;
-                        break;
                     default:
                         break;
                 }
@@ -272,6 +305,39 @@ public class FilterBarFragment extends Fragment {
     }
 
     /**
+     * Abstract method that MUST be implemented by subclasses.
+     * Used to set up touch listeners on all views (except EditText)
+     * so that touching outside of a text box hides the keyboard.
+     * <a href="https://stackoverflow.com/questions/4165414/how-to-hide-soft-keyboard-on-android-after-clicking-outside-edittext">...</a>
+     *
+     * <pre>
+     * {@code
+     *     @SuppressLint("ClickableViewAccessibility")
+     *     @Override
+     *     public void setupKeyboardHiding(View view) {
+     *         if (!(view instanceof EditText)) {
+     *             view.setOnTouchListener((v, event) -> {
+     *                 assert getActivity() != null;
+     *                 Utility.hideSoftKeyboard(getActivity());
+     *                 return false;
+     *             });
+     *         }
+     *         if (view instanceof ViewGroup) {
+     *             ViewGroup group = (ViewGroup) view;
+     *             for (int i = 0; i < group.getChildCount(); i++) {
+     *                 View child = group.getChildAt(i);
+     *                 setupKeyboardHiding(child);
+     *             }
+     *         }
+     *     }
+     * }
+     * </pre>
+     *
+     * @param view The root view to set up.
+     */
+    public abstract void setupKeyboardHiding(View view);
+
+    /**
      * Retrieves the current mood event filter or creates a new one if not initialized.
      *
      * @return The current {@link MoodEventFilter} instance.
@@ -297,7 +363,12 @@ public class FilterBarFragment extends Fragment {
      */
     private void notifyFilterChanged() {
         getMoodEventFilter().setSortField("created", Query.Direction.DESCENDING);
-        filterCountAndEdit.setText(String.valueOf(getMoodEventFilter().count() - 1));
+        filterCountAndEdit.setText(String
+                .valueOf(getMoodEventFilter().getSearchQuery() == null
+                            ? getMoodEventFilter().count() - 1
+                            : getMoodEventFilter().count() - 2
+                        )
+        );
         listener.onFilterChanged(getMoodEventFilter());
     }
 

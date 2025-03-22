@@ -11,7 +11,7 @@
         android:id="@+id/filterSearchLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Search"
+        android:hint="Search for a Trigger/Reason"
         style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.Dense"
         app:startIconDrawable="@drawable/ic_search"
         app:endIconMode="clear_text">
@@ -20,7 +20,9 @@
             android:id="@+id/filterSearchEditText"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:textSize="12sp"/>
+            android:textSize="12sp"
+            android:inputType="textFilter"
+            android:imeOptions="actionSearch"/>
     </com.google.android.material.textfield.TextInputLayout>
 
     <HorizontalScrollView
