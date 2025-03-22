@@ -160,7 +160,8 @@ public class MoodOwnershipTest extends FirebaseEmulatorMixin {
     }
 
     /**
-     * Test #2: User2 signs up, creates a mood, verifies Edit/Delete are visible for own mood, then signs out.
+     * Test #2: User2 signs up and verifies that Edit/Delete buttons are NOT displayed on a mood created by User1.
+     * Instead of using the GUI to create User1's mood, we sign in as User1 and create it directly via the backend.
      */
     @Test
     public void test02_User2CreatesMoodAndVerifiesEditAndDeleteButtonsAreNotDisplayedOnUserOnesMood() throws InterruptedException, ExecutionException {
@@ -168,12 +169,11 @@ public class MoodOwnershipTest extends FirebaseEmulatorMixin {
         ActivityScenario<MainActivity> scenario1 = ActivityScenario.launch(MainActivity.class);
         SystemClock.sleep(3000);
 
-        // Sign up as User1
-        onView(withId(R.id.buttonInitialToSignUp)).perform(click());
-        onView(withId(R.id.username)).perform(replaceText(USER1_USERNAME));
-        onView(withId(R.id.emailSignUp)).perform(replaceText(USER1_EMAIL));
-        onView(withId(R.id.passwordSignUp)).perform(replaceText(USER1_PASSWORD));
-        onView(withId(R.id.signUpButtonAuthToHome)).perform(click());
+        // Sign in as User1 (user1 already exists)
+        onView(withId(R.id.buttonInitialToSignIn)).perform(click());
+        onView(withId(R.id.emailSignIn)).perform(replaceText(USER1_EMAIL));
+        onView(withId(R.id.passwordSignIn)).perform(replaceText(USER1_PASSWORD));
+        onView(withId(R.id.signInButtonAuthToHome)).perform(click());
         SystemClock.sleep(3000);
 
         // Create a mood for User1 using backend directly
@@ -216,7 +216,7 @@ public class MoodOwnershipTest extends FirebaseEmulatorMixin {
         onView(withId(R.id.btnDeleteMood)).check(matches(not(isDisplayed())));
         SystemClock.sleep(3000);
 
-        // Delete the current user from Firebase Auth
+        // Delete the current user from Firebase Auth (if exists)
         if (FirebaseAuth.getInstance().getCurrentUser() != null) {
             Tasks.await(FirebaseAuth.getInstance().getCurrentUser().delete());
         }
