@@ -30,6 +30,7 @@ import com.kernelcrew.moodapp.R;
 import com.kernelcrew.moodapp.data.Emotion;
 import com.kernelcrew.moodapp.data.MoodEvent;
 import com.kernelcrew.moodapp.data.MoodEventProvider;
+import com.kernelcrew.moodapp.data.MoodEventVisibility;
 import com.kernelcrew.moodapp.ui.MainActivity;
 
 import org.hamcrest.Matcher;
@@ -56,8 +57,6 @@ public class EditMoodEventTest extends FirebaseEmulatorMixin {
         MoodEvent moodEvent = new MoodEvent(
                 FirebaseAuth.getInstance().getUid(),
                 Emotion.DISGUST,
-                "",
-                "",
                 "",
                 "",
                 0.0,
@@ -99,7 +98,9 @@ public class EditMoodEventTest extends FirebaseEmulatorMixin {
                     List<DocumentSnapshot> moodEvents = results.getDocuments();
                     // Expecting a single mood event document that has been updated.
                     assertEquals(1, moodEvents.size());
-                    assertEquals("SHAME", moodEvents.get(0).getString("emotion"));
+                    MoodEvent moodEvent = moodEvents.get(0).toObject(MoodEvent.class);
+                    assertEquals(Emotion.SHAME, moodEvent.getEmotion());
+                    assertEquals(MoodEventVisibility.PRIVATE, moodEvent.getVisibility());
                 });
     }
 

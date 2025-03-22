@@ -1,10 +1,8 @@
 package com.kernelcrew.moodapp.data;
 
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.net.Uri;
-import android.util.Log;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.google.firebase.firestore.Exclude;
@@ -12,9 +10,7 @@ import com.google.firebase.firestore.IgnoreExtraProperties;
 import com.google.firebase.firestore.PropertyName;
 import com.kernelcrew.moodapp.utils.PhotoUtils;
 
-import java.io.ByteArrayOutputStream;
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
@@ -28,13 +24,14 @@ public class MoodEvent implements Serializable {
     private String uid;
     private Date created;
     private Emotion emotion;
-    private String trigger;
     private String socialSituation;
     private String reason;
     private String photoUrl;
     private Bitmap photo;
     private Double latitude;
     private Double longitude;
+
+    private @NonNull MoodEventVisibility visibility = MoodEventVisibility.PUBLIC;
 
     /**
      * Empty constructor for Firestore deserialization. Do not use.
@@ -52,7 +49,6 @@ public class MoodEvent implements Serializable {
         this.uid = uid;
         this.created = new Date();
         this.emotion = emotion;
-        this.trigger = trigger;
         this.socialSituation = socialSituation;
         this.reason = reason;
         this.photoUrl = photoUrl;
@@ -187,5 +183,21 @@ public class MoodEvent implements Serializable {
 
     public void setLongitude(Double longitude) {
         this.longitude = longitude;
+    }
+
+    public @NonNull MoodEventVisibility getVisibility() {
+        return visibility;
+    }
+
+    /**
+     * Update the visibility. Cannot change visibility to null.
+     * @param visibility New visibility. If null, no change is made.
+     */
+    public void setVisibility(MoodEventVisibility visibility) {
+        if (visibility == null) {
+            return;
+        }
+
+        this.visibility = visibility;
     }
 }
