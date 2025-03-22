@@ -1,10 +1,9 @@
 package com.kernelcrew.moodapp.ui.components;
 
-import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Color;
-import android.graphics.Rect;
 import android.os.Bundle;
+import android.os.Handler;
 import android.text.Editable;
 import android.text.SpannableString;
 import android.text.TextWatcher;
@@ -12,12 +11,9 @@ import android.text.style.ForegroundColorSpan;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
-import android.view.inputmethod.InputMethodManager;
-import android.widget.EditText;
 import android.widget.PopupMenu;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -33,7 +29,6 @@ import com.kernelcrew.moodapp.R;
 import com.kernelcrew.moodapp.data.Emotion;
 import com.kernelcrew.moodapp.data.MoodEventFilter;
 import com.kernelcrew.moodapp.data.MoodEventProvider;
-import com.kernelcrew.moodapp.ui.Utility;
 
 import java.util.Calendar;
 import java.util.Date;
@@ -83,15 +78,17 @@ public abstract class FilterBarFragment extends Fragment {
     private MaterialButton filterTimeRange;
     private MaterialButton filterLocation;
 
+    // Handlers so that the db doesnt just get bombarded with requests
+    private final Handler searchHandler = new Handler();
+    private Runnable searchRunnable;
+
     /**
      * Inflates the filter bar layout and initializes filter options.
      */
-    @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater,
                              @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
-
         // Inflate fragment's layout
         View view = inflater.inflate(R.layout.layout_filter_bar, container, false);
 
@@ -107,7 +104,31 @@ public abstract class FilterBarFragment extends Fragment {
         setupKeyboardHiding(getParentFragment().getView());
 
         // -- Event Listeners -----------------
-        // Search bar listener
+        // Search bar listeners
+        searchEditText.addTextChangedListener(new TextWatcher() {
+            @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) { }
+            @Override public void onTextChanged(CharSequence s, int start, int before, int count) {
+                if (searchRunnable != null) {
+                    searchHandler.removeCallbacks(searchRunnable);
+                }
+                searchRunnable = () -> {
+                    getMoodEventFilter().setSearchQuery(s.toString());
+                    notifyFilterChanged();
+                };
+                searchHandler.postDelayed(searchRunnable, 300);
+            }
+            @Override
+            public void afterTextChanged(Editable s) {
+                if (searchRunnable != null) {
+                    searchHandler.removeCallbacks(searchRunnable);
+                }
+                searchRunnable = () -> {
+                    getMoodEventFilter().setSearchQuery(s.toString());
+                    notifyFilterChanged();
+                };
+            }
+        });
+
         // Taha used the following resources,
         // https://stackoverflow.com/questions/3205339/android-how-to-make-keyboard-enter-button-say-search-and-handle-its-click
         // https://stackoverflow.com/questions/2004344/how-do-i-handle-imeoptions-done-button-click

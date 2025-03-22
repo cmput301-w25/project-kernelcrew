@@ -356,5 +356,82 @@ public class MoodEventFilter {
 
         return query;
     }
+
+    /**
+     * Merges multiple MoodEventFilters into one.
+     * For set fields (emotions, socialSituations) the values are unioned.
+     * For scalar fields, the first non-null value is taken (if conflicting, behavior is undefined).
+     *
+     * @param filters An array of MoodEventFilter instances to merge.
+     * @return A new MoodEventFilter representing the merged criteria.
+     */
+    // Taha used ChatGPT,
+    // Here is my current MoodFilters, <insert file>, use the above to create a function that
+    //      merges multiple filters.
+    public static MoodEventFilter mergeFilters(MoodEventFilter... filters) {
+        if (filters == null || filters.length == 0) {
+            throw new IllegalArgumentException("At least one filter must be provided.");
+        }
+
+        MoodEventFilter merged = new MoodEventFilter(filters[0].collectionReference);
+
+        for (MoodEventFilter f : filters) {
+            if (f.userId != null) {
+                if (merged.userId == null) {
+                    merged.userId = f.userId;
+                }
+            }
+
+            merged.emotions.addAll(f.emotions);
+            merged.socialSituations.addAll(f.socialSituations);
+
+            if (f.startDate != null) {
+                if (merged.startDate == null || f.startDate.before(merged.startDate)) {
+                    merged.startDate = f.startDate;
+                }
+            }
+
+            if (f.endDate != null) {
+                if (merged.endDate == null || f.endDate.after(merged.endDate)) {
+                    merged.endDate = f.endDate;
+                }
+            }
+
+            if (f.sortField != null) {
+                if (merged.sortField == null) {
+                    merged.sortField = f.sortField;
+                    merged.sortDirection = f.sortDirection;
+                }
+            }
+
+            if (f.latitude != null && f.longitude != null && f.radius != null) {
+                if (merged.latitude == null) {
+                    merged.latitude = f.latitude;
+                    merged.longitude = f.longitude;
+                    merged.radius = f.radius;
+                } else if (f.radius < merged.radius) {
+                    merged.latitude = f.latitude;
+                    merged.longitude = f.longitude;
+                    merged.radius = f.radius;
+                }
+            }
+
+            if (f.limit != null) {
+                if (merged.limit == null || f.limit < merged.limit) {
+                    merged.limit = f.limit;
+                }
+            }
+
+            if (f.searchQuery != null && !f.searchQuery.isBlank()) {
+                if (merged.searchQuery == null || merged.searchQuery.isBlank()) {
+                    merged.searchQuery = f.searchQuery;
+                } else if (!merged.searchQuery.equals(f.searchQuery)) {
+                    merged.searchQuery += " " + f.searchQuery;
+                }
+            }
+        }
+
+        return merged;
+    }
 }
 

@@ -19,15 +19,17 @@ import com.google.firebase.firestore.ListenerRegistration;
 import com.kernelcrew.moodapp.R;
 import com.kernelcrew.moodapp.data.MoodEvent;
 import com.kernelcrew.moodapp.data.MoodEventProvider;
+import com.kernelcrew.moodapp.ui.components.DefaultFilterBarFragment;
 import com.kernelcrew.moodapp.ui.components.FilterBarFragment;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * Fragment responsible for displaying a history of user's mood events using the new filtering logic.
  */
-public class MoodHistory extends Fragment implements MoodHistoryAdapter.OnItemClickListener {
+public class MoodHistory extends DefaultFilterBarFragment implements MoodHistoryAdapter.OnItemClickListener {
 
     /** RecyclerView for displaying mood history items */
     private RecyclerView recyclerView;
@@ -70,7 +72,7 @@ public class MoodHistory extends Fragment implements MoodHistoryAdapter.OnItemCl
         // When FilterBar changes, build the Firestore query and listen for changes
         if (searchNFilterFragment != null) {
             searchNFilterFragment.setOnFilterChangedListener(filter -> {
-                 filter.setUser(FirebaseAuth.getInstance().getCurrentUser().getUid());
+                 filter.setUser(Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid());
 
                 // Remove any existing snapshot listener to avoid duplicates
                 if (snapshotListener != null) {
