@@ -37,7 +37,9 @@ import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ExecutionException;
 
@@ -162,10 +164,38 @@ public class MoodOwnershipTest extends FirebaseEmulatorMixin {
      */
     @Test
     public void test02_User2CreatesMoodAndVerifiesEditAndDeleteButtonsAreNotDisplayedOnUserOnesMood() throws InterruptedException, ExecutionException {
-        test01_User1CreatesMoodAndVerifiesEditAndDeleteButtonsAreDisplayedOnOwnMood();
-        tearDown();
-        // Launch fresh
-        ActivityScenario<MainActivity> scenario = ActivityScenario.launch(MainActivity.class);
+        // Launch app fresh for User1 creation
+        ActivityScenario<MainActivity> scenario1 = ActivityScenario.launch(MainActivity.class);
+        SystemClock.sleep(3000);
+
+        // Sign up as User1
+        onView(withId(R.id.buttonInitialToSignUp)).perform(click());
+        onView(withId(R.id.username)).perform(replaceText(USER1_USERNAME));
+        onView(withId(R.id.emailSignUp)).perform(replaceText(USER1_EMAIL));
+        onView(withId(R.id.passwordSignUp)).perform(replaceText(USER1_PASSWORD));
+        onView(withId(R.id.signUpButtonAuthToHome)).perform(click());
+        SystemClock.sleep(3000);
+
+        // Create a mood for User1 using backend directly
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
+        String user1Uid = currentUser.getUid();
+        Map<String, Object> moodEventData = new HashMap<>();
+        moodEventData.put("uid", user1Uid);
+        moodEventData.put("emotion", "Happy");
+        moodEventData.put("reason", MOOD1_REASON);
+        moodEventData.put("socialSituation", "Solo");
+        // Add additional fields as required by your MoodEvent model
+        Tasks.await(db.collection("moodEvents").add(moodEventData));
+        SystemClock.sleep(3000);
+
+        // Sign out User1
+        FirebaseAuth.getInstance().signOut();
+        SystemClock.sleep(3000);
+        scenario1.close();
+
+        // Launch a new scenario for User2
+        ActivityScenario<MainActivity> scenario2 = ActivityScenario.launch(MainActivity.class);
         SystemClock.sleep(3000);
 
         // Sign up as User2
@@ -176,12 +206,12 @@ public class MoodOwnershipTest extends FirebaseEmulatorMixin {
         onView(withId(R.id.signUpButtonAuthToHome)).perform(click());
         SystemClock.sleep(3000);
 
-        // Open the newly created mood's details (position 0)
+        // Open the mood details of the mood created by User1 (should appear at position 0)
         onView(withId(R.id.moodRecyclerView))
                 .perform(actionOnItemAtPosition(0, clickChildViewWithId(R.id.viewDetailsButton)));
         SystemClock.sleep(3000);
 
-        // Verify Edit/Delete are visible for User2's own mood
+        // Verify that Edit/Delete buttons are NOT displayed for a mood not owned by User2
         onView(withId(R.id.btnEditMood)).check(matches(not(isDisplayed())));
         onView(withId(R.id.btnDeleteMood)).check(matches(not(isDisplayed())));
         SystemClock.sleep(3000);
@@ -196,7 +226,7 @@ public class MoodOwnershipTest extends FirebaseEmulatorMixin {
         FirebaseAuth.getInstance().signOut();
         SystemClock.sleep(3000);
 
-        scenario.close();
+        scenario2.close();
     }
 
     // code from lab 7
@@ -205,7 +235,7 @@ public class MoodOwnershipTest extends FirebaseEmulatorMixin {
         String projectId = "kernel-crew-mood-app";
         URL url = null;
         try {
-            url = new URL("http://10.0.2.2:8080/emulator/v1/projects/" + projectId + "/databases/(default)/documents");
+            url = new URL("http://10.0.2.2:4400/emulator/v1/projects/" + projectId + "/databases/(default)/documents");
         } catch (MalformedURLException exception) {
             Log.e("URL Error", Objects.requireNonNull(exception.getMessage()));
         }
