@@ -45,8 +45,6 @@
     <string name="delete_button_text">Delete</string>
     <string name="edit_button_text">Edit</string>
     <string name="mood_type_text">Mood</string>
-    <string name="trigger_heading">Trigger</string>
-    <string name="trigger_box_text">Trigger</string>
     <string name="social_situation_heading">Social Situation</string>
     <string name="social_situation_box_text">Social Situation</string>
     <string name="reason_heading">Reason</string>

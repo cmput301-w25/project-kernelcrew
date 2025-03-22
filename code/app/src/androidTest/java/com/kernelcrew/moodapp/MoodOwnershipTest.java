@@ -49,9 +49,7 @@ public class MoodOwnershipTest extends FirebaseEmulatorMixin {
     private static final String USER2_PASSWORD = "AT2@1234";
 
     // Mood details for test creation
-    private static final String MOOD1_TRIGGER = "Morning Run";
     private static final String MOOD1_REASON = "Feeling Energized";
-    private static final String MOOD2_TRIGGER = "Late Night Study";
     private static final String MOOD2_REASON = "Focused";
 
     /**
