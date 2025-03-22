@@ -37,9 +37,7 @@ import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ExecutionException;
 
@@ -60,7 +58,6 @@ public class MoodOwnershipTest extends FirebaseEmulatorMixin {
 
     // Mood details for test creation
     private static final String MOOD1_REASON = "Feeling Energized";
-    private static final String MOOD2_REASON = "Focused";
 
     /**
      * Helper method to delete a test user if it exists.
@@ -103,20 +100,16 @@ public class MoodOwnershipTest extends FirebaseEmulatorMixin {
         SystemClock.sleep(4000);
     }
 
-    @AfterClass
-    public static void cleanUpAfterAllTests() throws Exception {
-        FirebaseAuth.getInstance().signOut();
-        deleteTestUser(USER1_EMAIL, USER1_PASSWORD, USER1_USERNAME);
-        deleteTestUser(USER2_EMAIL, USER2_PASSWORD, USER2_USERNAME);
-    }
-
     /**
-     * Test #1: User1 signs up, creates a mood, verifies Edit/Delete are visible, then signs out.
+     * Combined test: 
+     * - Sign up as User1, create a mood via GUI and verify that Edit/Delete buttons are displayed.
+     * - Sign out User1.
+     * - Sign up as User2, view User1’s mood details, and verify that Edit/Delete buttons are not displayed.
      */
     @Test
-    public void test01_User1CreatesMoodAndVerifiesEditAndDeleteButtonsAreDisplayedOnOwnMood() throws InterruptedException, ExecutionException {
-        // Launch app fresh
-        ActivityScenario<MainActivity> scenario = ActivityScenario.launch(MainActivity.class);
+    public void test_MoodOwnershipVerification() throws InterruptedException, ExecutionException {
+        // --- User1 Flow ---
+        ActivityScenario<MainActivity> scenario1 = ActivityScenario.launch(MainActivity.class);
         SystemClock.sleep(3000);
 
         // Sign up as User1
@@ -127,15 +120,13 @@ public class MoodOwnershipTest extends FirebaseEmulatorMixin {
         onView(withId(R.id.signUpButtonAuthToHome)).perform(click());
         SystemClock.sleep(3000);
 
-        // Create a mood as User1
+        // Create a mood as User1 via GUI
         onView(withId(R.id.page_createMoodEvent)).perform(click());
         SystemClock.sleep(2000);
-
         onView(withId(R.id.emotion_reason))
                 .perform(scrollTo(), replaceText(MOOD1_REASON), closeSoftKeyboard());
         onView(withId(R.id.toggle_happy)).perform(click());
-        onView(withId(R.id.submit_button))
-                .perform(scrollTo(), click());
+        onView(withId(R.id.submit_button)).perform(scrollTo(), click());
         SystemClock.sleep(3000);
 
         // Open the newly created mood's details (position 0)
@@ -143,58 +134,17 @@ public class MoodOwnershipTest extends FirebaseEmulatorMixin {
                 .perform(actionOnItemAtPosition(0, clickChildViewWithId(R.id.viewDetailsButton)));
         SystemClock.sleep(3000);
 
-        // Verify Edit/Delete are visible
+        // Verify that Edit/Delete buttons are displayed for User1's own mood
         onView(withId(R.id.btnEditMood)).check(matches(isDisplayed()));
         onView(withId(R.id.btnDeleteMood)).check(matches(isDisplayed()));
-
-        // Delete the current user from Firebase Auth
-        Tasks.await(Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).delete());
-        tearDown();
-
-        // Sign out User1
-        FirebaseAuth.getInstance().signOut();
-        SystemClock.sleep(1000);
-
-        // Close scenario
-        scenario.close();
-    }
-
-    /**
-     * Test #2: User2 signs up and verifies that Edit/Delete buttons are NOT displayed on a mood created by User1.
-     * Instead of using the GUI to create User1's mood, we sign in as User1 and create it directly via the backend.
-     */
-    @Test
-    public void test02_User2CreatesMoodAndVerifiesEditAndDeleteButtonsAreNotDisplayedOnUserOnesMood() throws InterruptedException, ExecutionException {
-        // Launch app fresh for User1 creation
-        ActivityScenario<MainActivity> scenario1 = ActivityScenario.launch(MainActivity.class);
-        SystemClock.sleep(3000);
-
-        // Sign in as User1 (user1 already exists)
-        onView(withId(R.id.buttonInitialToSignIn)).perform(click());
-        onView(withId(R.id.emailSignIn)).perform(replaceText(USER1_EMAIL));
-        onView(withId(R.id.passwordSignIn)).perform(replaceText(USER1_PASSWORD));
-        onView(withId(R.id.signInButtonAuthToHome)).perform(click());
-        SystemClock.sleep(3000);
-
-        // Create a mood for User1 using backend directly
-        FirebaseFirestore db = FirebaseFirestore.getInstance();
-        FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
-        String user1Uid = currentUser.getUid();
-        Map<String, Object> moodEventData = new HashMap<>();
-        moodEventData.put("uid", user1Uid);
-        moodEventData.put("emotion", "Happy");
-        moodEventData.put("reason", MOOD1_REASON);
-        moodEventData.put("socialSituation", "Solo");
-        // Add additional fields as required by your MoodEvent model
-        Tasks.await(db.collection("moodEvents").add(moodEventData));
-        SystemClock.sleep(3000);
+        SystemClock.sleep(2000);
 
         // Sign out User1
         FirebaseAuth.getInstance().signOut();
         SystemClock.sleep(3000);
         scenario1.close();
 
-        // Launch a new scenario for User2
+        // --- User2 Flow ---
         ActivityScenario<MainActivity> scenario2 = ActivityScenario.launch(MainActivity.class);
         SystemClock.sleep(3000);
 
@@ -216,16 +166,9 @@ public class MoodOwnershipTest extends FirebaseEmulatorMixin {
         onView(withId(R.id.btnDeleteMood)).check(matches(not(isDisplayed())));
         SystemClock.sleep(3000);
 
-        // Delete the current user from Firebase Auth (if exists)
-        if (FirebaseAuth.getInstance().getCurrentUser() != null) {
-            Tasks.await(FirebaseAuth.getInstance().getCurrentUser().delete());
-        }
-        SystemClock.sleep(3000);
-
         // Sign out User2
         FirebaseAuth.getInstance().signOut();
         SystemClock.sleep(3000);
-
         scenario2.close();
     }
 
@@ -235,7 +178,7 @@ public class MoodOwnershipTest extends FirebaseEmulatorMixin {
         String projectId = "kernel-crew-mood-app";
         URL url = null;
         try {
-            url = new URL("http://10.0.2.2:4400/emulator/v1/projects/" + projectId + "/databases/(default)/documents");
+            url = new URL("http://10.0.2.2:4000/emulator/v1/projects/" + projectId + "/databases/(default)/documents");
         } catch (MalformedURLException exception) {
             Log.e("URL Error", Objects.requireNonNull(exception.getMessage()));
         }
