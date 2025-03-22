@@ -8,12 +8,15 @@ import android.text.Editable;
 import android.text.SpannableString;
 import android.text.TextWatcher;
 import android.text.style.ForegroundColorSpan;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
+import android.widget.HorizontalScrollView;
+import android.widget.LinearLayout;
 import android.widget.PopupMenu;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -22,17 +25,24 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
+import com.google.android.gms.tasks.Task;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.textfield.TextInputEditText;
+import com.google.android.material.textfield.TextInputLayout;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.Query;
 import com.kernelcrew.moodapp.R;
 import com.kernelcrew.moodapp.data.Emotion;
 import com.kernelcrew.moodapp.data.MoodEventFilter;
 import com.kernelcrew.moodapp.data.MoodEventProvider;
+import com.kernelcrew.moodapp.data.User;
+import com.kernelcrew.moodapp.data.UserProvider;
 
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 
@@ -40,9 +50,52 @@ import java.util.Set;
  * A fragment that interfaces the filtering options for mood events.
  */
 public abstract class FilterBarFragment extends Fragment {
+    // ! Constants
+    private boolean SHOW_SEARCH_OPTIONS = true;
+    private boolean userSearchActive = false;
+    private boolean triggerSearchActive = true;
+    private boolean reasonSearchActive = true;
+
+    // We'll store an in-progress "user search" text so we can delay queries.
+    private final Handler userSearchHandler = new Handler();
+    private Runnable userSearchRunnable;
+
     // Current filters in use
     private MoodEventFilter moodEventFilter;
     private final Set<Emotion> selectedEmotions = new HashSet<>();
+
+    // Getters and Setters of CONSTANTS
+    public boolean isSHOW_SEARCH_OPTIONS() {
+        return SHOW_SEARCH_OPTIONS;
+    }
+
+    public void setSHOW_SEARCH_OPTIONS(boolean SHOW_SEARCH_OPTIONS) {
+        this.SHOW_SEARCH_OPTIONS = SHOW_SEARCH_OPTIONS;
+    }
+
+    public boolean isUserSearchActive() {
+        return userSearchActive;
+    }
+
+    public void setUserSearchActive(boolean userSearchActive) {
+        this.userSearchActive = userSearchActive;
+    }
+
+    public boolean isTriggerSearchActive() {
+        return triggerSearchActive;
+    }
+
+    public void setTriggerSearchActive(boolean triggerSearchActive) {
+        this.triggerSearchActive = triggerSearchActive;
+    }
+
+    public boolean isReasonSearchActive() {
+        return reasonSearchActive;
+    }
+
+    public void setReasonSearchActive(boolean reasonSearchActive) {
+        this.reasonSearchActive = reasonSearchActive;
+    }
 
     // Listener for public interface
     private OnFilterChangedListener listener;
@@ -71,16 +124,37 @@ public abstract class FilterBarFragment extends Fragment {
         }
     }
 
+    /**
+     * Callback interface for delivering user search results to whoever is listening (e.g., HomeFeed).
+     */
+    public interface OnUserSearchListener {
+        /**
+         * Called when new user search results are ready.
+         * @param users List of matching users (could be empty, but never null).
+         */
+        void onUserSearchResults(List<User> users);
+    }
+
+    private OnUserSearchListener userSearchListener;
+
+    /**
+     * Registers a listener for receiving user search results.
+     * @param listener The listener to receive those results.
+     */
+    public void setOnUserSearchListener(OnUserSearchListener listener) {
+        this.userSearchListener = listener;
+    }
+
     // UI Elements
+    private TextInputLayout filterSearchLayout;
     private TextInputEditText searchEditText;
     private MaterialButton filterEmotion;
     private MaterialButton filterCountAndEdit;
     private MaterialButton filterTimeRange;
     private MaterialButton filterLocation;
-
-    // Handlers so that the db doesnt just get bombarded with requests
-    private final Handler searchHandler = new Handler();
-    private Runnable searchRunnable;
+    private MaterialButton searchUser;
+    private MaterialButton searchTrigger;
+    private MaterialButton searchReason;
 
     /**
      * Inflates the filter bar layout and initializes filter options.
@@ -92,12 +166,26 @@ public abstract class FilterBarFragment extends Fragment {
         // Inflate fragment's layout
         View view = inflater.inflate(R.layout.layout_filter_bar, container, false);
 
+        // Conditionally hide search row if constant is false
+        if (!SHOW_SEARCH_OPTIONS) {
+            view.findViewById(R.id.searchRowLayout).setVisibility(View.GONE);
+        } else {
+            view.findViewById(R.id.searchRowLayout).setVisibility(View.VISIBLE);
+        }
+
         // Initialize Views
+        filterSearchLayout = view.findViewById(R.id.filterSearchLayout);
         searchEditText = view.findViewById(R.id.filterSearchEditText);
         filterEmotion = view.findViewById(R.id.filter_emotion);
         filterCountAndEdit = view.findViewById(R.id.filterCountAndEdit);
         filterTimeRange = view.findViewById(R.id.filter_timeRange);
         filterLocation = view.findViewById(R.id.filter_location);
+        searchUser = view.findViewById(R.id.searchUser);
+        searchTrigger = view.findViewById(R.id.searchTrigger);
+        searchReason = view.findViewById(R.id.searchReason);
+
+        // Local Variables
+        HorizontalScrollView filterButtonsContainer = view.findViewById(R.id.filterButtonsContainer);
 
         // Call the abstract setupUI to enforce keyboard-hiding and other UI setups.
         assert getParentFragment() != null;
@@ -108,23 +196,49 @@ public abstract class FilterBarFragment extends Fragment {
         searchEditText.addTextChangedListener(new TextWatcher() {
             @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) { }
             @Override public void onTextChanged(CharSequence s, int start, int before, int count) {
-                if (searchRunnable != null) {
-                    searchHandler.removeCallbacks(searchRunnable);
+                if (userSearchRunnable != null) {
+                    userSearchHandler.removeCallbacks(userSearchRunnable);
                 }
-                searchRunnable = () -> {
-                    getMoodEventFilter().setSearchQuery(s.toString());
-                    notifyFilterChanged();
+                userSearchRunnable = () -> {
+                    String typed = s.toString().trim();
+
+                    if (userSearchActive) {
+                        performUserSearch(typed);
+                    } else {
+                        if (triggerSearchActive || reasonSearchActive) {
+                            if (typed.isEmpty()) {
+                                getMoodEventFilter().setSearchQuery(null);
+                            } else {
+                                getMoodEventFilter().setSearchQuery(typed);
+                            }
+                            notifyFilterChanged();
+                        }
+                    }
                 };
-                searchHandler.postDelayed(searchRunnable, 300);
+                userSearchHandler.postDelayed(userSearchRunnable, 400); // e.g. 400ms delay
+
             }
             @Override
             public void afterTextChanged(Editable s) {
-                if (searchRunnable != null) {
-                    searchHandler.removeCallbacks(searchRunnable);
+                if (userSearchRunnable != null) {
+                    userSearchHandler.removeCallbacks(userSearchRunnable);
                 }
-                searchRunnable = () -> {
-                    getMoodEventFilter().setSearchQuery(s.toString());
-                    notifyFilterChanged();
+                userSearchRunnable = () -> {
+                    String typed = s.toString().trim();
+
+                    if (userSearchActive) {
+                        performUserSearch(typed);
+
+                    } else {
+                        if (triggerSearchActive || reasonSearchActive) {
+                            if (typed.isEmpty()) {
+                                getMoodEventFilter().setSearchQuery(null);
+                            } else {
+                                getMoodEventFilter().setSearchQuery(typed);
+                            }
+                            notifyFilterChanged();
+                        }
+                    }
                 };
             }
         });
@@ -141,12 +255,94 @@ public abstract class FilterBarFragment extends Fragment {
                             && event.getAction() == KeyEvent.ACTION_DOWN
                             && event.getKeyCode() == KeyEvent.KEYCODE_ENTER
                         )) {
-                    getMoodEventFilter().setSearchQuery(v.getText().toString());
-                    notifyFilterChanged();
-                    return true;
+                    String typed = v.getText().toString().trim();
+                    if (userSearchActive) {
+                        performUserSearch(typed);
+                        return true;
+                    } else if (triggerSearchActive || reasonSearchActive) {
+                        getMoodEventFilter().setSearchQuery(typed.isEmpty() ? null : typed);
+                        notifyFilterChanged();
+                        return true;
+                    }
                 }
                 return false;
             }
+        });
+
+        // Whenever the user toggles "Search User":
+        searchUser.setOnClickListener(v -> {
+            userSearchActive = !userSearchActive;
+            searchUser.setChecked(userSearchActive);
+            filterSearchLayout.setError(null);
+            filterSearchLayout.setErrorEnabled(false);
+
+            if (userSearchActive) {
+                // Disable Trigger and Reason
+                triggerSearchActive = false;
+                reasonSearchActive = false;
+                searchTrigger.setChecked(false);
+                searchReason.setChecked(false);
+                searchTrigger.setEnabled(false);
+                searchReason.setEnabled(false);
+
+                filterButtonsContainer.setVisibility(View.GONE);
+                filterButtonsContainer.setBackground(null);
+            } else {
+                // Re-enable Trigger and Reason
+                searchTrigger.setEnabled(true);
+                searchReason.setEnabled(true);
+
+                filterButtonsContainer.setVisibility(View.VISIBLE);
+                filterButtonsContainer.setBackgroundResource(R.drawable.black_border);
+            }
+
+            updateSearchLogic();
+        });
+
+        // Whenever the user toggles "Search Trigger":
+        searchTrigger.setOnClickListener(v -> {
+            boolean newVal = !triggerSearchActive;
+            searchTrigger.setChecked(newVal);
+            triggerSearchActive = newVal;
+            filterSearchLayout.setError(null);
+            filterSearchLayout.setErrorEnabled(false);
+
+            if (triggerSearchActive) {
+                if (userSearchActive) {
+                    userSearchActive = false;
+                    searchUser.setChecked(false);
+                }
+                searchUser.setEnabled(false);
+            } else {
+                if (!reasonSearchActive) {
+                    searchUser.setEnabled(true);
+                }
+            }
+
+            updateSearchLogic();
+        });
+
+        // Whenever the user toggles "Search Reason":
+        searchReason.setOnClickListener(v -> {
+            boolean newVal = !reasonSearchActive;
+            searchReason.setChecked(newVal);
+            reasonSearchActive = newVal;
+            filterSearchLayout.setError(null);
+            filterSearchLayout.setErrorEnabled(false);
+
+            if (reasonSearchActive) {
+                if (userSearchActive) {
+                    userSearchActive = false;
+                    searchUser.setChecked(false);
+                }
+                searchUser.setEnabled(false);
+            } else {
+                if (!triggerSearchActive) {
+                    searchUser.setEnabled(true);
+                }
+            }
+
+            updateSearchLogic();
         });
 
         // Filter count and edit popup menu
@@ -173,6 +369,13 @@ public abstract class FilterBarFragment extends Fragment {
                 notifyFilterChanged();
                 return true;
             });
+
+            popup.setOnDismissListener(menu -> {
+                getMoodEventFilter().setEmotions(selectedEmotions);
+                notifyFilterChanged();
+                filterCountAndEdit.setChecked(false);
+            });
+
             popup.show();
         });
 
@@ -326,6 +529,53 @@ public abstract class FilterBarFragment extends Fragment {
     }
 
     /**
+     * Updates the search logic whenever a toggle changes.
+     * If "Search User" is active, we remove MoodEventFilter's query and do user search.
+     * If Trigger/Reason is active, we apply MoodEventFilter searching on reason/trigger.
+     * If none are active, we clear results and do nothing.
+     */
+    private void updateSearchLogic() {
+        boolean atLeastOne = userSearchActive || triggerSearchActive || reasonSearchActive;
+        if (!atLeastOne) {
+            filterSearchLayout.setError("Select a search method!");
+            return;
+        }
+
+        if (userSearchActive) {
+            performUserSearch("");
+        } else {
+            notifyFilterChanged();
+        }
+    }
+
+    /**
+     * Executes a Firestore search for users based on the typed query,
+     * mimicking the existing 'SearchUsers' logic. Once results come back,
+     * show them or “No results found.” as needed.
+     *
+     * @param query The text typed by the user for searching.
+     */
+    private void performUserSearch(String query) {
+        Task<List<User>> q = UserProvider.getInstance().searchUsers(
+                query,
+                Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid()
+        );
+
+        q.addOnSuccessListener(users -> {
+            if (userSearchListener != null) {
+                userSearchListener.onUserSearchResults(users);
+            }
+        }).addOnFailureListener(e -> {
+            Log.e("FilterBarFragment", "User search failed!", e);
+            Toast.makeText(getContext(), "Search failed: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+
+            if (userSearchListener != null) {
+                userSearchListener.onUserSearchResults(new ArrayList<>());
+            }
+        });
+    }
+
+    /**
      * Abstract method that MUST be implemented by subclasses.
      * Used to set up touch listeners on all views (except EditText)
      * so that touching outside of a text box hides the keyboard.
@@ -390,7 +640,11 @@ public abstract class FilterBarFragment extends Fragment {
                             : getMoodEventFilter().count() - 2
                         )
         );
-        listener.onFilterChanged(getMoodEventFilter());
+        if (listener != null) {
+            listener.onFilterChanged(getMoodEventFilter());
+        } else {
+            Log.w("FilterBarFragment", "OnFilterChangedListener is not attached!");
+        }
     }
 
     /**
@@ -403,5 +657,14 @@ public abstract class FilterBarFragment extends Fragment {
         calendar.set(Calendar.MINUTE, 0);
         calendar.set(Calendar.SECOND, 0);
         calendar.set(Calendar.MILLISECOND, 0);
+    }
+
+    /**
+     * Custom Query setter for the Home Page
+     * @param query The query built and set according to the correct filters
+     */
+    public void setCustomQuery(Query query) {
+        getMoodEventFilter().setCustomQuery(query);
+        notifyFilterChanged();
     }
 }

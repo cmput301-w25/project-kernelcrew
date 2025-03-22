@@ -29,6 +29,7 @@ public class MoodEventFilter {
     private Double radius;
     private Integer limit;
     private String searchQuery;
+    private Query customQuery;
 
     /**
      * Constructor accepting a CollectionReference directly.
@@ -249,6 +250,17 @@ public class MoodEventFilter {
         return this;
     }
 
+    /**
+     * A custom query setter
+     *
+     * @param customQuery The custom query to add
+     * @return The current instance.
+     */
+    public MoodEventFilter setCustomQuery(Query customQuery) {
+        this.customQuery = customQuery;
+        return this;
+    }
+
     // Getters
     public String getSearchQuery() {
         return searchQuery;
@@ -273,7 +285,7 @@ public class MoodEventFilter {
      */
     public int count() {
         int c = 0;
-        if (userIds.isEmpty()) c++;
+        if (!userIds.isEmpty()) c++;
         if (!emotions.isEmpty()) c++;
         if (startDate != null || endDate != null) c++;
         if (sortField != null) c++;
@@ -281,6 +293,7 @@ public class MoodEventFilter {
         if (limit != null) c++;
         if (searchQuery != null) c++;
         if (!socialSituations.isEmpty()) c++;
+        if (customQuery != null) c++;
         return c;
     }
 
@@ -300,6 +313,7 @@ public class MoodEventFilter {
         limit = null;
         searchQuery = null;
         socialSituations.clear();
+        customQuery = null;
     }
 
     /**
@@ -330,6 +344,9 @@ public class MoodEventFilter {
         if (!socialSituations.isEmpty()) {
             sb.append("Social Situations: ").append(socialSituations.toString()).append("\n");
         }
+        if (customQuery != null) {
+            sb.append("Custom Query: ").append(customQuery.toString()).append("\n");
+        }
         if (limit != null) {
             sb.append("Limit: ").append(limit).append("\n");
         }
@@ -346,6 +363,10 @@ public class MoodEventFilter {
      * @return A query with applied filtering and sorting.
      */
     public Query buildQuery() {
+        if (customQuery != null) {
+            return customQuery;
+        }
+
         Query query = collectionReference;
 
         if (!userIds.isEmpty()) {

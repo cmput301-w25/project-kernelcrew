@@ -8,11 +8,11 @@
     android:paddingHorizontal="10dp">
 
     <com.google.android.material.textfield.TextInputLayout
+        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.Dense"
         android:id="@+id/filterSearchLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Search for a Trigger/Reason"
-        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.Dense"
+        android:hint="Search"
         app:startIconDrawable="@drawable/ic_search"
         app:endIconMode="clear_text">
 
@@ -23,20 +23,94 @@
             android:textSize="12sp"
             android:inputType="textFilter"
             android:imeOptions="actionSearch"/>
+
     </com.google.android.material.textfield.TextInputLayout>
 
     <HorizontalScrollView
+        android:id="@+id/searchRowLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="4dp"
-        android:layout_marginBottom="4dp"
+        android:padding="5dp"
         android:scrollbars="none">
 
         <LinearLayout
-            android:id="@+id/filterButtonsContainer"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:orientation="horizontal">
+            android:scrollbars="none">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:paddingHorizontal="8dp"
+                android:gravity="center_vertical"
+                android:text="Search For:"
+                android:textSize="15sp" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/searchUser"
+                style="?attr/materialButtonOutlinedStyle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="2dp"
+                android:minHeight="32dp"
+                android:minWidth="32dp"
+                android:paddingHorizontal="15dp"
+                android:paddingVertical="5dp"
+                android:gravity="center"
+                android:text="Users"
+                android:textSize="14sp"
+                android:checkable="true"
+                app:toggleCheckedStateOnClick="true" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/searchTrigger"
+                style="?attr/materialButtonOutlinedStyle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="2dp"
+                android:minHeight="32dp"
+                android:minWidth="32dp"
+                android:paddingHorizontal="15dp"
+                android:paddingVertical="5dp"
+                android:gravity="center"
+                android:text="Trigger"
+                android:textSize="14sp"
+                android:checkable="true"
+                app:toggleCheckedStateOnClick="true" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/searchReason"
+                style="?attr/materialButtonOutlinedStyle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="2dp"
+                android:minHeight="32dp"
+                android:minWidth="32dp"
+                android:paddingHorizontal="15dp"
+                android:paddingVertical="5dp"
+                android:gravity="center"
+                android:text="Reason"
+                android:textSize="14sp"
+                android:checkable="true"
+                app:toggleCheckedStateOnClick="true" />
+
+        </LinearLayout>
+    </HorizontalScrollView>
+
+    <HorizontalScrollView
+        android:id="@+id/filterButtonsContainer"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="4dp"
+        android:padding="5dp"
+        android:background="@drawable/black_border"
+        android:scrollbars="none">
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:scrollbars="none">
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/filterCountAndEdit"
@@ -48,7 +122,7 @@
                 android:minWidth="32dp"
                 android:paddingHorizontal="15dp"
                 android:paddingVertical="5dp"
-                android:gravity="center"
+                android:gravity="center_vertical"
                 android:text="0"
                 android:textSize="14sp"
                 android:checkable="true"
@@ -58,16 +132,20 @@
                 app:cornerRadius="12dp"
                 app:toggleCheckedStateOnClick="true" />
 
+            <View
+                android:layout_width="1dp"
+                android:layout_height="match_parent"
+                android:layout_margin="6dp"
+                android:gravity="center_vertical"
+                android:background="@drawable/left_border"/>
+
             <TextView
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="8dp"
-                android:background="@drawable/left_border"
-                android:paddingStart="10dp"
-                android:paddingEnd="8dp"
+                android:layout_height="match_parent"
+                android:paddingHorizontal="8dp"
                 android:gravity="center_vertical"
-                android:text="Filter By:"
-                android:textSize="14sp" />
+                android:text="Filtering By:"
+                android:textSize="15sp" />
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/filter_timeRange"
@@ -79,7 +157,7 @@
                 android:minWidth="32dp"
                 android:paddingHorizontal="15dp"
                 android:paddingVertical="5dp"
-                android:gravity="center"
+                android:gravity="center_vertical"
                 android:text="Date Posted"
                 android:textSize="14sp"
                 android:checkable="true"
@@ -98,7 +176,7 @@
                 android:minWidth="32dp"
                 android:paddingHorizontal="15dp"
                 android:paddingVertical="5dp"
-                android:gravity="center"
+                android:gravity="center_vertical"
                 android:text="Emotion"
                 android:textSize="14sp"
                 android:checkable="true"
@@ -117,7 +195,7 @@
                 android:minWidth="32dp"
                 android:paddingHorizontal="15dp"
                 android:paddingVertical="5dp"
-                android:gravity="center"
+                android:gravity="center_vertical"
                 android:text="Location"
                 android:textSize="14sp"
                 android:checkable="true"
@@ -128,5 +206,4 @@
 
         </LinearLayout>
     </HorizontalScrollView>
-
 </LinearLayout>

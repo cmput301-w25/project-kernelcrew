@@ -65,7 +65,7 @@ public class AuthSignUp extends Fragment {
         String password;
 
         SignUpDetails() {
-            this.userName = String.valueOf(usernameEditText.getText());
+            this.userName = String.valueOf(usernameEditText.getText()).toLowerCase();
             this.email = String.valueOf(emailEditText.getText());
             this.password = String.valueOf(passwordEditText.getText());
         }
