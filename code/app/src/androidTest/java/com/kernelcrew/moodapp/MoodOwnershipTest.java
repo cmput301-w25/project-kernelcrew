@@ -26,7 +26,6 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.kernelcrew.moodapp.ui.MainActivity;
 
-import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.FixMethodOrder;
@@ -148,6 +147,7 @@ public class MoodOwnershipTest extends FirebaseEmulatorMixin {
 
         // Delete the current user from Firebase Auth
         Tasks.await(Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).delete());
+        tearDown();
 
         // Sign out User1
         FirebaseAuth.getInstance().signOut();
@@ -163,6 +163,7 @@ public class MoodOwnershipTest extends FirebaseEmulatorMixin {
     @Test
     public void test02_User2CreatesMoodAndVerifiesEditAndDeleteButtonsAreNotDisplayedOnUserOnesMood() throws InterruptedException, ExecutionException {
         test01_User1CreatesMoodAndVerifiesEditAndDeleteButtonsAreDisplayedOnOwnMood();
+        tearDown();
         // Launch fresh
         ActivityScenario<MainActivity> scenario = ActivityScenario.launch(MainActivity.class);
         SystemClock.sleep(3000);
@@ -183,22 +184,24 @@ public class MoodOwnershipTest extends FirebaseEmulatorMixin {
         // Verify Edit/Delete are visible for User2's own mood
         onView(withId(R.id.btnEditMood)).check(matches(not(isDisplayed())));
         onView(withId(R.id.btnDeleteMood)).check(matches(not(isDisplayed())));
+        SystemClock.sleep(3000);
 
         // Delete the current user from Firebase Auth
         if (FirebaseAuth.getInstance().getCurrentUser() != null) {
             Tasks.await(FirebaseAuth.getInstance().getCurrentUser().delete());
         }
+        SystemClock.sleep(3000);
 
         // Sign out User2
         FirebaseAuth.getInstance().signOut();
-        SystemClock.sleep(1000);
+        SystemClock.sleep(3000);
 
         scenario.close();
     }
 
     // code from lab 7
-    @After
-    public void tearDown() {
+    @AfterClass
+    public static void tearDown() {
         String projectId = "kernel-crew-mood-app";
         URL url = null;
         try {
