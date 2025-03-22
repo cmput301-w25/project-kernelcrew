@@ -5,6 +5,7 @@ import android.util.Log;
 import androidx.annotation.NonNull;
 
 import com.google.android.gms.tasks.Task;
+import com.google.android.gms.tasks.Tasks;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.CollectionReference;
@@ -52,22 +53,18 @@ public class CommentProvider {
                 .whereEqualTo("moodEventId", moodEventId)
                 .orderBy("created", Query.Direction.DESCENDING)
                 .get()
-                .continueWith(task -> {
+                .onSuccessTask(querySnapshot -> {
                     List<Comment> comments = new ArrayList<>();
-                    if (task.isSuccessful() && task.getResult() != null) {
-                        for (DocumentSnapshot doc : task.getResult()) {
-                            Comment comment = doc.toObject(Comment.class);
-                            if (comment != null) {
-                                comments.add(comment);
-                            }
-                        }
-                    } else {
-                        Exception exception = task.getException();
-                        if (exception != null) {
-                            Log.e("CommentProvider", "Error fetching comments: " + exception.getMessage());
+                    for (DocumentSnapshot doc : querySnapshot) {
+                        Comment comment = doc.toObject(Comment.class);
+                        if (comment != null) {
+                            comments.add(comment);
                         }
                     }
-                    return comments;
+                    return Tasks.forResult(comments);
+                })
+                .addOnFailureListener(e -> {
+                    Log.e("CommentProvider", "Error fetching comments: " + e.getMessage());
                 });
     }
 }

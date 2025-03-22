@@ -113,9 +113,6 @@ public class MoodComments extends Fragment implements MoodHistoryAdapter.OnItemC
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_mood_comments, container, false);
 
-        provider = MoodEventProvider.getInstance();
-        userProvider = UserProvider.getInstance();
-
         recyclerView = view.findViewById(R.id.commentRecyclerView);
         imageMoodIcon = view.findViewById(R.id.imageMoodIcon);
         tvMoodState = view.findViewById(R.id.tvMoodState);
@@ -194,7 +191,7 @@ public class MoodComments extends Fragment implements MoodHistoryAdapter.OnItemC
                 })
                 .addOnFailureListener(error -> {
                     Toast.makeText(getContext(), "Failed to add comment: " + error.getMessage(), Toast.LENGTH_LONG).show();
-                    Log.e("MoodComments", "Comment: " + comment.logging());
+                    Log.e("MoodComments", "Comment: " + comment);
                     Log.e("MoodComments", "Error adding comment: " + error);
                 });
     }
@@ -281,7 +278,7 @@ public class MoodComments extends Fragment implements MoodHistoryAdapter.OnItemC
      * Uses the NavController to pop the back stack, returning to the previous fragment.
      */
     private void handleBackButton() {
-        androidx.navigation.fragment.NavHostFragment.findNavController(this).popBackStack();
+        NavHostFragment.findNavController(this).popBackStack();
     }
 
     /**
