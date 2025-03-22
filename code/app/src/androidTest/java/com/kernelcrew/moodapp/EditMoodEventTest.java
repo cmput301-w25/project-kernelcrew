@@ -21,6 +21,7 @@ import com.google.firebase.firestore.QuerySnapshot;
 import com.kernelcrew.moodapp.data.Emotion;
 import com.kernelcrew.moodapp.data.MoodEvent;
 import com.kernelcrew.moodapp.data.MoodEventProvider;
+import com.kernelcrew.moodapp.data.MoodEventVisibility;
 import com.kernelcrew.moodapp.ui.MainActivity;
 
 import org.junit.BeforeClass;
@@ -48,8 +49,6 @@ public class EditMoodEventTest extends FirebaseEmulatorMixin {
                 Emotion.DISGUST,
                 "",
                 "",
-                "",
-                "",
                 0.0,
                 0.0
         );
@@ -67,6 +66,7 @@ public class EditMoodEventTest extends FirebaseEmulatorMixin {
 
         onView(withId(R.id.btnEditMood)).perform(click());
         onView(withId(R.id.toggle_shame)).perform(click());
+        onView(withId(R.id.visible_private_button)).perform(scrollTo()).perform(click());
         onView(withId(R.id.submit_button)).perform(scrollTo()).perform(click());
 
         await().atMost(10, TimeUnit.SECONDS)
@@ -74,7 +74,9 @@ public class EditMoodEventTest extends FirebaseEmulatorMixin {
                     QuerySnapshot results = Tasks.await(db.collection("moodEvents").get());
                     List<DocumentSnapshot> moodEvents = results.getDocuments();
                     assertEquals(1, moodEvents.size());
-                    assertEquals("SHAME", moodEvents.get(0).get("emotion"));
+                    MoodEvent moodEvent = moodEvents.get(0).toObject(MoodEvent.class);
+                    assertEquals(Emotion.SHAME, moodEvent.getEmotion());
+                    assertEquals(MoodEventVisibility.PRIVATE, moodEvent.getVisibility());
                 });
     }
 }

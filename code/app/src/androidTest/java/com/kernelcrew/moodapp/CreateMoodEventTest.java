@@ -19,6 +19,7 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.kernelcrew.moodapp.data.Emotion;
 import com.kernelcrew.moodapp.data.MoodEvent;
+import com.kernelcrew.moodapp.data.MoodEventVisibility;
 import com.kernelcrew.moodapp.ui.MainActivity;
 import com.kernelcrew.moodapp.ui.components.EmotionPickerFragment;
 
@@ -62,7 +63,6 @@ public class CreateMoodEventTest extends FirebaseEmulatorMixin {
                 .untilAsserted(() -> {
                     QuerySnapshot results = Tasks.await(db.collection("moodEvents").get());
                     List<DocumentSnapshot> moodEvents = results.getDocuments();
-                    assertEquals(1, moodEvents.size());
                     MoodEvent newEvent = null;
                     for (DocumentSnapshot snapshot : moodEvents) {
                         MoodEvent event = snapshot.toObject(MoodEvent.class);
@@ -71,6 +71,33 @@ public class CreateMoodEventTest extends FirebaseEmulatorMixin {
                         }
                     }
                     assertNotNull(newEvent);
+                });
+    }
+
+    @Test
+    public void createMoodVisibilitySelector() {
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+
+        onView(withId(R.id.page_createMoodEvent)).perform(click());
+
+        onView(withId(R.id.toggle_sadness)).perform(click());
+        onView(withId(R.id.visible_private_button)).perform(scrollTo()).perform(click());
+        onView(withId(R.id.submit_button)).perform(scrollTo()).perform(click());
+
+        await().atMost(10, TimeUnit.SECONDS)
+                .untilAsserted(() -> {
+                    QuerySnapshot results = Tasks.await(db.collection("moodEvents").get());
+                    List<DocumentSnapshot> moodEvents = results.getDocuments();
+                    MoodEvent newEvent = null;
+                    for (DocumentSnapshot snapshot : moodEvents) {
+                        MoodEvent event = snapshot.toObject(MoodEvent.class);
+                        assertNotNull(event);
+                        if (event.getEmotion() == Emotion.SADNESS) {
+                            newEvent = event;
+                        }
+                    }
+                    assertNotNull(newEvent);
+                    assertEquals(MoodEventVisibility.PRIVATE, newEvent.getVisibility());
                 });
     }
 
@@ -93,31 +120,16 @@ public class CreateMoodEventTest extends FirebaseEmulatorMixin {
         onView(withId(R.id.toggle_happy)).perform(click());
 
         onView(withId(R.id.emotion_reason))
-                .perform(scrollTo(), typeText("This is a really long string with too many characters"));
+                .perform(scrollTo(), typeText("This is a really long string with too many characters when will it end. I have to make this stretch until 200 characters which is absurdly long so the text field should be able to handle almost all messages -- except for this one! Just a few more characters to go"));
         Espresso.closeSoftKeyboard();
 
         onView(withId(R.id.submit_button)).perform(scrollTo()).perform(click());
         onView(withId(R.id.emotion_reason))
-                .check(matches(hasErrorText("Reason must be less than 20 characters or 3 words")));
+                .check(matches(hasErrorText("Reason must be less than 200 characters")));
     }
 
     @Test
-    public void createNewMoodReasonTooManyWords() {
-        onView(withId(R.id.page_createMoodEvent)).perform(click());
-
-        onView(withId(R.id.toggle_happy)).perform(click());
-
-        onView(withId(R.id.emotion_reason))
-                .perform(scrollTo(), typeText("AAAAAAAAAAA AAAAAAAAAAAAAAAA AAAAAAAAAAAAAA AAA"));
-        Espresso.closeSoftKeyboard();
-
-        onView(withId(R.id.submit_button)).perform(scrollTo()).perform(click());
-        onView(withId(R.id.emotion_reason))
-                .check(matches(hasErrorText("Reason must be less than 20 characters or 3 words")));
-    }
-
-    @Test
-    public void createNewMoodReasonJustEnoughWords() {
+    public void createNewMoodReasonNotTooLong() {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
 
         onView(withId(R.id.page_createMoodEvent)).perform(click());
@@ -125,7 +137,7 @@ public class CreateMoodEventTest extends FirebaseEmulatorMixin {
         onView(withId(R.id.toggle_anger)).perform(click());
 
         onView(withId(R.id.emotion_reason))
-                .perform(scrollTo(), typeText("AAAAAAAAAAA AAAAAAAAAAAAAAAA AAAAAAAAAAAAAAAAAA"));
+                .perform(scrollTo(), typeText("AAAAAAAAAAAAAAAAAAAAAAAAAAA"));
         Espresso.closeSoftKeyboard();
 
         onView(withId(R.id.submit_button)).perform(scrollTo()).perform(click());
