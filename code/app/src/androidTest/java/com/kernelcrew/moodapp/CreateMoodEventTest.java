@@ -6,6 +6,7 @@ import static androidx.test.espresso.assertion.ViewAssertions.matches;
 import static androidx.test.espresso.matcher.ViewMatchers.*;
 
 import static org.awaitility.Awaitility.await;
+import static org.hamcrest.Matchers.allOf;
 import static org.junit.Assert.*;
 
 import androidx.fragment.app.FragmentContainerView;
@@ -14,11 +15,14 @@ import androidx.test.ext.junit.rules.ActivityScenarioRule;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
 import com.google.android.gms.tasks.Tasks;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.kernelcrew.moodapp.data.Emotion;
 import com.kernelcrew.moodapp.data.MoodEvent;
+import com.kernelcrew.moodapp.data.MoodEventProvider;
+import com.kernelcrew.moodapp.data.Utility;
 import com.kernelcrew.moodapp.ui.MainActivity;
 import com.kernelcrew.moodapp.ui.components.EmotionPickerFragment;
 
@@ -39,8 +43,23 @@ public class CreateMoodEventTest extends FirebaseEmulatorMixin {
             new ActivityScenarioRule<>(MainActivity.class);
 
     @BeforeClass
-    public static void signupUser() throws ExecutionException, InterruptedException {
+    public static void seedDatabase() throws ExecutionException, InterruptedException {
         staticCreateUser();
+        loginUser();
+
+        FirebaseAuth auth = FirebaseAuth.getInstance();
+        MoodEvent moodEvent = new MoodEvent(
+                auth.getCurrentUser().getUid(),
+                Emotion.DISGUST,
+                "",
+                "",
+                "",
+                "",
+                0.0,
+                0.0
+        );
+        Utility.clearCollection(MoodEventProvider.getInstance().getCollectionReference(), 10);
+        Tasks.await(MoodEventProvider.getInstance().insertMoodEvent(moodEvent));
     }
 
     @Test
@@ -56,7 +75,8 @@ public class CreateMoodEventTest extends FirebaseEmulatorMixin {
             assertEquals(Emotion.HAPPINESS, emotionPicker.getSelected());
         });
 
-        onView(withId(R.id.submit_button)).perform(scrollTo()).perform(click());
+        onView(allOf(withId(R.id.createMoodEvent_submitButton)))
+                .perform(click());
 
         await().atMost(10, TimeUnit.SECONDS)
                 .untilAsserted(() -> {
@@ -78,7 +98,8 @@ public class CreateMoodEventTest extends FirebaseEmulatorMixin {
     public void createNewMoodNoEmotionError() {
         onView(withId(R.id.page_createMoodEvent)).perform(click());
 
-        onView(withId(R.id.submit_button)).perform(scrollTo()).perform(click());
+        onView(allOf(withId(R.id.createMoodEvent_submitButton)))
+                .perform(click());
         onView(withId(R.id.emotion_picker)).check((view, noViewFoundException) -> {
             FragmentContainerView fragmentContainerView = (FragmentContainerView) view;
             EmotionPickerFragment emotionPicker = fragmentContainerView.getFragment();
@@ -96,7 +117,8 @@ public class CreateMoodEventTest extends FirebaseEmulatorMixin {
                 .perform(scrollTo(), typeText("This is a really long string with too many characters"));
         Espresso.closeSoftKeyboard();
 
-        onView(withId(R.id.submit_button)).perform(scrollTo()).perform(click());
+        onView(allOf(withId(R.id.createMoodEvent_submitButton)))
+                .perform(click());
         onView(withId(R.id.emotion_reason))
                 .check(matches(hasErrorText("Reason must be less than 20 characters or 3 words")));
     }
@@ -111,7 +133,8 @@ public class CreateMoodEventTest extends FirebaseEmulatorMixin {
                 .perform(scrollTo(), typeText("AAAAAAAAAAA AAAAAAAAAAAAAAAA AAAAAAAAAAAAAA AAA"));
         Espresso.closeSoftKeyboard();
 
-        onView(withId(R.id.submit_button)).perform(scrollTo()).perform(click());
+        onView(allOf(withId(R.id.createMoodEvent_submitButton)))
+                .perform(click());
         onView(withId(R.id.emotion_reason))
                 .check(matches(hasErrorText("Reason must be less than 20 characters or 3 words")));
     }
@@ -128,7 +151,8 @@ public class CreateMoodEventTest extends FirebaseEmulatorMixin {
                 .perform(scrollTo(), typeText("AAAAAAAAAAA AAAAAAAAAAAAAAAA AAAAAAAAAAAAAAAAAA"));
         Espresso.closeSoftKeyboard();
 
-        onView(withId(R.id.submit_button)).perform(scrollTo()).perform(click());
+        onView(allOf(withId(R.id.createMoodEvent_submitButton)))
+                .perform(click());
 
         await().atMost(10, TimeUnit.SECONDS)
                 .untilAsserted(() -> {

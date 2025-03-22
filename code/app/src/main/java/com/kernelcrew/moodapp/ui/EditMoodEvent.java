@@ -11,7 +11,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentContainerView;
-import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 
 import com.google.android.material.button.MaterialButton;
@@ -80,7 +79,7 @@ public class EditMoodEvent extends Fragment {
                 .addOnSuccessListener(moodEvent ->
                     form.bind(new MoodEventForm.MoodEventDetails(moodEvent)));
 
-        MaterialButton submitButton = view.findViewById(R.id.submit_button);
+        MaterialButton submitButton = view.findViewById(R.id.editMood_submitButton);
         submitButton.setOnClickListener(v -> {
             MoodEventForm.MoodEventDetails details = form.validateFields();
             if (details != null) {

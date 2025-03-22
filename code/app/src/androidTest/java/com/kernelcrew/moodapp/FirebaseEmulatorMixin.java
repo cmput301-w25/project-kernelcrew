@@ -116,7 +116,6 @@ public class FirebaseEmulatorMixin {
             if (!(e.getCause() instanceof com.google.firebase.auth.FirebaseAuthUserCollisionException)) {
                 throw e;
             }
-            // Ignore collision since the user already exists.
         }
     }
 

@@ -5,16 +5,13 @@ import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentContainer;
 import androidx.fragment.app.FragmentContainerView;
-import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.Toast;
 
 import com.google.android.material.button.MaterialButton;
@@ -83,7 +80,7 @@ public class CreateMoodEvent extends Fragment {
         // First set update listener to connect fragments
         locationFragment.setUpdateListener(form);
 
-        MaterialButton submitButton = view.findViewById(R.id.submit_button);
+        MaterialButton submitButton = view.findViewById(R.id.createMoodEvent_submitButton);
         submitButton.setOnClickListener(v -> {
             // Validate fields from form
             MoodEventForm.MoodEventDetails details = form.validateFields();

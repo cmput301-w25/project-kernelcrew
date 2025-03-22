@@ -72,7 +72,7 @@ public class MoodHistory extends DefaultFilterBarFragment implements MoodHistory
         // When FilterBar changes, build the Firestore query and listen for changes
         if (searchNFilterFragment != null) {
             searchNFilterFragment.setOnFilterChangedListener(filter -> {
-                 filter.setUser(Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid());
+                 filter.setUsers(Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid());
 
                 // Remove any existing snapshot listener to avoid duplicates
                 if (snapshotListener != null) {

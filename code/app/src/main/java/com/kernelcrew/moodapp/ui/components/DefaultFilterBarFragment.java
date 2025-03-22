@@ -4,7 +4,7 @@ import android.annotation.SuppressLint;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
-import com.kernelcrew.moodapp.ui.Utility;
+import com.kernelcrew.moodapp.data.Utility;
 
 public class DefaultFilterBarFragment extends FilterBarFragment {
     @SuppressLint("ClickableViewAccessibility")

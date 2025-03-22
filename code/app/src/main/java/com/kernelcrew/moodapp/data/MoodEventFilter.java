@@ -13,13 +13,13 @@ import java.util.HashSet;
 import java.util.Set;
 
 /**
- * A class for filtering mood events in Firestore queries.
+ * A class for filtering mood events through Firestore, used to create queries.
  */
 public class MoodEventFilter {
     private final CollectionReference collectionReference;
     private final Set<Emotion> emotions = new HashSet<>();
     private final Set<String> socialSituations = new HashSet<>();
-    private String userId;
+    private final Set<String> userIds = new HashSet<>();
     private Date startDate;
     private Date endDate;
     private String sortField;
@@ -145,14 +145,64 @@ public class MoodEventFilter {
     }
 
     /**
-     * Set a user to filter by (ie if you are on a persons profile you get only their posts).
+     * Set a user to filter by (replacing any previous user filters).
      *
      * @param userId The user you want to filter by.
      *
      * @return Current instance.
      */
-    public MoodEventFilter setUser(String userId) {
-        this.userId = userId;
+    public MoodEventFilter setUsers(String userId) {
+        this.userIds.clear();
+        if (userId != null && !userId.isBlank()) {
+            this.userIds.add(userId);
+        }
+        return this;
+    }
+
+    /**
+     * Add a single user to filter by.
+     *
+     * @param userId The user ID to add.
+     *
+     * @return Current instance.
+     */
+    public MoodEventFilter addUsers(String userId) {
+        if (userId != null && !userId.isBlank()) {
+            this.userIds.add(userId);
+        }
+        return this;
+    }
+
+    /**
+     * Add multiple users to filter by.
+     *
+     * @param userIds The set of user IDs to add.
+     *
+     * @return Current instance.
+     */
+    public MoodEventFilter addUsers(Set<String> userIds) {
+        for (String uid : userIds) {
+            if (uid != null && !uid.isBlank()) {
+                this.userIds.add(uid);
+            }
+        }
+        return this;
+    }
+
+    /**
+     * Sets the users filter, replacing any previously set user filters.
+     *
+     * @param userIds The new set of user IDs.
+     *
+     * @return Current instance.
+     */
+    public MoodEventFilter setUsers(Set<String> userIds) {
+        this.userIds.clear();
+        for (String uid : userIds) {
+            if (uid != null && !uid.isBlank()) {
+                this.userIds.add(uid);
+            }
+        }
         return this;
     }
 
@@ -199,13 +249,21 @@ public class MoodEventFilter {
         return this;
     }
 
-    /**
-     * Get the current searchQuery
-     *
-     * @return The current search
-     */
+    // Getters
     public String getSearchQuery() {
         return searchQuery;
+    }
+
+    public Set<Emotion> getEmotions() {
+        return this.emotions;
+    }
+
+    public Date getStartDate() {
+        return startDate;
+    }
+
+    public Date getEndDate() {
+        return endDate;
     }
 
     /**
@@ -215,7 +273,7 @@ public class MoodEventFilter {
      */
     public int count() {
         int c = 0;
-        if (userId != null) c++;
+        if (userIds.isEmpty()) c++;
         if (!emotions.isEmpty()) c++;
         if (startDate != null || endDate != null) c++;
         if (sortField != null) c++;
@@ -230,7 +288,7 @@ public class MoodEventFilter {
      * Clears all applied filters.
      */
     public void clearFilters() {
-        userId = null;
+        userIds.clear();
         emotions.clear();
         startDate = null;
         endDate = null;
@@ -251,8 +309,8 @@ public class MoodEventFilter {
      */
     public String getSummary() {
         StringBuilder sb = new StringBuilder();
-        if (userId != null) {
-            sb.append("User: ").append(userId).append("\n");
+        if (userIds.isEmpty()) {
+            sb.append("User: ").append(userIds).append("\n");
         }
         if (!emotions.isEmpty()) {
             sb.append("Emotions: ").append(emotions.toString()).append("\n");
@@ -290,8 +348,12 @@ public class MoodEventFilter {
     public Query buildQuery() {
         Query query = collectionReference;
 
-        if (userId != null) {
-            query = query.whereEqualTo("uid", userId);
+        if (!userIds.isEmpty()) {
+            if (userIds.size() == 1) {
+                query = query.whereEqualTo("uid", userIds.iterator().next());
+            } else {
+                query = query.whereIn("uid", new ArrayList<>(userIds));
+            }
         }
 
         if (!emotions.isEmpty()) {
@@ -376,23 +438,18 @@ public class MoodEventFilter {
         MoodEventFilter merged = new MoodEventFilter(filters[0].collectionReference);
 
         for (MoodEventFilter f : filters) {
-            if (f.userId != null) {
-                if (merged.userId == null) {
-                    merged.userId = f.userId;
-                }
-            }
-
+            merged.userIds.addAll(f.userIds);
             merged.emotions.addAll(f.emotions);
             merged.socialSituations.addAll(f.socialSituations);
 
             if (f.startDate != null) {
-                if (merged.startDate == null || f.startDate.before(merged.startDate)) {
+                if (merged.startDate == null || f.startDate.after(merged.startDate)) {
                     merged.startDate = f.startDate;
                 }
             }
 
             if (f.endDate != null) {
-                if (merged.endDate == null || f.endDate.after(merged.endDate)) {
+                if (merged.endDate == null || f.endDate.before(merged.endDate)) {
                     merged.endDate = f.endDate;
                 }
             }

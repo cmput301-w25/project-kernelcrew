@@ -30,7 +30,7 @@
         android:layout_height="0dp"
         android:fillViewport="true"
         app:layout_constraintTop_toBottomOf="@id/appBarLayout2"
-        app:layout_constraintBottom_toTopOf="@id/submit_button">
+        app:layout_constraintBottom_toTopOf="@id/editMood_submitButton">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -41,7 +41,8 @@
                 android:id="@+id/mood_event_form"
                 android:name="com.kernelcrew.moodapp.ui.MoodEventForm"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content" />
+                android:layout_height="wrap_content"
+                tools:layout="@layout/fragment_mood_event_form" />
 
             <androidx.fragment.app.FragmentContainerView
                 android:id="@+id/location_fragment"
@@ -53,7 +54,7 @@
     </androidx.core.widget.NestedScrollView>
 
     <Button
-        android:id="@+id/submit_button"
+        android:id="@+id/editMood_submitButton"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
