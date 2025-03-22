@@ -25,7 +25,6 @@ import com.google.android.material.navigation.NavigationBarView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentSnapshot;
-import com.google.firebase.firestore.Query;
 import com.kernelcrew.moodapp.R;
 import com.kernelcrew.moodapp.data.MoodEvent;
 import com.kernelcrew.moodapp.data.MoodEventFilter;
@@ -65,6 +64,8 @@ public class HomeFeed extends DefaultFilterBarFragment implements FilterBarFragm
         navBarController = new BottomNavBarController(navigationBar);
 
         searchNFilterFragment = (FilterBarFragment) getChildFragmentManager().findFragmentById(R.id.filterBarFragment);
+        assert searchNFilterFragment != null;
+        searchNFilterFragment.setAllowUserSearch(true);
 
         // Setup RecyclerView
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
@@ -77,35 +78,29 @@ public class HomeFeed extends DefaultFilterBarFragment implements FilterBarFragm
             Log.e("Home", "User not authenticated!");
         }
 
-        // Listen for changes in the "moodEvents" collection
-        if (searchNFilterFragment != null) {
-            searchNFilterFragment.setOnUserSearchListener(this);
-            searchNFilterFragment.setOnFilterChangedListener(filter -> {
-                filter.buildQuery()
-                        .addSnapshotListener((snapshots, error) -> {
-                            if (error != null) {
-                                Log.w("HomeFeed", "Listen failed.", error);
-                                return;
-                            }
-                            if (snapshots == null) {
-                                Log.w("HomeFeed", "No snapshot data received.");
-                                return;
-                            }
+        searchNFilterFragment.setOnUserSearchListener(this);
+        searchNFilterFragment.setOnFilterChangedListener(filter -> {
+            MoodEventProvider.getInstance().getMoodEvents().addOnSuccessListener(querySnapshot -> {
+                if (querySnapshot == null) {
+                    Log.w("HomeFeed", "No snapshot data received.");
+                    return;
+                }
 
-                            List<MoodEvent> moodList = new ArrayList<>();
-                            for (DocumentSnapshot doc : snapshots.getDocuments()) {
-                                MoodEvent mood = doc.toObject(MoodEvent.class);
-                                if (mood != null) {
-                                    mood.setId(doc.getId());
-                                    moodList.add(mood);
-                                }
-                            }
+                List<MoodEvent> allMoods = new ArrayList<>();
+                for (DocumentSnapshot doc : querySnapshot.getDocuments()) {
+                    MoodEvent mood = doc.toObject(MoodEvent.class);
+                    if (mood != null) {
+                        mood.setId(doc.getId());
+                        allMoods.add(mood);
+                    }
+                }
 
-                            recyclerView.setAdapter(moodAdapter);
-                            moodAdapter.setMoods(moodList);
-                        });
+                List<MoodEvent> filtered = searchNFilterFragment.applyLocalSearch(filter, allMoods);
+
+                recyclerView.setAdapter(moodAdapter);
+                moodAdapter.setMoods(filtered);
             });
-        }
+        });
 
         moodAdapter.setOnMoodClickListener(mood -> {
             Bundle args = new Bundle();
@@ -186,5 +181,4 @@ public class HomeFeed extends DefaultFilterBarFragment implements FilterBarFragm
             }
         }
     }
-
 }

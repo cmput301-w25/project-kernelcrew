@@ -29,7 +29,7 @@ public class MoodDetails extends Fragment implements DeleteDialogFragment.Delete
 
     private MaterialToolbar toolbar;
     private ImageView imageMoodIcon, ivMoodPhoto;
-    private TextView tvMoodState, tvTriggerValue, tvSocialSituationValue, tvReasonValue;
+    private TextView tvMoodState, tvSocialSituationValue, tvReasonValue;
     private Button btnEditMood;
     private Button btnViewProfile;
 

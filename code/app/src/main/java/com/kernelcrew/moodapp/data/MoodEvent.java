@@ -43,7 +43,7 @@ public class MoodEvent implements Serializable {
      * Constructor for a new MoodEvent with additional details.
      * Will assign this mood event a new random id.
      */
-    public MoodEvent(String uid, Emotion emotion, String trigger, String socialSituation,
+    public MoodEvent(String uid, Emotion emotion, String socialSituation,
                      String reason, String photoUrl, Double latitude, Double longitude) {
         this.id = UUID.randomUUID().toString();
         this.uid = uid;

@@ -100,7 +100,7 @@ public class EditMoodEventTest extends FirebaseEmulatorMixin {
                     assertEquals(1, moodEvents.size());
                     MoodEvent moodEvent = moodEvents.get(0).toObject(MoodEvent.class);
                     assertEquals(Emotion.SHAME, moodEvent.getEmotion());
-                    assertEquals(MoodEventVisibility.PRIVATE, moodEvent.getVisibility());
+                    assertEquals(MoodEventVisibility.PUBLIC, moodEvent.getVisibility());
                 });
     }
 

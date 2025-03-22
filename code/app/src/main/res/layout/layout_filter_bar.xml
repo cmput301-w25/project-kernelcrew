@@ -63,22 +63,6 @@
                 app:toggleCheckedStateOnClick="true" />
 
             <com.google.android.material.button.MaterialButton
-                android:id="@+id/searchTrigger"
-                style="?attr/materialButtonOutlinedStyle"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_margin="2dp"
-                android:minHeight="32dp"
-                android:minWidth="32dp"
-                android:paddingHorizontal="15dp"
-                android:paddingVertical="5dp"
-                android:gravity="center"
-                android:text="Trigger"
-                android:textSize="14sp"
-                android:checkable="true"
-                app:toggleCheckedStateOnClick="true" />
-
-            <com.google.android.material.button.MaterialButton
                 android:id="@+id/searchReason"
                 style="?attr/materialButtonOutlinedStyle"
                 android:layout_width="wrap_content"

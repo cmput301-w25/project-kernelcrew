@@ -33,6 +33,7 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.Query;
 import com.kernelcrew.moodapp.R;
 import com.kernelcrew.moodapp.data.Emotion;
+import com.kernelcrew.moodapp.data.MoodEvent;
 import com.kernelcrew.moodapp.data.MoodEventFilter;
 import com.kernelcrew.moodapp.data.MoodEventProvider;
 import com.kernelcrew.moodapp.data.User;
@@ -51,10 +52,13 @@ import java.util.Set;
  */
 public abstract class FilterBarFragment extends Fragment {
     // ! Constants
-    private boolean SHOW_SEARCH_OPTIONS = true;
     private boolean userSearchActive = false;
-    private boolean triggerSearchActive = true;
     private boolean reasonSearchActive = true;
+    private boolean allowUserSearch = false;
+
+    public void setAllowUserSearch(boolean allowUserSearch) {
+        this.allowUserSearch = allowUserSearch;
+    }
 
     // We'll store an in-progress "user search" text so we can delay queries.
     private final Handler userSearchHandler = new Handler();
@@ -64,38 +68,8 @@ public abstract class FilterBarFragment extends Fragment {
     private MoodEventFilter moodEventFilter;
     private final Set<Emotion> selectedEmotions = new HashSet<>();
 
-    // Getters and Setters of CONSTANTS
-    public boolean isSHOW_SEARCH_OPTIONS() {
-        return SHOW_SEARCH_OPTIONS;
-    }
-
-    public void setSHOW_SEARCH_OPTIONS(boolean SHOW_SEARCH_OPTIONS) {
-        this.SHOW_SEARCH_OPTIONS = SHOW_SEARCH_OPTIONS;
-    }
-
-    public boolean isUserSearchActive() {
-        return userSearchActive;
-    }
-
-    public void setUserSearchActive(boolean userSearchActive) {
-        this.userSearchActive = userSearchActive;
-    }
-
-    public boolean isTriggerSearchActive() {
-        return triggerSearchActive;
-    }
-
-    public void setTriggerSearchActive(boolean triggerSearchActive) {
-        this.triggerSearchActive = triggerSearchActive;
-    }
-
-    public boolean isReasonSearchActive() {
-        return reasonSearchActive;
-    }
-
-    public void setReasonSearchActive(boolean reasonSearchActive) {
-        this.reasonSearchActive = reasonSearchActive;
-    }
+    // This local field now holds the text to search, instead of using MoodEventFilter.
+    private String localSearchQuery = null;
 
     // Listener for public interface
     private OnFilterChangedListener listener;
@@ -166,13 +140,6 @@ public abstract class FilterBarFragment extends Fragment {
         // Inflate fragment's layout
         View view = inflater.inflate(R.layout.layout_filter_bar, container, false);
 
-        // Conditionally hide search row if constant is false
-        if (!SHOW_SEARCH_OPTIONS) {
-            view.findViewById(R.id.searchRowLayout).setVisibility(View.GONE);
-        } else {
-            view.findViewById(R.id.searchRowLayout).setVisibility(View.VISIBLE);
-        }
-
         // Initialize Views
         filterSearchLayout = view.findViewById(R.id.filterSearchLayout);
         searchEditText = view.findViewById(R.id.filterSearchEditText);
@@ -181,7 +148,6 @@ public abstract class FilterBarFragment extends Fragment {
         filterTimeRange = view.findViewById(R.id.filter_timeRange);
         filterLocation = view.findViewById(R.id.filter_location);
         searchUser = view.findViewById(R.id.searchUser);
-        searchTrigger = view.findViewById(R.id.searchTrigger);
         searchReason = view.findViewById(R.id.searchReason);
 
         // Local Variables
@@ -205,19 +171,19 @@ public abstract class FilterBarFragment extends Fragment {
                     if (userSearchActive) {
                         performUserSearch(typed);
                     } else {
-                        if (triggerSearchActive || reasonSearchActive) {
+                        if (reasonSearchActive) {
                             if (typed.isEmpty()) {
-                                getMoodEventFilter().setSearchQuery(null);
+                                localSearchQuery = null;
                             } else {
-                                getMoodEventFilter().setSearchQuery(typed);
+                                localSearchQuery = typed;
                             }
                             notifyFilterChanged();
                         }
                     }
                 };
-                userSearchHandler.postDelayed(userSearchRunnable, 400); // e.g. 400ms delay
-
+                userSearchHandler.postDelayed(userSearchRunnable, 200);
             }
+
             @Override
             public void afterTextChanged(Editable s) {
                 if (userSearchRunnable != null) {
@@ -228,13 +194,12 @@ public abstract class FilterBarFragment extends Fragment {
 
                     if (userSearchActive) {
                         performUserSearch(typed);
-
                     } else {
-                        if (triggerSearchActive || reasonSearchActive) {
+                        if (reasonSearchActive) {
                             if (typed.isEmpty()) {
-                                getMoodEventFilter().setSearchQuery(null);
+                                localSearchQuery = null;
                             } else {
-                                getMoodEventFilter().setSearchQuery(typed);
+                                localSearchQuery = typed;
                             }
                             notifyFilterChanged();
                         }
@@ -252,15 +217,15 @@ public abstract class FilterBarFragment extends Fragment {
                 if (actionId == EditorInfo.IME_ACTION_SEARCH
                         || actionId == EditorInfo.IME_ACTION_DONE
                         || (event != null
-                            && event.getAction() == KeyEvent.ACTION_DOWN
-                            && event.getKeyCode() == KeyEvent.KEYCODE_ENTER
-                        )) {
+                        && event.getAction() == KeyEvent.ACTION_DOWN
+                        && event.getKeyCode() == KeyEvent.KEYCODE_ENTER
+                )) {
                     String typed = v.getText().toString().trim();
                     if (userSearchActive) {
                         performUserSearch(typed);
                         return true;
-                    } else if (triggerSearchActive || reasonSearchActive) {
-                        getMoodEventFilter().setSearchQuery(typed.isEmpty() ? null : typed);
+                    } else if (reasonSearchActive) {
+                        localSearchQuery = v.getText().toString();
                         notifyFilterChanged();
                         return true;
                     }
@@ -278,7 +243,6 @@ public abstract class FilterBarFragment extends Fragment {
 
             if (userSearchActive) {
                 // Disable Trigger and Reason
-                triggerSearchActive = false;
                 reasonSearchActive = false;
                 searchTrigger.setChecked(false);
                 searchReason.setChecked(false);
@@ -299,29 +263,6 @@ public abstract class FilterBarFragment extends Fragment {
             updateSearchLogic();
         });
 
-        // Whenever the user toggles "Search Trigger":
-        searchTrigger.setOnClickListener(v -> {
-            boolean newVal = !triggerSearchActive;
-            searchTrigger.setChecked(newVal);
-            triggerSearchActive = newVal;
-            filterSearchLayout.setError(null);
-            filterSearchLayout.setErrorEnabled(false);
-
-            if (triggerSearchActive) {
-                if (userSearchActive) {
-                    userSearchActive = false;
-                    searchUser.setChecked(false);
-                }
-                searchUser.setEnabled(false);
-            } else {
-                if (!reasonSearchActive) {
-                    searchUser.setEnabled(true);
-                }
-            }
-
-            updateSearchLogic();
-        });
-
         // Whenever the user toggles "Search Reason":
         searchReason.setOnClickListener(v -> {
             boolean newVal = !reasonSearchActive;
@@ -336,10 +277,6 @@ public abstract class FilterBarFragment extends Fragment {
                     searchUser.setChecked(false);
                 }
                 searchUser.setEnabled(false);
-            } else {
-                if (!triggerSearchActive) {
-                    searchUser.setEnabled(true);
-                }
             }
 
             updateSearchLogic();
@@ -361,6 +298,8 @@ public abstract class FilterBarFragment extends Fragment {
                     getMoodEventFilter().clearFilters();
                     selectedEmotions.clear();
                     searchEditText.setText("");
+                    // Clear our local search as well
+                    localSearchQuery = null;
                     Toast.makeText(requireContext(), "Filters cleared", Toast.LENGTH_SHORT).show();
                 } else if (title.equals("Show Filter Summary")) {
                     String summary = getMoodEventFilter().getSummary();
@@ -502,7 +441,6 @@ public abstract class FilterBarFragment extends Fragment {
 
             popup.setOnMenuItemClickListener(item -> {
                 Toast.makeText(requireContext(), "Location Stuff not Implemented", Toast.LENGTH_SHORT).show();
-
                 return true;
             });
 
@@ -528,14 +466,28 @@ public abstract class FilterBarFragment extends Fragment {
         return view;
     }
 
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+
+        // Now that the view is inflated and searchUser is not null, set the button’s visibility
+        if (searchUser != null) {
+            if (allowUserSearch) {
+                searchUser.setVisibility(View.VISIBLE);
+            } else {
+                searchUser.setVisibility(View.GONE);
+            }
+        }
+    }
+
     /**
      * Updates the search logic whenever a toggle changes.
      * If "Search User" is active, we remove MoodEventFilter's query and do user search.
-     * If Trigger/Reason is active, we apply MoodEventFilter searching on reason/trigger.
+     * If Trigger/Reason is active, we apply local searching on reason/trigger.
      * If none are active, we clear results and do nothing.
      */
     private void updateSearchLogic() {
-        boolean atLeastOne = userSearchActive || triggerSearchActive || reasonSearchActive;
+        boolean atLeastOne = userSearchActive || reasonSearchActive;
         if (!atLeastOne) {
             filterSearchLayout.setError("Select a search method!");
             return;
@@ -544,6 +496,7 @@ public abstract class FilterBarFragment extends Fragment {
         if (userSearchActive) {
             performUserSearch("");
         } else {
+            localSearchQuery = null;
             notifyFilterChanged();
         }
     }
@@ -634,17 +587,46 @@ public abstract class FilterBarFragment extends Fragment {
      */
     private void notifyFilterChanged() {
         getMoodEventFilter().setSortField("created", Query.Direction.DESCENDING);
-        filterCountAndEdit.setText(String
-                .valueOf(getMoodEventFilter().getSearchQuery() == null
-                            ? getMoodEventFilter().count() - 1
-                            : getMoodEventFilter().count() - 2
-                        )
-        );
+
+        // We no longer base the count on whether there's a search query.
+        filterCountAndEdit.setText(String.valueOf(getMoodEventFilter().count()));
+
         if (listener != null) {
             listener.onFilterChanged(getMoodEventFilter());
         } else {
             Log.w("FilterBarFragment", "OnFilterChangedListener is not attached!");
         }
+    }
+
+    /**
+     * Filters a list of MoodEvents locally based on the user’s current search settings.
+     * For example, if "triggerSearchActive" is on, we match mood.getSocialSituation()
+     * or some "trigger" field. If "reasonSearchActive" is on, we match mood.getReason(), etc.
+     */
+    public List<MoodEvent> applyLocalSearch(MoodEventFilter filter, List<MoodEvent> allMoods) {
+        // Instead of using filter.getSearchQuery(), we now use our local searchQuery field.
+        String query = localSearchQuery;
+        boolean hasQuery = (query != null && !query.trim().isEmpty());
+        String lowerQuery = hasQuery ? query.trim().toLowerCase() : null;
+
+        List<MoodEvent> filtered = new ArrayList<>();
+        for (MoodEvent event : allMoods) {
+            boolean matches = true;
+
+            if (hasQuery) {
+                if (reasonSearchActive) {
+                    String reason = event.getReason();
+                    if (reason == null || !reason.toLowerCase().contains(lowerQuery)) {
+                        matches = false;
+                    }
+                }
+            }
+
+            if (matches) {
+                filtered.add(event);
+            }
+        }
+        return filtered;
     }
 
     /**
@@ -657,14 +639,5 @@ public abstract class FilterBarFragment extends Fragment {
         calendar.set(Calendar.MINUTE, 0);
         calendar.set(Calendar.SECOND, 0);
         calendar.set(Calendar.MILLISECOND, 0);
-    }
-
-    /**
-     * Custom Query setter for the Home Page
-     * @param query The query built and set according to the correct filters
-     */
-    public void setCustomQuery(Query query) {
-        getMoodEventFilter().setCustomQuery(query);
-        notifyFilterChanged();
     }
 }

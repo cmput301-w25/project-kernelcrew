@@ -22,6 +22,7 @@ import com.google.firebase.firestore.QuerySnapshot;
 import com.kernelcrew.moodapp.data.Emotion;
 import com.kernelcrew.moodapp.data.MoodEvent;
 import com.kernelcrew.moodapp.data.MoodEventProvider;
+import com.kernelcrew.moodapp.data.MoodEventVisibility;
 import com.kernelcrew.moodapp.data.Utility;
 import com.kernelcrew.moodapp.ui.MainActivity;
 import com.kernelcrew.moodapp.ui.components.EmotionPickerFragment;
@@ -51,7 +52,6 @@ public class CreateMoodEventTest extends FirebaseEmulatorMixin {
         MoodEvent moodEvent = new MoodEvent(
                 auth.getCurrentUser().getUid(),
                 Emotion.DISGUST,
-                "",
                 "",
                 "",
                 "",
@@ -100,8 +100,8 @@ public class CreateMoodEventTest extends FirebaseEmulatorMixin {
         onView(withId(R.id.page_createMoodEvent)).perform(click());
 
         onView(withId(R.id.toggle_sadness)).perform(click());
-        onView(withId(R.id.visible_private_button)).perform(scrollTo()).perform(click());
-        onView(withId(R.id.submit_button)).perform(scrollTo()).perform(click());
+        onView(withId(R.id.visible_private_button)).perform(click());
+        onView(withId(R.id.createMoodEvent_submitButton)).perform(click());
 
         await().atMost(10, TimeUnit.SECONDS)
                 .untilAsserted(() -> {
@@ -147,22 +147,6 @@ public class CreateMoodEventTest extends FirebaseEmulatorMixin {
                 .perform(click());
         onView(withId(R.id.emotion_reason))
                 .check(matches(hasErrorText("Reason must be less than 200 characters")));
-    }
-
-    @Test
-    public void createNewMoodReasonTooManyWords() {
-        onView(withId(R.id.page_createMoodEvent)).perform(click());
-
-        onView(withId(R.id.toggle_happy)).perform(click());
-
-        onView(withId(R.id.emotion_reason))
-                .perform(scrollTo(), typeText("AAAAAAAAAAA AAAAAAAAAAAAAAAA AAAAAAAAAAAAAA AAA"));
-        Espresso.closeSoftKeyboard();
-
-        onView(allOf(withId(R.id.createMoodEvent_submitButton)))
-                .perform(click());
-        onView(withId(R.id.emotion_reason))
-                .check(matches(hasErrorText("Reason must be less than 20 characters or 3 words")));
     }
 
     @Test

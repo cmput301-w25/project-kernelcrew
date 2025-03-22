@@ -3,10 +3,8 @@ package com.kernelcrew.moodapp.data;
 import androidx.annotation.Nullable;
 
 import com.google.firebase.firestore.CollectionReference;
-import com.google.firebase.firestore.Filter;
 import com.google.firebase.firestore.Query;
 
-import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
@@ -28,7 +26,6 @@ public class MoodEventFilter {
     private Double longitude;
     private Double radius;
     private Integer limit;
-    private String searchQuery;
     private Query customQuery;
 
     /**
@@ -218,19 +215,8 @@ public class MoodEventFilter {
     }
 
     /**
-     * Set a search query to filter mood events by their trigger field.
+     * Add a single social instance to filter by
      *
-     * @param query The text to search for.
-     * @return The current instance.
-     */
-    public MoodEventFilter setSearchQuery(String query) {
-        this.searchQuery = query;
-        return this;
-    }
-    
-    /**
-     * Add a single social instance to filter by 
-     * 
      * @param socialSituation The single instance to add
      * @return The current instance.
      * */
@@ -262,10 +248,6 @@ public class MoodEventFilter {
     }
 
     // Getters
-    public String getSearchQuery() {
-        return searchQuery;
-    }
-
     public Set<Emotion> getEmotions() {
         return this.emotions;
     }
@@ -291,7 +273,6 @@ public class MoodEventFilter {
         if (sortField != null) c++;
         if (longitude != null || latitude != null || radius != null) c++;
         if (limit != null) c++;
-        if (searchQuery != null) c++;
         if (!socialSituations.isEmpty()) c++;
         if (customQuery != null) c++;
         return c;
@@ -311,7 +292,6 @@ public class MoodEventFilter {
         longitude = null;
         radius = null;
         limit = null;
-        searchQuery = null;
         socialSituations.clear();
         customQuery = null;
     }
@@ -337,9 +317,6 @@ public class MoodEventFilter {
         }
         if (sortField != null) {
             sb.append("Sort: ").append(sortField).append(" (").append(sortDirection).append(")\n");
-        }
-        if (searchQuery != null) {
-            sb.append("Search Query: ").append(searchQuery).append("\n");
         }
         if (!socialSituations.isEmpty()) {
             sb.append("Social Situations: ").append(socialSituations.toString()).append("\n");
@@ -415,20 +392,6 @@ public class MoodEventFilter {
                     .whereLessThanOrEqualTo("longitude", maxLon);
         }
 
-        if (searchQuery != null && !searchQuery.isBlank()) {
-            Filter triggerFilter = Filter.and(
-                    Filter.greaterThanOrEqualTo("trigger", searchQuery),
-                    Filter.lessThanOrEqualTo("trigger", searchQuery + "\uf8ff")
-            );
-
-            Filter reasonFilter = Filter.and(
-                    Filter.greaterThanOrEqualTo("reason", searchQuery),
-                    Filter.lessThanOrEqualTo("reason", searchQuery + "\uf8ff")
-            );
-
-            query = query.where(Filter.or(triggerFilter, reasonFilter));
-        }
-
         if (!socialSituations.isEmpty()) {
             query = query.whereIn("socialSituation", new ArrayList<>(socialSituations));
         }
@@ -448,9 +411,6 @@ public class MoodEventFilter {
      * @param filters An array of MoodEventFilter instances to merge.
      * @return A new MoodEventFilter representing the merged criteria.
      */
-    // Taha used ChatGPT,
-    // Here is my current MoodFilters, <insert file>, use the above to create a function that
-    //      merges multiple filters.
     public static MoodEventFilter mergeFilters(MoodEventFilter... filters) {
         if (filters == null || filters.length == 0) {
             throw new IllegalArgumentException("At least one filter must be provided.");
@@ -499,17 +459,8 @@ public class MoodEventFilter {
                     merged.limit = f.limit;
                 }
             }
-
-            if (f.searchQuery != null && !f.searchQuery.isBlank()) {
-                if (merged.searchQuery == null || merged.searchQuery.isBlank()) {
-                    merged.searchQuery = f.searchQuery;
-                } else if (!merged.searchQuery.equals(f.searchQuery)) {
-                    merged.searchQuery += " " + f.searchQuery;
-                }
-            }
         }
 
         return merged;
     }
 }
-
