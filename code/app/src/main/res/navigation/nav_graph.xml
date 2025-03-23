@@ -130,7 +130,7 @@
 
     <fragment
         android:id="@+id/moodMap"
-        android:name="com.kernelcrew.moodapp.ui.Map"
+        android:name="com.kernelcrew.moodapp.ui.MoodMap"
         android:label="fragment_map"
         tools:layout="@layout/fragment_map" />
 
