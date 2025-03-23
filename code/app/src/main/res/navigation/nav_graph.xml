@@ -55,7 +55,11 @@
         <action
             android:id="@+id/action_homeFeed_to_myProfile"
             app:destination="@id/myProfile" />
+        <action
+            android:id="@+id/action_homeFeed_to_moodMap"
+            app:destination="@id/moodMap" />
     </fragment>
+
     <fragment
         android:id="@+id/moodDetails"
         android:name="com.kernelcrew.moodapp.ui.MoodDetails"
@@ -123,6 +127,12 @@
         android:name="com.kernelcrew.moodapp.ui.CreateMoodEvent"
         android:label="fragment_create_mood_event"
         tools:layout="@layout/fragment_create_mood_event" />
+
+    <fragment
+        android:id="@+id/moodMap"
+        android:name="com.kernelcrew.moodapp.ui.Map"
+        android:label="fragment_map"
+        tools:layout="@layout/fragment_map" />
 
     <fragment
         android:id="@+id/editMoodEvent"
