@@ -11,6 +11,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.kernelcrew.moodapp.R;
 import com.kernelcrew.moodapp.data.MoodEvent;
+import com.kernelcrew.moodapp.data.UserProvider;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -22,10 +23,16 @@ public class MoodAdapter extends RecyclerView.Adapter<MoodAdapter.MoodViewHolder
     private List<MoodEvent> moods = new ArrayList<>();
 
     private OnMoodClickListener onMoodClickListener;
+    private UserProvider userProvider;
+
+    public MoodAdapter() {
+        this.userProvider = UserProvider.getInstance();
+    }
 
     // Callback interface to handle clicks on the "View Details" button
     public interface OnMoodClickListener {
         void onViewDetails(MoodEvent mood);
+        void onViewComments(MoodEvent mood);
     }
 
     public void setOnMoodClickListener(OnMoodClickListener listener) {
@@ -61,10 +68,19 @@ public class MoodAdapter extends RecyclerView.Adapter<MoodAdapter.MoodViewHolder
         int iconRes = MoodIconUtil.getMoodIconResource(mood.getEmotion().toString());
         holder.moodImageView.setImageResource(iconRes);
 
+        holder.usernameText.setText(mood.getUsername());
+
         // Set click listener for the "View Details" button
         holder.viewDetailsButton.setOnClickListener(v -> {
             if (onMoodClickListener != null) {
                 onMoodClickListener.onViewDetails(mood);
+            }
+        });
+
+        // Set click listener for the comment layout
+        holder.commentLayout.setOnClickListener(v -> {
+            if (onMoodClickListener != null) {
+                onMoodClickListener.onViewComments(mood);
             }
         });
     }
@@ -79,6 +95,11 @@ public class MoodAdapter extends RecyclerView.Adapter<MoodAdapter.MoodViewHolder
         TextView moodTypeTextView;
         TextView dayTimeTextView;
         View viewDetailsButton; // Reference to the "View Details" button
+        TextView usernameText;
+
+        ImageView purple_icon_arrow;
+        ImageView comments_bubble;
+        View commentLayout;
 
         public MoodViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -86,6 +107,10 @@ public class MoodAdapter extends RecyclerView.Adapter<MoodAdapter.MoodViewHolder
             moodTypeTextView = itemView.findViewById(R.id.moodTypeText);
             dayTimeTextView = itemView.findViewById(R.id.dayTimeText);
             viewDetailsButton = itemView.findViewById(R.id.viewDetailsButton);
+            usernameText = itemView.findViewById(R.id.usernameText);
+            purple_icon_arrow = itemView.findViewById(R.id.purpleIconArrow);
+            comments_bubble = itemView.findViewById(R.id.comments_bubble);
+            commentLayout = itemView.findViewById(R.id.commentLayout);
         }
     }
 }
