@@ -82,7 +82,6 @@ public class MoodDetails extends Fragment implements DeleteDialogFragment.Delete
         ivMoodPhoto = view.findViewById(R.id.ivMoodPhoto);
         btnEditMood = view.findViewById(R.id.btnEditMood);
         btnDeleteMood = view.findViewById(R.id.btnDeleteMood);
-        btnViewProfile = view.findViewById(R.id.btnViewProfile);
         btnMoodComments = view.findViewById(R.id.btnMoodComments);
 
         toolbar.setNavigationOnClickListener(v -> handleBackButton());
