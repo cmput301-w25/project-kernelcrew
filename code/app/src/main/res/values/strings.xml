@@ -47,5 +47,6 @@
     <string name="content_desc_accept">Accept follow request</string>
     <string name="content_desc_deny">Deny follow request</string>
     <!-- TODO: Remove or change this placeholder text -->
+    <string name="comment_hint_comments_page">"Your comment"</string>
     <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>

@@ -42,12 +42,11 @@ import java.util.concurrent.ExecutionException;
 @RunWith(AndroidJUnit4.class)
 public class MoodDetailsNavigationTest extends FirebaseEmulatorMixin {
     private static final String USER_EMAIL = "test@kernelcrew.com";
+    private static final String USERNAME = "Test User";
     private static final String USER_PASSWORD = "Password@1234";
     private static final Emotion DATA_EMOTION = Emotion.HAPPINESS;
-    private static final String DATA_TRIGGER = "Morning Coffee";
     private static final String DATA_SOCIALSITUATION = "With Friends";
     private static final String DATA_REASON = "Celebration";
-    private static final String DATA_PHOTOURL = "https://example.com/photo.jpg";
     private static final double DATA_LATITUDE = 34.052235;
     private static final double DATA_LONGITUDE = -118.243683;
 
@@ -99,13 +98,12 @@ public class MoodDetailsNavigationTest extends FirebaseEmulatorMixin {
         // Seed a detailed MoodEvent document used in the MoodDetails screen.
         MoodEvent testEvent = new MoodEvent(
                 uid,
+                USERNAME,
                 DATA_EMOTION,
-                DATA_TRIGGER,       // trigger
-                DATA_SOCIALSITUATION, // socialSituation
-                DATA_REASON,        // reason
-                DATA_PHOTOURL,      // photoUrl
-                DATA_LATITUDE,      // latitude
-                DATA_LONGITUDE      // longitude
+                DATA_SOCIALSITUATION,
+                DATA_REASON,
+                DATA_LATITUDE,
+                DATA_LONGITUDE
         );
         Tasks.await(MoodEventProvider.getInstance().insertMoodEvent(testEvent));
 
@@ -157,8 +155,6 @@ public class MoodDetailsNavigationTest extends FirebaseEmulatorMixin {
                 .check(matches(isDisplayed()));
         onView(withId(R.id.tvMoodState))
                 .check(matches(withText(DATA_EMOTION.toString())));
-        onView(withId(R.id.tvTriggerValue))
-                .check(matches(withText(DATA_TRIGGER)));
         onView(withId(R.id.tvSocialSituationValue))
                 .check(matches(withText(DATA_SOCIALSITUATION)));
         onView(withId(R.id.tvReasonValue))

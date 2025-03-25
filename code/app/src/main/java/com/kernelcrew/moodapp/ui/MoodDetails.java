@@ -33,6 +33,9 @@ public class MoodDetails extends Fragment implements DeleteDialogFragment.Delete
     private Button btnViewProfile;
 
     private Button btnDeleteMood;
+
+    private Button btnMoodComments;
+
     private FirebaseFirestore db;
     private MoodEventProvider provider;
 
@@ -72,13 +75,13 @@ public class MoodDetails extends Fragment implements DeleteDialogFragment.Delete
         toolbar = view.findViewById(R.id.moodDetailsToolbar);
         imageMoodIcon = view.findViewById(R.id.imageMoodIcon);
         tvMoodState = view.findViewById(R.id.tvMoodState);
-        tvTriggerValue = view.findViewById(R.id.tvTriggerValue);
         tvSocialSituationValue = view.findViewById(R.id.tvSocialSituationValue);
         tvReasonValue = view.findViewById(R.id.tvReasonValue);
         ivMoodPhoto = view.findViewById(R.id.ivMoodPhoto);
         btnEditMood = view.findViewById(R.id.btnEditMood);
         btnDeleteMood = view.findViewById(R.id.btnDeleteMood);
         btnViewProfile = view.findViewById(R.id.btnViewProfile);
+        btnMoodComments = view.findViewById(R.id.btnMoodComments);
 
         toolbar.setNavigationOnClickListener(v -> handleBackButton());
 
@@ -113,6 +116,12 @@ public class MoodDetails extends Fragment implements DeleteDialogFragment.Delete
             dialogFragment.show(getParentFragmentManager(), "delete_dialog");
         });
 
+        btnMoodComments.setOnClickListener(v -> {
+            Bundle args = new Bundle();
+            args.putString("moodEventId", moodEventId);
+            NavHostFragment.findNavController(this).navigate(R.id.commentsFragment, args);
+        });
+
         return view;
 
     }
@@ -140,7 +149,6 @@ public class MoodDetails extends Fragment implements DeleteDialogFragment.Delete
      */
     private void bindMoodData(MoodEvent moodEvent) {
         tvMoodState.setText(moodEvent.getEmotion().toString());
-        tvTriggerValue.setText(moodEvent.getTrigger());
         tvSocialSituationValue.setText(moodEvent.getSocialSituation());
         tvReasonValue.setText(moodEvent.getReason());
 
