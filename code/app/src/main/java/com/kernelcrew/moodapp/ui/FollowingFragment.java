@@ -21,6 +21,7 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.kernelcrew.moodapp.R;
+import com.kernelcrew.moodapp.data.FollowProvider;
 import com.kernelcrew.moodapp.data.User;
 import com.kernelcrew.moodapp.data.UserProvider;
 import java.util.ArrayList;
@@ -67,7 +68,8 @@ public class FollowingFragment extends Fragment {
             return;
         }
 
-        userProvider.fetchFollowing(currentUser.getUid())
+        FollowProvider.getInstance()
+                .fetchFollowing(currentUser.getUid())
                 .addOnSuccessListener(following -> {
                     followingList.clear();
                     followingList.addAll(following);
@@ -119,10 +121,11 @@ public class FollowingFragment extends Fragment {
 
             holder.followCheckBox.setOnCheckedChangeListener((buttonView, isChecked) -> {
                 if (!isChecked) {
-                    Bundle bundle = new Bundle();
-                    bundle.putString("requestType", "unfollow_confirmation");
-                    bundle.putString("username", uid);  // Consider fetching the real name here too
-                    Navigation.findNavController(buttonView).navigate(R.id.action_followingFragment_to_requestFragment, bundle);
+                    String currentUid = FirebaseAuth.getInstance().getCurrentUser().getUid();
+                    FollowProvider.getInstance()
+                            .unfollow(currentUid, uid)
+                            .addOnSuccessListener(aVoid -> Navigation.findNavController(buttonView).popBackStack())
+                            .addOnFailureListener(e -> Log.e("FollowingFragment", "Unfollow failed", e));
                 }
             });
         }

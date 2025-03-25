@@ -15,6 +15,7 @@ import com.google.android.material.navigation.NavigationBarView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.kernelcrew.moodapp.R;
+import com.kernelcrew.moodapp.data.FollowProvider;
 import com.kernelcrew.moodapp.data.UserProvider;
 
 public class MyProfile extends Fragment {
@@ -82,24 +83,20 @@ public class MyProfile extends Fragment {
             }
         }
 
-        // Listen for profile changes using the selected UID
         if (uidToLoad != null) {
-            UserProvider userProvider = UserProvider.getInstance();
-            userProvider.addSnapshotListenerForUser(uidToLoad, (documentSnapshot, error) -> {
-                if (error != null) {
-                    followersButton.setText("Followers: 0");
-                    followingButton.setText("Following: 0");
-                    return;
-                }
+            FollowProvider provider = FollowProvider.getInstance();
 
-                if (documentSnapshot != null && documentSnapshot.exists()) {
-                    Long followersCount = documentSnapshot.getLong("followersCount");
-                    Long followingCount = documentSnapshot.getLong("followingCount");
+            provider.fetchFollowers(uidToLoad)
+                    .addOnSuccessListener(list ->
+                            followersButton.setText("Followers: " + list.size()))
+                    .addOnFailureListener(e ->
+                            followersButton.setText("Followers: 0"));
 
-                    followersButton.setText("Followers: " + (followersCount != null ? followersCount : 0));
-                    followingButton.setText("Following: " + (followingCount != null ? followingCount : 0));
-                }
-            });
+            provider.fetchFollowing(uidToLoad)
+                    .addOnSuccessListener(list ->
+                            followingButton.setText("Following: " + list.size()))
+                    .addOnFailureListener(e ->
+                            followingButton.setText("Following: 0"));
         }
 
         return view;

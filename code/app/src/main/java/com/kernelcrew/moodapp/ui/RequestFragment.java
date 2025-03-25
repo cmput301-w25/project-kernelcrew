@@ -13,6 +13,9 @@ import com.google.android.material.button.MaterialButton;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.kernelcrew.moodapp.R;
+import com.kernelcrew.moodapp.data.FollowProvider;
+
+import java.util.Collections;
 
 public class RequestFragment extends Fragment {
     private String requestType;
@@ -51,26 +54,27 @@ public class RequestFragment extends Fragment {
     }
 
     private void acceptFollowRequest(String username) {
-        String currentUserId = FirebaseAuth.getInstance().getCurrentUser().getUid();
-        db.collection("users").document(currentUserId)
-                .collection("followers").document(username)
-                .set(new Object())
-                .addOnSuccessListener(aVoid -> Navigation.findNavController(requireView()).popBackStack());
+        String me = FirebaseAuth.getInstance().getCurrentUser().getUid();
+        FollowProvider.getInstance()
+                .acceptRequest(me, username)
+                .addOnSuccessListener(aVoid ->
+                        Navigation.findNavController(requireView()).popBackStack());
     }
 
     private void denyFollowRequest(String username) {
-        String currentUserId = FirebaseAuth.getInstance().getCurrentUser().getUid();
-        db.collection("users").document(currentUserId)
-                .collection("followRequests").document(username)
-                .delete()
-                .addOnSuccessListener(aVoid -> Navigation.findNavController(requireView()).popBackStack());
+        String me = FirebaseAuth.getInstance().getCurrentUser().getUid();
+        FollowProvider.getInstance()
+                .deleteRequest(me, username)
+                .addOnSuccessListener(aVoid ->
+                        Navigation.findNavController(requireView()).popBackStack());
     }
 
+
     private void confirmUnfollow(String username) {
-        String currentUserId = FirebaseAuth.getInstance().getCurrentUser().getUid();
-        db.collection("users").document(currentUserId)
-                .collection("following").document(username)
-                .delete()
-                .addOnSuccessListener(aVoid -> Navigation.findNavController(requireView()).popBackStack());
+        String me = FirebaseAuth.getInstance().getCurrentUser().getUid();
+        FollowProvider.getInstance()
+                .unfollow(me, username)
+                .addOnSuccessListener(aVoid ->
+                        Navigation.findNavController(requireView()).popBackStack());
     }
 }

@@ -18,9 +18,12 @@ import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.kernelcrew.moodapp.R;
+import com.kernelcrew.moodapp.data.FollowProvider;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Collections;
 
 public class FollowRequestsFragment extends Fragment {
     private final FirebaseFirestore db = FirebaseFirestore.getInstance();
@@ -70,38 +73,20 @@ public class FollowRequestsFragment extends Fragment {
     }
 
     public void accept(String requesterUid) {
-        String currentUid = FirebaseAuth.getInstance().getCurrentUser().getUid();
-        FirebaseFirestore db = FirebaseFirestore.getInstance();
-        db.collection("users")
-                .document(currentUid)
-                .collection("followRequests")
-                .document(requesterUid)
-                .delete()
-                 .addOnSuccessListener(unused -> {
-                    db.collection("users")
-                            .document(currentUid)
-                            .collection("followers")
-                            .document(requesterUid);
-                    db.collection("users")
-                            .document(requesterUid)
-                            .collection("following")
-                            .document(currentUid);
-                    Navigation.findNavController(requireView()).navigate(R.id.myProfile);
-                })
+        String me = FirebaseAuth.getInstance().getCurrentUser().getUid();
+        FollowProvider.getInstance()
+                .acceptRequest(me, requesterUid)
+                .addOnSuccessListener(unused ->
+                        Navigation.findNavController(requireView()).navigate(R.id.myProfile))
                 .addOnFailureListener(e -> Log.e("FollowRequestsFragment", "Accept failed", e));
     }
 
     public void deny(String requesterUid) {
-        String currentUid = FirebaseAuth.getInstance().getCurrentUser().getUid();
-        FirebaseFirestore db = FirebaseFirestore.getInstance();
-        db.collection("users")
-                .document(currentUid)
-                .collection("followRequests")
-                .document(requesterUid)
-                .delete()
+        String me = FirebaseAuth.getInstance().getCurrentUser().getUid();
+        FollowProvider.getInstance()
+                .deleteRequest(me, requesterUid)
                 .addOnSuccessListener(unused ->
-                        Navigation.findNavController(requireView()).navigate(R.id.myProfile)
-                )
-                .addOnFailureListener(e -> Log.e("RequestFragment", "Failed to deny follow", e));
+                        Navigation.findNavController(requireView()).navigate(R.id.myProfile))
+                .addOnFailureListener(e -> Log.e("FollowRequestsFragment", "Deny failed", e));
     }
 }

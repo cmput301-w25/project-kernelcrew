@@ -18,6 +18,7 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.kernelcrew.moodapp.R;
+import com.kernelcrew.moodapp.data.FollowProvider;
 import com.kernelcrew.moodapp.data.UserProvider;
 
 import java.util.Collections;
@@ -135,28 +136,15 @@ public class OtherUserProfile extends Fragment {
      * Sends a follow request from the current user to the user with uidToLoad.
      */
     private void sendFollowRequest() {
-        FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
-        if (currentUser == null) {
-            Log.e(TAG, "Current user is null; cannot send follow request.");
-            return;
-        }
-        if (uidToLoad == null) {
-            Log.e(TAG, "Target user ID is null; cannot send follow request.");
-            return;
-        }
-
-        FirebaseFirestore db = FirebaseFirestore.getInstance();
-        db.collection("users")
-                .document(uidToLoad)
-                .collection("followRequests")
-                .document(currentUser.getUid())
-                .set(Collections.emptyMap())
+        String currentUid = FirebaseAuth.getInstance().getCurrentUser().getUid();
+        FollowProvider.getInstance()
+                .sendRequest(uidToLoad, currentUid)
                 .addOnSuccessListener(aVoid -> {
                     Log.d(TAG, "Follow request sent successfully.");
-                    // Provide user feedback: disable the button and update text
                     followButton.setEnabled(false);
                     followButton.setText("Requested");
                 })
                 .addOnFailureListener(e -> Log.e(TAG, "Failed to send follow request", e));
     }
+
 }

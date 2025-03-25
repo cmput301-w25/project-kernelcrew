@@ -22,6 +22,7 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.kernelcrew.moodapp.R;
+import com.kernelcrew.moodapp.data.FollowProvider;
 import com.kernelcrew.moodapp.data.User;
 import com.kernelcrew.moodapp.data.UserProvider;
 import java.util.ArrayList;
@@ -67,7 +68,8 @@ public class FollowersFragment extends Fragment {
             System.out.println("ERROR: No user logged in.");
             return;
         }
-        userProvider.fetchFollowers(currentUser.getUid())
+        FollowProvider.getInstance()
+                .fetchFollowers(currentUser.getUid())
                 .addOnSuccessListener(followers -> {
                     followersList.clear();
                     followersList.addAll(followers);
