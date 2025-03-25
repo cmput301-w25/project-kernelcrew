@@ -14,6 +14,7 @@ import android.widget.TextView;
 import com.google.android.material.navigation.NavigationBarView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.FirebaseFirestore;
 import com.kernelcrew.moodapp.R;
 import com.kernelcrew.moodapp.data.FollowProvider;
 import com.kernelcrew.moodapp.data.UserProvider;
@@ -50,7 +51,6 @@ public class MyProfile extends Fragment {
                 Navigation.findNavController(v).navigate(R.id.action_myProfile_to_followRequestsFragment)
         );
 
-        // Set click listeners
         signOutButton.setOnClickListener(this::onClickSignOut);
         followersButton.setOnClickListener(v -> Navigation.findNavController(v).navigate(R.id.action_myProfile_to_followersPage));
         followingButton.setOnClickListener(v -> Navigation.findNavController(v).navigate(R.id.action_myProfile_to_followingPage));
@@ -61,7 +61,6 @@ public class MyProfile extends Fragment {
                         .navigate(R.id.action_myProfile_to_moodHistoryPage, bundle)
         );
 
-        // Retrieve UID from arguments if available; otherwise, use the current user's UID.
         String uidToLoad = null;
         if (getArguments() != null) {
             String uidArg = getArguments().getString("uid");
@@ -73,7 +72,6 @@ public class MyProfile extends Fragment {
             uidToLoad = user.getUid();
         }
 
-        // If loading own profile, use auth user details first
         if (user != null && uidToLoad.equals(user.getUid())) {
             usernameText.setText(user.getDisplayName() != null ? user.getDisplayName() : "Guest User");
             if (user.getPhotoUrl() != null) {
@@ -84,19 +82,23 @@ public class MyProfile extends Fragment {
         }
 
         if (uidToLoad != null) {
-            FollowProvider provider = FollowProvider.getInstance();
+            FirebaseFirestore.getInstance()
+                    .collection("users")
+                    .document(uidToLoad)
+                    .collection("followers")
+                    .addSnapshotListener((snap, e) -> {
+                        int count = (snap == null) ? 0 : snap.size();
+                        followersButton.setText("Followers: " + count);
+                    });
 
-            provider.fetchFollowers(uidToLoad)
-                    .addOnSuccessListener(list ->
-                            followersButton.setText("Followers: " + list.size()))
-                    .addOnFailureListener(e ->
-                            followersButton.setText("Followers: 0"));
-
-            provider.fetchFollowing(uidToLoad)
-                    .addOnSuccessListener(list ->
-                            followingButton.setText("Following: " + list.size()))
-                    .addOnFailureListener(e ->
-                            followingButton.setText("Following: 0"));
+            FirebaseFirestore.getInstance()
+                    .collection("users")
+                    .document(uidToLoad)
+                    .collection("following")
+                    .addSnapshotListener((snap, e) -> {
+                        int count = (snap == null) ? 0 : snap.size();
+                        followingButton.setText("Following: " + count);
+                    });
         }
 
         return view;

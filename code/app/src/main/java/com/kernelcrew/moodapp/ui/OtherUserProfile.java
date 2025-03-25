@@ -15,22 +15,14 @@ import androidx.navigation.fragment.NavHostFragment;
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.firestore.DocumentSnapshot;
-import com.google.firebase.firestore.FirebaseFirestore;
 import com.kernelcrew.moodapp.R;
 import com.kernelcrew.moodapp.data.FollowProvider;
 import com.kernelcrew.moodapp.data.UserProvider;
 
-import java.util.Collections;
-
 public class OtherUserProfile extends Fragment {
 
     private static final String TAG = "OtherUserProfile";
-
-    // We'll store the user's UID that we're viewing
     private String uidToLoad;
-
-    // UI elements
     private TextView usernameText;
     private TextView emailText;
     private MaterialToolbar toolbar;
@@ -39,55 +31,37 @@ public class OtherUserProfile extends Fragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-
         View view = inflater.inflate(R.layout.fragment_other_user_profile, container, false);
 
         FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
-        if (currentUser == null) {
-            Log.e(TAG, "User is not authenticated!");
-        } else {
-            Log.d(TAG, "User authenticated: " + currentUser.getUid());
-        }
-
         toolbar = view.findViewById(R.id.topAppBarOther);
         usernameText = view.findViewById(R.id.username_text);
         emailText = view.findViewById(R.id.email_text);
+        followButton = view.findViewById(R.id.followButton);
 
-        // Setup back button to return to previous screen
         toolbar.setNavigationIcon(R.drawable.ic_back);
         toolbar.setNavigationOnClickListener(v ->
                 NavHostFragment.findNavController(this).popBackStack()
         );
 
-        // Retrieve the UID from the navigation arguments
         if (getArguments() != null) {
             uidToLoad = getArguments().getString("uid");
             Log.d(TAG, "UID to load: " + uidToLoad);
         }
 
-        // Listen for changes in the target user's document
         if (uidToLoad != null) {
-            UserProvider.getInstance().addSnapshotListenerForUser(uidToLoad, (documentSnapshot, error) -> {
+            UserProvider.getInstance().addSnapshotListenerForUser(uidToLoad, (doc, error) -> {
                 if (error != null) {
                     Log.e(TAG, "Error loading user: ", error);
                     usernameText.setText("Error loading user");
                     emailText.setText("");
                     return;
                 }
-                if (documentSnapshot != null && documentSnapshot.exists()) {
-                    Log.d(TAG, "User document data: " + documentSnapshot.getData());
-                    String username = documentSnapshot.getString("username");
-                    if (username == null) {
-                        username = documentSnapshot.getString("name");
-                    }
+                if (doc != null && doc.exists()) {
+                    String username = doc.getString("username");
                     usernameText.setText(username != null ? username : "Unknown User");
-
-                    // Get email from Firestore
-                    String email = documentSnapshot.getString("email");
+                    String email = doc.getString("email");
                     emailText.setText(email != null ? email : "No Email Provided");
-                } else {
-                    usernameText.setText("User not found");
-                    emailText.setText("");
                 }
             });
         } else {
@@ -95,56 +69,45 @@ public class OtherUserProfile extends Fragment {
             emailText.setText("");
         }
 
-        // Initialize and wire up the Follow button
-        followButton = view.findViewById(R.id.followButton);
-
-        // If it's your own profile, hide or disable the follow button
         if (currentUser != null && uidToLoad != null && uidToLoad.equals(currentUser.getUid())) {
             followButton.setVisibility(View.GONE);
-        } else {
-            // Otherwise, check if you've already sent a follow request
-            if (currentUser != null && uidToLoad != null) {
-                FirebaseFirestore db = FirebaseFirestore.getInstance();
-                db.collection("users")
-                        .document(uidToLoad)
-                        .collection("followRequests")
-                        .document(currentUser.getUid())
-                        .get()
-                        .addOnSuccessListener(doc -> {
-                            if (doc.exists()) {
-                                // Already requested
-                                followButton.setEnabled(false);
-                                followButton.setText("Requested");
-                            } else {
-                                // Not requested yet
-                                followButton.setEnabled(true);
-                                followButton.setText("Follow");
-                            }
-                        })
-                        .addOnFailureListener(e ->
-                                Log.e(TAG, "Failed to check followRequests doc", e)
-                        );
-            }
+        } else if (currentUser != null && uidToLoad != null) {
+            String currentUid = currentUser.getUid();
+            FollowProvider provider = FollowProvider.getInstance();
 
-            followButton.setOnClickListener(v -> sendFollowRequest());
+            provider.isFollowing(currentUid, uidToLoad)
+                    .addOnSuccessListener(isFollowing -> {
+                        if (isFollowing) {
+                            followButton.setText("Unfollow");
+                            followButton.setOnClickListener(v ->
+                                    provider.unfollow(currentUid, uidToLoad)
+                                            .addOnSuccessListener(a -> followButton.setText("Follow"))
+                                            .addOnFailureListener(e -> Log.e(TAG, "Unfollow failed", e))
+                            );
+                        } else {
+                            provider.hasPendingRequest(uidToLoad, currentUid)
+                                    .addOnSuccessListener(isRequested -> {
+                                        if (isRequested) {
+                                            followButton.setText("Requested");
+                                            followButton.setEnabled(false);
+                                        } else {
+                                            followButton.setText("Follow");
+                                            followButton.setEnabled(true);
+                                            followButton.setOnClickListener(v ->
+                                                    provider.sendRequest(uidToLoad, currentUid)
+                                                            .addOnSuccessListener(a -> {
+                                                                followButton.setText("Requested");
+                                                                followButton.setEnabled(false);
+                                                            })
+                                                            .addOnFailureListener(e -> Log.e(TAG, "Request failed", e))
+                                            );
+                                        }
+                                    });
+                        }
+                    })
+                    .addOnFailureListener(e -> Log.e(TAG, "Error checking follow status", e));
         }
 
         return view;
     }
-
-    /**
-     * Sends a follow request from the current user to the user with uidToLoad.
-     */
-    private void sendFollowRequest() {
-        String currentUid = FirebaseAuth.getInstance().getCurrentUser().getUid();
-        FollowProvider.getInstance()
-                .sendRequest(uidToLoad, currentUid)
-                .addOnSuccessListener(aVoid -> {
-                    Log.d(TAG, "Follow request sent successfully.");
-                    followButton.setEnabled(false);
-                    followButton.setText("Requested");
-                })
-                .addOnFailureListener(e -> Log.e(TAG, "Failed to send follow request", e));
-    }
-
 }

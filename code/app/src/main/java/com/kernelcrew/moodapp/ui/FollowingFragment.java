@@ -117,8 +117,6 @@ public class FollowingFragment extends Fragment {
                     .addOnFailureListener(e -> holder.usernameTextView.setText(uid));
 
             holder.avatarImageView.setImageResource(R.drawable.ic_person);
-            holder.followCheckBox.setChecked(true);
-
             holder.followCheckBox.setOnCheckedChangeListener((buttonView, isChecked) -> {
                 if (!isChecked) {
                     String currentUid = FirebaseAuth.getInstance().getCurrentUser().getUid();
@@ -128,6 +126,15 @@ public class FollowingFragment extends Fragment {
                             .addOnFailureListener(e -> Log.e("FollowingFragment", "Unfollow failed", e));
                 }
             });
+
+
+            holder.itemView.setOnClickListener(v -> {
+                Bundle args = new Bundle();
+                args.putString("uid", uid);
+                Navigation.findNavController(v)
+                        .navigate(R.id.otherUserProfile, args);
+            });
+
         }
 
         @Override

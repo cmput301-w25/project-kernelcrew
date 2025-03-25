@@ -22,7 +22,6 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.kernelcrew.moodapp.R;
-import com.kernelcrew.moodapp.data.FollowProvider;
 import com.kernelcrew.moodapp.data.User;
 import com.kernelcrew.moodapp.data.UserProvider;
 import java.util.ArrayList;
@@ -45,7 +44,25 @@ public class FollowersFragment extends Fragment {
         followersRecyclerView.setAdapter(adapter);
 
         userProvider = UserProvider.getInstance();
-        fetchFollowers();
+        // Instead of a one-time fetch, set up a snapshot listener
+        FirebaseFirestore.getInstance()
+                .collection("users")
+                .document(FirebaseAuth.getInstance().getCurrentUser().getUid())
+                .collection("followers")
+                .addSnapshotListener((snap, error) -> {
+                    if (error != null) {
+                        Toast.makeText(getContext(), error.getMessage(), Toast.LENGTH_LONG).show();
+                        Log.e("FollowersFragment", error.toString());
+                        return;
+                    }
+                    followersList.clear();
+                    if (snap != null) {
+                        for (DocumentSnapshot doc : snap.getDocuments()) {
+                            followersList.add(new User(doc.getId(), false));
+                        }
+                    }
+                    adapter.notifyDataSetChanged();
+                });
 
         NavigationBarView navigationBarView = view.findViewById(R.id.bottom_navigation);
         navBarController = new BottomNavBarController(navigationBarView);
@@ -60,25 +77,6 @@ public class FollowersFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         navBarController.bind(view);
-    }
-
-    private void fetchFollowers() {
-        FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
-        if (currentUser == null) {
-            System.out.println("ERROR: No user logged in.");
-            return;
-        }
-        FollowProvider.getInstance()
-                .fetchFollowers(currentUser.getUid())
-                .addOnSuccessListener(followers -> {
-                    followersList.clear();
-                    followersList.addAll(followers);
-                    adapter.notifyDataSetChanged();
-                })
-                .addOnFailureListener(error -> {
-                    Toast.makeText(getContext(), error.getMessage(), Toast.LENGTH_LONG).show();
-                    Log.e("FollowersFragment", error.toString());
-                });
     }
 
     private static class FollowersAdapter extends RecyclerView.Adapter<FollowersAdapter.ViewHolder> {
@@ -119,11 +117,10 @@ public class FollowersFragment extends Fragment {
             holder.avatarImageView.setImageResource(R.drawable.ic_person);
 
             holder.itemView.setOnClickListener(v -> {
-                Bundle bundle = new Bundle();
-                // Pass UID (or if you want, also pass the friendly name)
-                bundle.putString("requestType", "follow_request");
-                bundle.putString("username", uid); // ideally, pass the friendly name if already fetched
-                Navigation.findNavController(v).navigate(R.id.action_followersFragment_to_requestFragment, bundle);
+                Bundle args = new Bundle();
+                args.putString("uid", uid);
+                Navigation.findNavController(v)
+                        .navigate(R.id.otherUserProfile, args);
             });
         }
 

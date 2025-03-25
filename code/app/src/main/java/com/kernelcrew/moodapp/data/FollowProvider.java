@@ -90,10 +90,40 @@ public class FollowProvider {
 
     // Unfollow someone
     public Task<Void> unfollow(String userUid, String followedUid) {
-        return db.collection("users")
+        Task<Void> deleteFollowing = db.collection("users")
                 .document(userUid)
                 .collection("following")
                 .document(followedUid)
                 .delete();
+
+        Task<Void> deleteFollower = db.collection("users")
+                .document(followedUid)
+                .collection("followers")
+                .document(userUid)
+                .delete();
+
+        return Tasks.whenAllComplete(deleteFollowing, deleteFollower)
+                .continueWith(task -> null);
     }
+
+    /** Returns true if userUid is already following targetUid */
+    public Task<Boolean> isFollowing(String userUid, String targetUid) {
+        return db.collection("users")
+                .document(userUid)
+                .collection("following")
+                .document(targetUid)
+                .get()
+                .continueWith(task -> task.getResult().exists());
+    }
+
+    /** Returns true if requesterUid has a pending follow request to targetUid */
+    public Task<Boolean> hasPendingRequest(String targetUid, String requesterUid) {
+        return db.collection("users")
+                .document(targetUid)
+                .collection("followRequests")
+                .document(requesterUid)
+                .get()
+                .continueWith(task -> task.getResult().exists());
+    }
+
 }

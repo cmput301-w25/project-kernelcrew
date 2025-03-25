@@ -1,6 +1,7 @@
 package com.kernelcrew.moodapp.ui;
 
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -74,7 +75,7 @@ public class RequestFragment extends Fragment {
         String me = FirebaseAuth.getInstance().getCurrentUser().getUid();
         FollowProvider.getInstance()
                 .unfollow(me, username)
-                .addOnSuccessListener(aVoid ->
-                        Navigation.findNavController(requireView()).popBackStack());
+                .addOnSuccessListener(aVoid -> Navigation.findNavController(requireView()).popBackStack())
+                .addOnFailureListener(e -> Log.e("RequestFragment", "Unfollow failed", e));
     }
 }
