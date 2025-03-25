@@ -57,6 +57,7 @@ public class LocationInstrumentedTest extends FirebaseEmulatorMixin {
         FirebaseAuth auth = FirebaseAuth.getInstance();
         MoodEvent moodEvent = new MoodEvent(
                 auth.getCurrentUser().getUid(),
+                "Username",
                 Emotion.HAPPINESS,
                 "Test Social Situation",
                 "Test Reason",

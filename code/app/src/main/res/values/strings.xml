@@ -40,6 +40,7 @@
     <string name="error_account_creation_failed">Account creation failed. Please check your details and try again.</string>
     <string name="error_insufficient_firestore_permissions">Insufficient permissions to write to the database. Please contact support.</string>
     <string name="search_hint_mood_feed">"Search words/emotional states"</string>
+    <string name="comment_hint_comments_page">"Your comment"</string>
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="dummy_username">username</string>
     <string name="delete_button_text">Delete</string>
