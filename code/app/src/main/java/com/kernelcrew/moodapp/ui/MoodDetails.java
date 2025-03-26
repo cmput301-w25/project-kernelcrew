@@ -7,9 +7,9 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Button;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -17,21 +17,23 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.fragment.NavHostFragment;
 
-import com.bumptech.glide.Glide;
 import com.google.android.material.appbar.MaterialToolbar;
+import com.google.android.material.chip.Chip;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.kernelcrew.moodapp.R;
 import com.kernelcrew.moodapp.data.MoodEvent;
 import com.kernelcrew.moodapp.data.MoodEventProvider;
+import com.kernelcrew.moodapp.data.UserProvider;
 
 public class MoodDetails extends Fragment implements DeleteDialogFragment.DeleteDialogListener {
 
     private MaterialToolbar toolbar;
     private ImageView imageMoodIcon, ivMoodPhoto;
-    private TextView tvMoodState, tvTriggerValue, tvSocialSituationValue, tvReasonValue;
+    private TextView tvMoodState, tvSocialSituationValue, tvReasonValue;
+    private Chip tvUsernameDisplay;
     private Button btnEditMood;
-    private Button btnViewProfile;
-
     private Button btnDeleteMood;
 
     private Button btnMoodComments;
@@ -41,13 +43,12 @@ public class MoodDetails extends Fragment implements DeleteDialogFragment.Delete
 
     // Document ID for the mood event and source of navigation
     private String moodEventId;
-    private String sourceScreen; // e.g., "home" or "filtered"
+    private String sourceScreen;
 
-    // Use UID to identify the user (instead of a username)
+    // Use UID to identify the user
     private String userId;
 
     public MoodDetails() {
-        // Required empty public constructor
     }
 
     @Override
@@ -72,6 +73,7 @@ public class MoodDetails extends Fragment implements DeleteDialogFragment.Delete
                              @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_mood_details, container, false);
 
+        tvUsernameDisplay = view.findViewById(R.id.tvUsernameDisplay);
         toolbar = view.findViewById(R.id.moodDetailsToolbar);
         imageMoodIcon = view.findViewById(R.id.imageMoodIcon);
         tvMoodState = view.findViewById(R.id.tvMoodState);
@@ -80,25 +82,10 @@ public class MoodDetails extends Fragment implements DeleteDialogFragment.Delete
         ivMoodPhoto = view.findViewById(R.id.ivMoodPhoto);
         btnEditMood = view.findViewById(R.id.btnEditMood);
         btnDeleteMood = view.findViewById(R.id.btnDeleteMood);
-        btnViewProfile = view.findViewById(R.id.btnViewProfile);
         btnMoodComments = view.findViewById(R.id.btnMoodComments);
 
         toolbar.setNavigationOnClickListener(v -> handleBackButton());
 
-        // Set up "View Profile" button click to navigate to MyProfile, passing UID
-        btnViewProfile.setOnClickListener(v -> {
-            if (userId != null && !userId.isEmpty()) {
-                Bundle args = new Bundle();
-                args.putString("uid", userId);
-                // Ensure your nav_graph.xml includes a destination for OtherUserProfile with the ID otherUserProfile
-                NavHostFragment.findNavController(this)
-                        .navigate(R.id.otherUserProfile, args);
-            } else {
-                Toast.makeText(requireContext(), "User information unavailable.", Toast.LENGTH_SHORT).show();
-            }
-        });
-
-        // Fetch mood details from Firestore
         fetchMoodDetails(moodEventId);
 
         btnEditMood.setOnClickListener(v -> {
@@ -106,13 +93,13 @@ public class MoodDetails extends Fragment implements DeleteDialogFragment.Delete
             args.putString("moodEventId", moodEventId);
             NavHostFragment.findNavController(this).navigate(R.id.editMoodEvent, args);
         });
-        //Logic to delete a mood
+
         btnDeleteMood.setOnClickListener(v -> {
             Bundle args = new Bundle();
             args.putString("moodEventId", moodEventId);
             DeleteDialogFragment dialogFragment = new DeleteDialogFragment();
             dialogFragment.setArguments(args);
-            dialogFragment.setDeleteDialogListener(this); // Add this line
+            dialogFragment.setDeleteDialogListener(this);
             dialogFragment.show(getParentFragmentManager(), "delete_dialog");
         });
 
@@ -123,14 +110,11 @@ public class MoodDetails extends Fragment implements DeleteDialogFragment.Delete
         });
 
         return view;
-
     }
 
-    /**
-     * Fetches the mood details document from Firestore using the moodEventId.
-     */
     private void fetchMoodDetails(String moodEventId) {
         if (moodEventId == null) return;
+
         provider.getMoodEvent(moodEventId)
                 .addOnSuccessListener(moodEvent -> {
                     if (moodEvent != null) {
@@ -152,7 +136,6 @@ public class MoodDetails extends Fragment implements DeleteDialogFragment.Delete
         tvSocialSituationValue.setText(moodEvent.getSocialSituation());
         tvReasonValue.setText(moodEvent.getReason());
 
-        // Retrieve the UID from the mood event
         userId = moodEvent.getUid();
 
         int moodImageRes = getMoodIconResource(moodEvent.getEmotion().toString());
@@ -162,12 +145,57 @@ public class MoodDetails extends Fragment implements DeleteDialogFragment.Delete
         if (photo != null) {
             ivMoodPhoto.setImageBitmap(photo);
         }
+
+        // Fetch username via UserProvider
+        if (userId != null && !userId.isEmpty()) {
+            UserProvider.getInstance().fetchUsername(userId)
+                    .addOnSuccessListener(username -> {
+                        tvUsernameDisplay.setText("@" + username);
+                        // Navigate to OtherUserProfile on click
+                        tvUsernameDisplay.setOnClickListener(v -> {
+                            Bundle args = new Bundle();
+                            args.putString("uid", userId);
+                            NavHostFragment.findNavController(MoodDetails.this)
+                                    .navigate(R.id.otherUserProfile, args);
+                        });
+                    })
+                    .addOnFailureListener(e -> {
+                        tvUsernameDisplay.setText(R.string.error_loading_user);
+                    });
+        } else {
+            tvUsernameDisplay.setText(R.string.no_user_id_provided);
+        }
+
+        // Update edit/delete button visibility based on ownership
+        handleOwnershipUI(userId);
     }
 
-
     /**
-     * Handles the back button behavior.
+     * Checks if the current user owns the mood, and updates the edit/delete button visibility.
      */
+    private void handleOwnershipUI(String moodOwnerUid) {
+        FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
+
+        // If no one is logged in or we have no owner, hide everything
+        if (currentUser == null || moodOwnerUid == null) {
+            btnEditMood.setVisibility(View.GONE);
+            btnDeleteMood.setVisibility(View.GONE);
+            return;
+        }
+
+        // Compare the mood's owner ID to the current user's ID
+        String currentUserUid = currentUser.getUid();
+        if (moodOwnerUid.equals(currentUserUid)) {
+            // The current user owns this mood => show the edit/delete buttons
+            btnEditMood.setVisibility(View.VISIBLE);
+            btnDeleteMood.setVisibility(View.VISIBLE);
+        } else {
+            // The current user does NOT own it => hide the buttons
+            btnEditMood.setVisibility(View.GONE);
+            btnDeleteMood.setVisibility(View.GONE);
+        }
+    }
+
     private void handleBackButton() {
         NavHostFragment.findNavController(this).popBackStack();
     }
@@ -175,7 +203,6 @@ public class MoodDetails extends Fragment implements DeleteDialogFragment.Delete
     @Override
     public void onDeleteConfirmed() {
         Toast.makeText(requireContext(), "Mood deleted successfully", Toast.LENGTH_SHORT).show();
-        // Navigate back to home screen
         NavHostFragment.findNavController(this).popBackStack();
     }
 }

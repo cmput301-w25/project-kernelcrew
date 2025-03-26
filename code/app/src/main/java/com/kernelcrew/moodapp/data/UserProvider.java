@@ -14,7 +14,6 @@ import com.google.firebase.firestore.QuerySnapshot;
 import java.util.ArrayList;
 import java.util.List;
 
-
 public class UserProvider {
     private final FirebaseFirestore db;
 
@@ -82,7 +81,7 @@ public class UserProvider {
     /**
      * Fetch all users followed by a specific user.
      * @param uid The user to look up the following of.
-     * @return All users followed bt this user.
+     * @return All users followed by this user.
      */
     public Task<List<User>> fetchFollowing(@NonNull String uid) {
         Task<QuerySnapshot> query = db.collection("users").document(uid).collection("following").get();
@@ -110,5 +109,34 @@ public class UserProvider {
      */
     public void addSnapshotListenerForUser(@NonNull String uid, @NonNull EventListener<DocumentSnapshot> listener) {
         db.collection("users").document(uid).addSnapshotListener(listener);
+    }
+
+    /**
+     * Fetch the username for a specific user.
+     * @param uid The user ID whose username to fetch.
+     * @return A Task containing the username as a String.
+     */
+    public Task<String> fetchUsername(@NonNull String uid) {
+        return db.collection("users")
+                .document(uid)
+                .get()
+                .continueWith(task -> {
+                    if (!task.isSuccessful()) {
+                        throw task.getException();
+                    }
+                    DocumentSnapshot document = task.getResult();
+                    if (document != null && document.exists()) {
+                        String username = document.getString("username");
+                        if (username == null) {
+                            username = document.getString("name");
+                        }
+                        if (username == null) {
+                            username = "UnknownUser";
+                        }
+                        return username;
+                    } else {
+                        throw new Exception("User not found");
+                    }
+                });
     }
 }

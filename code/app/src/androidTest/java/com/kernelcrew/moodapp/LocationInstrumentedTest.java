@@ -1,17 +1,15 @@
 package com.kernelcrew.moodapp;
 
 import static androidx.test.espresso.Espresso.onView;
-import static androidx.test.espresso.Espresso.pressBack;
 import static androidx.test.espresso.action.ViewActions.click;
+import static androidx.test.espresso.action.ViewActions.closeSoftKeyboard;
 import static androidx.test.espresso.action.ViewActions.replaceText;
 import static androidx.test.espresso.action.ViewActions.scrollTo;
-import static androidx.test.espresso.action.ViewActions.closeSoftKeyboard;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
 import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
-
 import static org.awaitility.Awaitility.await;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertTrue;
 
 import android.os.SystemClock;
 
@@ -124,10 +122,8 @@ public class LocationInstrumentedTest extends FirebaseEmulatorMixin {
         // Select an emotion
         onView(withId(R.id.toggle_happy)).perform(click());
 
-        // Scroll to the trigger field first to ensure it's visible
         onView(withId(R.id.emotion_reason)).perform(scrollTo());
 
-        // Add some text to the trigger field - separate actions for stability
         onView(withId(R.id.emotion_reason)).perform(replaceText("Location Test"));
         onView(withId(R.id.emotion_reason)).perform(closeSoftKeyboard());
 
