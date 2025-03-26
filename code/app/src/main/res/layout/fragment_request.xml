@@ -47,15 +47,15 @@
             android:layout_width="32dp"
             android:layout_height="38dp"
             android:layout_marginEnd="8dp"
-            android:background="@drawable/ic_tick"
+            android:background="@drawable/ic_check_tick"
             android:contentDescription="@string/accept" />
 
         <Button
             android:id="@+id/denyButton"
-            android:layout_width="32dp"
+            android:layout_width="35dp"
             android:layout_height="38dp"
             android:layout_marginEnd="8dp"
-            android:background="@drawable/ic_cross"
+            android:background="@drawable/ic_cancel"
             android:contentDescription="@string/deny" />
 
 
