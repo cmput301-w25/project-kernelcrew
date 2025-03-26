@@ -115,7 +115,7 @@ public class MyProfileTest extends FirebaseEmulatorMixin {
 
         Thread.sleep(1000);
         // --- Verify HomeFeed is loaded ---
-        onView(withId(R.id.homeTextView)).check(matches(isDisplayed()));
+        onView(withId(R.id.filterBarFragment)).check(matches(isDisplayed()));
 
         // --- Navigate to Profile via Bottom Navigation ---
         onView(withId(R.id.page_myProfile)).perform(click());

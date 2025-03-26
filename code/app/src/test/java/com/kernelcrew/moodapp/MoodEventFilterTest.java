@@ -16,7 +16,10 @@ import com.kernelcrew.moodapp.data.Emotion;
 import com.kernelcrew.moodapp.data.MoodEventFilter;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+
 import org.junit.Before;
 import org.junit.Test;
 
@@ -280,7 +283,7 @@ public class MoodEventFilterTest {
     @Test
     public void testChainingWithoutOptionalFilters() {
         MoodEventFilter filter = new MoodEventFilter(mockCollectionReference)
-                .addEmotions(new ArrayList<>())
+                .addEmotions(new HashSet<>())
                 .setDateRange(null, null)
                 .setUser(null);
         Query builtQuery = filter.buildQuery();
@@ -293,7 +296,7 @@ public class MoodEventFilterTest {
      */
     @Test
     public void testAddEmotionsMethod() {
-        List<Emotion> emotionList = new ArrayList<>();
+        Set<Emotion> emotionList = new HashSet<>();
         emotionList.add(Emotion.ANGER);
         emotionList.add(Emotion.HAPPINESS);
         emotionList.add(Emotion.ANGER);
@@ -344,7 +347,7 @@ public class MoodEventFilterTest {
      */
     @Test
     public void testSequentialEmotionAddition() {
-        List<Emotion> emotionsList = new ArrayList<>();
+        Set<Emotion> emotionsList = new HashSet<>();
         emotionsList.add(Emotion.HAPPINESS);
         emotionsList.add(Emotion.ANGER);
 

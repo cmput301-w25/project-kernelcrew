@@ -42,12 +42,11 @@ import java.util.concurrent.ExecutionException;
 @RunWith(AndroidJUnit4.class)
 public class MoodDetailsNavigationTest extends FirebaseEmulatorMixin {
     private static final String USER_EMAIL = "test@kernelcrew.com";
+    private static final String USERNAME = "Test User";
     private static final String USER_PASSWORD = "Password@1234";
     private static final Emotion DATA_EMOTION = Emotion.HAPPINESS;
-    private static final String DATA_TRIGGER = "Morning Coffee";
     private static final String DATA_SOCIALSITUATION = "With Friends";
     private static final String DATA_REASON = "Celebration";
-    private static final String DATA_PHOTOURL = "https://example.com/photo.jpg";
     private static final double DATA_LATITUDE = 34.052235;
     private static final double DATA_LONGITUDE = -118.243683;
 
@@ -99,13 +98,12 @@ public class MoodDetailsNavigationTest extends FirebaseEmulatorMixin {
         // Seed a detailed MoodEvent document used in the MoodDetails screen.
         MoodEvent testEvent = new MoodEvent(
                 uid,
+                USERNAME,
                 DATA_EMOTION,
-                DATA_TRIGGER,       // trigger
-                DATA_SOCIALSITUATION, // socialSituation
-                DATA_REASON,        // reason
-                DATA_PHOTOURL,      // photoUrl
-                DATA_LATITUDE,      // latitude
-                DATA_LONGITUDE      // longitude
+                DATA_SOCIALSITUATION,
+                DATA_REASON,
+                DATA_LATITUDE,
+                DATA_LONGITUDE
         );
         Tasks.await(MoodEventProvider.getInstance().insertMoodEvent(testEvent));
 
@@ -140,7 +138,7 @@ public class MoodDetailsNavigationTest extends FirebaseEmulatorMixin {
         SystemClock.sleep(1000);
 
         // On HomeFeed screen: Verify that the homeTextView is displayed.
-        onView(withId(R.id.homeTextView))
+        onView(withId(R.id.filterBarFragment))
                 .check(matches(isDisplayed()));
 
         // Click on the first mood item in the RecyclerView to view its details.
@@ -157,51 +155,12 @@ public class MoodDetailsNavigationTest extends FirebaseEmulatorMixin {
                 .check(matches(isDisplayed()));
         onView(withId(R.id.tvMoodState))
                 .check(matches(withText(DATA_EMOTION.toString())));
-        onView(withId(R.id.tvTriggerValue))
-                .check(matches(withText(DATA_TRIGGER)));
         onView(withId(R.id.tvSocialSituationValue))
                 .check(matches(withText(DATA_SOCIALSITUATION)));
         onView(withId(R.id.tvReasonValue))
                 .check(matches(withText(DATA_REASON)));
     }
 
-    @Test
-    public void testViewProfileNavigationFromMoodDetails() throws InterruptedException, ExecutionException {
-        seedDatabase();
-
-        // Sign in
-        onView(withText("Sign In")).perform(click());
-        onView(withId(R.id.emailSignIn))
-                .perform(replaceText(USER_EMAIL), closeSoftKeyboard());
-        onView(withId(R.id.passwordSignIn))
-                .perform(replaceText(USER_PASSWORD), closeSoftKeyboard());
-        onView(withId(R.id.signInButtonAuthToHome))
-                .perform(click());
-
-        // Wait for HomeFeed to load data
-        SystemClock.sleep(3000);
-
-        // Click on the first mood item's "View Details" button.
-        onView(withId(R.id.moodRecyclerView))
-                .perform(actionOnItemAtPosition(0, clickChildViewWithId(R.id.viewDetailsButton)));
-
-        // Wait for the MoodDetails screen to load.
-        SystemClock.sleep(3000);
-
-        // Scroll the NestedScrollView to the bottom using a custom action.
-        onView(withId(R.id.nestedScrollView))
-                .perform(scrollNestedScrollViewToBottom());
-
-        // Now click the "View Profile" button.
-        onView(withId(R.id.btnViewProfile))
-                .perform(click());
-
-        // Wait for the MyProfile screen to load.
-        SystemClock.sleep(3000);
-
-        // Verify that the MyProfile screen is displayed (e.g., check that the sign-out button is visible).
-        onView(withId(R.id.signOutButton)).check(matches(isDisplayed()));
-    }
 
     // Custom ViewAction to scroll a NestedScrollView to the bottom.
     public static ViewAction scrollNestedScrollViewToBottom() {

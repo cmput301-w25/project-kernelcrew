@@ -13,6 +13,8 @@ import org.junit.BeforeClass;
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ExecutionException;
 
@@ -20,6 +22,7 @@ public class FirebaseEmulatorMixin {
     // Shared test constants (changed to protected so subclasses can use them)
     protected static final String TEST_EMAIL = "test@kernelcrew.com";
     protected static final String TEST_PASSWORD = "Password@1234";
+    protected static final String TEST_USERNAME = "Test_Username";
 
     // Emulator configuration
     private static boolean setupEmulator = false;
@@ -112,6 +115,11 @@ public class FirebaseEmulatorMixin {
         FirebaseAuth auth = FirebaseAuth.getInstance();
         try {
             Tasks.await(auth.createUserWithEmailAndPassword(TEST_EMAIL, TEST_PASSWORD));
+            // Add username field to this new user
+            FirebaseFirestore db = FirebaseFirestore.getInstance();
+            Map<String, Object> userData = new HashMap<>();
+            userData.put("username", TEST_USERNAME);
+            Tasks.await(db.collection("users").document(auth.getCurrentUser().getUid()).set(userData));
         } catch (ExecutionException e) {
             if (!(e.getCause() instanceof com.google.firebase.auth.FirebaseAuthUserCollisionException)) {
                 throw e;

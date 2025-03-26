@@ -63,6 +63,7 @@ public class EmotionPickerFragment extends Fragment {
                 new EmotionToggleConfig(R.id.toggle_shame, Emotion.SHAME),
                 new EmotionToggleConfig(R.id.toggle_surprise, Emotion.SURPRISE),
         };
+
         for (var toggleConfig : toggleConfigs) {
             View toggleView = view.findViewById(toggleConfig.id);
             MaterialButton button = toggleView.findViewById(R.id.emotion_picker_button);
