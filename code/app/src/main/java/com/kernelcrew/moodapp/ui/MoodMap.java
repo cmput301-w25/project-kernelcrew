@@ -1,7 +1,6 @@
 package com.kernelcrew.moodapp.ui;
 
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -19,13 +18,12 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.material.navigation.NavigationBarView;
-import com.google.firebase.firestore.DocumentSnapshot;
 import com.kernelcrew.moodapp.R;
-import com.kernelcrew.moodapp.data.Emotion;
 import com.kernelcrew.moodapp.data.MoodEvent;
 import com.kernelcrew.moodapp.data.MoodEventProvider;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -39,6 +37,16 @@ public class MoodMap extends Fragment
     private MoodEventProvider moodEventProvider;
     private GoogleMap moodMap;
     private Map<Marker, MoodEvent> markerToMoodMap = new HashMap<>();
+    private static List<MoodEvent> sharedMoodEvents = null;
+
+    public static void setSharedMoodEvents(List<MoodEvent> events) {
+        sharedMoodEvents = events;
+    }
+
+    public static List<MoodEvent> getSharedMoodEvents() {
+        return sharedMoodEvents;
+    }
+
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -79,59 +87,51 @@ public class MoodMap extends Fragment
 
         moodMap = googleMap;
         moodMap.getUiSettings().setZoomControlsEnabled(true);
-
-        loadMoodEventsOnMap();
-
+        List<MoodEvent> events = MoodMap.getSharedMoodEvents();
+        loadMoodEventsOnMap(events);
+        MoodMap.setSharedMoodEvents(null); // Free up memory
     }
 
 
-    private void loadMoodEventsOnMap() {
+    public void loadMoodEventsOnMap(List<MoodEvent> events) {
         // Clear existing markers
         moodMap.clear();
         markerToMoodMap.clear();
 
-        // Query all mood events with location data
-        moodEventProvider.getCollectionReference()
-                .whereNotEqualTo("latitude", null)
-                .get()
-                .addOnSuccessListener(queryDocumentSnapshots -> {
-                    boolean hasMarkers = false;
-                    LatLng lastPosition = null;
+        boolean hasMarkers = false;
+        LatLng lastPosition = null;
 
-                    for (DocumentSnapshot document : queryDocumentSnapshots.getDocuments()) {
-                        MoodEvent moodEvent = document.toObject(MoodEvent.class);
-                        if (moodEvent != null && moodEvent.getLatitude() != null && moodEvent.getLongitude() != null) {
-                            // Get location for marker
-                            LatLng position = new LatLng(moodEvent.getLatitude(), moodEvent.getLongitude());
-                            lastPosition = position;
+        for (MoodEvent moodEvent : events) {
+            if (moodEvent != null && moodEvent.getLatitude() != null && moodEvent.getLongitude() != null) {
+                // Get location for marker
+                LatLng position = new LatLng(moodEvent.getLatitude(), moodEvent.getLongitude());
+                lastPosition = position;
 
-                            // Get marker color based on emotion
-                            float markerColor = getEmotionColour(moodEvent.getEmotion().toString());
+                // Get marker color based on emotion
+                float markerColor = getEmotionColour(moodEvent.getEmotion().toString());
 
-                            // Create the marker
-                            MarkerOptions markerOptions = new MarkerOptions()
-                                    .position(position)
-                                    .title(moodEvent.getEmotion().toString())
-                                    .snippet(moodEvent.getReason())
-                                    .icon(BitmapDescriptorFactory.defaultMarker(markerColor));
+                // Create the marker
+                MarkerOptions markerOptions = new MarkerOptions()
+                        .position(position)
+                        .title(moodEvent.getEmotion().toString())
+                        .snippet(moodEvent.getReason())
+                        .icon(BitmapDescriptorFactory.defaultMarker(markerColor));
 
-                            // Add the marker to the map
-                            Marker marker = moodMap.addMarker(markerOptions);
-                            if (marker != null) {
-                                markerToMoodMap.put(marker, moodEvent);
-                                hasMarkers = true;
-                            }
-                        }
-                    }
+                // Add the marker to the map
+                Marker marker = moodMap.addMarker(markerOptions);
+                if (marker != null) {
+                    markerToMoodMap.put(marker, moodEvent);
+                    hasMarkers = true;
+                }
+            }
+        }
 
-                    // If we added markers, move camera to the last one
-                    if (hasMarkers) {
-                        moodMap.animateCamera(CameraUpdateFactory.newLatLngZoom(lastPosition, 10.0f));
-                    }
-                })
-                .addOnFailureListener(e ->
-                        Log.e("MoodMapFragment", "Error loading mood events on map", e));
+        // If we added markers, move camera to the last one
+        if (hasMarkers) {
+            moodMap.animateCamera(CameraUpdateFactory.newLatLngZoom(lastPosition, 10.0f));
+        }
     }
+
 
     private float getEmotionColour(String emotion) {
         switch (emotion) {
