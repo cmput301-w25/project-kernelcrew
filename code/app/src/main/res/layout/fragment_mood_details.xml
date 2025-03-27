@@ -58,6 +58,12 @@
                     android:textAppearance="?attr/textAppearanceHeadline6"
                     android:textColor="@android:color/black" />
 
+                <ImageView
+                    android:id="@+id/visibility_icon"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:src="@drawable/ic_lock" />
+
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/btnEditMood"
                     android:visibility="gone"
