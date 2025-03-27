@@ -14,6 +14,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
+import com.google.android.gms.tasks.Tasks;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.navigation.NavigationBarView;
 import com.google.firebase.auth.FirebaseAuth;
@@ -31,6 +32,7 @@ public class CreateMoodEvent extends Fragment {
     public CreateMoodEvent() {}
 
     private void handleSubmit(MoodEventForm.MoodEventDetails details) {
+        details.username = currentUser.getDisplayName();
         MoodEvent moodEvent = details.toMoodEvent(currentUser.getUid());
         provider.insertMoodEvent(moodEvent)
                 .addOnSuccessListener(aVoid -> {

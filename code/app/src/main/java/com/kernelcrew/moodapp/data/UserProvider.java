@@ -4,6 +4,8 @@ import androidx.annotation.NonNull;
 
 import com.google.android.gms.tasks.Task;
 import com.google.android.gms.tasks.Tasks;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -33,6 +35,27 @@ public class UserProvider {
     }
 
     /**
+     * Fetch the username of a specific user.
+     *
+     * @param uid The user to find the username of.
+     * @return The user's username.
+     */
+    public Task<String> getUsername(@NonNull String uid) {
+        return db.collection("users").document(uid).get()
+                .onSuccessTask(documentSnapshot -> {
+                    if (documentSnapshot.exists()) {
+                        String username = documentSnapshot.getString("username");
+                        if (username != null) {
+                            return Tasks.forResult(username);
+                        }
+                    } else {
+                        return Tasks.forException(new Exception("User document not found"));
+                    }
+                    return Tasks.forException(null);
+                });
+    }
+
+    /**
      * Fetch all users following a specific user.
      * @param uid The user to look up the followers of.
      * @return All users following this user.
@@ -49,7 +72,6 @@ public class UserProvider {
                 if (isFollowingBack == null) {
                     isFollowingBack = false;
                 }
-                // Pass UID as the first argument, and optionally reuse it as 'name' if that's all you have
                 followersList.add(new User(followerUid, followerUid, isFollowingBack));
             }
 
@@ -116,5 +138,34 @@ public class UserProvider {
             }
             return Tasks.forResult(results);
         });
+    }
+
+    /**
+     * Fetch the username for a specific user.
+     * @param uid The user ID whose username to fetch.
+     * @return A Task containing the username as a String.
+     */
+    public Task<String> fetchUsername(@NonNull String uid) {
+        return db.collection("users")
+                .document(uid)
+                .get()
+                .continueWith(task -> {
+                    if (!task.isSuccessful()) {
+                        throw task.getException();
+                    }
+                    DocumentSnapshot document = task.getResult();
+                    if (document != null && document.exists()) {
+                        String username = document.getString("username");
+                        if (username == null) {
+                            username = document.getString("name");
+                        }
+                        if (username == null) {
+                            username = "UnknownUser";
+                        }
+                        return username;
+                    } else {
+                        throw new Exception("User not found");
+                    }
+                });
     }
 }

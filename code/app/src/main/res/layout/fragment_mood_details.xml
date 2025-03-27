@@ -54,41 +54,60 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:text="Happy"
+                    android:text="@string/mood_type_text"
                     android:textAppearance="?attr/textAppearanceHeadline6"
                     android:textColor="@android:color/black" />
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/btnEditMood"
+                    android:visibility="gone"
                     style="@style/Widget.MaterialComponents.Button"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="16dp"
                     android:layout_weight="1"
                     android:backgroundTint="@color/button_purple"
-                    android:text="Edit"
+                    android:text="@string/edit_button_text"
                     android:textColor="@android:color/white"
                     app:cornerRadius="999dp" />
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/btnDeleteMood"
+                    android:visibility="gone"
                     style="@style/Widget.MaterialComponents.Button"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="16dp"
                     android:backgroundTint="@color/button_purple"
-                    android:text="Delete"
+                    android:text="@string/delete_button_text"
                     android:textColor="@android:color/white"
                     app:cornerRadius="999dp" />
 
             </LinearLayout>
 
-            <!-- Divider -->
+            <com.google.android.material.chip.Chip
+                android:id="@+id/tvUsernameDisplay"
+                style="@style/Widget.MaterialComponents.Chip.Action"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
 
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:orientation="horizontal"></LinearLayout>
+                android:clickable="true"
+                android:focusable="true"
+                android:text="@string/dummy_username"
+                android:textStyle="bold"
+                android:textColor="@android:color/white"
+                android:paddingStart="8dp"
+                android:paddingEnd="16dp"
+
+                app:chipBackgroundColor="@color/button_purple"
+                app:chipCornerRadius="16dp"
+                app:chipIcon="@drawable/ic_person"
+                app:chipIconTint="@android:color/white"
+                app:chipIconVisible="true"
+                app:closeIconEnabled="false"
+                app:iconStartPadding="8dp"
+                app:iconEndPadding="8dp" />
 
             <View
                 android:layout_width="match_parent"
@@ -117,7 +136,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="16dp"
-                        android:hint="Social Situation"
+                        android:hint="@string/social_situation_heading"
                         app:boxCornerRadiusTopStart="12dp"
                         app:boxCornerRadiusTopEnd="12dp"
                         app:boxCornerRadiusBottomStart="12dp"
@@ -130,7 +149,7 @@
                             android:id="@+id/tvSocialSituationValue"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:text="Input"
+                            android:text="@string/social_situation_box_text"
                             android:enabled="false" />
                     </com.google.android.material.textfield.TextInputLayout>
 
@@ -141,7 +160,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="16dp"
-                        android:hint="Reason"
+                        android:hint="@string/reason_heading"
                         app:boxCornerRadiusTopStart="12dp"
                         app:boxCornerRadiusTopEnd="12dp"
                         app:boxCornerRadiusBottomStart="12dp"
@@ -154,7 +173,7 @@
                             android:id="@+id/tvReasonValue"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:text="Some Reason"
+                            android:text="@string/reason_box_text"
                             android:enabled="false" />
                     </com.google.android.material.textfield.TextInputLayout>
 
@@ -164,7 +183,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="24dp"
-                        android:text="Photo"
+                        android:text="@string/photo_heading"
                         android:textAppearance="?attr/textAppearanceSubtitle1"
                         android:textStyle="bold" />
 
@@ -191,7 +210,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="24dp"
-                        android:text="Location"
+                        android:text="@string/location_heading"
                         android:textAppearance="?attr/textAppearanceSubtitle1"
                         android:textStyle="bold" />
 
@@ -211,13 +230,23 @@
                             android:background="@android:color/darker_gray" />
                     </com.google.android.material.card.MaterialCardView>
 
+
+                    <com.google.android.material.textview.MaterialTextView
+                        android:id="@+id/tvCommentsLabel"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="24dp"
+                        android:text="Comments"
+                        android:textAppearance="?attr/textAppearanceSubtitle1"
+                        android:textStyle="bold" />
+
                     <com.google.android.material.button.MaterialButton
-                        android:id="@+id/btnViewProfile"
+                        android:id="@+id/btnMoodComments"
                         style="@style/Widget.MaterialComponents.Button"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="24dp"
-                        android:text="View Profile"
+                        android:layout_marginTop="0dp"
+                        android:text="View Comments"
                         android:textColor="@android:color/white"
                         android:backgroundTint="@color/button_purple"
                         app:cornerRadius="12dp" />
