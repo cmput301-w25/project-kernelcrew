@@ -36,6 +36,7 @@ import com.kernelcrew.moodapp.data.Emotion;
 import com.kernelcrew.moodapp.data.MoodEvent;
 import com.kernelcrew.moodapp.data.MoodEventVisibility;
 import com.kernelcrew.moodapp.ui.components.EmotionPickerFragment;
+import com.kernelcrew.moodapp.ui.components.UploadPhotoFragment;
 import com.kernelcrew.moodapp.utils.PhotoUtils;
 
 import java.io.File;
@@ -65,79 +66,6 @@ public class MoodEventForm extends Fragment implements LocationUpdateListener {
     private MaterialButtonToggleGroup visibilityToggle;
 
     /**
-     * Handler for the image picker submission action.
-     */
-    private final ActivityResultLauncher<Intent> pickImageLauncher =
-            registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result -> {
-                if (result.getResultCode() == RESULT_OK) {
-                    Intent data = result.getData();
-                    if (data != null) {
-                        setImageFromUri(data.getData());
-                    }
-                }
-            });
-
-    /**
-     * Open an image picker and update the photoUri and photoButton photo when a selection is made.
-     */
-    private void openImagePicker() {
-        Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-        pickImageLauncher.launch(intent);
-    }
-
-    /**
-     * The image capture action expects this to point to the captured image temporary file.
-     */
-    private String currentPhotoPath;
-
-    /**
-     * Handler for the image capture action.
-     */
-    private final ActivityResultLauncher<Intent> captureImageLauncher =
-            registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result -> {
-                if (result.getResultCode() == RESULT_OK) {
-                    // Load the image from the file path
-                    Bitmap bitmap = BitmapFactory.decodeFile(currentPhotoPath);
-                    if (bitmap != null) {
-                        setImageFromBitmap(bitmap);  // Use the bitmap in your app
-                    } else {
-                        // Handle error
-                        Log.e("Error", "Bitmap could not be loaded.");
-                    }
-                }
-            });
-
-    /**
-     * Open an image picker and update the photoUri and photoButton photo when a selection is made.
-     */
-    private void openImageCapture() {
-        File photoFile;
-        try {
-            String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(new Date());
-            String imageFileName = "JPEG_" + timeStamp + "_";
-            File storageDir = requireActivity().getExternalFilesDir(Environment.DIRECTORY_PICTURES);
-            photoFile = File.createTempFile(
-                    imageFileName, /* prefix */
-                    ".jpg",         /* suffix */
-                    storageDir      /* directory */
-            );
-        } catch (IOException e) {
-            Toast.makeText(requireContext(), "Failed to open camera", Toast.LENGTH_SHORT).show();
-            Log.e("ModEventForm", e.toString());
-            return;
-        }
-
-        Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-        currentPhotoPath = photoFile.getAbsolutePath();
-        Uri photoURI = FileProvider.getUriForFile(
-                requireActivity(),
-                "com.kernelcrew.moodapp.fileprovider.authority",
-                photoFile);
-        intent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI);
-        captureImageLauncher.launch(intent);
-    }
-
-    /**
      * Clear the currently selected photo.
      */
     private void resetPhoto() {
@@ -149,24 +77,11 @@ public class MoodEventForm extends Fragment implements LocationUpdateListener {
     }
 
     /**
-     * Like setImageFromBitmap, but try to load the image from a URI.
-     * @param imageUri URI of image to set
-     */
-    private void setImageFromUri(Uri imageUri) {
-        try {
-            Bitmap bitmap = MediaStore.Images.Media.getBitmap(this.requireActivity().getContentResolver(), imageUri);
-            setImageFromBitmap(bitmap);
-        } catch (IOException e) {
-            Toast.makeText(requireContext(), "Failed to upload image", Toast.LENGTH_SHORT).show();
-            Log.e("MoodEventForm", e.toString());
-        }
-    }
-
-    /**
      * Change the photo button image
      * @param bitmap Bitmap to set
      */
     private void setImageFromBitmap(Bitmap bitmap) {
+        Log.i("MoodEventForm", "here");
         photo = bitmap;
         photoButton.setImageBitmap(bitmap);
         updateResetPhotoVisibility();
@@ -370,8 +285,11 @@ public class MoodEventForm extends Fragment implements LocationUpdateListener {
         situationAutoComplete = view.findViewById(R.id.emotion_situation);
         reasonEditText = view.findViewById(R.id.emotion_reason);
         photoButton = view.findViewById(R.id.photo_button);
-        // photoButton.setOnClickListener(_v -> openImagePicker());
-        photoButton.setOnClickListener(_v -> openImageCapture());
+        photoButton.setOnClickListener(_v -> {
+            UploadPhotoFragment uploadPhotoFragment = new UploadPhotoFragment();
+            uploadPhotoFragment.setUploadPhotoListener(this::setImageFromBitmap);
+            uploadPhotoFragment.show(requireActivity().getSupportFragmentManager(), uploadPhotoFragment.getTag());
+        });
         photoResetButton = view.findViewById(R.id.photo_reset_button);
         photoResetButton.setOnClickListener(_v -> resetPhoto());
         photoButtonError = view.findViewById(R.id.photo_button_error);
