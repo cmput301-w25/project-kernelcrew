@@ -150,7 +150,7 @@ public class LocationFragment extends Fragment {
                         // Permission granted
                         Log.i("LocationFragment", "Location permission granted by user");
                         requestLocationButton.setText("Add Location");
-                        getLastLocation();
+                        requestNewLocation();
                     } else {
                         // Permission denied
                         Log.i("LocationFragment", "Location permission denied by user");
@@ -282,8 +282,9 @@ public class LocationFragment extends Fragment {
                         } else {
                             // No last location available, request a new location update
                             Log.i("LocationFragment", "No last location available, requesting location updates");
-                            requestNewLocation();
+
                         }
+                        requestNewLocation();
                     })
                     .addOnFailureListener(e -> {
                         // Handle any errors during location retrieval
