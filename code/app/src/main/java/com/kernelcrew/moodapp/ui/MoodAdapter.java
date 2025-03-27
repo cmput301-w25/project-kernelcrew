@@ -83,6 +83,15 @@ public class MoodAdapter extends RecyclerView.Adapter<MoodAdapter.MoodViewHolder
                 onMoodClickListener.onViewComments(mood);
             }
         });
+
+        switch (mood.getVisibility()) {
+            case PUBLIC:
+                holder.visibilityIcon.setImageResource(R.drawable.ic_public);
+                break;
+            case PRIVATE:
+                holder.visibilityIcon.setImageResource(R.drawable.ic_lock);
+                break;
+        }
     }
 
     @Override
@@ -101,6 +110,8 @@ public class MoodAdapter extends RecyclerView.Adapter<MoodAdapter.MoodViewHolder
         ImageView comments_bubble;
         View commentLayout;
 
+        ImageView visibilityIcon;
+
         public MoodViewHolder(@NonNull View itemView) {
             super(itemView);
             moodImageView = itemView.findViewById(R.id.moodImage); // initialize new view
@@ -111,6 +122,7 @@ public class MoodAdapter extends RecyclerView.Adapter<MoodAdapter.MoodViewHolder
             purple_icon_arrow = itemView.findViewById(R.id.purpleIconArrow);
             comments_bubble = itemView.findViewById(R.id.comments_bubble);
             commentLayout = itemView.findViewById(R.id.commentLayout);
+            visibilityIcon = itemView.findViewById(R.id.visibility_icon);
         }
     }
 }
