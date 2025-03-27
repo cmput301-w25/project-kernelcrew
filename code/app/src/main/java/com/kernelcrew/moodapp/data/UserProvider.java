@@ -91,7 +91,7 @@ public class UserProvider {
             List<User> followingList = new ArrayList<>();
 
             for (DocumentSnapshot doc : queryDocumentSnapshots) {
-                String followingUid = doc.getId(); // doc ID as the user's UID
+                String followingUid = doc.getId();
                 Boolean isFollowed = doc.getBoolean("isFollowed");
                 if (isFollowed == null) {
                     isFollowed = false;
