@@ -16,15 +16,12 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
 import android.widget.HorizontalScrollView;
-import android.widget.LinearLayout;
 import android.widget.PopupMenu;
 import android.widget.TextView;
 import android.widget.Toast;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.textfield.TextInputEditText;
@@ -38,7 +35,6 @@ import com.kernelcrew.moodapp.data.MoodEventFilter;
 import com.kernelcrew.moodapp.data.MoodEventProvider;
 import com.kernelcrew.moodapp.data.User;
 import com.kernelcrew.moodapp.data.UserProvider;
-
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -56,11 +52,17 @@ public abstract class FilterBarFragment extends Fragment {
     private boolean reasonSearchActive = true;
     private boolean allowUserSearch = false;
 
-    public void setAllowUserSearch(boolean allowUserSearch) {
-        this.allowUserSearch = allowUserSearch;
-    }
+    // UI Elements
+    private TextInputLayout filterSearchLayout;
+    private TextInputEditText searchEditText;
+    private MaterialButton filterEmotion;
+    private MaterialButton filterCountAndEdit;
+    private MaterialButton filterTimeRange;
+    private MaterialButton filterLocation;
+    private MaterialButton searchUser;
+    private MaterialButton searchReason;
 
-    // We'll store an in-progress "user search" text so we can delay queries.
+    // Handler for delaying user search queries.
     private final Handler userSearchHandler = new Handler();
     private Runnable userSearchRunnable;
 
@@ -68,11 +70,13 @@ public abstract class FilterBarFragment extends Fragment {
     private MoodEventFilter moodEventFilter;
     private final Set<Emotion> selectedEmotions = new HashSet<>();
 
-    // This local field now holds the text to search, instead of using MoodEventFilter.
-    private String localSearchQuery = null;
-
     // Listener for public interface
     private OnFilterChangedListener listener;
+    private OnUserSearchListener userSearchListener;
+
+    public void setAllowUserSearch(boolean allowUserSearch) {
+        this.allowUserSearch = allowUserSearch;
+    }
 
     /**
      * Interface to notify when filters are changed.
@@ -109,8 +113,6 @@ public abstract class FilterBarFragment extends Fragment {
         void onUserSearchResults(List<User> users);
     }
 
-    private OnUserSearchListener userSearchListener;
-
     /**
      * Registers a listener for receiving user search results.
      * @param listener The listener to receive those results.
@@ -118,17 +120,6 @@ public abstract class FilterBarFragment extends Fragment {
     public void setOnUserSearchListener(OnUserSearchListener listener) {
         this.userSearchListener = listener;
     }
-
-    // UI Elements
-    private TextInputLayout filterSearchLayout;
-    private TextInputEditText searchEditText;
-    private MaterialButton filterEmotion;
-    private MaterialButton filterCountAndEdit;
-    private MaterialButton filterTimeRange;
-    private MaterialButton filterLocation;
-    private MaterialButton searchUser;
-    private MaterialButton searchTrigger;
-    private MaterialButton searchReason;
 
     /**
      * Inflates the filter bar layout and initializes filter options.
@@ -162,79 +153,27 @@ public abstract class FilterBarFragment extends Fragment {
         searchEditText.addTextChangedListener(new TextWatcher() {
             @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) { }
             @Override public void onTextChanged(CharSequence s, int start, int before, int count) {
-                if (userSearchRunnable != null) {
-                    userSearchHandler.removeCallbacks(userSearchRunnable);
-                }
-                userSearchRunnable = () -> {
-                    String typed = s.toString().trim();
-
-                    if (userSearchActive) {
-                        performUserSearch(typed);
-                    } else {
-                        if (reasonSearchActive) {
-                            if (typed.isEmpty()) {
-                                localSearchQuery = null;
-                            } else {
-                                localSearchQuery = typed;
-                            }
-                            notifyFilterChanged();
-                        }
-                    }
-                };
-                userSearchHandler.postDelayed(userSearchRunnable, 200);
+                // Post a delayed search query to reduce rapid invocations.
+                scheduleSearch(s.toString());
             }
-
-            @Override
-            public void afterTextChanged(Editable s) {
-                if (userSearchRunnable != null) {
-                    userSearchHandler.removeCallbacks(userSearchRunnable);
-                }
-                userSearchRunnable = () -> {
-                    String typed = s.toString().trim();
-
-                    if (userSearchActive) {
-                        performUserSearch(typed);
-                    } else {
-                        if (reasonSearchActive) {
-                            if (typed.isEmpty()) {
-                                localSearchQuery = null;
-                            } else {
-                                localSearchQuery = typed;
-                            }
-                            notifyFilterChanged();
-                        }
-                    }
-                };
+            @Override public void afterTextChanged(Editable s) {
+                // No additional action needed; onTextChanged handles the search delay.
             }
         });
 
-        // Taha used the following resources,
-        // https://stackoverflow.com/questions/3205339/android-how-to-make-keyboard-enter-button-say-search-and-handle-its-click
-        // https://stackoverflow.com/questions/2004344/how-do-i-handle-imeoptions-done-button-click
-        searchEditText.setOnEditorActionListener(new TextView.OnEditorActionListener() {
-            @Override
-            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
-                if (actionId == EditorInfo.IME_ACTION_SEARCH
-                        || actionId == EditorInfo.IME_ACTION_DONE
-                        || (event != null
-                        && event.getAction() == KeyEvent.ACTION_DOWN
-                        && event.getKeyCode() == KeyEvent.KEYCODE_ENTER
-                )) {
-                    String typed = v.getText().toString().trim();
-                    if (userSearchActive) {
-                        performUserSearch(typed);
-                        return true;
-                    } else if (reasonSearchActive) {
-                        localSearchQuery = v.getText().toString();
-                        notifyFilterChanged();
-                        return true;
-                    }
-                }
-                return false;
+        searchEditText.setOnEditorActionListener((TextView v, int actionId, KeyEvent event) -> {
+            if (actionId == EditorInfo.IME_ACTION_SEARCH
+                    || actionId == EditorInfo.IME_ACTION_DONE
+                    || (event != null
+                    && event.getAction() == KeyEvent.ACTION_DOWN
+                    && event.getKeyCode() == KeyEvent.KEYCODE_ENTER)) {
+                handleSearchText(v.getText().toString());
+                return true;
             }
+            return false;
         });
 
-        // Whenever the user toggles "Search User":
+        // Toggle for "Search User"
         searchUser.setOnClickListener(v -> {
             userSearchActive = !userSearchActive;
             searchUser.setChecked(userSearchActive);
@@ -242,50 +181,43 @@ public abstract class FilterBarFragment extends Fragment {
             filterSearchLayout.setErrorEnabled(false);
 
             if (userSearchActive) {
-                // Disable Trigger and Reason
                 reasonSearchActive = false;
-                searchTrigger.setChecked(false);
                 searchReason.setChecked(false);
-                searchTrigger.setEnabled(false);
-                searchReason.setEnabled(false);
-
                 filterButtonsContainer.setVisibility(View.GONE);
                 filterButtonsContainer.setBackground(null);
             } else {
-                // Re-enable Trigger and Reason
-                searchTrigger.setEnabled(true);
-                searchReason.setEnabled(true);
-
+                reasonSearchActive = true;
+                searchReason.setChecked(true);
                 filterButtonsContainer.setVisibility(View.VISIBLE);
                 filterButtonsContainer.setBackgroundResource(R.drawable.black_border);
             }
-
             updateSearchLogic();
         });
 
-        // Whenever the user toggles "Search Reason":
+        // Toggle for "Search Reason"
         searchReason.setOnClickListener(v -> {
-            boolean newVal = !reasonSearchActive;
-            searchReason.setChecked(newVal);
-            reasonSearchActive = newVal;
+            reasonSearchActive = !reasonSearchActive;
+            searchReason.setChecked(reasonSearchActive);
             filterSearchLayout.setError(null);
             filterSearchLayout.setErrorEnabled(false);
 
             if (reasonSearchActive) {
-                if (userSearchActive) {
-                    userSearchActive = false;
-                    searchUser.setChecked(false);
-                }
-                searchUser.setEnabled(false);
+                userSearchActive = false;
+                searchUser.setChecked(false);
+                filterButtonsContainer.setVisibility(View.VISIBLE);
+                filterButtonsContainer.setBackgroundResource(R.drawable.black_border);
+            } else {
+                userSearchActive = true;
+                searchUser.setChecked(true);
+                filterButtonsContainer.setVisibility(View.GONE);
+                filterButtonsContainer.setBackground(null);
             }
-
             updateSearchLogic();
         });
 
         // Filter count and edit popup menu
         filterCountAndEdit.setOnClickListener(v -> {
             PopupMenu popup = new PopupMenu(requireContext(), filterCountAndEdit);
-
             MenuItem clearFiltersItem = popup.getMenu().add("Clear All Filters");
             SpannableString redTitle = new SpannableString("Clear All Filters");
             redTitle.setSpan(new ForegroundColorSpan(Color.RED), 0, redTitle.length(), 0);
@@ -298,8 +230,7 @@ public abstract class FilterBarFragment extends Fragment {
                     getMoodEventFilter().clearFilters();
                     selectedEmotions.clear();
                     searchEditText.setText("");
-                    // Clear our local search as well
-                    localSearchQuery = null;
+                    getMoodEventFilter().setReasonQuery(null);
                     Toast.makeText(requireContext(), "Filters cleared", Toast.LENGTH_SHORT).show();
                 } else if (title.equals("Show Filter Summary")) {
                     String summary = getMoodEventFilter().getSummary();
@@ -314,59 +245,35 @@ public abstract class FilterBarFragment extends Fragment {
                 notifyFilterChanged();
                 filterCountAndEdit.setChecked(false);
             });
-
             popup.show();
         });
 
-        // Taha used the following resources,
-        // https://stackoverflow.com/questions/21329132/android-custom-dropdown-popup-menu
-        // https://stackoverflow.com/questions/13784088/setting-popupmenu-menu-items-programmatically
         // Emotion filter popup menu
         filterEmotion.setOnClickListener(v -> {
             PopupMenu popup = new PopupMenu(requireContext(), filterEmotion);
-
             for (Emotion emotion : Emotion.values()) {
                 MenuItem item = popup.getMenu().add(emotion.toString());
                 item.setCheckable(true);
                 item.setChecked(selectedEmotions.contains(emotion));
             }
-
-            // Taha used the following resources,
-            // https://stackoverflow.com/questions/29726039/how-to-prevent-popup-menu-from-closing-on-checkbox-click
-            popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
-                @Override
-                public boolean onMenuItemClick(MenuItem item) {
-                    item.setChecked(!item.isChecked());
-
-                    if (item.isChecked()) {
-                        selectedEmotions.add(Emotion.fromString(Objects.requireNonNull(item.getTitle()).toString()));
-                    } else {
-                        selectedEmotions.remove(Emotion.fromString(Objects.requireNonNull(item.getTitle()).toString()));
-                    }
-
-                    item.setShowAsAction(MenuItem.SHOW_AS_ACTION_COLLAPSE_ACTION_VIEW);
-                    item.setActionView(new View(requireContext()));
-                    item.setOnActionExpandListener(new MenuItem.OnActionExpandListener() {
-                        @Override
-                        public boolean onMenuItemActionExpand(MenuItem item) {
-                            return false;
-                        }
-
-                        @Override
-                        public boolean onMenuItemActionCollapse(MenuItem item) {
-                            return false;
-                        }
-                    });
-                    return false;
+            popup.setOnMenuItemClickListener(item -> {
+                item.setChecked(!item.isChecked());
+                Emotion emotion = Emotion.fromString(Objects.requireNonNull(item.getTitle()).toString());
+                if (item.isChecked()) {
+                    selectedEmotions.add(emotion);
+                } else {
+                    selectedEmotions.remove(emotion);
                 }
+                // Prevent the popup from closing immediately.
+                item.setShowAsAction(MenuItem.SHOW_AS_ACTION_COLLAPSE_ACTION_VIEW);
+                item.setActionView(new View(requireContext()));
+                return false;
             });
-
             popup.setOnDismissListener(menu -> {
                 getMoodEventFilter().setEmotions(selectedEmotions);
                 notifyFilterChanged();
                 filterEmotion.setChecked(false);
             });
-
             popup.show();
         });
 
@@ -393,7 +300,6 @@ public abstract class FilterBarFragment extends Fragment {
                         endDate = calendar.getTime();
                         break;
                     case "This Week":
-                        // Move to the first day of the week then reset time
                         calendar.set(Calendar.DAY_OF_WEEK, calendar.getFirstDayOfWeek());
                         resetTime(calendar);
                         startDate = calendar.getTime();
@@ -412,8 +318,6 @@ public abstract class FilterBarFragment extends Fragment {
                     default:
                         break;
                 }
-
-                // Update the filter with the selected date range
                 getMoodEventFilter().setDateRange(startDate, endDate);
                 notifyFilterChanged();
                 return true;
@@ -423,88 +327,64 @@ public abstract class FilterBarFragment extends Fragment {
                 notifyFilterChanged();
                 filterTimeRange.setChecked(false);
             });
-
             popup.show();
         });
 
         // Location filter popup menu
         filterLocation.setOnClickListener(v -> {
             PopupMenu popup = new PopupMenu(requireContext(), filterLocation);
-
             popup.getMenu().add("Within 5 km");
             popup.getMenu().add("Within 10 km");
-
             MenuItem clearLocationItem = popup.getMenu().add("Clear Location Filter");
             SpannableString redTitle = new SpannableString("Clear Location Filter");
             redTitle.setSpan(new ForegroundColorSpan(Color.RED), 0, redTitle.length(), 0);
             clearLocationItem.setTitle(redTitle);
-
             popup.setOnMenuItemClickListener(item -> {
                 Toast.makeText(requireContext(), "Location Stuff not Implemented", Toast.LENGTH_SHORT).show();
                 return true;
             });
-
             popup.setOnDismissListener(menu -> {
                 notifyFilterChanged();
                 filterLocation.setChecked(false);
             });
-
             popup.show();
         });
 
-        // ...
         // TODO: Maybe add more filters, I do not know what/how the app will look like in the future
-        //          so currently the implementation only has filters for things I could think of.
-        // If you want to add a filter, just copy the (one of the preexisting) xml buttons and
-        //      and simply change the ID and android:text. Then use the above as a template, all the
-        //      buttons should have very similar if not the same pop-up menu logic.
-        // ...
 
-        // Display the initial mood list with 0 filters.
         notifyFilterChanged();
-
         return view;
     }
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-
-        // Now that the view is inflated and searchUser is not null, set the button’s visibility
         if (searchUser != null) {
-            if (allowUserSearch) {
-                searchUser.setVisibility(View.VISIBLE);
-            } else {
-                searchUser.setVisibility(View.GONE);
-            }
+            searchUser.setVisibility(allowUserSearch ? View.VISIBLE : View.GONE);
         }
     }
 
     /**
      * Updates the search logic whenever a toggle changes.
      * If "Search User" is active, we remove MoodEventFilter's query and do user search.
-     * If Trigger/Reason is active, we apply local searching on reason/trigger.
+     * If Reason is active, we apply local searching on reason.
      * If none are active, we clear results and do nothing.
      */
     private void updateSearchLogic() {
-        boolean atLeastOne = userSearchActive || reasonSearchActive;
-        if (!atLeastOne) {
+        if (!userSearchActive && !reasonSearchActive) {
             filterSearchLayout.setError("Select a search method!");
             return;
         }
-
         if (userSearchActive) {
             performUserSearch("");
         } else {
-            localSearchQuery = null;
+            getMoodEventFilter().setReasonQuery(null);
             notifyFilterChanged();
         }
     }
 
     /**
-     * Executes a Firestore search for users based on the typed query,
-     * mimicking the existing 'SearchUsers' logic. Once results come back,
-     * show them or “No results found.” as needed.
+     * Executes a Firestore search for users based on the typed query.
      *
      * @param query The text typed by the user for searching.
      */
@@ -513,7 +393,6 @@ public abstract class FilterBarFragment extends Fragment {
                 query,
                 Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid()
         );
-
         q.addOnSuccessListener(users -> {
             if (userSearchListener != null) {
                 userSearchListener.onUserSearchResults(users);
@@ -521,7 +400,6 @@ public abstract class FilterBarFragment extends Fragment {
         }).addOnFailureListener(e -> {
             Log.e("FilterBarFragment", "User search failed!", e);
             Toast.makeText(getContext(), "Search failed: " + e.getMessage(), Toast.LENGTH_SHORT).show();
-
             if (userSearchListener != null) {
                 userSearchListener.onUserSearchResults(new ArrayList<>());
             }
@@ -532,30 +410,7 @@ public abstract class FilterBarFragment extends Fragment {
      * Abstract method that MUST be implemented by subclasses.
      * Used to set up touch listeners on all views (except EditText)
      * so that touching outside of a text box hides the keyboard.
-     * <a href="https://stackoverflow.com/questions/4165414/how-to-hide-soft-keyboard-on-android-after-clicking-outside-edittext">...</a>
-     *
-     * <pre>
-     * {@code
-     *     @SuppressLint("ClickableViewAccessibility")
-     *     @Override
-     *     public void setupKeyboardHiding(View view) {
-     *         if (!(view instanceof EditText)) {
-     *             view.setOnTouchListener((v, event) -> {
-     *                 assert getActivity() != null;
-     *                 Utility.hideSoftKeyboard(getActivity());
-     *                 return false;
-     *             });
-     *         }
-     *         if (view instanceof ViewGroup) {
-     *             ViewGroup group = (ViewGroup) view;
-     *             for (int i = 0; i < group.getChildCount(); i++) {
-     *                 View child = group.getChildAt(i);
-     *                 setupKeyboardHiding(child);
-     *             }
-     *         }
-     *     }
-     * }
-     * </pre>
+     * See documentation for more details.
      *
      * @param view The root view to set up.
      */
@@ -587,10 +442,7 @@ public abstract class FilterBarFragment extends Fragment {
      */
     private void notifyFilterChanged() {
         getMoodEventFilter().setSortField("created", Query.Direction.DESCENDING);
-
-        // We no longer base the count on whether there's a search query.
         filterCountAndEdit.setText(String.valueOf(getMoodEventFilter().count() - 1));
-
         if (listener != null) {
             listener.onFilterChanged(getMoodEventFilter());
         } else {
@@ -600,29 +452,16 @@ public abstract class FilterBarFragment extends Fragment {
 
     /**
      * Filters a list of MoodEvents locally based on the user’s current search settings.
-     * For example, if "triggerSearchActive" is on, we match mood.getSocialSituation()
-     * or some "trigger" field. If "reasonSearchActive" is on, we match mood.getReason(), etc.
+     * If "reasonSearchActive" is on, we match mood.getReason().
      */
-    public List<MoodEvent> applyLocalSearch(MoodEventFilter filter, List<MoodEvent> allMoods) {
-        // Instead of using filter.getSearchQuery(), we now use our local searchQuery field.
-        String query = localSearchQuery;
+    public List<MoodEvent> applyLocalSearch(List<MoodEvent> allMoods) {
+        String query = getMoodEventFilter().getReasonQuery();
         boolean hasQuery = (query != null && !query.trim().isEmpty());
         String lowerQuery = hasQuery ? query.trim().toLowerCase() : null;
-
         List<MoodEvent> filtered = new ArrayList<>();
         for (MoodEvent event : allMoods) {
-            boolean matches = true;
-
-            if (hasQuery) {
-                if (reasonSearchActive) {
-                    String reason = event.getReason();
-                    if (reason == null || !reason.toLowerCase().contains(lowerQuery)) {
-                        matches = false;
-                    }
-                }
-            }
-
-            if (matches) {
+            if (!hasQuery || (reasonSearchActive && event.getReason() != null
+                    && event.getReason().toLowerCase().contains(lowerQuery))) {
                 filtered.add(event);
             }
         }
@@ -639,5 +478,33 @@ public abstract class FilterBarFragment extends Fragment {
         calendar.set(Calendar.MINUTE, 0);
         calendar.set(Calendar.SECOND, 0);
         calendar.set(Calendar.MILLISECOND, 0);
+    }
+
+    /**
+     * Schedules the search query after a delay to avoid frequent invocations.
+     *
+     * @param text The current search text.
+     */
+    private void scheduleSearch(String text) {
+        if (userSearchRunnable != null) {
+            userSearchHandler.removeCallbacks(userSearchRunnable);
+        }
+        userSearchRunnable = () -> handleSearchText(text);
+        userSearchHandler.postDelayed(userSearchRunnable, 200);
+    }
+
+    /**
+     * Handles the search text change based on the active search mode.
+     *
+     * @param text The current search text.
+     */
+    private void handleSearchText(String text) {
+        String typed = text.trim();
+        if (userSearchActive) {
+            performUserSearch(typed);
+        } else if (reasonSearchActive) {
+            getMoodEventFilter().setReasonQuery(typed.isEmpty() ? null : typed);
+            notifyFilterChanged();
+        }
     }
 }

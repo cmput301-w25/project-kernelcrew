@@ -1,331 +1,292 @@
 package com.kernelcrew.moodapp.data;
 
 import androidx.annotation.Nullable;
-
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.Query;
-
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 /**
- * A class for filtering mood events through Firestore, used to create queries.
+ * A class for filtering mood events through Firestore. It is used to build queries based on various filters.
  */
 public class MoodEventFilter {
-    private final CollectionReference collectionReference;
-    private final Set<Emotion> emotions = new HashSet<>();
-    private final Set<String> socialSituations = new HashSet<>();
-    private final Set<String> userIds = new HashSet<>();
-    private Date startDate;
-    private Date endDate;
-    private String sortField;
-    private Query.Direction sortDirection;
-    private Double latitude;
-    private Double longitude;
-    private Double radius;
-    private Integer limit;
-    private Query customQuery;
+    private static final double EARTH_RADIUS_KM = 6371.0;
 
-    /**
-     * Constructor accepting a CollectionReference directly.
-     * This is useful if you have the Firestore collection from your provider.
-     *
-     * @param collectionReference The Firestore collection reference for mood events.
-     */
+    private final CollectionReference collectionReference;
+    private final FilterCriteria criteria = new FilterCriteria();
+    private String reasonQuery;
+
+    private static class FilterCriteria {
+        Set<Emotion> emotions = new HashSet<>();
+        Set<String> socialSituations = new HashSet<>();
+        Set<String> userIds = new HashSet<>();
+        DateRange dateRange;
+        Sorting sorting;
+        LocationFilter location;
+        Integer limit;
+    }
+
+    private static class DateRange {
+        Date start;
+        Date end;
+    }
+
+    private static class Sorting {
+        String field;
+        Query.Direction direction;
+    }
+
+    private static class LocationFilter {
+        Double latitude;
+        Double longitude;
+        Double radius;
+    }
+
+    // Constructors
     public MoodEventFilter(CollectionReference collectionReference) {
         this.collectionReference = collectionReference;
     }
 
-    /**
-     * Constructor accepting a MoodEventProvider.
-     * Uses the provider's underlying collection reference.
-     *
-     * @param provider The MoodEventProvider instance to get the collection reference.
-     */
     public MoodEventFilter(MoodEventProvider provider) {
-        this.collectionReference = provider.getCollectionReference();
+        this(provider.getCollectionReference());
     }
 
-    /**
-     * Add an emotion.
-     *
-     * @param emotion The emotion to filter by.
-     * @return Current instance.
-     */
-    public MoodEventFilter addEmotions(Emotion emotion) {
-        this.emotions.add(emotion);
-        return this;
+    // Helper method to check if a string is valid (non-null and non-blank)
+    private static boolean isValidString(String s) {
+        return s != null && !s.isBlank();
     }
 
-    /**
-     * Add multiple emotions.
-     *
-     * @param emotions The set of emotions to filter by.
-     * @return Current instance.
-     */
-    public MoodEventFilter addEmotions(Set<Emotion> emotions) {
-        this.emotions.addAll(emotions);
-        return this;
-    }
-
-    /**
-     * Sets the emotions filter, replacing any previously set emotions.
-     *
-     * @param emotions The new set of emotions.
-     * @return The current instance of MoodEventFilter.
-     */
-    public MoodEventFilter setEmotions(Set<Emotion> emotions) {
-        this.emotions.clear();
-        this.emotions.addAll(emotions);
-        return this;
-    }
-
-    /**
-     * Sets a location filter for mood events.
-     *
-     * @param latitude  The latitude coordinate.
-     * @param longitude The longitude coordinate.
-     * @param radius    The radius in kilometers.
-     * @return The current instance of MoodEventFilter.
-     */
-    public MoodEventFilter setLocation(Double latitude, Double longitude, double radius) {
-        if (latitude == null || longitude == null || radius <= 0) {
-            // Clear location filter if parameters are invalid
-            this.latitude = null;
-            this.longitude = null;
-            this.radius = null;
-        } else {
-            this.latitude = latitude;
-            this.longitude = longitude;
-            this.radius = radius;
+    // Emotion filters
+    public MoodEventFilter addEmotion(Emotion emotion) {
+        if (emotion != null) {
+            criteria.emotions.add(emotion);
         }
         return this;
     }
 
-    /**
-     * Sets the date range filter by providing both the start and end dates.
-     *
-     * @param startDate The lower bound (inclusive) for the "created" date (make null to ignore).
-     * @param endDate   The upper bound (inclusive) for the "created" date (make null to ignore).
-     *
-     * @return Current instance.
-     */
+    public MoodEventFilter addEmotions(Set<Emotion> emotions) {
+        if (emotions != null) {
+            criteria.emotions.addAll(emotions);
+        }
+        return this;
+    }
+
+    public MoodEventFilter setEmotions(Set<Emotion> emotions) {
+        criteria.emotions.clear();
+        if (emotions != null) {
+            criteria.emotions.addAll(emotions);
+        }
+        return this;
+    }
+
+    // Location filter
+    public MoodEventFilter setLocation(Double latitude, Double longitude, double radius) {
+        if (latitude == null || longitude == null || radius <= 0) {
+            criteria.location = null;
+        } else {
+            LocationFilter loc = new LocationFilter();
+            loc.latitude = latitude;
+            loc.longitude = longitude;
+            loc.radius = radius;
+            criteria.location = loc;
+        }
+        return this;
+    }
+
+    // Date range filter
     public MoodEventFilter setDateRange(@Nullable Date startDate, @Nullable Date endDate) {
         if (startDate != null && endDate != null && startDate.after(endDate)) {
             throw new IllegalArgumentException("Start date must not be after end date.");
         }
-
-        this.startDate = startDate;
-        this.endDate = endDate;
+        if (startDate == null && endDate == null) {
+            criteria.dateRange = null;
+        } else {
+            if (criteria.dateRange == null) {
+                criteria.dateRange = new DateRange();
+            }
+            criteria.dateRange.start = startDate;
+            criteria.dateRange.end = endDate;
+        }
         return this;
     }
 
-    /**
-     * Set a sort field.
-     *
-     * @param field     The document field to sort by (e.g., "created").
-     * @param direction Query.Direction.ASCENDING or Query.Direction.DESCENDING
-     *
-     * @return Current instance.
-     */
+    // Sorting
     public MoodEventFilter setSortField(String field, Query.Direction direction) {
-        if (field == null || field.isBlank()) {
+        if (!isValidString(field)) {
             throw new IllegalArgumentException("Sort field must be a non-empty string.");
         }
         if (direction == null) {
             throw new IllegalArgumentException("Sort direction must not be null.");
         }
-        this.sortField = field;
-        this.sortDirection = direction;
+        if (criteria.sorting == null) {
+            criteria.sorting = new Sorting();
+        }
+        criteria.sorting.field = field;
+        criteria.sorting.direction = direction;
         return this;
     }
 
-    /**
-     * Set a user to filter by (replacing any previous user filters).
-     *
-     * @param userId The user you want to filter by.
-     *
-     * @return Current instance.
-     */
+    // User filters
     public MoodEventFilter setUsers(String userId) {
-        this.userIds.clear();
-        if (userId != null && !userId.isBlank()) {
-            this.userIds.add(userId);
+        criteria.userIds.clear();
+        if (isValidString(userId)) {
+            criteria.userIds.add(userId);
         }
         return this;
     }
 
-    /**
-     * Add a single user to filter by.
-     *
-     * @param userId The user ID to add.
-     *
-     * @return Current instance.
-     */
-    public MoodEventFilter addUsers(String userId) {
-        if (userId != null && !userId.isBlank()) {
-            this.userIds.add(userId);
+    public MoodEventFilter addUser(String userId) {
+        if (isValidString(userId)) {
+            criteria.userIds.add(userId);
         }
         return this;
     }
 
-    /**
-     * Add multiple users to filter by.
-     *
-     * @param userIds The set of user IDs to add.
-     *
-     * @return Current instance.
-     */
     public MoodEventFilter addUsers(Set<String> userIds) {
-        for (String uid : userIds) {
-            if (uid != null && !uid.isBlank()) {
-                this.userIds.add(uid);
+        if (userIds != null) {
+            for (String userId : userIds) {
+                if (isValidString(userId)) {
+                    criteria.userIds.add(userId);
+                }
             }
         }
         return this;
     }
 
-    /**
-     * Sets the users filter, replacing any previously set user filters.
-     *
-     * @param userIds The new set of user IDs.
-     *
-     * @return Current instance.
-     */
     public MoodEventFilter setUsers(Set<String> userIds) {
-        this.userIds.clear();
-        for (String uid : userIds) {
-            if (uid != null && !uid.isBlank()) {
-                this.userIds.add(uid);
+        criteria.userIds.clear();
+        if (userIds != null) {
+            for (String userId : userIds) {
+                if (isValidString(userId)) {
+                    criteria.userIds.add(userId);
+                }
             }
         }
         return this;
     }
 
-    /**
-     * Add a limiter on the query
-     * @param limit The amount to limit the results by.
-     * @return Current Instance
-     */
+    // Limit filter
     public MoodEventFilter setLimit(int limit) {
-        this.limit = limit;
+        criteria.limit = limit;
         return this;
     }
 
-    /**
-     * Add a single social instance to filter by
-     *
-     * @param socialSituation The single instance to add
-     * @return The current instance.
-     * */
-    public MoodEventFilter setSocialSituations(String socialSituation) {
-        this.socialSituations.add(socialSituation);
+    // Social situation filters
+    public MoodEventFilter addSocialSituation(String socialSituation) {
+        if (isValidString(socialSituation)) {
+            criteria.socialSituations.add(socialSituation);
+        }
         return this;
     }
 
-    /**
-     * Add a single social instance to filter by
-     *
-     * @param socialSituation The single instance to add
-     * @return The current instance.
-     * */
-    public MoodEventFilter setSocialSituations(Set<String> socialSituation) {
-        this.socialSituations.addAll(socialSituation);
+    public MoodEventFilter addSocialSituations(Set<String> socialSituations) {
+        if (socialSituations != null) {
+            criteria.socialSituations.addAll(socialSituations);
+        }
         return this;
     }
 
-    /**
-     * A custom query setter
-     *
-     * @param customQuery The custom query to add
-     * @return The current instance.
-     */
-    public MoodEventFilter setCustomQuery(Query customQuery) {
-        this.customQuery = customQuery;
+    public MoodEventFilter setSocialSituations(Set<String> socialSituations) {
+        criteria.socialSituations.clear();
+        if (socialSituations != null) {
+            criteria.socialSituations.addAll(socialSituations);
+        }
+        return this;
+    }
+
+    public MoodEventFilter setReasonQuery(String query) {
+        reasonQuery = isValidString(query) ? query.trim().toLowerCase() : null;
         return this;
     }
 
     // Getters
     public Set<Emotion> getEmotions() {
-        return this.emotions;
+        return new HashSet<>(criteria.emotions);
     }
 
     public Date getStartDate() {
-        return startDate;
+        return criteria.dateRange != null ? criteria.dateRange.start : null;
     }
 
     public Date getEndDate() {
-        return endDate;
+        return criteria.dateRange != null ? criteria.dateRange.end : null;
+    }
+
+    public String getReasonQuery() {
+        return reasonQuery;
     }
 
     /**
-     * Counts the number of filters applied.
-     *
+     * Counts the number of applied filters.
      * @return The number of active filters.
      */
     public int count() {
-        int c = 0;
-        if (!userIds.isEmpty()) c++;
-        if (!emotions.isEmpty()) c++;
-        if (startDate != null || endDate != null) c++;
-        if (sortField != null) c++;
-        if (longitude != null || latitude != null || radius != null) c++;
-        if (limit != null) c++;
-        if (!socialSituations.isEmpty()) c++;
-        if (customQuery != null) c++;
-        return c;
+        int count = 0;
+        if (!criteria.emotions.isEmpty()) count++;
+        if (criteria.dateRange != null && (criteria.dateRange.start != null || criteria.dateRange.end != null)) count++;
+        if (criteria.sorting != null) count++;
+        if (criteria.location != null) count++;
+        if (!criteria.socialSituations.isEmpty()) count++;
+        if (!criteria.userIds.isEmpty()) count++;
+        if (criteria.limit != null) count++;
+        if (reasonQuery != null) count++;
+        return count;
     }
 
     /**
      * Clears all applied filters.
      */
     public void clearFilters() {
-        userIds.clear();
-        emotions.clear();
-        startDate = null;
-        endDate = null;
-        sortField = null;
-        sortDirection = null;
-        latitude = null;
-        longitude = null;
-        radius = null;
-        limit = null;
-        socialSituations.clear();
-        customQuery = null;
+        criteria.userIds.clear();
+        criteria.emotions.clear();
+        criteria.socialSituations.clear();
+        criteria.dateRange = null;
+        criteria.sorting = null;
+        criteria.location = null;
+        criteria.limit = null;
+        reasonQuery = null;
     }
 
     /**
      * Returns a summary of the currently applied filters.
-     *
      * @return A summary string.
      */
     public String getSummary() {
         StringBuilder sb = new StringBuilder();
-        if (userIds.isEmpty()) {
-            sb.append("User: ").append(userIds).append("\n");
+        if (!criteria.userIds.isEmpty()) {
+            sb.append("User IDs: ").append(criteria.userIds).append("\n");
         }
-        if (!emotions.isEmpty()) {
-            sb.append("Emotions: ").append(emotions.toString()).append("\n");
+        if (!criteria.emotions.isEmpty()) {
+            sb.append("Emotions: ").append(criteria.emotions).append("\n");
         }
-        if (startDate != null) {
-            sb.append("Start Date: ").append(startDate).append("\n");
+        if (criteria.dateRange != null) {
+            if (criteria.dateRange.start != null) {
+                sb.append("Start Date: ").append(criteria.dateRange.start).append("\n");
+            }
+            if (criteria.dateRange.end != null) {
+                sb.append("End Date: ").append(criteria.dateRange.end).append("\n");
+            }
         }
-        if (endDate != null) {
-            sb.append("End Date: ").append(endDate).append("\n");
+        if (criteria.sorting != null) {
+            sb.append("Sort: ").append(criteria.sorting.field)
+                    .append(" (").append(criteria.sorting.direction).append(")\n");
         }
-        if (sortField != null) {
-            sb.append("Sort: ").append(sortField).append(" (").append(sortDirection).append(")\n");
+        if (criteria.location != null) {
+            sb.append("Location: (").append(criteria.location.latitude).append(", ")
+                    .append(criteria.location.longitude).append(") within ")
+                    .append(criteria.location.radius).append(" km\n");
         }
-        if (!socialSituations.isEmpty()) {
-            sb.append("Social Situations: ").append(socialSituations.toString()).append("\n");
+        if (!criteria.socialSituations.isEmpty()) {
+            sb.append("Social Situations: ").append(criteria.socialSituations).append("\n");
         }
-        if (customQuery != null) {
-            sb.append("Custom Query: ").append(customQuery.toString()).append("\n");
+        if (criteria.limit != null) {
+            sb.append("Limit: ").append(criteria.limit).append("\n");
         }
-        if (limit != null) {
-            sb.append("Limit: ").append(limit).append("\n");
+        if (reasonQuery != null) {
+            sb.append("Reason Query: ").append(reasonQuery).append("\n");
         }
         if (sb.length() == 0) {
             sb.append("No filters applied.");
@@ -334,133 +295,82 @@ public class MoodEventFilter {
     }
 
     /**
-     * Builds a Firestore Query using the applied filters and sort orders.
-     * This query can then be used by a provider (calling .get() or adding a snapshot listener).
-     *
-     * @return A query with applied filtering and sorting.
+     * Builds a Firestore Query using the applied filters.
+     * @return A Query with filtering and sorting applied.
      */
     public Query buildQuery() {
-        if (customQuery != null) {
-            return customQuery;
-        }
-
         Query query = collectionReference;
 
-        if (!userIds.isEmpty()) {
-            if (userIds.size() == 1) {
-                query = query.whereEqualTo("uid", userIds.iterator().next());
+        if (!criteria.userIds.isEmpty()) {
+            if (criteria.userIds.size() == 1) {
+                query = query.whereEqualTo("uid", criteria.userIds.iterator().next());
             } else {
-                query = query.whereIn("uid", new ArrayList<>(userIds));
+                query = query.whereIn("uid", new ArrayList<>(criteria.userIds));
             }
         }
 
-        if (!emotions.isEmpty()) {
-            query = query.whereIn("emotion", new ArrayList<>(emotions));
+        if (!criteria.emotions.isEmpty()) {
+            query = query.whereIn("emotion", new ArrayList<>(criteria.emotions));
         }
 
-        if (startDate != null) {
-            query = query.whereGreaterThanOrEqualTo("created", startDate);
+        if (criteria.dateRange != null) {
+            if (criteria.dateRange.start != null) {
+                query = query.whereGreaterThanOrEqualTo("created", criteria.dateRange.start);
+            }
+            if (criteria.dateRange.end != null) {
+                query = query.whereLessThanOrEqualTo("created", criteria.dateRange.end);
+            }
         }
 
-        if (endDate != null) {
-            query = query.whereLessThanOrEqualTo("created", endDate);
+        if (criteria.sorting != null) {
+            query = query.orderBy(criteria.sorting.field, criteria.sorting.direction);
         }
 
-        if (sortField != null) {
-            query = query.orderBy(sortField, sortDirection);
-        }
+        if (criteria.location != null) {
+            double latDelta = Math.toDegrees(criteria.location.radius / EARTH_RADIUS_KM);
+            double lonDelta = Math.toDegrees(criteria.location.radius / (EARTH_RADIUS_KM *
+                    Math.cos(Math.toRadians(criteria.location.latitude))));
 
-        if (latitude != null && longitude != null && radius != null) {
-            // Taha used the following resources,
-            // https://en.wikipedia.org/wiki/Great-circle_distance
-            // https://www.movable-type.co.uk/scripts/latlong.html
+            double minLat = criteria.location.latitude - latDelta;
+            double maxLat = criteria.location.latitude + latDelta;
+            double minLon = criteria.location.longitude - lonDelta;
+            double maxLon = criteria.location.longitude + lonDelta;
 
-            double earthRadius = 6371.0;
-            double latDelta = Math.toDegrees(radius / earthRadius);
-            double lonDelta = Math.toDegrees(radius / (earthRadius * Math.cos(Math.toRadians(latitude))));
-
-            // Getting the max/mins
-            double minLat = latitude - latDelta;
-            double maxLat = latitude + latDelta;
-            double minLon = longitude - lonDelta;
-            double maxLon = longitude + lonDelta;
-
-            // Build Query
             query = query.whereGreaterThanOrEqualTo("latitude", minLat)
                     .whereLessThanOrEqualTo("latitude", maxLat)
                     .whereGreaterThanOrEqualTo("longitude", minLon)
                     .whereLessThanOrEqualTo("longitude", maxLon);
         }
 
-        if (!socialSituations.isEmpty()) {
-            query = query.whereIn("socialSituation", new ArrayList<>(socialSituations));
+        if (!criteria.socialSituations.isEmpty()) {
+            query = query.whereIn("socialSituation", new ArrayList<>(criteria.socialSituations));
         }
 
-        if (limit != null) {
-            query = query.limit(limit);
+        if (criteria.limit != null) {
+            query = query.limit(criteria.limit);
         }
 
         return query;
     }
 
+    // ------------------------------------- Filtering Lists ----
     /**
-     * Merges multiple MoodEventFilters into one.
-     * For set fields (emotions, socialSituations) the values are unioned.
-     * For scalar fields, the first non-null value is taken (if conflicting, behavior is undefined).
+     * Filters a list of mood events.
      *
-     * @param filters An array of MoodEventFilter instances to merge.
-     * @return A new MoodEventFilter representing the merged criteria.
+     * @param events The events to filter.
+     * @return A filtered List containing only those with the correct filters.
      */
-    public static MoodEventFilter mergeFilters(MoodEventFilter... filters) {
-        if (filters == null || filters.length == 0) {
-            throw new IllegalArgumentException("At least one filter must be provided.");
+    public List<MoodEvent> applyReasonFilter(List<MoodEvent> events) {
+        if (reasonQuery == null || reasonQuery.isEmpty()) {
+            return events;
         }
-
-        MoodEventFilter merged = new MoodEventFilter(filters[0].collectionReference);
-
-        for (MoodEventFilter f : filters) {
-            merged.userIds.addAll(f.userIds);
-            merged.emotions.addAll(f.emotions);
-            merged.socialSituations.addAll(f.socialSituations);
-
-            if (f.startDate != null) {
-                if (merged.startDate == null || f.startDate.after(merged.startDate)) {
-                    merged.startDate = f.startDate;
-                }
-            }
-
-            if (f.endDate != null) {
-                if (merged.endDate == null || f.endDate.before(merged.endDate)) {
-                    merged.endDate = f.endDate;
-                }
-            }
-
-            if (f.sortField != null) {
-                if (merged.sortField == null) {
-                    merged.sortField = f.sortField;
-                    merged.sortDirection = f.sortDirection;
-                }
-            }
-
-            if (f.latitude != null && f.longitude != null && f.radius != null) {
-                if (merged.latitude == null) {
-                    merged.latitude = f.latitude;
-                    merged.longitude = f.longitude;
-                    merged.radius = f.radius;
-                } else if (f.radius < merged.radius) {
-                    merged.latitude = f.latitude;
-                    merged.longitude = f.longitude;
-                    merged.radius = f.radius;
-                }
-            }
-
-            if (f.limit != null) {
-                if (merged.limit == null || f.limit < merged.limit) {
-                    merged.limit = f.limit;
-                }
+        List<MoodEvent> filtered = new ArrayList<>();
+        for (MoodEvent event : events) {
+            String reason = event.getReason();
+            if (reason != null && reason.toLowerCase().contains(reasonQuery)) {
+                filtered.add(event);
             }
         }
-
-        return merged;
+        return filtered;
     }
 }

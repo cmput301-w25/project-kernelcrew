@@ -4,45 +4,45 @@ import android.annotation.SuppressLint;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.CheckBox;
-import android.widget.EditText;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentContainerView;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-
+import com.google.android.gms.tasks.Task;
+import com.google.android.gms.tasks.Tasks;
 import com.google.android.material.imageview.ShapeableImageView;
 import com.google.android.material.navigation.NavigationBarView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.Query;
+import com.google.firebase.firestore.QuerySnapshot;
 import com.kernelcrew.moodapp.R;
 import com.kernelcrew.moodapp.data.MoodEvent;
 import com.kernelcrew.moodapp.data.MoodEventFilter;
 import com.kernelcrew.moodapp.data.MoodEventProvider;
 import com.kernelcrew.moodapp.data.User;
+import com.kernelcrew.moodapp.data.UserProvider;
 import com.kernelcrew.moodapp.ui.components.DefaultFilterBarFragment;
 import com.kernelcrew.moodapp.ui.components.FilterBarFragment;
-
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
-public class HomeFeed extends DefaultFilterBarFragment implements FilterBarFragment.OnUserSearchListener {
+public class HomeFeed extends DefaultFilterBarFragment implements FilterBarFragment.OnUserSearchListener, FilterBarFragment.OnFilterChangedListener {
     private FirebaseAuth auth;
     private FirebaseUser user;
     private MoodEventProvider provider;
 
     private FilterBarFragment searchNFilterFragment;
-    private NavigationBarView navigationBar;
     private BottomNavBarController navBarController;
     private RecyclerView recyclerView;
     private MoodAdapter moodAdapter;
@@ -53,59 +53,35 @@ public class HomeFeed extends DefaultFilterBarFragment implements FilterBarFragm
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_home_feed, container, false);
-
         auth = FirebaseAuth.getInstance();
         user = auth.getCurrentUser();
         provider = MoodEventProvider.getInstance();
 
-        navigationBar = view.findViewById(R.id.bottom_navigation);
+        NavigationBarView navigationBar = view.findViewById(R.id.bottom_navigation);
         recyclerView = view.findViewById(R.id.moodRecyclerView);
-
         navBarController = new BottomNavBarController(navigationBar);
 
+        // Get our filter and search fragment
         searchNFilterFragment = (FilterBarFragment) getChildFragmentManager().findFragmentById(R.id.filterBarFragment);
         assert searchNFilterFragment != null;
         searchNFilterFragment.setAllowUserSearch(true);
 
-        // Setup RecyclerView
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         moodAdapter = new MoodAdapter();
         userAdapter = new UserAdapter();
-
         recyclerView.setAdapter(moodAdapter);
 
         if (auth.getCurrentUser() == null) {
-            Log.e("Home", "User not authenticated!");
+            Log.e("HomeFeed", "User not authenticated!");
         }
 
         searchNFilterFragment.setOnUserSearchListener(this);
-        searchNFilterFragment.setOnFilterChangedListener(filter -> {
-            MoodEventProvider.getInstance().getMoodEvents().addOnSuccessListener(querySnapshot -> {
-                if (querySnapshot == null) {
-                    Log.w("HomeFeed", "No snapshot data received.");
-                    return;
-                }
 
-                List<MoodEvent> allMoods = new ArrayList<>();
-                for (DocumentSnapshot doc : querySnapshot.getDocuments()) {
-                    MoodEvent mood = doc.toObject(MoodEvent.class);
-                    if (mood != null) {
-                        mood.setId(doc.getId());
-                        allMoods.add(mood);
-                    }
-                }
-
-                List<MoodEvent> filtered = searchNFilterFragment.applyLocalSearch(filter, allMoods);
-
-                recyclerView.setAdapter(moodAdapter);
-                moodAdapter.setMoods(filtered);
-            });
-        });
-
+        // When a mood is clicked, navigate to mood details.
         moodAdapter.setOnMoodClickListener(mood -> {
             Bundle args = new Bundle();
             args.putString("moodEventId", mood.getId());
-            args.putString("sourceScreen", "home"); // or "filtered"
+            args.putString("sourceScreen", "home");
             NavController navController = Navigation.findNavController(requireActivity(), R.id.nav_host_fragment);
             navController.navigate(R.id.action_homeFeed_to_moodDetails, args);
         });
@@ -121,18 +97,56 @@ public class HomeFeed extends DefaultFilterBarFragment implements FilterBarFragm
 
     @Override
     public void onUserSearchResults(List<User> users) {
-        // Switch our RecyclerView to show user items instead of mood items
         recyclerView.setAdapter(userAdapter);
         userAdapter.setUsers(users);
-
-        // If you want to do other UI changes if empty, check users.isEmpty()
-        if (users.isEmpty()) {
-            Log.d("HomeFeed", "No user results found.");
-            // Possibly show a "No results" text, etc.
-        } else {
-            Log.d("HomeFeed", "Showing " + users.size() + " user results.");
-        }
+        Log.d("HomeFeed", users.isEmpty() ? "No user results found." : "Showing " + users.size() + " user results.");
     }
+
+    @Override
+    public void onFilterChanged(MoodEventFilter filter) {
+        recyclerView.setAdapter(moodAdapter);
+        fetchMoodEvents(filter);
+    }
+
+    private void fetchMoodEvents(MoodEventFilter filter) {
+        UserProvider.getInstance().fetchFollowing(user.getUid())
+                .addOnSuccessListener(following -> {
+                    Set<String> followedIds = new HashSet<>();
+                    for (User followedUser : following) {
+                        followedIds.add(followedUser.getUid());
+                    }
+                    List<Task<QuerySnapshot>> tasks = new ArrayList<>();
+                    List<MoodEvent> combinedEvents = new ArrayList<>();
+
+                    for (String followedId : followedIds) {
+                        Task<QuerySnapshot> task = new MoodEventFilter(provider)
+                                .addUser(followedId)
+                                .setLimit(3)
+                                .buildQuery()
+                                .get();
+                        task.addOnSuccessListener(querySnapshot -> {
+                            for (DocumentSnapshot doc : querySnapshot.getDocuments()) {
+                                MoodEvent mood = doc.toObject(MoodEvent.class);
+                                if (mood != null) {
+                                    mood.setId(doc.getId());
+                                    combinedEvents.add(mood);
+                                }
+                            }
+                        });
+                        tasks.add(task);
+                    }
+
+                    Tasks.whenAllSuccess(tasks)
+                            .addOnSuccessListener(results -> {
+                                combinedEvents.sort((m1, m2) -> m2.getCreated().compareTo(m1.getCreated()));
+                                List<MoodEvent> finalList = searchNFilterFragment.applyLocalSearch(combinedEvents);
+                                moodAdapter.setMoods(finalList);
+                            })
+                            .addOnFailureListener(e -> Log.e("HomeFeed", "Error fetching mood events for followers", e));
+                })
+                .addOnFailureListener(e -> Log.e("HomeFeed", "Failed to fetch following users", e));
+    }
+
 
     private static class UserAdapter extends RecyclerView.Adapter<UserAdapter.UserViewHolder> {
         private final List<User> userList = new ArrayList<>();
@@ -166,13 +180,26 @@ public class HomeFeed extends DefaultFilterBarFragment implements FilterBarFragm
         class UserViewHolder extends RecyclerView.ViewHolder {
             private final ShapeableImageView avatar;
             private final TextView usernameTextView;
-            private final CheckBox followCheckBox;
+            private final android.widget.CheckBox followCheckBox;
 
             public UserViewHolder(@NonNull View itemView) {
                 super(itemView);
                 avatar = itemView.findViewById(R.id.avatarImageView);
                 usernameTextView = itemView.findViewById(R.id.usernameTextView);
                 followCheckBox = itemView.findViewById(R.id.followCheckBox);
+
+                // Set a click listener for the entire item view.
+                itemView.setOnClickListener(v -> {
+                    int position = getAdapterPosition();
+                    if (position != RecyclerView.NO_POSITION) {
+                        User clickedUser = userList.get(position);
+                        Bundle args = new Bundle();
+                        args.putString("uid", clickedUser.getUid());
+                        // Navigate to OtherUserProfile.
+                        // TODO, Implement...
+                        Navigation.findNavController(v).navigate( args);
+                    }
+                });
             }
 
             public void bind(User user) {

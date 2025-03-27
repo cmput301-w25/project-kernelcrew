@@ -54,7 +54,7 @@ public class MoodEventFilterTest {
         Date endDate = new Date(2000L);
 
         MoodEventFilter filter = new MoodEventFilter(mockCollectionReference)
-                .addEmotions(Emotion.ANGER)
+                .addEmotion(Emotion.ANGER)
                 .setDateRange(startDate, endDate)
                 .setSortField("created", Query.Direction.ASCENDING)
                 .setUsers("user123");
@@ -84,7 +84,7 @@ public class MoodEventFilterTest {
     @Test
     public void testBuildQueryWithOnlyEmotion() {
         MoodEventFilter filter = new MoodEventFilter(mockCollectionReference)
-                .addEmotions(Emotion.HAPPINESS);
+                .addEmotion(Emotion.HAPPINESS);
         Query builtQuery = filter.buildQuery();
 
         verify(mockCollectionReference).whereIn(eq("emotion"), anyList());
@@ -94,9 +94,9 @@ public class MoodEventFilterTest {
     @Test
     public void testBuildQueryWithMultipleEmotions() {
         MoodEventFilter filter = new MoodEventFilter(mockCollectionReference)
-                .addEmotions(Emotion.SADNESS)
-                .addEmotions(Emotion.HAPPINESS)
-                .addEmotions(Emotion.ANGER);
+                .addEmotion(Emotion.SADNESS)
+                .addEmotion(Emotion.HAPPINESS)
+                .addEmotion(Emotion.ANGER);
         Query builtQuery = filter.buildQuery();
 
         verify(mockCollectionReference).whereIn(eq("emotion"), anyList());
@@ -106,10 +106,10 @@ public class MoodEventFilterTest {
     @Test
     public void testBuildQueryWithDuplicateEmotions() {
         MoodEventFilter filter = new MoodEventFilter(mockCollectionReference)
-                .addEmotions(Emotion.SADNESS)
-                .addEmotions(Emotion.SADNESS)
-                .addEmotions(Emotion.HAPPINESS)
-                .addEmotions(Emotion.HAPPINESS);
+                .addEmotion(Emotion.SADNESS)
+                .addEmotion(Emotion.SADNESS)
+                .addEmotion(Emotion.HAPPINESS)
+                .addEmotion(Emotion.HAPPINESS);
         Query builtQuery = filter.buildQuery();
 
         verify(mockCollectionReference).whereIn(eq("emotion"),
@@ -209,11 +209,11 @@ public class MoodEventFilterTest {
     @Test
     public void testMultipleCallsToAddEmotion() {
         MoodEventFilter filter = new MoodEventFilter(mockCollectionReference)
-                .addEmotions(Emotion.ANGER)
-                .addEmotions(Emotion.HAPPINESS)
-                .addEmotions(Emotion.SADNESS)
-                .addEmotions(Emotion.ANGER)
-                .addEmotions(Emotion.HAPPINESS);
+                .addEmotion(Emotion.ANGER)
+                .addEmotion(Emotion.HAPPINESS)
+                .addEmotion(Emotion.SADNESS)
+                .addEmotion(Emotion.ANGER)
+                .addEmotion(Emotion.HAPPINESS);
         Query builtQuery = filter.buildQuery();
 
         verify(mockCollectionReference).whereIn(eq("emotion"), org.mockito.ArgumentMatchers.argThat(list ->
@@ -277,21 +277,14 @@ public class MoodEventFilterTest {
         emotionsList.add(Emotion.ANGER);
 
         MoodEventFilter filter = new MoodEventFilter(mockCollectionReference)
-                .addEmotions(Emotion.SADNESS)
+                .addEmotion(Emotion.SADNESS)
                 .addEmotions(emotionsList)
-                .addEmotions(Emotion.HAPPINESS);
+                .addEmotion(Emotion.HAPPINESS);
         Query builtQuery = filter.buildQuery();
 
         verify(mockCollectionReference).whereIn(eq("emotion"), org.mockito.ArgumentMatchers.argThat(list ->
                 list instanceof List && ((List<?>) list).size() == 3
         ));
         assertEquals(mockQuery, builtQuery);
-    }
-
-    @Test
-    public void testMergeFiltersThrowsExceptionOnEmptyArray() {
-        assertThrows("Expected exception when merging no filters",
-                IllegalArgumentException.class,
-                MoodEventFilter::mergeFilters);
     }
 }
