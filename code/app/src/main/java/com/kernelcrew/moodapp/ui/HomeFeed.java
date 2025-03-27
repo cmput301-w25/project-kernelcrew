@@ -98,13 +98,27 @@ public class HomeFeed extends Fragment {
             });
         }
 
-        moodAdapter.setOnMoodClickListener(mood -> {
-            Bundle args = new Bundle();
-            args.putString("moodEventId", mood.getId());
-            args.putString("sourceScreen", "home"); // or "filtered"
-            NavController navController = Navigation.findNavController(requireActivity(), R.id.nav_host_fragment);
-            navController.navigate(R.id.action_homeFeed_to_moodDetails, args);
+        moodAdapter.setOnMoodClickListener(new MoodAdapter.OnMoodClickListener() {
+            @Override
+            public void onViewDetails(MoodEvent mood) {
+                Bundle args = new Bundle();
+                args.putString("moodEventId", mood.getId());
+                args.putString("sourceScreen", "home"); // or "filtered"
+                NavController navController = Navigation.findNavController(requireActivity(), R.id.nav_host_fragment);
+                navController.navigate(R.id.action_homeFeed_to_moodDetails, args);
+            }
+
+            @Override
+            public void onViewComments(MoodEvent mood) {
+                Bundle args = new Bundle();
+                args.putString("moodEventId", mood.getId());
+                args.putString("sourceScreen", "home");
+                NavController navController = Navigation.findNavController(requireActivity(), R.id.nav_host_fragment);
+                navController.navigate(R.id.action_homeFeed_to_moodComments, args);
+            }
+
         });
+
 
 
         return view;
