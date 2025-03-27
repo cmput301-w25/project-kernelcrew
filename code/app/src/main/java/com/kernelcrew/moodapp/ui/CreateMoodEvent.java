@@ -38,7 +38,7 @@ public class CreateMoodEvent extends Fragment {
                 .addOnSuccessListener(aVoid -> {
                     Bundle args = new Bundle();
                     args.putString("sourceScreen", "createScreen");
-                    Navigation.findNavController(requireActivity(), R.id.nav_host_fragment).popBackStack();
+                    Navigation.findNavController(requireActivity(), R.id.nav_host_fragment).navigate(R.id.homeFeed);
                 })
                 .addOnFailureListener(e -> {
                     Toast.makeText(getContext(), e.getMessage(), Toast.LENGTH_LONG).show();

@@ -97,6 +97,9 @@ public class AuthSignUp extends Fragment {
         if (details.userName.isBlank()) {
             usernameLayout.setError("Please enter a username.");
             hasError = true;
+        } else if (details.userName.contains(" ")) {
+            usernameLayout.setError("Spaces are not allowed in your username.");
+            hasError = true;
         }
 
         if (details.email.isBlank()) {

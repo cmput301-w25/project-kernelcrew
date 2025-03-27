@@ -58,9 +58,10 @@ public class MoodEvent implements Serializable {
         this.longitude = longitude;
     }
 
-    public MoodEvent(String uid, Emotion emotion, String socialSituation, String reason, Double lat, Double lon) {
+    public MoodEvent(String uid, String username, Emotion emotion, String socialSituation, String reason, Double lat, Double lon) {
         this.id = UUID.randomUUID().toString();
         this.uid = uid;
+        this.username = username;
         this.created = new Date();
         this.emotion = emotion;
         this.socialSituation = socialSituation;

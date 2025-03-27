@@ -20,8 +20,11 @@ import java.util.Locale;
 
 public class MoodAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
-    private List<MoodEvent> moods = new ArrayList<>();
+    // Define view types for non-empty and empty states.
+    private static final int VIEW_TYPE_EMPTY = 0;
+    private static final int VIEW_TYPE_ITEM = 1;
 
+    private List<MoodEvent> moods = new ArrayList<>();
     private OnMoodClickListener onMoodClickListener;
     private UserProvider userProvider;
 
@@ -29,7 +32,7 @@ public class MoodAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         this.userProvider = UserProvider.getInstance();
     }
 
-    // Callback interface to handle clicks on the "View Details" button
+    // Callback interface to handle clicks on the "View Details" button.
     public interface OnMoodClickListener {
         void onViewDetails(MoodEvent mood);
         void onViewComments(MoodEvent mood);
@@ -92,20 +95,15 @@ public class MoodAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         viewHolder.dayTimeTextView.setText(formattedTime);
 
         int iconRes = MoodIconUtil.getMoodIconResource(mood.getEmotion().toString());
-        holder.moodImageView.setImageResource(iconRes);
+        viewHolder.moodImageView.setImageResource(iconRes);
 
-        holder.usernameText.setText(mood.getUsername());
+        viewHolder.usernameText.setText(mood.getUsername());
 
         viewHolder.viewDetailsButton.setOnClickListener(v -> {
             if (onMoodClickListener != null) {
                 onMoodClickListener.onViewDetails(mood);
             }
         });
-    }
-
-    @Override
-    public int getItemCount() {
-        return moods.size();
     }
 
     public static class MoodViewHolder extends RecyclerView.ViewHolder {

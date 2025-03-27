@@ -31,6 +31,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:padding="5dp"
+        app:singleSelection="true"
         android:scrollbars="none">
 
         <LinearLayout
@@ -47,6 +48,22 @@
                 android:textSize="15sp" />
 
             <com.google.android.material.button.MaterialButton
+                android:id="@+id/searchReason"
+                style="?attr/materialButtonOutlinedStyle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="2dp"
+                android:minHeight="32dp"
+                android:minWidth="32dp"
+                android:paddingHorizontal="15dp"
+                android:paddingVertical="5dp"
+                android:gravity="center"
+                app:toggleCheckedStateOnClick="false"
+                android:text="Reason"
+                android:textSize="14sp"
+                android:checkable="true" />
+
+            <com.google.android.material.button.MaterialButton
                 android:id="@+id/searchUser"
                 style="?attr/materialButtonOutlinedStyle"
                 android:layout_width="wrap_content"
@@ -58,26 +75,9 @@
                 android:paddingVertical="5dp"
                 android:gravity="center"
                 android:text="Users"
+                app:toggleCheckedStateOnClick="false"
                 android:textSize="14sp"
-                android:checkable="true"
-                app:toggleCheckedStateOnClick="true" />
-
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/searchReason"
-                style="?attr/materialButtonOutlinedStyle"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_margin="2dp"
-                android:minHeight="32dp"
-                android:minWidth="32dp"
-                android:paddingHorizontal="15dp"
-                android:paddingVertical="5dp"
-                android:gravity="center"
-                android:text="Reason"
-                android:textSize="14sp"
-                android:checkable="true"
-                app:toggleCheckedStateOnClick="true" />
-
+                android:checkable="true" />
         </LinearLayout>
     </HorizontalScrollView>
 

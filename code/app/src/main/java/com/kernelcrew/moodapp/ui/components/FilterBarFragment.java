@@ -49,7 +49,7 @@ import java.util.Set;
 public abstract class FilterBarFragment extends Fragment {
     // ! Constants
     private boolean userSearchActive = false;
-    private boolean reasonSearchActive = true;
+    private boolean reasonSearchActive = false;
     private boolean allowUserSearch = false;
 
     // UI Elements
@@ -175,44 +175,33 @@ public abstract class FilterBarFragment extends Fragment {
 
         // Toggle for "Search User"
         searchUser.setOnClickListener(v -> {
-            userSearchActive = !userSearchActive;
-            searchUser.setChecked(userSearchActive);
-            filterSearchLayout.setError(null);
-            filterSearchLayout.setErrorEnabled(false);
-
-            if (userSearchActive) {
+            if (!userSearchActive) {
+                userSearchActive = true;
                 reasonSearchActive = false;
+                searchUser.setChecked(true);
                 searchReason.setChecked(false);
+                filterSearchLayout.setError(null);
+                filterSearchLayout.setErrorEnabled(false);
                 filterButtonsContainer.setVisibility(View.GONE);
                 filterButtonsContainer.setBackground(null);
-            } else {
-                reasonSearchActive = true;
-                searchReason.setChecked(true);
-                filterButtonsContainer.setVisibility(View.VISIBLE);
-                filterButtonsContainer.setBackgroundResource(R.drawable.black_border);
+                updateSearchLogic();
             }
-            updateSearchLogic();
         });
 
         // Toggle for "Search Reason"
+        searchReason.setChecked(true);
         searchReason.setOnClickListener(v -> {
-            reasonSearchActive = !reasonSearchActive;
-            searchReason.setChecked(reasonSearchActive);
-            filterSearchLayout.setError(null);
-            filterSearchLayout.setErrorEnabled(false);
-
-            if (reasonSearchActive) {
+            if (!reasonSearchActive) {
+                reasonSearchActive = true;
                 userSearchActive = false;
+                searchReason.setChecked(true);
                 searchUser.setChecked(false);
+                filterSearchLayout.setError(null);
+                filterSearchLayout.setErrorEnabled(false);
                 filterButtonsContainer.setVisibility(View.VISIBLE);
                 filterButtonsContainer.setBackgroundResource(R.drawable.black_border);
-            } else {
-                userSearchActive = true;
-                searchUser.setChecked(true);
-                filterButtonsContainer.setVisibility(View.GONE);
-                filterButtonsContainer.setBackground(null);
+                updateSearchLogic();
             }
-            updateSearchLogic();
         });
 
         // Filter count and edit popup menu

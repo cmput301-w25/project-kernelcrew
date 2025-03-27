@@ -10,9 +10,9 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.fragment.app.Fragment;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
+import androidx.navigation.fragment.NavHostFragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import com.google.android.gms.tasks.Task;
@@ -77,13 +77,25 @@ public class HomeFeed extends DefaultFilterBarFragment implements FilterBarFragm
 
         searchNFilterFragment.setOnUserSearchListener(this);
 
-        // When a mood is clicked, navigate to mood details.
-        moodAdapter.setOnMoodClickListener(mood -> {
-            Bundle args = new Bundle();
-            args.putString("moodEventId", mood.getId());
-            args.putString("sourceScreen", "home");
-            NavController navController = Navigation.findNavController(requireActivity(), R.id.nav_host_fragment);
-            navController.navigate(R.id.action_homeFeed_to_moodDetails, args);
+        moodAdapter.setOnMoodClickListener(new MoodAdapter.OnMoodClickListener() {
+            @Override
+            public void onViewDetails(MoodEvent mood) {
+                Bundle args = new Bundle();
+                args.putString("moodEventId", mood.getId());
+                args.putString("sourceScreen", "home"); // or "filtered"
+                NavController navController = Navigation.findNavController(requireActivity(), R.id.nav_host_fragment);
+                navController.navigate(R.id.action_homeFeed_to_moodDetails, args);
+            }
+
+            @Override
+            public void onViewComments(MoodEvent mood) {
+                Bundle args = new Bundle();
+                args.putString("moodEventId", mood.getId());
+                args.putString("sourceScreen", "home");
+                NavController navController = Navigation.findNavController(requireActivity(), R.id.nav_host_fragment);
+                navController.navigate(R.id.action_homeFeed_to_moodComments, args);
+            }
+
         });
 
         return view;
@@ -148,7 +160,7 @@ public class HomeFeed extends DefaultFilterBarFragment implements FilterBarFragm
     }
 
 
-    private static class UserAdapter extends RecyclerView.Adapter<UserAdapter.UserViewHolder> {
+    private class UserAdapter extends RecyclerView.Adapter<UserAdapter.UserViewHolder> {
         private final List<User> userList = new ArrayList<>();
 
         @SuppressLint("NotifyDataSetChanged")
@@ -193,13 +205,14 @@ public class HomeFeed extends DefaultFilterBarFragment implements FilterBarFragm
                     int position = getAdapterPosition();
                     if (position != RecyclerView.NO_POSITION) {
                         User clickedUser = userList.get(position);
+
                         Bundle args = new Bundle();
                         args.putString("uid", clickedUser.getUid());
-                        // Navigate to OtherUserProfile.
-                        // TODO, Implement...
-                        Navigation.findNavController(v).navigate( args);
+                        NavHostFragment.findNavController(requireParentFragment())
+                                .navigate(R.id.otherUserProfile, args);
                     }
                 });
+
             }
 
             public void bind(User user) {
