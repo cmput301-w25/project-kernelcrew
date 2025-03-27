@@ -117,15 +117,6 @@ public class FollowingFragment extends Fragment {
                     .addOnFailureListener(e -> holder.usernameTextView.setText(uid));
 
             holder.avatarImageView.setImageResource(R.drawable.ic_person);
-            holder.followCheckBox.setOnCheckedChangeListener((buttonView, isChecked) -> {
-                if (!isChecked) {
-                    String currentUid = FirebaseAuth.getInstance().getCurrentUser().getUid();
-                    FollowProvider.getInstance()
-                            .unfollow(currentUid, uid)
-                            .addOnSuccessListener(aVoid -> Navigation.findNavController(buttonView).popBackStack())
-                            .addOnFailureListener(e -> Log.e("FollowingFragment", "Unfollow failed", e));
-                }
-            });
 
 
             holder.itemView.setOnClickListener(v -> {
@@ -145,13 +136,11 @@ public class FollowingFragment extends Fragment {
         static class ViewHolder extends RecyclerView.ViewHolder {
             ShapeableImageView avatarImageView;
             TextView usernameTextView;
-            CheckBox followCheckBox;
 
             ViewHolder(@NonNull View itemView) {
                 super(itemView);
                 avatarImageView = itemView.findViewById(R.id.avatarImageView);
                 usernameTextView = itemView.findViewById(R.id.usernameTextView);
-                followCheckBox = itemView.findViewById(R.id.followCheckBox);
             }
         }
     }

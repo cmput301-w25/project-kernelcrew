@@ -132,13 +132,11 @@ public class FollowersFragment extends Fragment {
         static class ViewHolder extends RecyclerView.ViewHolder {
             ShapeableImageView avatarImageView;
             TextView usernameTextView;
-            CheckBox followCheckBox;
 
             ViewHolder(@NonNull View itemView) {
                 super(itemView);
                 avatarImageView = itemView.findViewById(R.id.avatarImageView);
                 usernameTextView = itemView.findViewById(R.id.usernameTextView);
-                followCheckBox = itemView.findViewById(R.id.followCheckBox);
             }
         }
     }
