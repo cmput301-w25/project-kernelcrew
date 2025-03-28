@@ -65,6 +65,7 @@ public class EditMoodEventTest extends FirebaseEmulatorMixin {
                         0,
                         MoodDetailsNavigationTest.clickChildViewWithId(R.id.viewDetailsButton)));
 
+        SystemClock.sleep(3000);
         onView(withId(R.id.btnEditMood)).perform(click());
         SystemClock.sleep(3000);
         onView(withId(R.id.toggle_shame)).perform(click());
