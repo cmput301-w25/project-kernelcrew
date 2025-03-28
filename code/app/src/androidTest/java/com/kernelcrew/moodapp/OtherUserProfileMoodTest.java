@@ -2,6 +2,8 @@ package com.kernelcrew.moodapp;
 
 import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.action.ViewActions.click;
+import static androidx.test.espresso.action.ViewActions.closeSoftKeyboard;
+import static androidx.test.espresso.action.ViewActions.replaceText;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
 import static androidx.test.espresso.contrib.RecyclerViewActions.actionOnItemAtPosition;
 import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
@@ -134,13 +136,18 @@ public class OtherUserProfileMoodTest extends FirebaseEmulatorMixin {
 //        FirebaseAuth.getInstance().useEmulator("10.0.2.2", 9099);
         // Sign in as USER1 (the viewer) for testing.
         FirebaseAuth auth = FirebaseAuth.getInstance();
-        Tasks.await(auth.signInWithEmailAndPassword(USER1_EMAIL, USER1_PASSWORD));
+        // Simulate navigating to the sign in screen and filling out the form.
+        onView(withText("Sign In")).perform(click());
+        onView(withId(R.id.emailSignIn)).perform(replaceText(USER1_EMAIL), closeSoftKeyboard());
+        onView(withId(R.id.passwordSignIn)).perform(replaceText(USER1_PASSWORD), closeSoftKeyboard());
+        onView(withId(R.id.signInButtonAuthToHome)).perform(click());
+        // Wait for HomeFeed to load.
+        SystemClock.sleep(2000);
     }
 
     @Test
     public void testOtherUserProfileDisplaysCorrectMoods() throws InterruptedException {
-        // Wait for HomeFeed to load (in production, replace sleeps with IdlingResources).
-        SystemClock.sleep(2000);
+        // At this point, the HomeFeed screen should be loaded.
         onView(withId(R.id.moodRecyclerView)).check(matches(isDisplayed()));
 
         // In HomeFeed, simulate clicking on a mood item created by USER2.
