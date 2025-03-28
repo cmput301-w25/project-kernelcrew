@@ -130,22 +130,46 @@ public class HomeFeed extends DefaultFilterBarFragment implements FilterBarFragm
                     List<Task<QuerySnapshot>> tasks = new ArrayList<>();
                     List<MoodEvent> combinedEvents = new ArrayList<>();
 
-                    for (String followedId : followedIds) {
-                        Task<QuerySnapshot> task = new MoodEventFilter(provider)
-                                .addUser(followedId)
-                                .setLimit(3)
+                    // Add user posts
+                    try {
+                        tasks.add(((MoodEventFilter) filter.clone())
+                                .setUsers(user.getUid())
                                 .buildQuery()
-                                .get();
-                        task.addOnSuccessListener(querySnapshot -> {
-                            for (DocumentSnapshot doc : querySnapshot.getDocuments()) {
-                                MoodEvent mood = doc.toObject(MoodEvent.class);
-                                if (mood != null) {
-                                    mood.setId(doc.getId());
-                                    combinedEvents.add(mood);
-                                }
-                            }
-                        });
-                        tasks.add(task);
+                                .get()
+                                .addOnSuccessListener(querySnapshot -> {
+                                    for (DocumentSnapshot doc : querySnapshot.getDocuments()) {
+                                        MoodEvent mood = doc.toObject(MoodEvent.class);
+                                        if (mood != null) {
+                                            mood.setId(doc.getId());
+                                            combinedEvents.add(mood);
+                                        }
+                                    }
+                                })
+                        );
+                    } catch (CloneNotSupportedException e) {
+                        throw new RuntimeException(e);
+                    }
+
+                    for (String followedId : followedIds) {
+                        try {
+                            tasks.add(((MoodEventFilter) filter.clone())
+                                    .setUsers(followedId)
+                                        .setLimit(3)
+                                        .buildQuery()
+                                        .get()
+                                        .addOnSuccessListener(querySnapshot -> {
+                                            for (DocumentSnapshot doc : querySnapshot.getDocuments()) {
+                                                MoodEvent mood = doc.toObject(MoodEvent.class);
+                                                if (mood != null) {
+                                                    mood.setId(doc.getId());
+                                                    combinedEvents.add(mood);
+                                                }
+                                            }
+                                        })
+                            );
+                        } catch (CloneNotSupportedException e) {
+                            throw new RuntimeException(e);
+                        }
                     }
 
                     Tasks.whenAllSuccess(tasks)

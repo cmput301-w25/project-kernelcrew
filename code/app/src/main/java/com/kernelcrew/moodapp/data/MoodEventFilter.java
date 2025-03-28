@@ -1,5 +1,6 @@
 package com.kernelcrew.moodapp.data;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.Query;
@@ -12,14 +13,14 @@ import java.util.Set;
 /**
  * A class for filtering mood events through Firestore. It is used to build queries based on various filters.
  */
-public class MoodEventFilter {
+public class MoodEventFilter implements Cloneable {
     private static final double EARTH_RADIUS_KM = 6371.0;
 
     private final CollectionReference collectionReference;
     private final FilterCriteria criteria = new FilterCriteria();
     private String reasonQuery;
 
-    private static class FilterCriteria {
+    private static class FilterCriteria implements Cloneable {
         Set<Emotion> emotions = new HashSet<>();
         Set<String> socialSituations = new HashSet<>();
         Set<String> userIds = new HashSet<>();
@@ -27,22 +28,87 @@ public class MoodEventFilter {
         Sorting sorting;
         LocationFilter location;
         Integer limit;
+
+        @NonNull
+        @Override
+        protected Object clone() throws CloneNotSupportedException {
+            FilterCriteria cloned = (FilterCriteria) super.clone();
+
+            cloned.emotions = new HashSet<>(this.emotions);
+            cloned.socialSituations = new HashSet<>(this.socialSituations);
+            cloned.userIds = new HashSet<>(this.userIds);
+
+            if (this.dateRange != null) {
+                cloned.dateRange = (DateRange) this.dateRange.clone();
+            }
+            if (this.sorting != null) {
+                cloned.sorting = (Sorting) this.sorting.clone();
+            }
+            if (this.location != null) {
+                cloned.location = (LocationFilter) this.location.clone();
+            }
+
+            return cloned;
+        }
     }
 
-    private static class DateRange {
+    private static class DateRange implements Cloneable {
         Date start;
         Date end;
+
+        @NonNull
+        @Override
+        protected Object clone() throws CloneNotSupportedException {
+            DateRange cloned = (DateRange) super.clone();
+
+            if (this.start != null) {
+                cloned.start = (Date) this.start.clone();
+            }
+            if (this.end != null) {
+                cloned.end = (Date) this.end.clone();
+            }
+
+            return cloned;
+        }
     }
 
-    private static class Sorting {
+    private static class Sorting implements Cloneable {
         String field;
         Query.Direction direction;
+
+        @NonNull
+        @Override
+        protected Object clone() throws CloneNotSupportedException {
+            return super.clone();
+        }
     }
 
-    private static class LocationFilter {
+    private static class LocationFilter implements Cloneable {
         Double latitude;
         Double longitude;
         Double radius;
+
+        @NonNull
+        @Override
+        protected Object clone() throws CloneNotSupportedException {
+            LocationFilter cloned = (LocationFilter) super.clone();
+
+            cloned.latitude = this.latitude;
+            cloned.longitude = this.longitude;
+            cloned.radius = this.radius;
+
+            return cloned;
+        }
+    }
+
+    @NonNull
+    @Override
+    public Object clone() throws CloneNotSupportedException {
+        MoodEventFilter cloned = (MoodEventFilter) super.clone();
+
+        cloned.criteria.clone();
+
+        return cloned;
     }
 
     // Constructors
@@ -349,6 +415,8 @@ public class MoodEventFilter {
         if (criteria.limit != null) {
             query = query.limit(criteria.limit);
         }
+
+        
 
         return query;
     }
