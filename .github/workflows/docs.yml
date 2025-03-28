@@ -19,10 +19,11 @@ jobs:
         with:
           java-version: '17'
 
-      - name: Inflate google-services.json
-        run: scripts/ci.sh inflate-ci-googleservices
+      - name: Inflate CI Secrets
+        run: scripts/ci.sh inflate-ci-secrets
         env:
           ACTIONS_GOOGLESERVICES: ${{ secrets.ACTIONS_GOOGLESERVICES }}
+          ACTIONS_MAPSAPIKEY: ${{ secrets.ACTIONS_MAPSAPIKEY }}
 
       - name: Generate JavaDocs
         run: scripts/ci.sh generate-javadocs
