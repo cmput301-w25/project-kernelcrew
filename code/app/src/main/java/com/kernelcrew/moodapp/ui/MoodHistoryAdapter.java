@@ -31,6 +31,7 @@ public class MoodHistoryAdapter extends RecyclerView.Adapter<MoodHistoryAdapter.
     /** List of mood events to display */
     private List<MoodEvent> moods;
 
+
     /** Date formatter for displaying the mood event creation date */
     private SimpleDateFormat dateFormat = new SimpleDateFormat("MMM d, yyyy", Locale.ENGLISH);
 
