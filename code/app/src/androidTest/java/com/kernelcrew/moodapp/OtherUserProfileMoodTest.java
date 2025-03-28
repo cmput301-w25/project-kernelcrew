@@ -60,16 +60,13 @@ public class OtherUserProfileMoodTest extends FirebaseEmulatorMixin {
             new ActivityScenarioRule<>(MainActivity.class);
 
     /**
-     * Seed the database with two user profiles and several mood events for USER2,
-     * using the local emulator.
+     * Seed the database with two user profiles and several mood events for USER2.
      */
     @BeforeClass
     public static void seedDatabase() throws ExecutionException, InterruptedException {
-        // Get Firestore and Auth instances and configure them to use the emulator.
+        // Get Firestore and Auth instances.
         FirebaseFirestore db = FirebaseFirestore.getInstance();
-        db.useEmulator("10.0.2.2", 8080); // Change host/port as needed.
         FirebaseAuth auth = FirebaseAuth.getInstance();
-        auth.useEmulator("10.0.2.2", 9099); // Change port if necessary.
 
         // Create or ensure USER1 exists.
         try {
@@ -98,7 +95,7 @@ public class OtherUserProfileMoodTest extends FirebaseEmulatorMixin {
         user2Data.put("email", USER2_EMAIL);
         user2Data.put("username", USER2_USERNAME);
         Tasks.await(db.collection("users").document(uid2).set(user2Data, SetOptions.merge()));
-        // Also seed a username mapping (if your app uses it)
+
         Map<String, Object> usernameData = new HashMap<>();
         usernameData.put("uid", uid2);
         try {
@@ -131,10 +128,6 @@ public class OtherUserProfileMoodTest extends FirebaseEmulatorMixin {
 
     @Before
     public void setupAuth() throws ExecutionException, InterruptedException {
-        // Configure the emulator before sign in.
-//        FirebaseFirestore.getInstance().useEmulator("10.0.2.2", 8080);
-//        FirebaseAuth.getInstance().useEmulator("10.0.2.2", 9099);
-        // Sign in as USER1 (the viewer) for testing.
         FirebaseAuth auth = FirebaseAuth.getInstance();
         // Simulate navigating to the sign in screen and filling out the form.
         onView(withText("Sign In")).perform(click());
@@ -147,11 +140,11 @@ public class OtherUserProfileMoodTest extends FirebaseEmulatorMixin {
 
     @Test
     public void testOtherUserProfileDisplaysCorrectMoods() throws InterruptedException {
-        // At this point, the HomeFeed screen should be loaded.
+        // Ensure HomeFeed's RecyclerView is displayed.
         onView(withId(R.id.moodRecyclerView)).check(matches(isDisplayed()));
 
         // In HomeFeed, simulate clicking on a mood item created by USER2.
-        // We assume the RecyclerView shows a mood event with a "View Details" button (id: viewDetailsButton).
+        // (Assumes the RecyclerView item has a "View Details" button with id viewDetailsButton.)
         onView(withId(R.id.moodRecyclerView))
                 .perform(actionOnItemAtPosition(0, clickChildViewWithId(R.id.viewDetailsButton)));
 
