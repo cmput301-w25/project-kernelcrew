@@ -386,41 +386,6 @@ public class LocationFragment extends Fragment {
         // TODO: Implement saving logic here
     }
 
-    /**
-     * Saves a mood event with location data.
-     * Called when location has been successfully retrieved.
-     *
-     * @param lat The latitude coordinate to save
-     * @param lon The longitude coordinate to save
-     */
-
-    /**
-     * Gets the latitude coordinate from the last successful location retrieval.
-     *
-     * @return The latitude value, or null if location has not been retrieved
-     */
-    public Double getLatitude() {
-        return latitude;
-    }
-
-    /**
-     * Gets the longitude coordinate from the last successful location retrieval.
-     *
-     * @return The longitude value, or null if location has not been retrieved
-     */
-    public Double getLongitude() {
-        return longitude;
-    }
-
-    /**
-     * Sets the location update listener.
-     *
-     * @param listener The location update listener to set
-     */
-    public void setLocationUpdateListener(LocationUpdateListener listener) {
-        this.updateListener = listener;
-    }
-
     public void setUpdateListener(MoodEventForm form) {
         this.updateListener = form;
     }
