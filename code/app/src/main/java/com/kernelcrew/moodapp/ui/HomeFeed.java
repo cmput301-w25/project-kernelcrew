@@ -101,7 +101,7 @@ public class HomeFeed extends Fragment {
                         }
                     });
 
-            // NEW: Listener for notifications (to catch "followAccepted" events)
+            // Listener for notifications (to catch "followAccepted" events)
             db.collection("users")
                     .document(myUid)
                     .collection("notifications")
@@ -159,7 +159,6 @@ public class HomeFeed extends Fragment {
 
         searchNFilterFragment = (FilterBarFragment) getChildFragmentManager().findFragmentById(R.id.filterBarFragment);
 
-        // Setup RecyclerView
         moodRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         moodAdapter = new MoodAdapter();
         moodRecyclerView.setAdapter(moodAdapter);
