@@ -196,9 +196,12 @@ public class MoodEventForm extends Fragment implements LocationUpdateListener {
         } else {
             // locationStatusTextView.setText("No location set");
         }
-        photo = details.photo;
-        photoButton.setImageBitmap(details.photo);
-        updateResetPhotoVisibility();
+
+        if (details.photo != null) {
+            photo = details.photo;
+            photoButton.setImageBitmap(details.photo);
+            updateResetPhotoVisibility();
+        }
 
         visibilityToggle.clearChecked();
         switch (details.visibility) {
