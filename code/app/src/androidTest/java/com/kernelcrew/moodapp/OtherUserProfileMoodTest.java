@@ -2,8 +2,6 @@ package com.kernelcrew.moodapp;
 
 import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.action.ViewActions.click;
-import static androidx.test.espresso.action.ViewActions.closeSoftKeyboard;
-import static androidx.test.espresso.action.ViewActions.replaceText;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
 import static androidx.test.espresso.contrib.RecyclerViewActions.actionOnItemAtPosition;
 import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
@@ -60,12 +58,16 @@ public class OtherUserProfileMoodTest extends FirebaseEmulatorMixin {
             new ActivityScenarioRule<>(MainActivity.class);
 
     /**
-     * Seed the database with two user profiles and several mood events for USER2.
+     * Seed the database with two user profiles and several mood events for USER2,
+     * using the local emulator.
      */
     @BeforeClass
     public static void seedDatabase() throws ExecutionException, InterruptedException {
+        // Get Firestore and Auth instances and configure them to use the emulator.
         FirebaseFirestore db = FirebaseFirestore.getInstance();
+        db.useEmulator("10.0.2.2", 8080); // Change host/port as needed.
         FirebaseAuth auth = FirebaseAuth.getInstance();
+        auth.useEmulator("10.0.2.2", 9099); // Change port if necessary.
 
         // Create or ensure USER1 exists.
         try {
@@ -87,6 +89,7 @@ public class OtherUserProfileMoodTest extends FirebaseEmulatorMixin {
         // Sign in as USER2 to seed USER2's data.
         Tasks.await(auth.signInWithEmailAndPassword(USER2_EMAIL, USER2_PASSWORD));
         String uid2 = auth.getCurrentUser().getUid();
+
         // Create a user document for USER2.
         Map<String, Object> user2Data = new HashMap<>();
         user2Data.put("uid", uid2);
@@ -96,7 +99,12 @@ public class OtherUserProfileMoodTest extends FirebaseEmulatorMixin {
         // Also seed a username mapping (if your app uses it)
         Map<String, Object> usernameData = new HashMap<>();
         usernameData.put("uid", uid2);
-        Tasks.await(db.collection("usernames").document(USER2_USERNAME).set(usernameData, SetOptions.merge()));
+        try {
+            Tasks.await(db.collection("usernames").document(USER2_USERNAME).set(usernameData, SetOptions.merge()));
+        } catch (Exception e) {
+            // Log and ignore emulator permission errors if any.
+            System.out.println("Emulator permission error on 'usernames' write: " + e.getMessage());
+        }
 
         // Seed several public MoodEvent documents for USER2.
         MoodEventProvider moodEventProvider = MoodEventProvider.getInstance();
@@ -111,7 +119,7 @@ public class OtherUserProfileMoodTest extends FirebaseEmulatorMixin {
                     34.052235 + i * 0.001,    // Slight variation in latitude
                     -118.243683 - i * 0.001    // Slight variation in longitude
             );
-            // Set visibility to PUBLIC in your MoodEvent object (if not set by default)
+            // Set visibility to PUBLIC using the enum.
             mood.setVisibility(MoodEventVisibility.PUBLIC);
             Tasks.await(moodEventProvider.insertMoodEvent(mood));
         }
@@ -121,42 +129,30 @@ public class OtherUserProfileMoodTest extends FirebaseEmulatorMixin {
 
     @Before
     public void setupAuth() throws ExecutionException, InterruptedException {
-        // Sign in as USER1 (the viewer) for testing
+        // Configure the emulator before sign in.
+//        FirebaseFirestore.getInstance().useEmulator("10.0.2.2", 8080);
+//        FirebaseAuth.getInstance().useEmulator("10.0.2.2", 9099);
+        // Sign in as USER1 (the viewer) for testing.
         FirebaseAuth auth = FirebaseAuth.getInstance();
         Tasks.await(auth.signInWithEmailAndPassword(USER1_EMAIL, USER1_PASSWORD));
     }
 
     @Test
     public void testOtherUserProfileDisplaysCorrectMoods() throws InterruptedException {
-        // Navigate from HomeFeed to OtherUserProfile of USER2.
-        // Assuming that in HomeFeed, mood items belonging to other users display a "View Details" button,
-        // and clicking on the username navigates to that user's profile.
-
-        // Wait for HomeFeed to load.
+        // Wait for HomeFeed to load (in production, replace sleeps with IdlingResources).
         SystemClock.sleep(2000);
-
-        onView(withText("Sign In")).perform(click());
-
-        onView(withId(R.id.emailSignIn)).perform(replaceText(USER1_EMAIL), closeSoftKeyboard());
-        onView(withId(R.id.passwordSignIn)).perform(replaceText(USER1_PASSWORD), closeSoftKeyboard());
-        onView(withId(R.id.signInButtonAuthToHome)).perform(click());
-
-        SystemClock.sleep(2000); // Or better, use Espresso's IdlingResource
         onView(withId(R.id.moodRecyclerView)).check(matches(isDisplayed()));
 
         // In HomeFeed, simulate clicking on a mood item created by USER2.
-        // For this test, we assume the RecyclerView is displaying a mood event from USER2.
-        // Here we click the first item in the RecyclerView.
+        // We assume the RecyclerView shows a mood event with a "View Details" button (id: viewDetailsButton).
         onView(withId(R.id.moodRecyclerView))
                 .perform(actionOnItemAtPosition(0, clickChildViewWithId(R.id.viewDetailsButton)));
 
         // Wait for MoodDetails to load.
         SystemClock.sleep(1500);
 
-        // In the MoodDetails screen, assume there is a "View Profile" button (or clickable username)
-        // that navigates to OtherUserProfile.
-        onView(withId(R.id.tvUsernameDisplay))
-                .perform(click());
+        // In the MoodDetails screen, click on the username TextView (id: tvUsernameDisplay) to navigate to OtherUserProfile.
+        onView(withId(R.id.tvUsernameDisplay)).perform(click());
 
         // Wait for OtherUserProfile screen to load.
         SystemClock.sleep(1500);
@@ -167,7 +163,7 @@ public class OtherUserProfileMoodTest extends FirebaseEmulatorMixin {
         onView(withId(R.id.email_text))
                 .check(matches(withText(USER2_EMAIL)));
 
-        // Now, check that the RecyclerView for public moods displays at least 2 items.
+        // Check that the RecyclerView for public moods displays at least 2 items.
         onView(withId(R.id.public_moods_recycler_view))
                 .check((view, noViewFoundException) -> {
                     assertNotNull("RecyclerView is null", view);
@@ -178,14 +174,14 @@ public class OtherUserProfileMoodTest extends FirebaseEmulatorMixin {
                     }
                 });
 
-        // Finally, verify that at least one of the mood items contains a text element indicating it belongs to USER2.
-        // Here we assume that each mood item layout contains a TextView with id "moodItemUsername" that shows the creator's username.
+        // Verify that the first two mood items display the USER2 username.
         onView(withId(R.id.public_moods_recycler_view))
                 .perform(actionOnItemAtPosition(0, checkItemHasDescendantWithText(USER2_USERNAME)));
         onView(withId(R.id.public_moods_recycler_view))
                 .perform(actionOnItemAtPosition(1, checkItemHasDescendantWithText(USER2_USERNAME)));
     }
-    // Updated custom ViewAction to check for a descendant with the expected text.
+
+    // Custom ViewAction to check that a RecyclerView item has a descendant with the expected text.
     public static ViewAction checkItemHasDescendantWithText(final String expectedText) {
         return new ViewAction() {
             @Override
@@ -200,13 +196,11 @@ public class OtherUserProfileMoodTest extends FirebaseEmulatorMixin {
 
             @Override
             public void perform(UiController uiController, View view) {
-                // Use a recursive method to search all descendants for a TextView with expectedText.
                 if (!hasDescendantWithText(view, expectedText)) {
                     throw new AssertionError("Expected descendant with text \"" + expectedText + "\" not found.");
                 }
             }
 
-            // Recursive helper method to check if any descendant contains the expected text.
             private boolean hasDescendantWithText(View view, String expectedText) {
                 if (view instanceof android.widget.TextView) {
                     CharSequence text = ((android.widget.TextView) view).getText();
@@ -239,7 +233,7 @@ public class OtherUserProfileMoodTest extends FirebaseEmulatorMixin {
                 return "Click on a child view with specified id.";
             }
             @Override
-            public void perform(androidx.test.espresso.UiController uiController, View view) {
+            public void perform(UiController uiController, View view) {
                 View childView = view.findViewById(id);
                 if (childView != null && childView.isClickable()) {
                     childView.performClick();
