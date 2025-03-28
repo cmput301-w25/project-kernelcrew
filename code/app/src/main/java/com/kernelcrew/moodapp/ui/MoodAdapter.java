@@ -104,6 +104,27 @@ public class MoodAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                 onMoodClickListener.onViewDetails(mood);
             }
         });
+
+        // Set click listener for the comment layout
+        holder.commentLayout.setOnClickListener(v -> {
+            if (onMoodClickListener != null) {
+                onMoodClickListener.onViewComments(mood);
+            }
+        });
+
+        switch (mood.getVisibility()) {
+            case PUBLIC:
+                holder.visibilityIcon.setImageResource(R.drawable.ic_public);
+                break;
+            case PRIVATE:
+                holder.visibilityIcon.setImageResource(R.drawable.ic_lock);
+                break;
+        }
+    }
+
+    @Override
+    public int getItemCount() {
+        return moods.size();
     }
 
     public static class MoodViewHolder extends RecyclerView.ViewHolder {
@@ -117,6 +138,8 @@ public class MoodAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         ImageView comments_bubble;
         View commentLayout;
 
+        ImageView visibilityIcon;
+
         public MoodViewHolder(@NonNull View itemView) {
             super(itemView);
             moodImageView = itemView.findViewById(R.id.moodImage);
@@ -127,6 +150,7 @@ public class MoodAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             purple_icon_arrow = itemView.findViewById(R.id.purpleIconArrow);
             comments_bubble = itemView.findViewById(R.id.comments_bubble);
             commentLayout = itemView.findViewById(R.id.commentLayout);
+            visibilityIcon = itemView.findViewById(R.id.visibility_icon);
         }
     }
 }

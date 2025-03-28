@@ -36,8 +36,8 @@ public class MoodDetails extends Fragment implements DeleteDialogFragment.Delete
     private Chip tvUsernameDisplay;
     private Button btnEditMood;
     private Button btnDeleteMood;
-
     private Button btnMoodComments;
+    private ImageView visibilityIcon;
 
     private FirebaseFirestore db;
     private MoodEventProvider provider;
@@ -84,6 +84,7 @@ public class MoodDetails extends Fragment implements DeleteDialogFragment.Delete
         btnEditMood = view.findViewById(R.id.btnEditMood);
         btnDeleteMood = view.findViewById(R.id.btnDeleteMood);
         btnMoodComments = view.findViewById(R.id.btnMoodComments);
+        visibilityIcon = view.findViewById(R.id.visibility_icon);
 
         toolbar.setNavigationOnClickListener(v -> handleBackButton());
 
@@ -145,6 +146,15 @@ public class MoodDetails extends Fragment implements DeleteDialogFragment.Delete
         Bitmap photo = moodEvent.getPhoto();
         if (photo != null) {
             ivMoodPhoto.setImageBitmap(photo);
+        }
+
+        switch (moodEvent.getVisibility()) {
+            case PUBLIC:
+                visibilityIcon.setImageResource(R.drawable.ic_public);
+                break;
+            case PRIVATE:
+                visibilityIcon.setImageResource(R.drawable.ic_lock);
+                break;
         }
 
         // Fetch username via UserProvider

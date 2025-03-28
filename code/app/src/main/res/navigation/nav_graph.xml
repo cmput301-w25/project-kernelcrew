@@ -107,7 +107,16 @@
         <action
             android:id="@+id/action_myProfile_to_moodHistoryPage"
             app:destination="@id/moodHistory" />
+        <action
+            android:id="@+id/action_myProfile_to_followRequestsFragment"
+            app:destination="@id/followRequestsFragment" />
     </fragment>
+
+    <fragment
+        android:id="@+id/followRequestsFragment"
+        android:name="com.kernelcrew.moodapp.ui.FollowRequestsFragment"
+        android:label="Follow Requests"
+        tools:layout="@layout/follow_request_page" />
 
     <fragment
         android:id="@+id/followersFragment"

@@ -1,7 +1,5 @@
 package com.kernelcrew.moodapp.data;
 
-import android.util.Log;
-
 import androidx.annotation.NonNull;
 
 import com.google.android.gms.tasks.Task;
@@ -9,11 +7,10 @@ import com.google.android.gms.tasks.Tasks;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.CollectionReference;
-import com.google.firebase.firestore.EventListener;
+import com.google.firebase.firestore.Filter;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.ListenerRegistration;
 import com.google.firebase.firestore.Query;
-import com.google.firebase.firestore.QuerySnapshot;
+import com.google.firebase.firestore.Query;
 
 public class MoodEventProvider {
     private final CollectionReference collection;
@@ -38,10 +35,6 @@ public class MoodEventProvider {
         }
 
         return instance;
-    }
-
-    public static void setInstance(MoodEventProvider mockMoodEventProvider) {
-
     }
 
     /**
@@ -106,29 +99,15 @@ public class MoodEventProvider {
     }
 
     /**
-     * Add a snapshot listener to the mood events collection
-     * @param listener Snapshot listener to add
-     */
-    public void addSnapshotListener(@NonNull EventListener<QuerySnapshot> listener) {
-        collection.addSnapshotListener(listener);
-    }
-
-    /**
-     * Get a collection of mood events from the DB.
-     * @return A collection of mood events
-     */
-    public Task<QuerySnapshot> getMoodEvents(){
-        return collection.get();
-    }
-
-    /**
-     * Returns the Firestore CollectionReference for filtering purposes.
-     * This reference can be then in filtering to build queries or perform Firestore operations,
-     * like adding snapshot listeners or inserting and updating documents.
+     * Returns all mood events which can then be further filtered.
      *
-     * @return the CollectionReference instance for the mood events.
+     * @return All (visible) mood events.
      */
-    public CollectionReference getCollectionReference() {
-        return collection;
+    public Query getAll() {
+        FirebaseUser user = auth.getCurrentUser();
+        return collection.where(Filter.or(
+                Filter.and(Filter.equalTo("uid", user.getUid()),
+                           Filter.equalTo("visibility", "PRIVATE")),
+                Filter.equalTo("visibility", "PUBLIC")));
     }
 }

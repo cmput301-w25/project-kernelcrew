@@ -11,11 +11,13 @@ import java.util.List;
 import java.util.Set;
 
 /**
- * A class for filtering mood events through Firestore. It is used to build queries based on various filters.
+ * A class for filtering mood events through Firestore. It is used to build
+ * queries based on various filters.
  */
 public class MoodEventFilter implements Cloneable {
     private static final double EARTH_RADIUS_KM = 6371.0;
 
+    private final Query allMoodEvents;
     private final CollectionReference collectionReference;
     private final FilterCriteria criteria = new FilterCriteria();
     private String reasonQuery;
@@ -23,7 +25,7 @@ public class MoodEventFilter implements Cloneable {
     private static class FilterCriteria implements Cloneable {
         Set<Emotion> emotions = new HashSet<>();
         Set<String> socialSituations = new HashSet<>();
-        Set<String> userIds = new HashSet<>();
+        String userId;
         DateRange dateRange;
         Sorting sorting;
         LocationFilter location;
@@ -112,12 +114,22 @@ public class MoodEventFilter implements Cloneable {
     }
 
     // Constructors
+    /**
+     * Constructor accepting a CollectionReference directly.
+     * This is useful if you have the Firestore collection from your provider.
+     *
+     * @param allMoodEvents All mood events query
+     */
+    public MoodEventFilter(Query allMoodEvents) {
+        this.allMoodEvents = allMoodEvents;
+    }
+
     public MoodEventFilter(CollectionReference collectionReference) {
         this.collectionReference = collectionReference;
     }
 
     public MoodEventFilter(MoodEventProvider provider) {
-        this(provider.getCollectionReference());
+        this.allMoodEvents = provider.getAll();
     }
 
     // Helper method to check if a string is valid (non-null and non-blank)
@@ -127,24 +139,18 @@ public class MoodEventFilter implements Cloneable {
 
     // Emotion filters
     public MoodEventFilter addEmotion(Emotion emotion) {
-        if (emotion != null) {
-            criteria.emotions.add(emotion);
-        }
+        criteria.emotions.add(emotion);
         return this;
     }
 
     public MoodEventFilter addEmotions(Set<Emotion> emotions) {
-        if (emotions != null) {
-            criteria.emotions.addAll(emotions);
-        }
+        criteria.emotions.addAll(emotions);
         return this;
     }
 
     public MoodEventFilter setEmotions(Set<Emotion> emotions) {
         criteria.emotions.clear();
-        if (emotions != null) {
-            criteria.emotions.addAll(emotions);
-        }
+        criteria.emotions.addAll(emotions);
         return this;
     }
 
@@ -167,15 +173,13 @@ public class MoodEventFilter implements Cloneable {
         if (startDate != null && endDate != null && startDate.after(endDate)) {
             throw new IllegalArgumentException("Start date must not be after end date.");
         }
-        if (startDate == null && endDate == null) {
-            criteria.dateRange = null;
-        } else {
-            if (criteria.dateRange == null) {
-                criteria.dateRange = new DateRange();
-            }
-            criteria.dateRange.start = startDate;
-            criteria.dateRange.end = endDate;
+        if (criteria.dateRange == null) {
+            criteria.dateRange = new Sorting();
         }
+
+        criteria.dateRange.start = startDate;
+        criteria.dateRange.end = endDate;
+
         return this;
     }
 
@@ -196,7 +200,7 @@ public class MoodEventFilter implements Cloneable {
     }
 
     // User filters
-    public MoodEventFilter setUsers(String userId) {
+    public MoodEventFilter setUser(String userId) {
         criteria.userIds.clear();
         if (isValidString(userId)) {
             criteria.userIds.add(userId);
@@ -207,29 +211,6 @@ public class MoodEventFilter implements Cloneable {
     public MoodEventFilter addUser(String userId) {
         if (isValidString(userId)) {
             criteria.userIds.add(userId);
-        }
-        return this;
-    }
-
-    public MoodEventFilter addUsers(Set<String> userIds) {
-        if (userIds != null) {
-            for (String userId : userIds) {
-                if (isValidString(userId)) {
-                    criteria.userIds.add(userId);
-                }
-            }
-        }
-        return this;
-    }
-
-    public MoodEventFilter setUsers(Set<String> userIds) {
-        criteria.userIds.clear();
-        if (userIds != null) {
-            for (String userId : userIds) {
-                if (isValidString(userId)) {
-                    criteria.userIds.add(userId);
-                }
-            }
         }
         return this;
     }
@@ -287,6 +268,7 @@ public class MoodEventFilter implements Cloneable {
 
     /**
      * Counts the number of applied filters.
+     * 
      * @return The number of active filters.
      */
     public int count() {
@@ -318,6 +300,7 @@ public class MoodEventFilter implements Cloneable {
 
     /**
      * Returns a summary of the currently applied filters.
+     * 
      * @return A summary string.
      */
     public String getSummary() {
@@ -362,17 +345,15 @@ public class MoodEventFilter implements Cloneable {
 
     /**
      * Builds a Firestore Query using the applied filters.
+     * 
      * @return A Query with filtering and sorting applied.
      */
     public Query buildQuery() {
-        Query query = collectionReference;
+        // Start with the collection reference
+        Query query = allMoodEvents;
 
-        if (!criteria.userIds.isEmpty()) {
-            if (criteria.userIds.size() == 1) {
-                query = query.whereEqualTo("uid", criteria.userIds.iterator().next());
-            } else {
-                query = query.whereIn("uid", new ArrayList<>(criteria.userIds));
-            }
+        if (userId != null) {
+            query = query.whereEqualTo("uid", userId);
         }
 
         if (!criteria.emotions.isEmpty()) {
@@ -415,8 +396,6 @@ public class MoodEventFilter implements Cloneable {
         if (criteria.limit != null) {
             query = query.limit(criteria.limit);
         }
-
-        
 
         return query;
     }
