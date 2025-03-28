@@ -94,14 +94,13 @@ public class OtherUserProfile extends Fragment {
                                         } else {
                                             followButton.setText("Follow");
                                             followButton.setEnabled(true);
-                                            followButton.setOnClickListener(v ->{
-                                                    NotificationHelper notificationHelper = new NotificationHelper(requireContext());
-                                                    provider.sendRequest(uidToLoad, currentUid, notificationHelper)
-                                                            .addOnSuccessListener(a -> {
-                                                                followButton.setText("Requested");
-                                                                followButton.setEnabled(false);
-                                                            })
-                                                            .addOnFailureListener(e -> Log.e(TAG, "Request failed", e));
+                                            followButton.setOnClickListener(v -> {
+                                                provider.sendRequest(uidToLoad, currentUid)
+                                                        .addOnSuccessListener(a -> {
+                                                            followButton.setText("Requested");
+                                                            followButton.setEnabled(false);
+                                                        })
+                                                        .addOnFailureListener(e -> Log.e(TAG, "Request failed", e));
                                             });
                                         }
                                     });

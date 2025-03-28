@@ -72,14 +72,35 @@ public class HomeFeed extends Fragment {
                         if (snapshots != null) {
                             for (DocumentChange dc : snapshots.getDocumentChanges()) {
                                 if (dc.getType() == DocumentChange.Type.ADDED) {
-                                    // This document represents a new follow request.
                                     String requesterUid = dc.getDocument().getId();
-                                    NotificationHelper notificationHelper = new NotificationHelper(getContext());
-                                    notificationHelper.sendNotification(
-                                            "Follow Request",
-                                            requesterUid + " wants to follow you"
-                                    );
+                                    FirebaseFirestore.getInstance()
+                                            .collection("users")
+                                            .document(requesterUid)
+                                            .get()
+                                            .addOnSuccessListener(doc -> {
+                                                String userName = requesterUid; // fallback if username not available
+                                                if (doc.exists()) {
+                                                    String fetchedName = doc.getString("username");
+                                                    if (fetchedName != null && !fetchedName.isEmpty()) {
+                                                        userName = fetchedName;
+                                                    }
+                                                }
+                                                NotificationHelper notificationHelper = new NotificationHelper(getContext());
+                                                notificationHelper.sendNotification(
+                                                        "Follow Request",
+                                                        userName + " wants to follow you"
+                                                );
+                                            })
+                                            .addOnFailureListener(e -> {
+                                                // In case of failure, fall back to UID
+                                                NotificationHelper notificationHelper = new NotificationHelper(getContext());
+                                                notificationHelper.sendNotification(
+                                                        "Follow Request",
+                                                        requesterUid + " wants to follow you"
+                                                );
+                                            });
                                 }
+
                             }
                         }
                     });

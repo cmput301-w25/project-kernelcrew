@@ -29,16 +29,12 @@ public class FollowProvider {
     }
 
     // Send a follow request
-    public Task<Void> sendRequest(String targetUid, String requesterUid, NotificationHelper notificationHelper) {
+    public Task<Void> sendRequest(String targetUid, String requesterUid) {
         return db.collection("users")
                 .document(targetUid)
                 .collection("followRequests")
                 .document(requesterUid)
-                .set(Collections.emptyMap())
-                .addOnSuccessListener(unused -> {
-                    // Trigger a local notification for the target user
-                    notificationHelper.sendNotification("Follow Request", requesterUid + " wants to follow you");
-                });
+                .set(Collections.emptyMap());
     }
 
     // Delete (deny or cancel) a follow request
@@ -51,9 +47,10 @@ public class FollowProvider {
     }
 
     // Accept a follow request
-    public Task<Void> acceptRequest(String targetUid, String requesterUid, NotificationHelper notificationHelper) {
+    public Task<Void> acceptRequest(String targetUid, String requesterUid) {
         return deleteRequest(targetUid, requesterUid)
                 .addOnSuccessListener(unused -> {
+                    // Add to followers and following as before:
                     db.collection("users").document(targetUid)
                             .collection("followers")
                             .document(requesterUid)
@@ -62,8 +59,11 @@ public class FollowProvider {
                             .collection("following")
                             .document(targetUid)
                             .set(Collections.emptyMap());
-                    // Trigger a local notification for the requester
-                    notificationHelper.sendNotification("Follow Accepted", "You are now following " + targetUid);
+                    // Write an "accepted" document to the requester's acceptedRequests subcollection.
+                    db.collection("users").document(requesterUid)
+                            .collection("acceptedRequests")
+                            .document(targetUid)
+                            .set(Collections.emptyMap());
                 });
     }
 

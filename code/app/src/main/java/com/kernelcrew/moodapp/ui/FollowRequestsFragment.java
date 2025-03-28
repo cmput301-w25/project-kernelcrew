@@ -75,9 +75,8 @@ public class FollowRequestsFragment extends Fragment {
 
     public void accept(String requesterUid) {
         String me = FirebaseAuth.getInstance().getCurrentUser().getUid();
-        NotificationHelper notificationHelper = new NotificationHelper(requireContext());
         FollowProvider.getInstance()
-                .acceptRequest(me, requesterUid, notificationHelper)
+                .acceptRequest(me, requesterUid)
                 .addOnSuccessListener(unused ->
                         Navigation.findNavController(requireView()).navigate(R.id.myProfile))
                 .addOnFailureListener(e -> Log.e("FollowRequestsFragment", "Accept failed", e));

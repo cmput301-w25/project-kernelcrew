@@ -57,11 +57,11 @@ public class RequestFragment extends Fragment {
 
     private void acceptFollowRequest(String username) {
         String me = FirebaseAuth.getInstance().getCurrentUser().getUid();
-        NotificationHelper notificationHelper = new NotificationHelper(requireContext());
         FollowProvider.getInstance()
-                .acceptRequest(me, username, notificationHelper)
+                .acceptRequest(me, username)
                 .addOnSuccessListener(aVoid ->
-                        Navigation.findNavController(requireView()).popBackStack());
+                        Navigation.findNavController(requireView()).popBackStack())
+                .addOnFailureListener(e -> Log.e("RequestFragment", "Accept failed", e));
     }
 
 
