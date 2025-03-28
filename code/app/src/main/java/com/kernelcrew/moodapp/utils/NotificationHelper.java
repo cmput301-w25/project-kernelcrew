@@ -5,6 +5,7 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.os.Build;
 
 import androidx.core.app.NotificationCompat;
@@ -42,6 +43,16 @@ public class NotificationHelper {
 
     // Send a notification with the specified title and message
     public void sendNotification(String title, String message) {
+
+        // For Android 13 check the POST_NOTIFICATIONS permission.
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            if (context.checkSelfPermission(android.Manifest.permission.POST_NOTIFICATIONS)
+                    != PackageManager.PERMISSION_GRANTED) {
+                return;
+            }
+        }
+
         // Create an intent to launch the HomeFeed when the notification is tapped
         Intent intent = new Intent(context, HomeFeed.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
