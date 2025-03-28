@@ -9,7 +9,6 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentContainerView;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -21,10 +20,8 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentChange;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.Query;
 import com.kernelcrew.moodapp.R;
 import com.kernelcrew.moodapp.data.MoodEvent;
-import com.kernelcrew.moodapp.data.MoodEventFilter;
 import com.kernelcrew.moodapp.data.MoodEventProvider;
 import com.kernelcrew.moodapp.ui.components.FilterBarFragment;
 import com.kernelcrew.moodapp.utils.NotificationHelper;
@@ -58,9 +55,10 @@ public class HomeFeed extends Fragment {
         navBarController = new BottomNavBarController(navigationBar);
 
         if (user != null) {
-            FirebaseFirestore db = FirebaseFirestore.getInstance();
             String myUid = user.getUid();
+            FirebaseFirestore db = FirebaseFirestore.getInstance();
 
+            // Listener for followRequests (for incoming requests)
             db.collection("users")
                     .document(myUid)
                     .collection("followRequests")
@@ -78,7 +76,7 @@ public class HomeFeed extends Fragment {
                                             .document(requesterUid)
                                             .get()
                                             .addOnSuccessListener(doc -> {
-                                                String userName = requesterUid; // fallback if username not available
+                                                String userName = requesterUid; // fallback
                                                 if (doc.exists()) {
                                                     String fetchedName = doc.getString("username");
                                                     if (fetchedName != null && !fetchedName.isEmpty()) {
@@ -92,7 +90,6 @@ public class HomeFeed extends Fragment {
                                                 );
                                             })
                                             .addOnFailureListener(e -> {
-                                                // In case of failure, fall back to UID
                                                 NotificationHelper notificationHelper = new NotificationHelper(getContext());
                                                 notificationHelper.sendNotification(
                                                         "Follow Request",
@@ -100,7 +97,61 @@ public class HomeFeed extends Fragment {
                                                 );
                                             });
                                 }
+                            }
+                        }
+                    });
 
+            // NEW: Listener for notifications (to catch "followAccepted" events)
+            db.collection("users")
+                    .document(myUid)
+                    .collection("notifications")
+                    .addSnapshotListener((snapshots, error) -> {
+                        if (error != null) {
+                            Log.e("HomeFeed", "Error listening to notifications", error);
+                            return;
+                        }
+                        if (snapshots != null) {
+                            for (DocumentChange dc : snapshots.getDocumentChanges()) {
+                                if (dc.getType() == DocumentChange.Type.ADDED) {
+                                    String docId = dc.getDocument().getId();
+                                    String type = dc.getDocument().getString("type");
+                                    if ("followAccepted".equals(type)) {
+                                        // "fromUserId" is the user who accepted the follow request.
+                                        String fromUserId = dc.getDocument().getString("fromUserId");
+                                        if (fromUserId != null) {
+                                            db.collection("users")
+                                                    .document(fromUserId)
+                                                    .get()
+                                                    .addOnSuccessListener(doc -> {
+                                                        String userName = fromUserId; // fallback
+                                                        if (doc.exists()) {
+                                                            String fetchedName = doc.getString("username");
+                                                            if (fetchedName != null && !fetchedName.isEmpty()) {
+                                                                userName = fetchedName;
+                                                            }
+                                                        }
+                                                        NotificationHelper helper = new NotificationHelper(getContext());
+                                                        helper.sendNotification(
+                                                                "Follow Accepted",
+                                                                userName + " accepted your follow request"
+                                                        );
+                                                        // Optionally delete the notification doc after processing
+                                                        db.collection("users")
+                                                                .document(myUid)
+                                                                .collection("notifications")
+                                                                .document(docId)
+                                                                .delete();
+                                                    })
+                                                    .addOnFailureListener(e -> {
+                                                        NotificationHelper helper = new NotificationHelper(getContext());
+                                                        helper.sendNotification(
+                                                                "Follow Accepted",
+                                                                fromUserId + " accepted your follow request"
+                                                        );
+                                                    });
+                                        }
+                                    }
+                                }
                             }
                         }
                     });
@@ -117,7 +168,7 @@ public class HomeFeed extends Fragment {
             Log.e("Home", "User not authenticated!");
         }
 
-        // Listen for changes in the "moodEvents" collection
+        // Listener for moodEvents collection
         if (searchNFilterFragment != null) {
             searchNFilterFragment.setOnFilterChangedListener(filter -> {
                 filter.buildQuery()
@@ -126,12 +177,10 @@ public class HomeFeed extends Fragment {
                                 Log.w("HomeFeed", "Listen failed.", error);
                                 return;
                             }
-
                             if (snapshots == null) {
                                 Log.w("HomeFeed", "No snapshot data received.");
                                 return;
                             }
-
                             List<MoodEvent> moodList = new ArrayList<>();
                             for (DocumentSnapshot doc : snapshots.getDocuments()) {
                                 MoodEvent mood = doc.toObject(MoodEvent.class);
@@ -142,7 +191,6 @@ public class HomeFeed extends Fragment {
                             }
                             moodAdapter.setMoods(moodList);
                         });
-
             });
         }
 
@@ -151,7 +199,7 @@ public class HomeFeed extends Fragment {
             public void onViewDetails(MoodEvent mood) {
                 Bundle args = new Bundle();
                 args.putString("moodEventId", mood.getId());
-                args.putString("sourceScreen", "home"); // or "filtered"
+                args.putString("sourceScreen", "home");
                 NavController navController = Navigation.findNavController(requireActivity(), R.id.nav_host_fragment);
                 navController.navigate(R.id.action_homeFeed_to_moodDetails, args);
             }
@@ -164,10 +212,7 @@ public class HomeFeed extends Fragment {
                 NavController navController = Navigation.findNavController(requireActivity(), R.id.nav_host_fragment);
                 navController.navigate(R.id.action_homeFeed_to_moodComments, args);
             }
-
         });
-
-
 
         return view;
     }

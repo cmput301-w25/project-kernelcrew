@@ -1,5 +1,7 @@
 package com.kernelcrew.moodapp.data;
 
+import android.util.Log;
+
 import com.google.android.gms.tasks.Task;
 import com.google.android.gms.tasks.Tasks;
 import com.google.firebase.firestore.DocumentSnapshot;
@@ -59,11 +61,23 @@ public class FollowProvider {
                             .collection("following")
                             .document(targetUid)
                             .set(Collections.emptyMap());
-                    // Write an "accepted" document to the requester's acceptedRequests subcollection.
-                    db.collection("users").document(requesterUid)
-                            .collection("acceptedRequests")
-                            .document(targetUid)
-                            .set(Collections.emptyMap());
+                    // Write a "followAccepted" notification to the requester's notifications subcollection.
+                    java.util.HashMap<String, Object> notifData = new java.util.HashMap<>();
+                    notifData.put("fromUserId", targetUid);    // The acceptor (User2)
+                    notifData.put("toUserId", requesterUid);    // The original requester (User1)
+                    notifData.put("type", "followAccepted");
+                    notifData.put("timestamp", com.google.firebase.firestore.FieldValue.serverTimestamp());
+
+                    db.collection("users")
+                            .document(requesterUid)
+                            .collection("notifications")
+                            .add(notifData)
+                            .addOnSuccessListener(ref -> {
+                                Log.d("FollowProvider", "Notification written successfully: " + ref.getId());
+                            })
+                            .addOnFailureListener(e -> {
+                                Log.e("FollowProvider", "Failed to write notification", e);
+                            });
                 });
     }
 
