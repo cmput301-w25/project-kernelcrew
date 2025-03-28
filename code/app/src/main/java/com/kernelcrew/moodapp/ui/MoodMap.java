@@ -21,10 +21,12 @@ import com.google.android.material.navigation.NavigationBarView;
 import com.kernelcrew.moodapp.R;
 import com.kernelcrew.moodapp.data.MoodEvent;
 import com.kernelcrew.moodapp.data.MoodEventProvider;
+import com.kernelcrew.moodapp.data.UserProvider;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * An activity that displays a Google map with a marker (pin) to indicate a particular location.
@@ -38,6 +40,8 @@ public class MoodMap extends Fragment
     private GoogleMap moodMap;
     private Map<Marker, MoodEvent> markerToMoodMap = new HashMap<>();
     private static List<MoodEvent> sharedMoodEvents = null;
+
+    private UserProvider userProvider;
 
     public static void setSharedMoodEvents(List<MoodEvent> events) {
         sharedMoodEvents = events;
@@ -98,7 +102,7 @@ public class MoodMap extends Fragment
         moodMap.clear();
         markerToMoodMap.clear();
 
-        boolean hasMarkers = false;
+        AtomicBoolean hasMarkers = new AtomicBoolean(false);
         LatLng lastPosition = null;
 
         for (MoodEvent moodEvent : events) {
@@ -109,27 +113,32 @@ public class MoodMap extends Fragment
 
                 // Get marker color based on emotion
                 float markerColor = getEmotionColour(moodEvent.getEmotion().toString());
-
+                userProvider = UserProvider.getInstance();
                 // Create the marker
-                MarkerOptions markerOptions = new MarkerOptions()
-                        .position(position)
-                        .title(moodEvent.getEmotion().toString())
-                        .snippet(moodEvent.getReason())
-                        .icon(BitmapDescriptorFactory.defaultMarker(markerColor));
-
-                // Add the marker to the map
-                Marker marker = moodMap.addMarker(markerOptions);
-                if (marker != null) {
-                    markerToMoodMap.put(marker, moodEvent);
-                    hasMarkers = true;
-                }
+                LatLng finalLastPosition = lastPosition;
+                userProvider.getUsername(moodEvent.getUid())
+                            .addOnSuccessListener(username -> {
+                                MarkerOptions markerOptions = new MarkerOptions()
+                                        .position(position)
+                                        .snippet(moodEvent.getEmotion().toString())
+                                        .title(username)
+                                        //.snippet(moodEvent.getReason())
+                                        .icon(BitmapDescriptorFactory.defaultMarker(markerColor));
+                                // Add the marker to the map
+                                Marker marker = moodMap.addMarker(markerOptions);
+                                if (marker != null) {
+                                    markerToMoodMap.put(marker, moodEvent);
+                                    hasMarkers.set(true);
+                                }
+                                // If we added markers, move camera to the last one
+                                if (hasMarkers.get()) {
+                                    moodMap.animateCamera(CameraUpdateFactory.newLatLngZoom(finalLastPosition, 10.0f));
+                                }
+                        });
             }
         }
 
-        // If we added markers, move camera to the last one
-        if (hasMarkers) {
-            moodMap.animateCamera(CameraUpdateFactory.newLatLngZoom(lastPosition, 10.0f));
-        }
+
     }
 
 
