@@ -2,6 +2,8 @@ package com.kernelcrew.moodapp;
 
 import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.action.ViewActions.click;
+import static androidx.test.espresso.action.ViewActions.closeSoftKeyboard;
+import static androidx.test.espresso.action.ViewActions.replaceText;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
 import static androidx.test.espresso.contrib.RecyclerViewActions.actionOnItemAtPosition;
 import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
@@ -12,8 +14,10 @@ import static org.junit.Assert.assertNotNull;
 
 import android.os.SystemClock;
 import android.view.View;
+import android.view.ViewGroup;
 
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.test.espresso.UiController;
 import androidx.test.espresso.ViewAction;
 import androidx.test.ext.junit.rules.ActivityScenarioRule;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
@@ -131,6 +135,15 @@ public class OtherUserProfileMoodTest extends FirebaseEmulatorMixin {
         // Wait for HomeFeed to load.
         SystemClock.sleep(2000);
 
+        onView(withText("Sign In")).perform(click());
+
+        onView(withId(R.id.emailSignIn)).perform(replaceText(USER1_EMAIL), closeSoftKeyboard());
+        onView(withId(R.id.passwordSignIn)).perform(replaceText(USER1_PASSWORD), closeSoftKeyboard());
+        onView(withId(R.id.signInButtonAuthToHome)).perform(click());
+
+        SystemClock.sleep(2000); // Or better, use Espresso's IdlingResource
+        onView(withId(R.id.moodRecyclerView)).check(matches(isDisplayed()));
+
         // In HomeFeed, simulate clicking on a mood item created by USER2.
         // For this test, we assume the RecyclerView is displaying a mood event from USER2.
         // Here we click the first item in the RecyclerView.
@@ -172,23 +185,44 @@ public class OtherUserProfileMoodTest extends FirebaseEmulatorMixin {
         onView(withId(R.id.public_moods_recycler_view))
                 .perform(actionOnItemAtPosition(1, checkItemHasDescendantWithText(USER2_USERNAME)));
     }
-
-    // Helper ViewAction to check that a RecyclerView item has a descendant with given text.
-    public static ViewAction checkItemHasDescendantWithText(String expectedText) {
+    // Updated custom ViewAction to check for a descendant with the expected text.
+    public static ViewAction checkItemHasDescendantWithText(final String expectedText) {
         return new ViewAction() {
             @Override
             public Matcher<View> getConstraints() {
-                return withId(android.R.id.content);
+                return isDisplayed(); // Ensures the view is visible.
             }
+
             @Override
             public String getDescription() {
                 return "Check that the item has a descendant with text: " + expectedText;
             }
+
             @Override
-            public void perform(androidx.test.espresso.UiController uiController, View view) {
-                // Simply assert that one of the child views has the expected text.
-                // This uses Espresso's built-in matching.
-                onView(withText(expectedText)).check(matches(isDisplayed()));
+            public void perform(UiController uiController, View view) {
+                // Use a recursive method to search all descendants for a TextView with expectedText.
+                if (!hasDescendantWithText(view, expectedText)) {
+                    throw new AssertionError("Expected descendant with text \"" + expectedText + "\" not found.");
+                }
+            }
+
+            // Recursive helper method to check if any descendant contains the expected text.
+            private boolean hasDescendantWithText(View view, String expectedText) {
+                if (view instanceof android.widget.TextView) {
+                    CharSequence text = ((android.widget.TextView) view).getText();
+                    if (text != null && text.toString().contains(expectedText)) {
+                        return true;
+                    }
+                }
+                if (view instanceof ViewGroup) {
+                    ViewGroup group = (ViewGroup) view;
+                    for (int i = 0; i < group.getChildCount(); i++) {
+                        if (hasDescendantWithText(group.getChildAt(i), expectedText)) {
+                            return true;
+                        }
+                    }
+                }
+                return false;
             }
         };
     }
