@@ -180,9 +180,9 @@ public class OtherUserProfile extends Fragment {
         if (uidToLoad != null) {
             Query query = FirebaseFirestore.getInstance()
                     .collection("moodEvents")
-                    .whereEqualTo("ownerId", uidToLoad)
+                    .whereEqualTo("uid", uidToLoad)
                     .whereEqualTo("visibility", "PUBLIC")
-                    .orderBy("date", Query.Direction.DESCENDING);
+                    .orderBy("created", Query.Direction.DESCENDING);
 
             query.addSnapshotListener((snapshots, error) -> {
                 if (error != null) {
