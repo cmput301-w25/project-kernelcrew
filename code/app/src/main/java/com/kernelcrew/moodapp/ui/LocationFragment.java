@@ -46,7 +46,11 @@ import android.location.Location;
 
 public class LocationFragment extends Fragment {
 
+    /**
+     * Listener for user location changed updates.
+     */
     private LocationUpdateListener updateListener;
+
     /**
      * Main client for interacting with the fused location provider.
      * Provides access to device location with the appropriate permissions.
@@ -386,13 +390,11 @@ public class LocationFragment extends Fragment {
         // TODO: Implement saving logic here
     }
 
-    public void setUpdateListener(MoodEventForm form) {
-        this.updateListener = form;
-    }
-
     /**
      * Listener for location updates.
      */
-
+    public void setUpdateListener(LocationUpdateListener form) {
+        this.updateListener = form;
+    }
 }
 
