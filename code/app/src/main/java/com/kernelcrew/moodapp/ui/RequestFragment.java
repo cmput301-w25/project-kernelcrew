@@ -15,6 +15,7 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.kernelcrew.moodapp.R;
 import com.kernelcrew.moodapp.data.FollowProvider;
+import com.kernelcrew.moodapp.utils.NotificationHelper;
 
 import java.util.Collections;
 
@@ -56,11 +57,13 @@ public class RequestFragment extends Fragment {
 
     private void acceptFollowRequest(String username) {
         String me = FirebaseAuth.getInstance().getCurrentUser().getUid();
+        NotificationHelper notificationHelper = new NotificationHelper(requireContext());
         FollowProvider.getInstance()
-                .acceptRequest(me, username)
+                .acceptRequest(me, username, notificationHelper)
                 .addOnSuccessListener(aVoid ->
                         Navigation.findNavController(requireView()).popBackStack());
     }
+
 
     private void denyFollowRequest(String username) {
         String me = FirebaseAuth.getInstance().getCurrentUser().getUid();

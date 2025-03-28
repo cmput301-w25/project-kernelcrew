@@ -19,6 +19,7 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.kernelcrew.moodapp.R;
 import com.kernelcrew.moodapp.data.FollowProvider;
+import com.kernelcrew.moodapp.utils.NotificationHelper;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -74,8 +75,9 @@ public class FollowRequestsFragment extends Fragment {
 
     public void accept(String requesterUid) {
         String me = FirebaseAuth.getInstance().getCurrentUser().getUid();
+        NotificationHelper notificationHelper = new NotificationHelper(requireContext());
         FollowProvider.getInstance()
-                .acceptRequest(me, requesterUid)
+                .acceptRequest(me, requesterUid, notificationHelper)
                 .addOnSuccessListener(unused ->
                         Navigation.findNavController(requireView()).navigate(R.id.myProfile))
                 .addOnFailureListener(e -> Log.e("FollowRequestsFragment", "Accept failed", e));

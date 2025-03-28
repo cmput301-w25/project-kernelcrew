@@ -7,6 +7,8 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.android.gms.tasks.Tasks;
 import com.google.firebase.firestore.DocumentSnapshot;
+import com.kernelcrew.moodapp.utils.NotificationHelper;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.ArrayList;
@@ -27,12 +29,16 @@ public class FollowProvider {
     }
 
     // Send a follow request
-    public Task<Void> sendRequest(String targetUid, String requesterUid) {
+    public Task<Void> sendRequest(String targetUid, String requesterUid, NotificationHelper notificationHelper) {
         return db.collection("users")
                 .document(targetUid)
                 .collection("followRequests")
                 .document(requesterUid)
-                .set(Collections.emptyMap());
+                .set(Collections.emptyMap())
+                .addOnSuccessListener(unused -> {
+                    // Trigger a local notification for the target user
+                    notificationHelper.sendNotification("Follow Request", requesterUid + " wants to follow you");
+                });
     }
 
     // Delete (deny or cancel) a follow request
@@ -45,7 +51,7 @@ public class FollowProvider {
     }
 
     // Accept a follow request
-    public Task<Void> acceptRequest(String targetUid, String requesterUid) {
+    public Task<Void> acceptRequest(String targetUid, String requesterUid, NotificationHelper notificationHelper) {
         return deleteRequest(targetUid, requesterUid)
                 .addOnSuccessListener(unused -> {
                     db.collection("users").document(targetUid)
@@ -56,6 +62,8 @@ public class FollowProvider {
                             .collection("following")
                             .document(targetUid)
                             .set(Collections.emptyMap());
+                    // Trigger a local notification for the requester
+                    notificationHelper.sendNotification("Follow Accepted", "You are now following " + targetUid);
                 });
     }
 

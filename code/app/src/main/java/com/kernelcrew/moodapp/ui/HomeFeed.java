@@ -18,13 +18,16 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.google.android.material.navigation.NavigationBarView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.DocumentChange;
 import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 import com.kernelcrew.moodapp.R;
 import com.kernelcrew.moodapp.data.MoodEvent;
 import com.kernelcrew.moodapp.data.MoodEventFilter;
 import com.kernelcrew.moodapp.data.MoodEventProvider;
 import com.kernelcrew.moodapp.ui.components.FilterBarFragment;
+import com.kernelcrew.moodapp.utils.NotificationHelper;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -53,6 +56,34 @@ public class HomeFeed extends Fragment {
         moodRecyclerView = view.findViewById(R.id.moodRecyclerView);
 
         navBarController = new BottomNavBarController(navigationBar);
+
+        if (user != null) {
+            FirebaseFirestore db = FirebaseFirestore.getInstance();
+            String myUid = user.getUid();
+
+            db.collection("users")
+                    .document(myUid)
+                    .collection("followRequests")
+                    .addSnapshotListener((snapshots, error) -> {
+                        if (error != null) {
+                            Log.e("HomeFeed", "Error listening to followRequests", error);
+                            return;
+                        }
+                        if (snapshots != null) {
+                            for (DocumentChange dc : snapshots.getDocumentChanges()) {
+                                if (dc.getType() == DocumentChange.Type.ADDED) {
+                                    // This document represents a new follow request.
+                                    String requesterUid = dc.getDocument().getId();
+                                    NotificationHelper notificationHelper = new NotificationHelper(getContext());
+                                    notificationHelper.sendNotification(
+                                            "Follow Request",
+                                            requesterUid + " wants to follow you"
+                                    );
+                                }
+                            }
+                        }
+                    });
+        }
 
         searchNFilterFragment = (FilterBarFragment) getChildFragmentManager().findFragmentById(R.id.filterBarFragment);
 
