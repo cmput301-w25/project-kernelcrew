@@ -87,6 +87,13 @@ enable-kvm() {
   sudo udevadm trigger --name-match=kvm
 }
 
+inflate-ci-secrets() {
+  ### Inflate all secrets needed for CI
+
+  inflate-ci-googleservices
+  inflate-ci-properties
+}
+
 inflate-ci-googleservices() {
   ### Add a google-services.json file to code/app/
 
@@ -95,7 +102,7 @@ inflate-ci-googleservices() {
   # However, Firebase has no support to unauthenticated usecases.
 
   # We don't want to accidentally destroy someone's google-services.json file!
-  if test --file "$REPO_ROOT/code/app/google-services.json"; then
+  if test -f "$REPO_ROOT/code/app/google-services.json"; then
     _die "$REPO_ROOT/code/app/google-services.json already exists"
   fi
 
@@ -107,6 +114,25 @@ inflate-ci-googleservices() {
 
   printf "$ACTIONS_GOOGLESERVICES" | base64 --decode >"$REPO_ROOT/code/app/google-services.json"
   _log "Inflated to $REPO_ROOT/code/app/google-services.json"
+}
+
+inflate-ci-properties() {
+   ### Add the local.properties to code/
+   # local.properties contains the GOOGLE_API_KEY used for the map component
+
+   if test -f "$REPO_ROOT/code/local.properties"; then
+     _die "$REPO_ROOT/code/local.properties already exists"
+   fi
+
+   if test -z "$ACTIONS_MAPSAPIKEY"; then
+     _die "ACTIONS_MAPSAPIKEY is not defined. Is this running in github actions?"
+   fi
+
+   cat <<EOF >"$REPO_ROOT/code/local.properties"
+MAPS_API_KEY=$ACTIONS_MAPSAPIKEY
+EOF
+
+   _log "Inflated to $REPO_ROOT/code/local.properties"
 }
 
 setup-firebaserc() {

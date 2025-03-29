@@ -16,3 +16,4 @@ local.properties
 .firebaserc
 ./.settings
 ./.settings/*
+secrets.properties

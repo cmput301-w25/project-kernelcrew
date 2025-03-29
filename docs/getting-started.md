@@ -60,3 +60,16 @@ We use firebase's authentication feature. This needs to be manually enabled by:
 
 For technical details of firebase authentication, see [the
 docs](https://firebase.google.com/docs/auth/android/start).
+
+### Google Maps API Key
+
+A file, `code/local.properties` must be created with the contents:
+
+```
+# ... other lines
+
+MAPS_API_KEY=<API-KEY>
+```
+
+Where `<API-KEY>` is a valid maps API key from your [google
+console](https://developers.google.com/maps/documentation/javascript/get-api-key#create-api-keys).

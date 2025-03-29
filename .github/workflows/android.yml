@@ -17,10 +17,11 @@ jobs:
       - name: Checkout the code
         uses: actions/checkout@v2
 
-      - name: Inflate google-services.json
-        run: scripts/ci.sh inflate-ci-googleservices
+      - name: Inflate CI Secrets
+        run: scripts/ci.sh inflate-ci-secrets
         env:
           ACTIONS_GOOGLESERVICES: ${{ secrets.ACTIONS_GOOGLESERVICES }}
+          ACTIONS_MAPSAPIKEY: ${{ secrets.ACTIONS_MAPSAPIKEY }}
 
       - name: Run lint
         run: scripts/ci.sh lint
@@ -40,10 +41,11 @@ jobs:
       - name: Checkout the code
         uses: actions/checkout@v2
 
-      - name: Inflate google-services.json
-        run: scripts/ci.sh inflate-ci-googleservices
+      - name: Inflate CI Secrets
+        run: scripts/ci.sh inflate-ci-secrets
         env:
           ACTIONS_GOOGLESERVICES: ${{ secrets.ACTIONS_GOOGLESERVICES }}
+          ACTIONS_MAPSAPIKEY: ${{ secrets.ACTIONS_MAPSAPIKEY }}
 
       - name: Run tests
         run: scripts/ci.sh unit-test
@@ -69,10 +71,11 @@ jobs:
         with:
           java-version: '17'
 
-      - name: Inflate google-services.json
-        run: scripts/ci.sh inflate-ci-googleservices
+      - name: Inflate CI Secrets
+        run: scripts/ci.sh inflate-ci-secrets
         env:
           ACTIONS_GOOGLESERVICES: ${{ secrets.ACTIONS_GOOGLESERVICES }}
+          ACTIONS_MAPSAPIKEY: ${{ secrets.ACTIONS_MAPSAPIKEY }}
 
       - name: Setup firebase
         run: scripts/ci.sh setup-firebaserc
@@ -115,10 +118,11 @@ jobs:
         with:
           java-version: '17'
 
-      - name: Inflate google-services.json
-        run: scripts/ci.sh inflate-ci-googleservices
+      - name: Inflate CI Secrets
+        run: scripts/ci.sh inflate-ci-secrets
         env:
           ACTIONS_GOOGLESERVICES: ${{ secrets.ACTIONS_GOOGLESERVICES }}
+          ACTIONS_MAPSAPIKEY: ${{ secrets.ACTIONS_MAPSAPIKEY }}
 
       - name: Build debug APK
         run: scripts/ci.sh build-dbg-apk
