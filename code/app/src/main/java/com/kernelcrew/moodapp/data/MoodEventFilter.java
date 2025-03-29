@@ -2,7 +2,6 @@ package com.kernelcrew.moodapp.data;
 
 import androidx.annotation.Nullable;
 
-import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.Query;
 import java.util.ArrayList;
 import java.util.Date;
@@ -13,7 +12,7 @@ import java.util.Set;
  * A class for filtering mood events in Firestore queries.
  */
 public class MoodEventFilter {
-    private final CollectionReference collectionReference;
+    private final Query allMoodEvents;
     private final Set<Emotion> emotions = new HashSet<>();
     private String userId;
     private Date startDate;
@@ -28,10 +27,10 @@ public class MoodEventFilter {
      * Constructor accepting a CollectionReference directly.
      * This is useful if you have the Firestore collection from your provider.
      *
-     * @param collectionReference The Firestore collection reference for mood events.
+     * @param allMoodEvents All mood events query
      */
-    public MoodEventFilter(CollectionReference collectionReference) {
-        this.collectionReference = collectionReference;
+    public MoodEventFilter(Query allMoodEvents) {
+        this.allMoodEvents = allMoodEvents;
     }
 
     /**
@@ -41,7 +40,7 @@ public class MoodEventFilter {
      * @param provider The MoodEventProvider instance to get the collection reference.
      */
     public MoodEventFilter(MoodEventProvider provider) {
-        this.collectionReference = provider.getCollectionReference();
+        this.allMoodEvents = provider.getAll();
     }
 
     /**
@@ -216,7 +215,7 @@ public class MoodEventFilter {
      */
     public Query buildQuery() {
         // Start with the collection reference
-        Query query = collectionReference;
+        Query query = allMoodEvents;
 
         if (userId != null) {
             query = query.whereEqualTo("uid", userId);

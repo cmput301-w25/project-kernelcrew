@@ -40,6 +40,8 @@ public class HomeFeed extends Fragment {
     RecyclerView moodRecyclerView;
     MoodAdapter moodAdapter;
 
+    public static List<MoodEvent> currentFilteredList = new ArrayList<>();
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -59,6 +61,7 @@ public class HomeFeed extends Fragment {
         // Setup RecyclerView
         moodRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         moodAdapter = new MoodAdapter();
+
         moodRecyclerView.setAdapter(moodAdapter);
 
         if (auth.getCurrentUser() == null) {
@@ -88,19 +91,34 @@ public class HomeFeed extends Fragment {
                                     moodList.add(mood);
                                 }
                             }
+                            currentFilteredList = moodList;
                             moodAdapter.setMoods(moodList);
                         });
 
             });
         }
 
-        moodAdapter.setOnMoodClickListener(mood -> {
-            Bundle args = new Bundle();
-            args.putString("moodEventId", mood.getId());
-            args.putString("sourceScreen", "home"); // or "filtered"
-            NavController navController = Navigation.findNavController(requireActivity(), R.id.nav_host_fragment);
-            navController.navigate(R.id.action_homeFeed_to_moodDetails, args);
+        moodAdapter.setOnMoodClickListener(new MoodAdapter.OnMoodClickListener() {
+            @Override
+            public void onViewDetails(MoodEvent mood) {
+                Bundle args = new Bundle();
+                args.putString("moodEventId", mood.getId());
+                args.putString("sourceScreen", "home"); // or "filtered"
+                NavController navController = Navigation.findNavController(requireActivity(), R.id.nav_host_fragment);
+                navController.navigate(R.id.action_homeFeed_to_moodDetails, args);
+            }
+
+            @Override
+            public void onViewComments(MoodEvent mood) {
+                Bundle args = new Bundle();
+                args.putString("moodEventId", mood.getId());
+                args.putString("sourceScreen", "home");
+                NavController navController = Navigation.findNavController(requireActivity(), R.id.nav_host_fragment);
+                navController.navigate(R.id.action_homeFeed_to_moodComments, args);
+            }
+
         });
+
 
 
         return view;

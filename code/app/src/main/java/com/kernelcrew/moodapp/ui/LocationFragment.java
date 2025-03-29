@@ -46,7 +46,11 @@ import android.location.Location;
 
 public class LocationFragment extends Fragment {
 
+    /**
+     * Listener for user location changed updates.
+     */
     private LocationUpdateListener updateListener;
+
     /**
      * Main client for interacting with the fused location provider.
      * Provides access to device location with the appropriate permissions.
@@ -150,7 +154,7 @@ public class LocationFragment extends Fragment {
                         // Permission granted
                         Log.i("LocationFragment", "Location permission granted by user");
                         requestLocationButton.setText("Add Location");
-                        getLastLocation();
+                        requestNewLocation();
                     } else {
                         // Permission denied
                         Log.i("LocationFragment", "Location permission denied by user");
@@ -282,8 +286,9 @@ public class LocationFragment extends Fragment {
                         } else {
                             // No last location available, request a new location update
                             Log.i("LocationFragment", "No last location available, requesting location updates");
-                            requestNewLocation();
+
                         }
+                        requestNewLocation();
                     })
                     .addOnFailureListener(e -> {
                         // Handle any errors during location retrieval
@@ -386,47 +391,10 @@ public class LocationFragment extends Fragment {
     }
 
     /**
-     * Saves a mood event with location data.
-     * Called when location has been successfully retrieved.
-     *
-     * @param lat The latitude coordinate to save
-     * @param lon The longitude coordinate to save
-     */
-
-    /**
-     * Gets the latitude coordinate from the last successful location retrieval.
-     *
-     * @return The latitude value, or null if location has not been retrieved
-     */
-    public Double getLatitude() {
-        return latitude;
-    }
-
-    /**
-     * Gets the longitude coordinate from the last successful location retrieval.
-     *
-     * @return The longitude value, or null if location has not been retrieved
-     */
-    public Double getLongitude() {
-        return longitude;
-    }
-
-    /**
-     * Sets the location update listener.
-     *
-     * @param listener The location update listener to set
-     */
-    public void setLocationUpdateListener(LocationUpdateListener listener) {
-        this.updateListener = listener;
-    }
-
-    public void setUpdateListener(MoodEventForm form) {
-        this.updateListener = form;
-    }
-
-    /**
      * Listener for location updates.
      */
-
+    public void setUpdateListener(LocationUpdateListener form) {
+        this.updateListener = form;
+    }
 }
 
