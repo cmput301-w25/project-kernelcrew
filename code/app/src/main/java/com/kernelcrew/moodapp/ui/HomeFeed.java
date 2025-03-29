@@ -41,7 +41,7 @@ public class HomeFeed extends Fragment {
     BottomNavBarController navBarController;
     RecyclerView moodRecyclerView;
     MoodAdapter moodAdapter;
-    UserAdapter userAdapter; // new adapter for user search results
+    UserAdapter userAdapter; // adapter for user search results
 
     public static List<MoodEvent> currentFilteredList = new ArrayList<>();
 
@@ -63,7 +63,7 @@ public class HomeFeed extends Fragment {
 
         moodRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         moodAdapter = new MoodAdapter();
-        userAdapter = new UserAdapter(new ArrayList<>()); // initialize the new user adapter
+        userAdapter = new UserAdapter(new ArrayList<>()); // initialize user adapter
 
         // Initially show mood events
         moodRecyclerView.setAdapter(moodAdapter);
@@ -91,9 +91,7 @@ public class HomeFeed extends Fragment {
         if (searchNFilterFragment != null) {
             searchNFilterFragment.setOnFilterChangedListener(filter -> {
                 // Check the search type from the filter.
-                // (Assuming FilterBarFragment's filter provides getSearchType() and getSearchQuery())
                 if ("USERS".equalsIgnoreCase(filter.getSearchType())) {
-                    // Perform user search using UserProvider
                     String query = filter.getSearchQuery();
                     UserProvider.getInstance().searchUsers(query)
                             .addOnSuccessListener(users -> {
@@ -161,7 +159,7 @@ public class HomeFeed extends Fragment {
         navBarController.bind(view);
     }
 
-    // Inner class for the user search results adapter
+    // Inner adapter for displaying user search results
     private class UserAdapter extends RecyclerView.Adapter<UserAdapter.UserViewHolder> {
         private List<User> users;
 
@@ -185,7 +183,7 @@ public class HomeFeed extends Fragment {
         public void onBindViewHolder(@NonNull UserViewHolder holder, int position) {
             User userItem = users.get(position);
             holder.usernameTextView.setText(userItem.getName());
-            // Optionally set avatar or other fields if needed.
+            // Optionally, set the avatar image if available.
         }
 
         @Override
