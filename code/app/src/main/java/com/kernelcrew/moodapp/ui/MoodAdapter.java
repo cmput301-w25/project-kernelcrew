@@ -55,11 +55,6 @@ public class MoodAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         return VIEW_TYPE_ITEM;
     }
 
-    @Override
-    public int getItemCount() {
-        return (moods == null || moods.isEmpty()) ? 1 : moods.size();
-    }
-
     @NonNull
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
@@ -106,7 +101,7 @@ public class MoodAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         });
 
         // Set click listener for the comment layout
-        holder.commentLayout.setOnClickListener(v -> {
+        viewHolder.commentLayout.setOnClickListener(v -> {
             if (onMoodClickListener != null) {
                 onMoodClickListener.onViewComments(mood);
             }
@@ -114,17 +109,17 @@ public class MoodAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
         switch (mood.getVisibility()) {
             case PUBLIC:
-                holder.visibilityIcon.setImageResource(R.drawable.ic_public);
+                viewHolder.visibilityIcon.setImageResource(R.drawable.ic_public);
                 break;
             case PRIVATE:
-                holder.visibilityIcon.setImageResource(R.drawable.ic_lock);
+                viewHolder.visibilityIcon.setImageResource(R.drawable.ic_lock);
                 break;
         }
     }
 
     @Override
     public int getItemCount() {
-        return moods.size();
+        return (moods == null || moods.isEmpty()) ? 1 : moods.size();
     }
 
     public static class MoodViewHolder extends RecyclerView.ViewHolder {

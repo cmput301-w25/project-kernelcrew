@@ -66,7 +66,6 @@ public class HomeFeed extends DefaultFilterBarFragment implements FilterBarFragm
         assert searchNFilterFragment != null;
         searchNFilterFragment.setAllowUserSearch(true);
 
-        recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         moodAdapter = new MoodAdapter();
         userAdapter = new UserAdapter();
         recyclerView.setAdapter(moodAdapter);
@@ -133,7 +132,7 @@ public class HomeFeed extends DefaultFilterBarFragment implements FilterBarFragm
                     // Add user posts
                     try {
                         tasks.add(((MoodEventFilter) filter.clone())
-                                .setUsers(user.getUid())
+                                .setUser(user.getUid())
                                 .buildQuery()
                                 .get()
                                 .addOnSuccessListener(querySnapshot -> {
@@ -153,7 +152,7 @@ public class HomeFeed extends DefaultFilterBarFragment implements FilterBarFragm
                     for (String followedId : followedIds) {
                         try {
                             tasks.add(((MoodEventFilter) filter.clone())
-                                    .setUsers(followedId)
+                                    .setUser(followedId)
                                         .setLimit(3)
                                         .buildQuery()
                                         .get()
@@ -216,13 +215,11 @@ public class HomeFeed extends DefaultFilterBarFragment implements FilterBarFragm
         class UserViewHolder extends RecyclerView.ViewHolder {
             private final ShapeableImageView avatar;
             private final TextView usernameTextView;
-            private final android.widget.CheckBox followCheckBox;
 
             public UserViewHolder(@NonNull View itemView) {
                 super(itemView);
                 avatar = itemView.findViewById(R.id.avatarImageView);
                 usernameTextView = itemView.findViewById(R.id.usernameTextView);
-                followCheckBox = itemView.findViewById(R.id.followCheckBox);
 
                 // Set a click listener for the entire item view.
                 itemView.setOnClickListener(v -> {
@@ -241,7 +238,6 @@ public class HomeFeed extends DefaultFilterBarFragment implements FilterBarFragm
 
             public void bind(User user) {
                 usernameTextView.setText(user.getName());
-                followCheckBox.setChecked(user.isFollowed());
             }
         }
     }

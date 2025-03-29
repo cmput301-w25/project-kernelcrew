@@ -110,4 +110,8 @@ public class MoodEventProvider {
                            Filter.equalTo("visibility", "PRIVATE")),
                 Filter.equalTo("visibility", "PUBLIC")));
     }
+
+    public CollectionReference getCollectionReference() {
+        return collection;
+    }
 }

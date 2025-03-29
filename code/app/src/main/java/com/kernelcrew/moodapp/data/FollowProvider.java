@@ -68,7 +68,7 @@ public class FollowProvider {
                 .onSuccessTask(snapshot -> {
                     List<User> list = new ArrayList<>();
                     for (DocumentSnapshot doc : snapshot.getDocuments()) {
-                        list.add(new User(doc.getId(), false));
+                        list.add(new User(doc.getId(), doc.getString("username"),false));
                     }
                     return Tasks.forResult(list);
                 });
@@ -82,7 +82,7 @@ public class FollowProvider {
                 .onSuccessTask(snapshot -> {
                     List<User> list = new ArrayList<>();
                     for (DocumentSnapshot doc : snapshot.getDocuments()) {
-                        list.add(new User(doc.getId(), false));
+                        list.add(new User(doc.getId(), doc.getString("username"), false));
                     }
                     return Tasks.forResult(list);
                 });

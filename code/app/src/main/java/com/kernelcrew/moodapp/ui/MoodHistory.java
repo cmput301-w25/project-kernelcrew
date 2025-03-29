@@ -83,7 +83,7 @@ public class MoodHistory extends DefaultFilterBarFragment implements MoodHistory
             searchNFilterFragment.setOnFilterChangedListener(filter -> {
                 // Set the filter to only show the current user's mood events
                 String currentUserId = Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid();
-                filter.setUsers(currentUserId);
+                filter.setUser(currentUserId);
                 // Clear any reason query so that local filtering doesn't unintentionally remove events
                 filter.setReasonQuery(null);
 

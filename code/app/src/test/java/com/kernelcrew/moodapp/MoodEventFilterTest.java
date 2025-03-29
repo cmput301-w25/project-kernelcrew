@@ -57,7 +57,7 @@ public class MoodEventFilterTest {
                 .addEmotion(Emotion.ANGER)
                 .setDateRange(startDate, endDate)
                 .setSortField("created", Query.Direction.ASCENDING)
-                .setUsers("user123");
+                .setUser("user123");
 
         Query builtQuery = filter.buildQuery();
 
@@ -181,7 +181,7 @@ public class MoodEventFilterTest {
     @Test
     public void testBuildQueryWithOnlyUser() {
         MoodEventFilter filter = new MoodEventFilter(mockCollectionReference)
-                .setUsers("user456");
+                .setUser("user456");
         Query builtQuery = filter.buildQuery();
 
         verify(mockCollectionReference).whereEqualTo(eq("uid"), eq("user456"));
@@ -227,7 +227,7 @@ public class MoodEventFilterTest {
         MoodEventFilter filter = new MoodEventFilter(mockCollectionReference)
                 .addEmotions(new HashSet<>())
                 .setDateRange(null, null)
-                .setUsers((String) null);
+                .setUser((String) null);
         Query builtQuery = filter.buildQuery();
 
         assertEquals(mockCollectionReference, builtQuery);
@@ -254,7 +254,7 @@ public class MoodEventFilterTest {
     public void testNoOpChaining() {
         MoodEventFilter filter = new MoodEventFilter(mockCollectionReference);
         filter.setDateRange(null, null)
-                .setUsers((String) null);
+                .setUser((String) null);
         Query builtQuery = filter.buildQuery();
         assertEquals(mockCollectionReference, builtQuery);
     }
@@ -262,8 +262,8 @@ public class MoodEventFilterTest {
     @Test
     public void testOverwritingUserFilter() {
         MoodEventFilter filter = new MoodEventFilter(mockCollectionReference)
-                .setUsers("firstUser")
-                .setUsers("secondUser");
+                .setUser("firstUser")
+                .setUser("secondUser");
         Query builtQuery = filter.buildQuery();
 
         verify(mockCollectionReference).whereEqualTo(eq("uid"), eq("secondUser"));

@@ -128,11 +128,8 @@ public class UserProvider {
             for (DocumentSnapshot doc : querySnapshot.getDocuments()) {
                 if (doc.getId().equals(currentUserId)) continue;
 
-                // doc.getString("username") or similar to retrieve the display name
                 String username = doc.getString("username");
                 if (username != null && username.toLowerCase().contains(lowerQuery)) {
-                    // First argument = Firestore doc ID (the user's UID)
-                    // Second argument = the username string from Firestore
                     results.add(new User(doc.getId(), username, false));
                 }
             }

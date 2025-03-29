@@ -13,6 +13,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.material.button.MaterialButton;
 import com.kernelcrew.moodapp.data.Emotion;
 import com.kernelcrew.moodapp.data.MoodEventFilter;
+import com.kernelcrew.moodapp.ui.components.DefaultFilterBarFragment;
 import com.kernelcrew.moodapp.ui.components.FilterBarFragment;
 
 import org.junit.Before;
@@ -47,7 +48,7 @@ public class FilterBarFragmentTest extends FirebaseEmulatorMixin {
         @Override
         public Fragment instantiate(ClassLoader classLoader, String className) {
             if (className.equals(FilterBarFragment.class.getName())) {
-                FilterBarFragment fragment = new FilterBarFragment();
+                FilterBarFragment fragment = new DefaultFilterBarFragment();
                 fragment.setOnFilterChangedListener(listener);
                 return fragment;
             }

@@ -18,7 +18,6 @@ public class MoodEventFilter implements Cloneable {
     private static final double EARTH_RADIUS_KM = 6371.0;
 
     private final Query allMoodEvents;
-    private final CollectionReference collectionReference;
     private final FilterCriteria criteria = new FilterCriteria();
     private String reasonQuery;
 
@@ -38,7 +37,7 @@ public class MoodEventFilter implements Cloneable {
 
             cloned.emotions = new HashSet<>(this.emotions);
             cloned.socialSituations = new HashSet<>(this.socialSituations);
-            cloned.userIds = new HashSet<>(this.userIds);
+            cloned.userId = this.userId;
 
             if (this.dateRange != null) {
                 cloned.dateRange = (DateRange) this.dateRange.clone();
@@ -124,10 +123,6 @@ public class MoodEventFilter implements Cloneable {
         this.allMoodEvents = allMoodEvents;
     }
 
-    public MoodEventFilter(CollectionReference collectionReference) {
-        this.collectionReference = collectionReference;
-    }
-
     public MoodEventFilter(MoodEventProvider provider) {
         this.allMoodEvents = provider.getAll();
     }
@@ -174,7 +169,7 @@ public class MoodEventFilter implements Cloneable {
             throw new IllegalArgumentException("Start date must not be after end date.");
         }
         if (criteria.dateRange == null) {
-            criteria.dateRange = new Sorting();
+            criteria.dateRange = new DateRange();
         }
 
         criteria.dateRange.start = startDate;
@@ -201,16 +196,8 @@ public class MoodEventFilter implements Cloneable {
 
     // User filters
     public MoodEventFilter setUser(String userId) {
-        criteria.userIds.clear();
         if (isValidString(userId)) {
-            criteria.userIds.add(userId);
-        }
-        return this;
-    }
-
-    public MoodEventFilter addUser(String userId) {
-        if (isValidString(userId)) {
-            criteria.userIds.add(userId);
+            this.criteria.userId = userId;
         }
         return this;
     }
@@ -278,9 +265,9 @@ public class MoodEventFilter implements Cloneable {
         if (criteria.sorting != null) count++;
         if (criteria.location != null) count++;
         if (!criteria.socialSituations.isEmpty()) count++;
-        if (!criteria.userIds.isEmpty()) count++;
+        if (!isValidString(criteria.userId)) count++;
         if (criteria.limit != null) count++;
-        if (reasonQuery != null) count++;
+        if (!isValidString(reasonQuery)) count++;
         return count;
     }
 
@@ -288,7 +275,7 @@ public class MoodEventFilter implements Cloneable {
      * Clears all applied filters.
      */
     public void clearFilters() {
-        criteria.userIds.clear();
+        criteria.userId = null;
         criteria.emotions.clear();
         criteria.socialSituations.clear();
         criteria.dateRange = null;
@@ -305,8 +292,8 @@ public class MoodEventFilter implements Cloneable {
      */
     public String getSummary() {
         StringBuilder sb = new StringBuilder();
-        if (!criteria.userIds.isEmpty()) {
-            sb.append("User IDs: ").append(criteria.userIds).append("\n");
+        if (criteria.userId != null) {
+            sb.append("User ID: ").append(criteria.userId).append("\n");
         }
         if (!criteria.emotions.isEmpty()) {
             sb.append("Emotions: ").append(criteria.emotions).append("\n");
@@ -352,8 +339,8 @@ public class MoodEventFilter implements Cloneable {
         // Start with the collection reference
         Query query = allMoodEvents;
 
-        if (userId != null) {
-            query = query.whereEqualTo("uid", userId);
+        if (isValidString(criteria.userId)) {
+            query = query.whereEqualTo("uid", criteria.userId);
         }
 
         if (!criteria.emotions.isEmpty()) {

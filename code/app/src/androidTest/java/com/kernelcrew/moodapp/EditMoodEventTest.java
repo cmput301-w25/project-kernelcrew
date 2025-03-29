@@ -55,7 +55,7 @@ public class EditMoodEventTest extends FirebaseEmulatorMixin {
         loginUser();
 
         MoodEvent moodEvent = new MoodEvent(
-                auth.getCurrentUser().getUid(),
+                FirebaseAuth.getInstance().getUid(),
                 "Username",
                 Emotion.DISGUST,
                 "",
