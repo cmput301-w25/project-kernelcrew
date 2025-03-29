@@ -59,7 +59,7 @@
                 android:paddingVertical="5dp"
                 android:gravity="center"
                 app:toggleCheckedStateOnClick="false"
-                android:text="Moods"
+                android:text="Mood Reason"
                 android:textSize="14sp"
                 android:checkable="true" />
 
