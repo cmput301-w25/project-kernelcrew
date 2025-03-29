@@ -19,7 +19,7 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.kernelcrew.moodapp.R;
-import com.kernelcrew.moodapp.data.CheckFollowRequestCount;
+import com.kernelcrew.moodapp.data.FollowProvider;
 
 public class MyProfile extends Fragment {
     FirebaseAuth auth;
@@ -131,7 +131,8 @@ public class MyProfile extends Fragment {
      * @param followRequestsButton The ImageView that will display the follow request status image.
      */
     private void listenForFollowRequests(String userId, ImageView followRequestsButton) {
-        CheckFollowRequestCount.listenToFollowRequests(userId, (snapshots, e) -> {
+        // Using FollowProvider to listen for changes in follow requests for current user
+        FollowProvider.listenToFollowRequests(userId, (snapshots, e) -> {
             if (e != null) {
                 // Handle error
                 return;
