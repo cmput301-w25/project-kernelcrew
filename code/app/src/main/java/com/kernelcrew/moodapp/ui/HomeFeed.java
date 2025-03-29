@@ -9,7 +9,6 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentContainerView;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -19,10 +18,9 @@ import com.google.android.material.navigation.NavigationBarView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentSnapshot;
-import com.google.firebase.firestore.Query;
 import com.kernelcrew.moodapp.R;
+import com.kernelcrew.moodapp.data.FollowRequestProvider;
 import com.kernelcrew.moodapp.data.MoodEvent;
-import com.kernelcrew.moodapp.data.MoodEventFilter;
 import com.kernelcrew.moodapp.data.MoodEventProvider;
 import com.kernelcrew.moodapp.ui.components.FilterBarFragment;
 
@@ -58,17 +56,31 @@ public class HomeFeed extends Fragment {
 
         searchNFilterFragment = (FilterBarFragment) getChildFragmentManager().findFragmentById(R.id.filterBarFragment);
 
-        // Setup RecyclerView
         moodRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         moodAdapter = new MoodAdapter();
 
         moodRecyclerView.setAdapter(moodAdapter);
 
+        if (user != null) {
+            String myUid = user.getUid();
+
+            // Initialize FollowRequestProvider
+            FollowRequestProvider followRequestProvider = new FollowRequestProvider(getContext());
+
+            // Listen for follow requests
+            followRequestProvider.listenForFollowRequests(myUid);
+
+            // Listen for follow accepted notifications
+            followRequestProvider.listenForFollowAcceptedNotifications(myUid);
+        }
+
         if (auth.getCurrentUser() == null) {
             Log.e("Home", "User not authenticated!");
         }
 
-        // Listen for changes in the "moodEvents" collection
+        FollowRequestProvider followRequestProvider = new FollowRequestProvider(getContext());
+
+        // Listener for moodEvents collection
         if (searchNFilterFragment != null) {
             searchNFilterFragment.setOnFilterChangedListener(filter -> {
                 filter.buildQuery()
@@ -77,12 +89,10 @@ public class HomeFeed extends Fragment {
                                 Log.w("HomeFeed", "Listen failed.", error);
                                 return;
                             }
-
                             if (snapshots == null) {
                                 Log.w("HomeFeed", "No snapshot data received.");
                                 return;
                             }
-
                             List<MoodEvent> moodList = new ArrayList<>();
                             for (DocumentSnapshot doc : snapshots.getDocuments()) {
                                 MoodEvent mood = doc.toObject(MoodEvent.class);
@@ -94,7 +104,6 @@ public class HomeFeed extends Fragment {
                             currentFilteredList = moodList;
                             moodAdapter.setMoods(moodList);
                         });
-
             });
         }
 
@@ -103,7 +112,7 @@ public class HomeFeed extends Fragment {
             public void onViewDetails(MoodEvent mood) {
                 Bundle args = new Bundle();
                 args.putString("moodEventId", mood.getId());
-                args.putString("sourceScreen", "home"); // or "filtered"
+                args.putString("sourceScreen", "home");
                 NavController navController = Navigation.findNavController(requireActivity(), R.id.nav_host_fragment);
                 navController.navigate(R.id.action_homeFeed_to_moodDetails, args);
             }
@@ -116,10 +125,7 @@ public class HomeFeed extends Fragment {
                 NavController navController = Navigation.findNavController(requireActivity(), R.id.nav_host_fragment);
                 navController.navigate(R.id.action_homeFeed_to_moodComments, args);
             }
-
         });
-
-
 
         return view;
     }

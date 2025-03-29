@@ -1,32 +1,38 @@
 package com.kernelcrew.moodapp.ui;
 
+import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.Canvas;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptor;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.material.navigation.NavigationBarView;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.kernelcrew.moodapp.R;
+import com.kernelcrew.moodapp.data.Emotion;
 import com.kernelcrew.moodapp.data.MoodEvent;
 import com.kernelcrew.moodapp.data.MoodEventProvider;
-import com.kernelcrew.moodapp.data.UserProvider;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * An activity that displays a Google map with a marker (pin) to indicate a particular location.
@@ -39,18 +45,6 @@ public class MoodMap extends Fragment
     private MoodEventProvider moodEventProvider;
     private GoogleMap moodMap;
     private Map<Marker, MoodEvent> markerToMoodMap = new HashMap<>();
-    private static List<MoodEvent> sharedMoodEvents = null;
-
-    private UserProvider userProvider;
-
-    public static void setSharedMoodEvents(List<MoodEvent> events) {
-        sharedMoodEvents = events;
-    }
-
-    public static List<MoodEvent> getSharedMoodEvents() {
-        return sharedMoodEvents;
-    }
-
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -91,78 +85,119 @@ public class MoodMap extends Fragment
 
         moodMap = googleMap;
         moodMap.getUiSettings().setZoomControlsEnabled(true);
-        List<MoodEvent> events = MoodMap.getSharedMoodEvents();
-        loadMoodEventsOnMap(events);
-        MoodMap.setSharedMoodEvents(null); // Free up memory
+
+        loadMoodEventsOnMap();
+
     }
 
 
-    public void loadMoodEventsOnMap(List<MoodEvent> events) {
+    private void loadMoodEventsOnMap() {
         // Clear existing markers
         moodMap.clear();
         markerToMoodMap.clear();
 
-        AtomicBoolean hasMarkers = new AtomicBoolean(false);
-        LatLng lastPosition = null;
+        // ##################################################################
+        //          TODO - Implement filter for MoodEvents on map
+        // ##################################################################
 
-        for (MoodEvent moodEvent : events) {
-            if (moodEvent != null && moodEvent.getLatitude() != null && moodEvent.getLongitude() != null) {
-                // Get location for marker
-                LatLng position = new LatLng(moodEvent.getLatitude(), moodEvent.getLongitude());
-                lastPosition = position;
+        // Query all mood events with location data
+        moodEventProvider.getAll()
+                .get()
+                .addOnSuccessListener(queryDocumentSnapshots -> {
+                    boolean hasMarkers = false;
+                    LatLng lastPosition = null;
 
-                // Get marker color based on emotion
-                float markerColor = getEmotionColour(moodEvent.getEmotion().toString());
-                userProvider = UserProvider.getInstance();
-                // Create the marker
-                LatLng finalLastPosition = lastPosition;
-                userProvider.getUsername(moodEvent.getUid())
-                            .addOnSuccessListener(username -> {
-                                MarkerOptions markerOptions = new MarkerOptions()
-                                        .position(position)
-                                        .snippet(moodEvent.getEmotion().toString())
-                                        .title(username)
-                                        //.snippet(moodEvent.getReason())
-                                        .icon(BitmapDescriptorFactory.defaultMarker(markerColor));
-                                // Add the marker to the map
-                                Marker marker = moodMap.addMarker(markerOptions);
-                                if (marker != null) {
-                                    markerToMoodMap.put(marker, moodEvent);
-                                    hasMarkers.set(true);
-                                }
-                                // If we added markers, move camera to the last one
-                                if (hasMarkers.get()) {
-                                    moodMap.animateCamera(CameraUpdateFactory.newLatLngZoom(finalLastPosition, 10.0f));
-                                }
-                        });
-            }
-        }
+                    for (DocumentSnapshot document : queryDocumentSnapshots.getDocuments()) {
+                        MoodEvent moodEvent = document.toObject(MoodEvent.class);
+                        if (moodEvent.getUsername() != null && moodEvent != null && moodEvent.getLatitude() != null && moodEvent.getLongitude() != null) {
+                            // Get location for marker
+                            LatLng position = new LatLng(moodEvent.getLatitude(), moodEvent.getLongitude());
+                            lastPosition = position;
 
+                            // Get marker icon based on emotion
+                            BitmapDescriptor emotionIcon = getEmotionIcon(moodEvent.getEmotion().toString());
 
+                            // Create the marker
+                            MarkerOptions markerOptions = new MarkerOptions()
+                                    .position(position)
+                                    .title(moodEvent.getUsername())
+                                    .snippet(moodEvent.getEmotion().toString())
+                                    .icon(emotionIcon);
+
+                            // Add the marker to the map
+                            Marker marker = moodMap.addMarker(markerOptions);
+                            if (marker != null) {
+                                markerToMoodMap.put(marker, moodEvent);
+                                hasMarkers = true;
+                            }
+                        }
+                    }
+
+                    // If we added markers, move camera to the last one
+                    if (hasMarkers) {
+                        moodMap.animateCamera(CameraUpdateFactory.newLatLngZoom(lastPosition, 10.0f));
+                    }
+                })
+                .addOnFailureListener(e ->
+                        Log.e("MoodMapFragment", "Error loading mood events on map", e));
     }
 
 
-    private float getEmotionColour(String emotion) {
+    private BitmapDescriptor getEmotionIcon(String emotion) {
+        int resourceId;
+
+        // Assign the appropriate drawable resource based on the emotion
         switch (emotion) {
             case "Anger":
-                return 0;
+                resourceId = R.drawable.ic_anger_color_with_bg;
+                break;
             case "Confused":
-                return (float) 175.32;
+                resourceId = R.drawable.ic_confused_color_with_bg;
+                break;
             case "Disgust":
-                return (float) 133.25;
+                resourceId = R.drawable.ic_disgust_color_with_bg;
+                break;
             case "Fear":
-                return (float) 274.05;
+                resourceId = R.drawable.ic_fear_color_with_bg;
+                break;
             case "Happy":
-                return (float) 61.82;
+                resourceId = R.drawable.ic_happy_color_with_bg;
+                break;
             case "Sad":
-                return (float) 216;
+                resourceId = R.drawable.ic_sad_color_with_bg;
+                break;
             case "Shame":
-                return (float) 312.88;
+                resourceId = R.drawable.ic_shame_color_with_bg;
+                break;
             case "Surprise":
-                return (float) 31.96;
+                resourceId = R.drawable.ic_surprise_color_with_bg;
+                break;
             default:
-                return 247;
+                resourceId = R.drawable.ic_error_color;
+                break;
         }
+
+        // Create a properly scaled bitmap from the drawable resource
+        return getBitmapDescriptorFromVector(getContext(), resourceId);
+    }
+
+
+    private BitmapDescriptor getBitmapDescriptorFromVector(Context context, int vectorResId) {
+        Drawable vectorDrawable = ContextCompat.getDrawable(context, vectorResId);
+        if (vectorDrawable == null) {
+            return BitmapDescriptorFactory.defaultMarker();
+        }
+
+        int width = vectorDrawable.getIntrinsicWidth();
+        int height = vectorDrawable.getIntrinsicHeight();
+
+        vectorDrawable.setBounds(0, 0, width, height);
+
+        Bitmap bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
+        Canvas canvas = new Canvas(bitmap);
+        vectorDrawable.draw(canvas);
+
+        return BitmapDescriptorFactory.fromBitmap(bitmap);
     }
 
 
