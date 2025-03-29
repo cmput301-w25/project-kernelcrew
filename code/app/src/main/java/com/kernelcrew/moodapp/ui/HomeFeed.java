@@ -123,9 +123,21 @@ public class HomeFeed extends Fragment {
                                     moodList.add(mood);
                                 }
                             }
-                            currentFilteredList = moodList;
-                            moodAdapter.setMoods(moodList);
-                        });
+                                // Client-side filtering based on mood type (Emotion)
+                                String searchWord = filter.getSearchQuery().trim().toLowerCase();
+                                if (!searchWord.isEmpty()) {
+                                    List<MoodEvent> filteredList = new ArrayList<>();
+                                    for (MoodEvent m : moodList) {
+                                        if (m.getEmotion() != null &&
+                                                m.getEmotion().toString().toLowerCase().contains(searchWord)) {
+                                            filteredList.add(m);
+                                        }
+                                    }
+                                    moodList = filteredList;
+                                }
+                                currentFilteredList = moodList;
+                                moodAdapter.setMoods(moodList);
+                            });
                 }
             });
         }

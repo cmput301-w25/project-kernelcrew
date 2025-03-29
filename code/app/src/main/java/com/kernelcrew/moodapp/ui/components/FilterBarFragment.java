@@ -89,7 +89,6 @@ public class FilterBarFragment extends Fragment {
         // If this FilterBarFragment is used in MoodHistory, hide the searchUser button and rename searchReason to "Moods"
         if (getParentFragment() instanceof MoodHistory) {
             searchUser.setVisibility(View.GONE);
-            searchReason.setText("Moods");
         }
 
         // Search bar listener
