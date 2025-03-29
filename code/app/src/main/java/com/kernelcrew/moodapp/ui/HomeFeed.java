@@ -60,6 +60,7 @@ public class HomeFeed extends DefaultFilterBarFragment implements FilterBarFragm
 
         NavigationBarView navigationBar = view.findViewById(R.id.bottom_navigation);
         recyclerView = view.findViewById(R.id.moodRecyclerView);
+        recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         navBarController = new BottomNavBarController(navigationBar);
 
         // Get our filter and search fragment
@@ -123,8 +124,8 @@ public class HomeFeed extends DefaultFilterBarFragment implements FilterBarFragm
 
     @Override
     public void onUserSearchResults(List<User> users) {
-        recyclerView.setAdapter(userAdapter);
         userAdapter.setUsers(users);
+        recyclerView.setAdapter(userAdapter);
         Log.d("HomeFeed", users.isEmpty() ? "No user results found." : "Showing " + users.size() + " user results.");
     }
 
@@ -164,6 +165,7 @@ public class HomeFeed extends DefaultFilterBarFragment implements FilterBarFragm
                         throw new RuntimeException(e);
                     }
 
+                    // Add followers
                     for (String followedId : followedIds) {
                         try {
                             tasks.add(((MoodEventFilter) filter.clone())

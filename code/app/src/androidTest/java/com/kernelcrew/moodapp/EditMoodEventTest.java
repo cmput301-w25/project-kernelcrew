@@ -16,6 +16,7 @@ import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static org.awaitility.Awaitility.await;
 import static org.junit.Assert.assertEquals;
 
+import android.os.SystemClock;
 import android.view.View;
 
 import androidx.test.espresso.PerformException;
@@ -85,7 +86,7 @@ public class EditMoodEventTest extends FirebaseEmulatorMixin {
         SystemClock.sleep(3000);
         onView(withId(R.id.toggle_shame)).perform(click());
         onView(withId(R.id.visible_private_button)).perform(scrollTo()).perform(click());
-        onView(withId(R.id.submit_button)).perform(scrollTo()).perform(click());
+        onView(withId(R.id.createMoodEvent_submitButton)).perform(scrollTo()).perform(click());
 
         await().atMost(10, TimeUnit.SECONDS)
                 .untilAsserted(() -> {
