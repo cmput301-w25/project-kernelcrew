@@ -72,25 +72,59 @@ public class FollowRequestProvider {
      * Send a follow request notification.
      */
     private void sendFollowRequestNotification(String requesterUid) {
-        notificationHelper.sendNotification(
-                "Follow Request",
-                requesterUid + " wants to follow you"
-        );
+        // Fetch the username from Firestore
+        db.collection("users").document(requesterUid).get()
+                .addOnSuccessListener(doc -> {
+                    String username = requesterUid; // Fallback to requesterUid if username is not found
+                    if (doc.exists()) {
+                        String fetchedName = doc.getString("username");
+                        Log.d("FollowRequest", "Fetched username: " + fetchedName);  // Log the fetched username
+                        if (fetchedName != null && !fetchedName.isEmpty()) {
+                            username = fetchedName;
+                        }
+                    }
+
+                    // Now send the notification with the username + "wants to follow you"
+                    notificationHelper.sendNotification(
+                            "Follow Request",
+                            username + " wants to follow you"
+                    );
+                })
+                .addOnFailureListener(e -> {
+                    Log.e("FollowRequestProvider", "Error fetching username", e);
+                });
     }
 
     /**
      * Send a follow accepted notification and optionally delete the notification.
      */
     private void sendFollowAcceptedNotification(String fromUserId, String docId) {
-        notificationHelper.sendNotification(
-                "Follow Accepted",
-                fromUserId + " accepted your follow request"
-        );
-        // Optionally, delete the notification after processing.
-        db.collection("users")
-                .document(fromUserId)
-                .collection("notifications")
-                .document(docId)
-                .delete();
+        // Fetch the username from Firestore
+        db.collection("users").document(fromUserId).get()
+                .addOnSuccessListener(doc -> {
+                    String username = fromUserId; // Fallback to fromUserId if username is not found
+                    if (doc.exists()) {
+                        String fetchedName = doc.getString("username");
+                        if (fetchedName != null && !fetchedName.isEmpty()) {
+                            username = fetchedName;
+                        }
+                    }
+
+                    // Send the notification with the username + "accepted your follow request"
+                    notificationHelper.sendNotification(
+                            "Follow Accepted",
+                            username + " accepted your follow request"
+                    );
+
+                    // Optionally, delete the notification after processing
+                    db.collection("users")
+                            .document(fromUserId)
+                            .collection("notifications")
+                            .document(docId)
+                            .delete();
+                })
+                .addOnFailureListener(e -> {
+                    Log.e("FollowRequestProvider", "Error fetching username", e);
+                });
     }
 }
