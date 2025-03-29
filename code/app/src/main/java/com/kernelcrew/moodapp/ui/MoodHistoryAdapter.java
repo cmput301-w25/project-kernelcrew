@@ -110,7 +110,9 @@ public class MoodHistoryAdapter extends RecyclerView.Adapter<MoodHistoryAdapter.
         String formattedDate = dateFormat.format(mood.getCreated());
 
         holder.textDate.setText(formattedDate);
-        holder.textMoodEventNumber.setText("Mood Event " + (position + 1));
+
+        // Display the mood type (emotion) instead of a sequential number
+        holder.textMoodEventNumber.setText(mood.getEmotion().toString());
 
         // Set click listener on the item view
         holder.itemView.setOnClickListener(v -> {
