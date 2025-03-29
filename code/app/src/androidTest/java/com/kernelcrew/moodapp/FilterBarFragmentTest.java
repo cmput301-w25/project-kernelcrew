@@ -15,6 +15,8 @@ import com.kernelcrew.moodapp.data.Emotion;
 import com.kernelcrew.moodapp.data.MoodEventFilter;
 import com.kernelcrew.moodapp.ui.components.FilterBarFragment;
 
+import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
@@ -22,9 +24,21 @@ import org.mockito.ArgumentCaptor;
 import java.lang.reflect.Method;
 import java.util.Date;
 import java.util.HashSet;
+import java.util.concurrent.ExecutionException;
 
 @RunWith(AndroidJUnit4.class)
 public class FilterBarFragmentTest extends FirebaseEmulatorMixin {
+    @BeforeClass
+    public static void createNewUser() throws ExecutionException, InterruptedException {
+        staticCreateUser();
+    }
+
+    @Before
+    public void setupUser() throws ExecutionException, InterruptedException {
+        // MoodEventProvider requires an active user for public/private filtering
+        loginUser();
+    }
+
     public static class TestFilterBarFragmentFactory extends FragmentFactory {
         private final FilterBarFragment.OnFilterChangedListener listener;
         public TestFilterBarFragmentFactory(FilterBarFragment.OnFilterChangedListener listener) {

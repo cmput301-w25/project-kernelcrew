@@ -6,6 +6,7 @@ import static android.view.View.VISIBLE;
 
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
 
@@ -13,9 +14,11 @@ import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.content.FileProvider;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentContainerView;
 
+import android.os.Environment;
 import android.provider.MediaStore;
 import android.util.Log;
 import android.view.View;
@@ -33,8 +36,14 @@ import com.kernelcrew.moodapp.data.Emotion;
 import com.kernelcrew.moodapp.data.MoodEvent;
 import com.kernelcrew.moodapp.data.MoodEventVisibility;
 import com.kernelcrew.moodapp.ui.components.EmotionPickerFragment;
+import com.kernelcrew.moodapp.ui.components.UploadPhotoFragment;
 import com.kernelcrew.moodapp.utils.PhotoUtils;
+
+import java.io.File;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
 
 /**
  * Fragment controller for MoodEventForm.
@@ -57,27 +66,6 @@ public class MoodEventForm extends Fragment implements LocationUpdateListener {
     private MaterialButtonToggleGroup visibilityToggle;
 
     /**
-     * Handler for the image picker submission action.
-     */
-    private final ActivityResultLauncher<Intent> pickImageLauncher =
-            registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result -> {
-                if (result.getResultCode() == RESULT_OK) {
-                    Intent data = result.getData();
-                    if (data != null) {
-                        setImageFromUri(data.getData());
-                    }
-                }
-            });
-
-    /**
-     * Open an image picker and update the photoUri and photoButton photo when a selection is made.
-     */
-    private void openImagePicker() {
-        Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-        pickImageLauncher.launch(intent);
-    }
-
-    /**
      * Clear the currently selected photo.
      */
     private void resetPhoto() {
@@ -90,18 +78,13 @@ public class MoodEventForm extends Fragment implements LocationUpdateListener {
 
     /**
      * Change the photo button image
-     * @param imageUri URI of image to set
+     * @param bitmap Bitmap to set
      */
-    private void setImageFromUri(Uri imageUri) {
-        try {
-            Bitmap bitmap = MediaStore.Images.Media.getBitmap(this.requireActivity().getContentResolver(), imageUri);
-            photo = bitmap;
-            photoButton.setImageBitmap(bitmap);
-            updateResetPhotoVisibility();
-        } catch (IOException e) {
-            Toast.makeText(requireContext(), "Failed to upload image", Toast.LENGTH_SHORT).show();
-            Log.e("MoodEventForm", e.toString());
-        }
+    private void setImageFromBitmap(Bitmap bitmap) {
+        Log.i("MoodEventForm", "here");
+        photo = bitmap;
+        photoButton.setImageBitmap(bitmap);
+        updateResetPhotoVisibility();
     }
 
     /**
@@ -133,6 +116,7 @@ public class MoodEventForm extends Fragment implements LocationUpdateListener {
     }
 
     public static class MoodEventDetails {
+        String username;
         Emotion emotion;
         String socialSituation;
         String reason;
@@ -151,6 +135,7 @@ public class MoodEventForm extends Fragment implements LocationUpdateListener {
          * @param moodEvent MoodEvent to extract details from
          */
         public MoodEventDetails(MoodEvent moodEvent) {
+            username = moodEvent.getUsername();
             emotion = moodEvent.getEmotion();
             socialSituation = moodEvent.getSocialSituation();
             reason = moodEvent.getReason();
@@ -168,6 +153,7 @@ public class MoodEventForm extends Fragment implements LocationUpdateListener {
         public MoodEvent toMoodEvent(String uid) {
             MoodEvent moodEvent = new MoodEvent(
                     uid,
+                    username,
                     emotion,
                     socialSituation,
                     reason,
@@ -193,9 +179,12 @@ public class MoodEventForm extends Fragment implements LocationUpdateListener {
         } else {
             // locationStatusTextView.setText("No location set");
         }
-        photo = details.photo;
-        photoButton.setImageBitmap(details.photo);
-        updateResetPhotoVisibility();
+
+        if (details.photo != null) {
+            photo = details.photo;
+            photoButton.setImageBitmap(details.photo);
+            updateResetPhotoVisibility();
+        }
 
         visibilityToggle.clearChecked();
         switch (details.visibility) {
@@ -299,7 +288,11 @@ public class MoodEventForm extends Fragment implements LocationUpdateListener {
         situationAutoComplete = view.findViewById(R.id.emotion_situation);
         reasonEditText = view.findViewById(R.id.emotion_reason);
         photoButton = view.findViewById(R.id.photo_button);
-        photoButton.setOnClickListener(_v -> openImagePicker());
+        photoButton.setOnClickListener(_v -> {
+            UploadPhotoFragment uploadPhotoFragment = new UploadPhotoFragment();
+            uploadPhotoFragment.setUploadPhotoListener(this::setImageFromBitmap);
+            uploadPhotoFragment.show(requireActivity().getSupportFragmentManager(), uploadPhotoFragment.getTag());
+        });
         photoResetButton = view.findViewById(R.id.photo_reset_button);
         photoResetButton.setOnClickListener(_v -> resetPhoto());
         photoButtonError = view.findViewById(R.id.photo_button_error);
