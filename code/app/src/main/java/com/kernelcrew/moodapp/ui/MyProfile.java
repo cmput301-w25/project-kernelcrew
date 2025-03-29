@@ -30,7 +30,7 @@ public class MyProfile extends Fragment {
     NavigationBarView navigationBarView;
     BottomNavBarController navBarController;
 
-    private boolean hasFollowRequest = false; // Declare the variable to store follow request status
+    private boolean hasFollowRequest = false;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -80,15 +80,8 @@ public class MyProfile extends Fragment {
             }
         }
 
-        // Check if there are any follow requests for the user
-        checkForFollowRequest(uidToLoad);  // Retrieve the follow request status
-
-        // Update the image of the follow request button based on the status
-        if (hasFollowRequest) {
-            followRequestsButton.setImageResource(R.drawable.ic_follow_request_yes);  // Change to the "yes" image
-        } else {
-            followRequestsButton.setImageResource(R.drawable.ic_follow_request_no);  // Default image
-        }
+        // Start listening for follow request changes
+        listenForFollowRequests(uidToLoad, followRequestsButton);  // Listen for changes to follow requests
 
         // Firebase Firestore listeners for followers and following count
         if (uidToLoad != null) {
@@ -125,17 +118,26 @@ public class MyProfile extends Fragment {
         Navigation.findNavController(btnView).navigate(R.id.authHome);
     }
 
-    // Method to check follow request status using CheckFollowRequestCount
-    private void checkForFollowRequest(String userId) {
-        // Call the CheckFollowRequestCount to fetch follow requests for the user
-        CheckFollowRequestCount.getFollowRequests(userId)
-                .addOnCompleteListener(task -> {
-                    if (task.isSuccessful() && task.getResult() != null) {
-                        // Check if the query result is not empty (meaning there are follow requests)
-                        hasFollowRequest = !task.getResult().isEmpty();
-                    } else {
-                        hasFollowRequest = false; // No follow requests
-                    }
-                });
+    // Listen for changes to the user's follow requests
+    private void listenForFollowRequests(String userId, ImageView followRequestsButton) {
+        CheckFollowRequestCount.listenToFollowRequests(userId, (snapshots, e) -> {
+            if (e != null) {
+                // Handle error
+                return;
+            }
+
+            if (snapshots != null && !snapshots.isEmpty()) {
+                hasFollowRequest = true; // If there are follow requests
+            } else {
+                hasFollowRequest = false; // No follow requests
+            }
+
+            // Update the image based on the follow request status
+            if (hasFollowRequest) {
+                followRequestsButton.setImageResource(R.drawable.ic_follow_request_yes);  // Image for "yes"
+            } else {
+                followRequestsButton.setImageResource(R.drawable.ic_follow_request_no);  // Default image
+            }
+        });
     }
 }

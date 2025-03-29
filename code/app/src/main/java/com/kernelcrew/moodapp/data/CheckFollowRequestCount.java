@@ -1,18 +1,18 @@
 package com.kernelcrew.moodapp.data;
 
+import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QuerySnapshot;
-import com.google.android.gms.tasks.Task;
 
 public class CheckFollowRequestCount {
 
-    // Method to check if the current user has follow requests
-    public static Task<QuerySnapshot> getFollowRequests(String userId) {
-        // Get the follow requests collection for the user
-        return FirebaseFirestore.getInstance()
+    // Method to listen to changes in follow requests for a user
+    public static void listenToFollowRequests(String userId, EventListener<QuerySnapshot> listener) {
+        // Set up a Firestore snapshot listener to listen to changes in follow requests
+        FirebaseFirestore.getInstance()
                 .collection("users")
                 .document(userId)
                 .collection("followRequests")
-                .get(); // This returns a Task<QuerySnapshot>
+                .addSnapshotListener(listener); // Returns a listener for updates
     }
 }
