@@ -1,5 +1,5 @@
 @startuml
-class com.kernelcrew.moodapp.ui.MoodComments {
+class MoodComments {
 - RecyclerView recyclerView
 ~ NavigationBarView navigationBar
 - BottomNavBarController navBarController
@@ -31,7 +31,7 @@ class com.kernelcrew.moodapp.ui.MoodComments {
 }
 
 
-class com.kernelcrew.moodapp.data.MoodEventFilter {
+class MoodEventFilter {
 - Query allMoodEvents
 - Set<Emotion> emotions
 - String userId
@@ -56,7 +56,7 @@ class com.kernelcrew.moodapp.data.MoodEventFilter {
 }
 
 
-class com.kernelcrew.moodapp.ui.MoodHistoryAdapter {
+class MoodHistoryAdapter {
 - List<MoodEvent> moods
 - SimpleDateFormat dateFormat
 - OnItemClickListener listener
@@ -68,16 +68,16 @@ class com.kernelcrew.moodapp.ui.MoodHistoryAdapter {
 }
 
 
-interface com.kernelcrew.moodapp.ui.MoodHistoryAdapter$OnItemClickListener {
+interface MoodHistoryAdapter$OnItemClickListener {
 ~ void onItemClick(String)
 }
 
-class com.kernelcrew.moodapp.ui.MoodHistoryAdapter$MoodViewHolder {
+class MoodHistoryAdapter$MoodViewHolder {
 + TextView textDate
 + TextView textMoodEventNumber
 }
 
-class com.kernelcrew.moodapp.ui.components.FilterBarFragment {
+class FilterBarFragment {
 - MoodEventFilter moodEventFilter
 - Set<Emotion> selectedEmotions
 - OnFilterChangedListener listener
@@ -94,15 +94,15 @@ class com.kernelcrew.moodapp.ui.components.FilterBarFragment {
 }
 
 
-interface com.kernelcrew.moodapp.ui.components.FilterBarFragment$OnFilterChangedListener {
+interface FilterBarFragment$OnFilterChangedListener {
 ~ void onFilterChanged(MoodEventFilter)
 }
 
-class com.kernelcrew.moodapp.ui.MoodIconUtil {
+class MoodIconUtil {
 + {static} int getMoodIconResource(String)
 }
 
-class com.kernelcrew.moodapp.ui.MoodEventForm {
+class MoodEventForm {
 - Button addLocation
 - EmotionPickerFragment emotionPickerFragment
 - AutoCompleteTextView situationAutoComplete
@@ -128,11 +128,11 @@ class com.kernelcrew.moodapp.ui.MoodEventForm {
 }
 
 
-interface com.kernelcrew.moodapp.ui.MoodEventForm$MoodEventFormSubmitCallback {
+interface MoodEventForm$MoodEventFormSubmitCallback {
 ~ void handleSubmit(MoodEventDetails)
 }
 
-class com.kernelcrew.moodapp.ui.MoodEventForm$MoodEventDetails {
+class MoodEventForm$MoodEventDetails {
 ~ String username
 ~ Emotion emotion
 ~ String socialSituation
@@ -145,7 +145,7 @@ class com.kernelcrew.moodapp.ui.MoodEventForm$MoodEventDetails {
 }
 
 
-class com.kernelcrew.moodapp.ui.LocationFragment {
+class LocationFragment {
 - LocationUpdateListener updateListener
 - FusedLocationProviderClient fusedLocationClient
 - Button requestLocationButton
@@ -167,7 +167,7 @@ class com.kernelcrew.moodapp.ui.LocationFragment {
 }
 
 
-class com.kernelcrew.moodapp.ui.DeleteDialogFragment {
+class DeleteDialogFragment {
 - FirebaseFirestore db
 - DeleteDialogListener listener
 + void setDeleteDialogListener(DeleteDialogListener)
@@ -177,11 +177,11 @@ class com.kernelcrew.moodapp.ui.DeleteDialogFragment {
 }
 
 
-interface com.kernelcrew.moodapp.ui.DeleteDialogFragment$DeleteDialogListener {
+interface DeleteDialogFragment$DeleteDialogListener {
 ~ void onDeleteConfirmed()
 }
 
-class com.kernelcrew.moodapp.data.CommentProvider {
+class CommentProvider {
 - CollectionReference collection
 - {static} CommentProvider instance
 + {static} CommentProvider getInstance()
@@ -190,7 +190,7 @@ class com.kernelcrew.moodapp.data.CommentProvider {
 }
 
 
-class com.kernelcrew.moodapp.ui.MoodDetails {
+class MoodDetails {
 - MaterialToolbar toolbar
 - ImageView imageMoodIcon
 - TextView tvMoodState
@@ -214,7 +214,7 @@ class com.kernelcrew.moodapp.ui.MoodDetails {
 }
 
 
-class com.kernelcrew.moodapp.ui.MyProfile {
+class MyProfile {
 ~ FirebaseAuth auth
 ~ FirebaseUser user
 ~ TextView usernameText
@@ -228,7 +228,7 @@ class com.kernelcrew.moodapp.ui.MyProfile {
 }
 
 
-class com.kernelcrew.moodapp.ui.BottomNavBarController {
+class BottomNavBarController {
 - NavigationBarView navigationBar
 - View view
 + void bind(View)
@@ -236,7 +236,7 @@ class com.kernelcrew.moodapp.ui.BottomNavBarController {
 }
 
 
-enum com.kernelcrew.moodapp.data.Emotion {
+enum Emotion {
 +  ANGER
 +  CONFUSION
 +  DISGUST
@@ -252,7 +252,7 @@ enum com.kernelcrew.moodapp.data.Emotion {
 }
 
 
-class com.kernelcrew.moodapp.ui.AuthSignUp {
+class AuthSignUp {
 - long lastClickTime
 - FirebaseAuth auth
 - FirebaseFirestore db
@@ -274,21 +274,21 @@ class com.kernelcrew.moodapp.ui.AuthSignUp {
 }
 
 
-class com.kernelcrew.moodapp.ui.AuthSignUp$SignUpDetails {
+class AuthSignUp$SignUpDetails {
 ~ String userName
 ~ String email
 ~ String password
 }
 
-interface com.kernelcrew.moodapp.ui.AuthSignUp$OnValidationCompleteListener {
+interface AuthSignUp$OnValidationCompleteListener {
 ~ void onValidationComplete(SignUpDetails)
 }
 
-interface com.kernelcrew.moodapp.ui.AuthSignUp$OnUsernameCheckListener {
+interface AuthSignUp$OnUsernameCheckListener {
 ~ void onCheckComplete(boolean)
 }
 
-class com.kernelcrew.moodapp.ui.CreateMoodEvent {
+class CreateMoodEvent {
 - NavController navController
 - BottomNavBarController navBarController
 - FirebaseUser currentUser
@@ -299,7 +299,7 @@ class com.kernelcrew.moodapp.ui.CreateMoodEvent {
 }
 
 
-class com.kernelcrew.moodapp.ui.components.EmotionPickerFragment {
+class EmotionPickerFragment {
 - ArrayList<EmotionToggle> toggles
 - TextView errorView
 - Emotion selected
@@ -317,21 +317,21 @@ class com.kernelcrew.moodapp.ui.components.EmotionPickerFragment {
 }
 
 
-class com.kernelcrew.moodapp.ui.components.EmotionPickerFragment$EmotionToggle {
+class EmotionPickerFragment$EmotionToggle {
 ~ MaterialButton button
 ~ Emotion emotion
 }
 
-class com.kernelcrew.moodapp.ui.components.EmotionToggleConfig {
+class EmotionToggleConfig {
 ~ int id
 ~ Emotion emotion
 }
 
-interface com.kernelcrew.moodapp.ui.components.EmotionPickerFragment$OnSelectEmotionListener {
+interface EmotionPickerFragment$OnSelectEmotionListener {
 ~ void onSelectEmotion(Emotion)
 }
 
-class com.kernelcrew.moodapp.data.User {
+class User {
 - String name
 - boolean followed
 + String getName()
@@ -339,7 +339,7 @@ class com.kernelcrew.moodapp.data.User {
 }
 
 
-class com.kernelcrew.moodapp.ui.RequestFragment {
+class RequestFragment {
 - String requestType
 - String username
 - FirebaseFirestore db
@@ -351,7 +351,7 @@ class com.kernelcrew.moodapp.ui.RequestFragment {
 }
 
 
-class com.kernelcrew.moodapp.data.LocationHandler {
+class LocationHandler {
 - {static} String TAG
 - Context context
 - FusedLocationProviderClient fusedLocationClient
@@ -361,12 +361,12 @@ class com.kernelcrew.moodapp.data.LocationHandler {
 }
 
 
-interface com.kernelcrew.moodapp.data.LocationHandler$OnLocationObtainedListener {
+interface LocationHandler$OnLocationObtainedListener {
 ~ void onLocationObtained(double,double)
 ~ void onLocationFailed(String)
 }
 
-class com.kernelcrew.moodapp.ui.components.UploadPhotoFragment {
+class UploadPhotoFragment {
 ~ UploadPhotoListener uploadPhotoListener
 - ActivityResultLauncher<Intent> pickImageLauncher
 - String currentPhotoPath
@@ -380,11 +380,11 @@ class com.kernelcrew.moodapp.ui.components.UploadPhotoFragment {
 }
 
 
-interface com.kernelcrew.moodapp.ui.components.UploadPhotoFragment$UploadPhotoListener {
+interface UploadPhotoFragment$UploadPhotoListener {
 ~ void onUpload(Bitmap)
 }
 
-class com.kernelcrew.moodapp.ui.MoodAdapter {
+class MoodAdapter {
 - List<MoodEvent> moods
 - OnMoodClickListener onMoodClickListener
 - UserProvider userProvider
@@ -396,12 +396,12 @@ class com.kernelcrew.moodapp.ui.MoodAdapter {
 }
 
 
-interface com.kernelcrew.moodapp.ui.MoodAdapter$OnMoodClickListener {
+interface MoodAdapter$OnMoodClickListener {
 ~ void onViewDetails(MoodEvent)
 ~ void onViewComments(MoodEvent)
 }
 
-class com.kernelcrew.moodapp.ui.MoodAdapter$MoodViewHolder {
+class MoodAdapter$MoodViewHolder {
 ~ ImageView moodImageView
 ~ TextView moodTypeTextView
 ~ TextView dayTimeTextView
@@ -413,7 +413,7 @@ class com.kernelcrew.moodapp.ui.MoodAdapter$MoodViewHolder {
 ~ ImageView visibilityIcon
 }
 
-class com.kernelcrew.moodapp.ui.CommentAdapter {
+class CommentAdapter {
 - List<Comment> comments
 + CommentViewHolder onCreateViewHolder(ViewGroup,int)
 + void onBindViewHolder(CommentViewHolder,int)
@@ -422,7 +422,7 @@ class com.kernelcrew.moodapp.ui.CommentAdapter {
 }
 
 
-class com.kernelcrew.moodapp.ui.CommentAdapter$CommentViewHolder {
+class CommentAdapter$CommentViewHolder {
 - TextView commentText
 - TextView userNameText
 - TextView timestampText
@@ -430,7 +430,7 @@ class com.kernelcrew.moodapp.ui.CommentAdapter$CommentViewHolder {
 }
 
 
-class com.kernelcrew.moodapp.ui.MoodHistory {
+class MoodHistory {
 - RecyclerView recyclerView
 ~ NavigationBarView navigationBar
 - BottomNavBarController navBarController
@@ -447,7 +447,7 @@ class com.kernelcrew.moodapp.ui.MoodHistory {
 }
 
 
-class com.kernelcrew.moodapp.ui.FollowRequestAdapter {
+class FollowRequestAdapter {
 - List<String> items
 - FollowRequestsFragment fragment
 + ViewHolder onCreateViewHolder(ViewGroup,int)
@@ -456,13 +456,13 @@ class com.kernelcrew.moodapp.ui.FollowRequestAdapter {
 }
 
 
-class com.kernelcrew.moodapp.ui.FollowRequestAdapter$ViewHolder {
+class FollowRequestAdapter$ViewHolder {
 ~ ImageView uid
 ~ TextView requestMessage
 ~ Button acceptButton
 }
 
-class com.kernelcrew.moodapp.data.UserProvider {
+class UserProvider {
 - FirebaseFirestore db
 - {static} UserProvider instance
 + {static} UserProvider getInstance()
@@ -474,7 +474,7 @@ class com.kernelcrew.moodapp.data.UserProvider {
 }
 
 
-class com.kernelcrew.moodapp.ui.HomeFeed {
+class HomeFeed {
 ~ FirebaseAuth auth
 ~ FirebaseUser user
 ~ MoodEventProvider provider
@@ -489,7 +489,7 @@ class com.kernelcrew.moodapp.ui.HomeFeed {
 }
 
 
-class com.kernelcrew.moodapp.data.Comment {
+class Comment {
 - String id
 - String uid
 - String username
@@ -513,7 +513,7 @@ class com.kernelcrew.moodapp.data.Comment {
 }
 
 
-class com.kernelcrew.moodapp.ui.AuthSignIn {
+class AuthSignIn {
 - FirebaseAuth auth
 - MaterialToolbar topAppBar
 - EditText emailEditText
@@ -530,16 +530,16 @@ class com.kernelcrew.moodapp.ui.AuthSignIn {
 }
 
 
-class com.kernelcrew.moodapp.ui.AuthSignIn$SignInDetails {
+class AuthSignIn$SignInDetails {
 ~ String email
 ~ String password
 }
 
-interface com.kernelcrew.moodapp.ui.LocationUpdateListener {
+interface LocationUpdateListener {
 ~ void onLocationUpdated(Double,Double)
 }
 
-class com.kernelcrew.moodapp.ui.FollowRequestsFragment {
+class FollowRequestsFragment {
 - FirebaseFirestore db
 - List<String> requestList
 - FollowRequestAdapter adapter
@@ -551,14 +551,14 @@ class com.kernelcrew.moodapp.ui.FollowRequestsFragment {
 }
 
 
-class com.kernelcrew.moodapp.ui.AuthHome {
+class AuthHome {
 ~ FirebaseAuth auth
 + View onCreateView(LayoutInflater,ViewGroup,Bundle)
 + void onViewCreated(View,Bundle)
 }
 
 
-class com.kernelcrew.moodapp.ui.EditMoodEvent {
+class EditMoodEvent {
 - String moodEventId
 - NavController navController
 - BottomNavBarController navBarController
@@ -570,7 +570,7 @@ class com.kernelcrew.moodapp.ui.EditMoodEvent {
 }
 
 
-class com.kernelcrew.moodapp.data.MoodEvent {
+class MoodEvent {
 - String id
 - String uid
 - String username
@@ -609,7 +609,7 @@ class com.kernelcrew.moodapp.data.MoodEvent {
 + void setVisibility(MoodEventVisibility)
 }
 
-class com.kernelcrew.moodapp.data.FollowProvider {
+class FollowProvider {
 - {static} FollowProvider instance
 - FirebaseFirestore db
 + {static} FollowProvider getInstance()
@@ -624,12 +624,12 @@ class com.kernelcrew.moodapp.data.FollowProvider {
 }
 
 
-class com.kernelcrew.moodapp.utils.PhotoUtils {
+class PhotoUtils {
 + {static} List<Integer> compressPhoto(Bitmap)
 + {static} Bitmap decodePhoto(List<Integer>)
 }
 
-class com.kernelcrew.moodapp.ui.FollowingFragment {
+class FollowingFragment {
 - FollowingAdapter adapter
 - List<User> followingList
 - BottomNavBarController navBarController
@@ -640,7 +640,7 @@ class com.kernelcrew.moodapp.ui.FollowingFragment {
 }
 
 
-class com.kernelcrew.moodapp.ui.FollowingFragment$FollowingAdapter {
+class FollowingFragment$FollowingAdapter {
 - List<User> users
 + ViewHolder onCreateViewHolder(ViewGroup,int)
 + void onBindViewHolder(ViewHolder,int)
@@ -648,12 +648,12 @@ class com.kernelcrew.moodapp.ui.FollowingFragment$FollowingAdapter {
 }
 
 
-class com.kernelcrew.moodapp.ui.FollowingFragment$FollowingAdapter$ViewHolder {
+class FollowingFragment$FollowingAdapter$ViewHolder {
 ~ ShapeableImageView avatarImageView
 ~ TextView usernameTextView
 }
 
-class com.kernelcrew.moodapp.ui.OtherUserProfile {
+class OtherUserProfile {
 - {static} String TAG
 - String uidToLoad
 - TextView usernameText
@@ -669,7 +669,7 @@ class com.kernelcrew.moodapp.ui.OtherUserProfile {
 }
 
 
-class com.kernelcrew.moodapp.ui.MoodMap {
+class MoodMap {
 - NavigationBarView navigationBarView
 - BottomNavBarController navBarController
 - MoodEventProvider moodEventProvider
@@ -687,12 +687,12 @@ class com.kernelcrew.moodapp.ui.MoodMap {
 }
 
 
-enum com.kernelcrew.moodapp.data.MoodEventVisibility {
+enum MoodEventVisibility {
 +  PUBLIC
 +  PRIVATE
 }
 
-class com.kernelcrew.moodapp.data.MoodEventProvider {
+class MoodEventProvider {
 - CollectionReference collection
 - FirebaseAuth auth
 - {static} MoodEventProvider instance
@@ -704,7 +704,7 @@ class com.kernelcrew.moodapp.data.MoodEventProvider {
 }
 
 
-class com.kernelcrew.moodapp.ui.FollowersFragment {
+class FollowersFragment {
 - FollowersAdapter adapter
 - List<User> followersList
 - BottomNavBarController navBarController
@@ -714,7 +714,7 @@ class com.kernelcrew.moodapp.ui.FollowersFragment {
 }
 
 
-class com.kernelcrew.moodapp.ui.FollowersFragment$FollowersAdapter {
+class FollowersFragment$FollowersAdapter {
 - List<User> users
 + ViewHolder onCreateViewHolder(ViewGroup,int)
 + void onBindViewHolder(ViewHolder,int)
@@ -722,34 +722,34 @@ class com.kernelcrew.moodapp.ui.FollowersFragment$FollowersAdapter {
 }
 
 
-class com.kernelcrew.moodapp.ui.FollowersFragment$FollowersAdapter$ViewHolder {
+class FollowersFragment$FollowersAdapter$ViewHolder {
 ~ ShapeableImageView avatarImageView
 ~ TextView usernameTextView
 }
 
 
 
-com.kernelcrew.moodapp.ui.MoodHistoryAdapter +.. com.kernelcrew.moodapp.ui.MoodHistoryAdapter$OnItemClickListener
-com.kernelcrew.moodapp.ui.MoodHistoryAdapter +.. com.kernelcrew.moodapp.ui.MoodHistoryAdapter$MoodViewHolder
-com.kernelcrew.moodapp.ui.components.FilterBarFragment +.. com.kernelcrew.moodapp.ui.components.FilterBarFragment$OnFilterChangedListener
-com.kernelcrew.moodapp.ui.LocationUpdateListener <|.. com.kernelcrew.moodapp.ui.MoodEventForm
-com.kernelcrew.moodapp.ui.MoodEventForm +.. com.kernelcrew.moodapp.ui.MoodEventForm$MoodEventFormSubmitCallback
-com.kernelcrew.moodapp.ui.MoodEventForm +.. com.kernelcrew.moodapp.ui.MoodEventForm$MoodEventDetails
-com.kernelcrew.moodapp.ui.DeleteDialogFragment +.. com.kernelcrew.moodapp.ui.DeleteDialogFragment$DeleteDialogListener
-com.kernelcrew.moodapp.ui.AuthSignUp +.. com.kernelcrew.moodapp.ui.AuthSignUp$SignUpDetails
-com.kernelcrew.moodapp.ui.AuthSignUp +.. com.kernelcrew.moodapp.ui.AuthSignUp$OnValidationCompleteListener
-com.kernelcrew.moodapp.ui.AuthSignUp +.. com.kernelcrew.moodapp.ui.AuthSignUp$OnUsernameCheckListener
-com.kernelcrew.moodapp.ui.components.EmotionPickerFragment +.. com.kernelcrew.moodapp.ui.components.EmotionPickerFragment$EmotionToggle
-com.kernelcrew.moodapp.ui.components.EmotionPickerFragment +.. com.kernelcrew.moodapp.ui.components.EmotionPickerFragment$OnSelectEmotionListener
-com.kernelcrew.moodapp.data.LocationHandler +.. com.kernelcrew.moodapp.data.LocationHandler$OnLocationObtainedListener
-com.kernelcrew.moodapp.ui.components.UploadPhotoFragment +.. com.kernelcrew.moodapp.ui.components.UploadPhotoFragment$UploadPhotoListener
-com.kernelcrew.moodapp.ui.MoodAdapter +.. com.kernelcrew.moodapp.ui.MoodAdapter$OnMoodClickListener
-com.kernelcrew.moodapp.ui.MoodAdapter +.. com.kernelcrew.moodapp.ui.MoodAdapter$MoodViewHolder
-com.kernelcrew.moodapp.ui.CommentAdapter +.. com.kernelcrew.moodapp.ui.CommentAdapter$CommentViewHolder
-com.kernelcrew.moodapp.ui.FollowRequestAdapter +.. com.kernelcrew.moodapp.ui.FollowRequestAdapter$ViewHolder
-com.kernelcrew.moodapp.ui.AuthSignIn +.. com.kernelcrew.moodapp.ui.AuthSignIn$SignInDetails
-com.kernelcrew.moodapp.ui.FollowingFragment +.. com.kernelcrew.moodapp.ui.FollowingFragment$FollowingAdapter
-com.kernelcrew.moodapp.ui.FollowingFragment$FollowingAdapter +.. com.kernelcrew.moodapp.ui.FollowingFragment$FollowingAdapter$ViewHolder
-com.kernelcrew.moodapp.ui.FollowersFragment +.. com.kernelcrew.moodapp.ui.FollowersFragment$FollowersAdapter
-com.kernelcrew.moodapp.ui.FollowersFragment$FollowersAdapter +.. com.kernelcrew.moodapp.ui.FollowersFragment$FollowersAdapter$ViewHolder
+MoodHistoryAdapter +.. MoodHistoryAdapter$OnItemClickListener
+MoodHistoryAdapter +.. MoodHistoryAdapter$MoodViewHolder
+FilterBarFragment +.. FilterBarFragment$OnFilterChangedListener
+LocationUpdateListener <|.. MoodEventForm
+MoodEventForm +.. MoodEventForm$MoodEventFormSubmitCallback
+MoodEventForm +.. MoodEventForm$MoodEventDetails
+DeleteDialogFragment +.. DeleteDialogFragment$DeleteDialogListener
+AuthSignUp +.. AuthSignUp$SignUpDetails
+AuthSignUp +.. AuthSignUp$OnValidationCompleteListener
+AuthSignUp +.. AuthSignUp$OnUsernameCheckListener
+EmotionPickerFragment +.. EmotionPickerFragment$EmotionToggle
+EmotionPickerFragment +.. EmotionPickerFragment$OnSelectEmotionListener
+LocationHandler +.. LocationHandler$OnLocationObtainedListener
+UploadPhotoFragment +.. UploadPhotoFragment$UploadPhotoListener
+MoodAdapter +.. MoodAdapter$OnMoodClickListener
+MoodAdapter +.. MoodAdapter$MoodViewHolder
+CommentAdapter +.. CommentAdapter$CommentViewHolder
+FollowRequestAdapter +.. FollowRequestAdapter$ViewHolder
+AuthSignIn +.. AuthSignIn$SignInDetails
+FollowingFragment +.. FollowingFragment$FollowingAdapter
+FollowingFragment$FollowingAdapter +.. FollowingFragment$FollowingAdapter$ViewHolder
+FollowersFragment +.. FollowersFragment$FollowersAdapter
+FollowersFragment$FollowersAdapter +.. FollowersFragment$FollowersAdapter$ViewHolder
 @enduml
