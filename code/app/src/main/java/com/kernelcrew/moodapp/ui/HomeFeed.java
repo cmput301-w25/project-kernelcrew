@@ -10,6 +10,7 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.navigation.fragment.NavHostFragment;
@@ -25,8 +26,8 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.kernelcrew.moodapp.R;
+import com.kernelcrew.moodapp.data.FollowRequestProvider;
 import com.kernelcrew.moodapp.data.MoodEvent;
-import com.kernelcrew.moodapp.data.MoodEventFilter;
 import com.kernelcrew.moodapp.data.MoodEventProvider;
 import com.kernelcrew.moodapp.data.User;
 import com.kernelcrew.moodapp.data.UserProvider;
@@ -48,6 +49,7 @@ public class HomeFeed extends DefaultFilterBarFragment implements FilterBarFragm
     private MoodAdapter moodAdapter;
     private UserAdapter userAdapter;
 
+    public static List<MoodEvent> currentFilteredList = new ArrayList<>();
     @SuppressLint("ClickableViewAccessibility")
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
@@ -70,9 +72,24 @@ public class HomeFeed extends DefaultFilterBarFragment implements FilterBarFragm
         userAdapter = new UserAdapter();
         recyclerView.setAdapter(moodAdapter);
 
+        if (user != null) {
+            String myUid = user.getUid();
+
+            // Initialize FollowRequestProvider
+            FollowRequestProvider followRequestProvider = new FollowRequestProvider(getContext());
+
+            // Listen for follow requests
+            followRequestProvider.listenForFollowRequests(myUid);
+
+            // Listen for follow accepted notifications
+            followRequestProvider.listenForFollowAcceptedNotifications(myUid);
+        }
+
         if (auth.getCurrentUser() == null) {
             Log.e("HomeFeed", "User not authenticated!");
         }
+
+        FollowRequestProvider followRequestProvider = new FollowRequestProvider(getContext());
 
         searchNFilterFragment.setOnUserSearchListener(this);
 
@@ -81,7 +98,7 @@ public class HomeFeed extends DefaultFilterBarFragment implements FilterBarFragm
             public void onViewDetails(MoodEvent mood) {
                 Bundle args = new Bundle();
                 args.putString("moodEventId", mood.getId());
-                args.putString("sourceScreen", "home"); // or "filtered"
+                args.putString("sourceScreen", "home");
                 NavController navController = Navigation.findNavController(requireActivity(), R.id.nav_host_fragment);
                 navController.navigate(R.id.action_homeFeed_to_moodDetails, args);
             }
@@ -94,7 +111,6 @@ public class HomeFeed extends DefaultFilterBarFragment implements FilterBarFragm
                 NavController navController = Navigation.findNavController(requireActivity(), R.id.nav_host_fragment);
                 navController.navigate(R.id.action_homeFeed_to_moodComments, args);
             }
-
         });
 
         return view;

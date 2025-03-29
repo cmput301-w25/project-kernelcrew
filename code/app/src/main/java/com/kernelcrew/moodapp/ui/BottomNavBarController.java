@@ -1,5 +1,7 @@
 package com.kernelcrew.moodapp.ui;
 
+import static com.kernelcrew.moodapp.ui.HomeFeed.currentFilteredList;
+
 import android.os.Bundle;
 import android.view.MenuItem;
 import android.view.View;
@@ -41,6 +43,9 @@ public class BottomNavBarController implements NavigationBarView.OnItemSelectedL
 
         if (itemId == R.id.page_home) {
             page = R.id.homeFeed;
+        } else if (itemId == R.id.page_map) {
+//            MoodMap.setSharedMoodEvents(currentFilteredList);
+            page = R.id.moodMap;
         } else if (itemId == R.id.page_createMoodEvent) {
             page = R.id.createMoodEvent;
         } else if (itemId == R.id.page_myProfile) {

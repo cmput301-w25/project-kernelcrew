@@ -166,13 +166,18 @@ public class MoodEventForm extends Fragment implements LocationUpdateListener {
         reasonEditText.setText(details.reason);
 
         if (details.lat != null && details.lon != null) {
-            currentLatitude = details.lat;
-            currentLongitude = details.lon;
+            // Update UI to show location is set
+            this.currentLatitude = details.lat;
+            this.currentLongitude = details.lon;
+        } else {
+            // locationStatusTextView.setText("No location set");
         }
 
-        photo = details.photo;
-        photoButton.setImageBitmap(details.photo);
-        updateResetPhotoVisibility();
+        if (details.photo != null) {
+            photo = details.photo;
+            photoButton.setImageBitmap(details.photo);
+            updateResetPhotoVisibility();
+        }
 
         visibilityToggle.clearChecked();
         switch (details.visibility) {

@@ -4,7 +4,11 @@ import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.action.ViewActions.click;
 import static androidx.test.espresso.action.ViewActions.scrollTo;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
+import static androidx.test.espresso.Espresso.onView;
+import static androidx.test.espresso.action.ViewActions.click;
+import static androidx.test.espresso.action.ViewActions.scrollTo;
 import static androidx.test.espresso.contrib.RecyclerViewActions.actionOnItemAtPosition;
+import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.isAssignableFrom;
 import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
@@ -72,27 +76,17 @@ public class EditMoodEventTest extends FirebaseEmulatorMixin {
 
         // Wait until the RecyclerView is displayed.
         onView(withId(R.id.moodRecyclerView))
-                .check(matches(isDisplayed()));
+                .perform(actionOnItemAtPosition(
+                        0,
+                        MoodDetailsNavigationTest.clickChildViewWithId(R.id.viewDetailsButton)));
 
-        // Click the details button in the first RecyclerView item.
-        onView(withId(R.id.viewDetailsButton))
-                .perform(click());
+        SystemClock.sleep(3000);
+        onView(withId(R.id.btnEditMood)).perform(click());
+        SystemClock.sleep(3000);
+        onView(withId(R.id.toggle_shame)).perform(click());
+        onView(withId(R.id.visible_private_button)).perform(scrollTo()).perform(click());
+        onView(withId(R.id.submit_button)).perform(scrollTo()).perform(click());
 
-        // Once on the details screen, click the edit button.
-        onView(withId(R.id.btnEditMood))
-                .check(matches(isDisplayed()))
-                .perform(click());
-
-        // In the edit screen, select a new emotion ("SHAME") by clicking the appropriate toggle.
-        onView(withId(R.id.toggle_shame))
-                .check(matches(isDisplayed()))
-                .perform(click());
-
-        // Submit the edit form by scrolling to and clicking the submit button.
-        onView(withId(R.id.editMood_submitButton))
-                .perform(click());
-
-        // Use Awaitility to wait until Firestore shows the updated mood event with emotion "SHAME".
         await().atMost(10, TimeUnit.SECONDS)
                 .untilAsserted(() -> {
                     QuerySnapshot results = Tasks.await(db.collection("moodEvents").get());

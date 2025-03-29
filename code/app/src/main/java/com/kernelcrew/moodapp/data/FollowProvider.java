@@ -1,5 +1,7 @@
 package com.kernelcrew.moodapp.data;
 
+import android.util.Log;
+
 import com.google.android.gms.tasks.Task;
 import com.google.android.gms.tasks.Tasks;
 import com.google.firebase.firestore.DocumentSnapshot;
@@ -7,6 +9,8 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.android.gms.tasks.Tasks;
 import com.google.firebase.firestore.DocumentSnapshot;
+import com.kernelcrew.moodapp.utils.NotificationHelper;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.ArrayList;
@@ -48,6 +52,7 @@ public class FollowProvider {
     public Task<Void> acceptRequest(String targetUid, String requesterUid) {
         return deleteRequest(targetUid, requesterUid)
                 .addOnSuccessListener(unused -> {
+                    // Add to followers and following as before:
                     db.collection("users").document(targetUid)
                             .collection("followers")
                             .document(requesterUid)
@@ -56,6 +61,23 @@ public class FollowProvider {
                             .collection("following")
                             .document(targetUid)
                             .set(Collections.emptyMap());
+                    // Write a "followAccepted" notification to the requester's notifications subcollection.
+                    java.util.HashMap<String, Object> notifData = new java.util.HashMap<>();
+                    notifData.put("fromUserId", targetUid);    // The acceptor (User2)
+                    notifData.put("toUserId", requesterUid);    // The original requester (User1)
+                    notifData.put("type", "followAccepted");
+                    notifData.put("timestamp", com.google.firebase.firestore.FieldValue.serverTimestamp());
+
+                    db.collection("users")
+                            .document(requesterUid)
+                            .collection("notifications")
+                            .add(notifData)
+                            .addOnSuccessListener(ref -> {
+                                Log.d("FollowProvider", "Notification written successfully: " + ref.getId());
+                            })
+                            .addOnFailureListener(e -> {
+                                Log.e("FollowProvider", "Failed to write notification", e);
+                            });
                 });
     }
 
