@@ -18,6 +18,7 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.kernelcrew.moodapp.R;
+import com.kernelcrew.moodapp.data.CheckFollowRequestCount;
 
 public class MyProfile extends Fragment {
     FirebaseAuth auth;
@@ -29,6 +30,8 @@ public class MyProfile extends Fragment {
     NavigationBarView navigationBarView;
     BottomNavBarController navBarController;
 
+    private boolean hasFollowRequest = false; // Declare the variable to store follow request status
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         auth = FirebaseAuth.getInstance();
@@ -37,7 +40,6 @@ public class MyProfile extends Fragment {
 
         usernameText = view.findViewById(R.id.username_text);
         profileImage = view.findViewById(R.id.profile_image);
-
         signOutButton = view.findViewById(R.id.signOutButton);
         Button followersButton = view.findViewById(R.id.followers_button);
         Button followingButton = view.findViewById(R.id.following_button);
@@ -45,7 +47,9 @@ public class MyProfile extends Fragment {
         navigationBarView = view.findViewById(R.id.bottom_navigation);
         navigationBarView.setSelectedItemId(R.id.page_myProfile);
         navBarController = new BottomNavBarController(navigationBarView);
-        Button followRequestsButton = view.findViewById(R.id.followRequestsButton);
+        ImageView followRequestsButton = view.findViewById(R.id.followRequestsButton);
+
+        // Navigation click listener
         followRequestsButton.setOnClickListener(v ->
                 Navigation.findNavController(v).navigate(R.id.action_myProfile_to_followRequestsFragment)
         );
@@ -76,17 +80,17 @@ public class MyProfile extends Fragment {
             }
         }
 
+        // Check if there are any follow requests for the user
+        checkForFollowRequest(uidToLoad);  // Retrieve the follow request status
 
-        // Example: After checking follow requests from server or local data
-        hasFollowRequest = checkForFollowRequest();  // Replace with your actual logic
-
-        // Assuming you have a boolean `hasFollowRequest` to check the status
+        // Update the image of the follow request button based on the status
         if (hasFollowRequest) {
             followRequestsButton.setImageResource(R.drawable.ic_follow_request_yes);  // Change to the "yes" image
         } else {
             followRequestsButton.setImageResource(R.drawable.ic_follow_request_no);  // Default image
         }
 
+        // Firebase Firestore listeners for followers and following count
         if (uidToLoad != null) {
             FirebaseFirestore.getInstance()
                     .collection("users")
@@ -119,5 +123,19 @@ public class MyProfile extends Fragment {
     private void onClickSignOut(View btnView) {
         auth.signOut();
         Navigation.findNavController(btnView).navigate(R.id.authHome);
+    }
+
+    // Method to check follow request status using CheckFollowRequestCount
+    private void checkForFollowRequest(String userId) {
+        // Call the CheckFollowRequestCount to fetch follow requests for the user
+        CheckFollowRequestCount.getFollowRequests(userId)
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful() && task.getResult() != null) {
+                        // Check if the query result is not empty (meaning there are follow requests)
+                        hasFollowRequest = !task.getResult().isEmpty();
+                    } else {
+                        hasFollowRequest = false; // No follow requests
+                    }
+                });
     }
 }
