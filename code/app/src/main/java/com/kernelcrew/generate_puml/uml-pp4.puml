@@ -752,7 +752,6 @@ com.kernelcrew.moodapp.ui.AuthSignUp +.. com.kernelcrew.moodapp.ui.AuthSignUp$On
 com.kernelcrew.moodapp.ui.components.EmotionPickerFragment +.. com.kernelcrew.moodapp.ui.components.EmotionPickerFragment$EmotionToggle
 com.kernelcrew.moodapp.ui.components.EmotionPickerFragment +.. com.kernelcrew.moodapp.ui.components.EmotionPickerFragment$OnSelectEmotionListener
 com.kernelcrew.moodapp.data.LocationHandler +.. com.kernelcrew.moodapp.data.LocationHandler$OnLocationObtainedListener
-com.google.android.material.bottomsheet.BottomSheetDialogFragment <|-- com.kernelcrew.moodapp.ui.components.UploadPhotoFragment
 com.kernelcrew.moodapp.ui.components.UploadPhotoFragment +.. com.kernelcrew.moodapp.ui.components.UploadPhotoFragment$UploadPhotoListener
 com.kernelcrew.moodapp.ui.Adapter <|-- com.kernelcrew.moodapp.ui.MoodAdapter
 com.kernelcrew.moodapp.ui.MoodAdapter +.. com.kernelcrew.moodapp.ui.MoodAdapter$OnMoodClickListener
@@ -772,7 +771,6 @@ com.kernelcrew.moodapp.ui.FollowingFragment +.. com.kernelcrew.moodapp.ui.Follow
 com.kernelcrew.moodapp.ui.Adapter <|-- com.kernelcrew.moodapp.ui.FollowingFragment$FollowingAdapter
 com.kernelcrew.moodapp.ui.FollowingFragment$FollowingAdapter +.. com.kernelcrew.moodapp.ui.FollowingFragment$FollowingAdapter$ViewHolder
 com.kernelcrew.moodapp.ui.ViewHolder <|-- com.kernelcrew.moodapp.ui.FollowingFragment$FollowingAdapter$ViewHolder
-com.google.android.gms.maps.OnMapReadyCallback <|.. com.kernelcrew.moodapp.ui.MoodMap
 com.kernelcrew.moodapp.ui.FollowersFragment +.. com.kernelcrew.moodapp.ui.FollowersFragment$FollowersAdapter
 com.kernelcrew.moodapp.ui.Adapter <|-- com.kernelcrew.moodapp.ui.FollowersFragment$FollowersAdapter
 com.kernelcrew.moodapp.ui.FollowersFragment$FollowersAdapter +.. com.kernelcrew.moodapp.ui.FollowersFragment$FollowersAdapter$ViewHolder
