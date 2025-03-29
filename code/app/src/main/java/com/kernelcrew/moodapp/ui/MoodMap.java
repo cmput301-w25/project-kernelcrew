@@ -96,6 +96,10 @@ public class MoodMap extends Fragment
         moodMap.clear();
         markerToMoodMap.clear();
 
+        // ##################################################################
+        //          TODO - Implement filter for MoodEvents on map
+        // ##################################################################
+
         // Query all mood events with location data
         moodEventProvider.getAll()
                 .get()
