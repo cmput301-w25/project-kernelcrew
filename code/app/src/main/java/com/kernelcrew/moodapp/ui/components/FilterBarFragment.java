@@ -81,13 +81,14 @@ public class FilterBarFragment extends Fragment {
         filterCountAndEdit = view.findViewById(R.id.filterCountAndEdit);
         filterTimeRange = view.findViewById(R.id.filter_timeRange);
         filterLocation = view.findViewById(R.id.filter_location);
+        // Retrieve the search type buttons; ensure these IDs exist in your layout file.
         searchReason = view.findViewById(R.id.searchReason);
         searchUser = view.findViewById(R.id.searchUser);
 
         // Search bar listener
         searchEditText.addTextChangedListener(new TextWatcher() {
             @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {}
+            public void onTextChanged(CharSequence s, int start, int before, int count) { }
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) { }
             @Override
@@ -148,7 +149,6 @@ public class FilterBarFragment extends Fragment {
                     public boolean onMenuItemActionExpand(MenuItem item) {
                         return false;
                     }
-
                     @Override
                     public boolean onMenuItemActionCollapse(MenuItem item) {
                         return false;
@@ -250,7 +250,7 @@ public class FilterBarFragment extends Fragment {
             popup.show();
         });
 
-        // Added search type button listeners
+        // Search type button listeners
         searchReason.setOnClickListener(v -> {
             getMoodEventFilter().setSearchType("MOODS");
             notifyFilterChanged();
