@@ -1,55 +1,55 @@
 name: Generate JavaDocs
 
 on:
-  push:
-    branches: [main]
+    push:
+        branches: [main]
 
 jobs:
-  build:
-    name: Build JavaDocs
-    runs-on: ubuntu-latest
-    env:
-      ACTIONS: 1
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
-
-      - name: Set up Java JDK 17
-        uses: actions/setup-java@v1
-        with:
-          java-version: '17'
-
-      - name: Inflate CI Secrets
-        run: scripts/ci.sh inflate-ci-secrets
+    build:
+        name: Build JavaDocs
+        runs-on: ubuntu-latest
         env:
-          ACTIONS_GOOGLESERVICES: ${{ secrets.ACTIONS_GOOGLESERVICES }}
-          ACTIONS_MAPSAPIKEY: ${{ secrets.ACTIONS_MAPSAPIKEY }}
+            ACTIONS: 1
+        steps:
+            - name: Checkout repository
+              uses: actions/checkout@v3
 
-      - name: Generate JavaDocs
-        run: scripts/ci.sh generate-javadocs
+            - name: Set up Java JDK 17
+              uses: actions/setup-java@v1
+              with:
+                  java-version: "17"
 
-      - name: Upload static files as artifact
-        id: deployment
-        uses: actions/upload-pages-artifact@v3
-        with:
-          path: code/app/build/docs/javadoc/
+            - name: Inflate CI Secrets
+              run: scripts/ci.sh inflate-ci-secrets
+              env:
+                  ACTIONS_GOOGLESERVICES: ${{ secrets.ACTIONS_GOOGLESERVICES }}
+                  ACTIONS_MAPSAPIKEY: ${{ secrets.ACTIONS_MAPSAPIKEY }}
 
-  deploy:
-    needs: build
-    name: Deploy Docs to GitHub Pages
+            - name: Generate JavaDocs
+              run: scripts/ci.sh generate-javadocs
 
-    # Grant GITHUB_TOKEN the permissions required to make a Pages deployment
-    permissions:
-      pages: write      # to deploy to Pages
-      id-token: write   # to verify the deployment originates from an appropriate source
+            - name: Upload static files as artifact
+              id: deployment
+              uses: actions/upload-pages-artifact@v3
+              with:
+                  path: code/app/build/docs/javadoc/
 
-    # Deploy to the github-pages environment
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
+    deploy:
+        needs: build
+        name: Deploy Docs to GitHub Pages
 
-    runs-on: ubuntu-latest
-    steps:
-      - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v4
+        # Grant GITHUB_TOKEN the permissions required to make a Pages deployment
+        permissions:
+            pages: write # to deploy to Pages
+            id-token: write # to verify the deployment originates from an appropriate source
+
+        # Deploy to the github-pages environment
+        environment:
+            name: github-pages
+            url: ${{ steps.deployment.outputs.page_url }}
+
+        runs-on: ubuntu-latest
+        steps:
+            - name: Deploy to GitHub Pages
+              id: deployment
+              uses: actions/deploy-pages@v4

@@ -2,7 +2,7 @@
 
 A brief summary of features implemented
 
-Resolves: #...
+Resolves #...
 
 ## Testing
 

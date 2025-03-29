@@ -1,134 +1,134 @@
 name: CI
 
 on:
-  push:
-    branches: [main]
+    push:
+        branches: [main]
 
-  pull_request:
-    branches: [main]
+    pull_request:
+        branches: [main]
 
 jobs:
-  lint:
-    name: Perform lint check
-    runs-on: ubuntu-latest
-    env:
-      ACTIONS: 1
-    steps:
-      - name: Checkout the code
-        uses: actions/checkout@v2
-
-      - name: Inflate CI Secrets
-        run: scripts/ci.sh inflate-ci-secrets
+    lint:
+        name: Perform lint check
+        runs-on: ubuntu-latest
         env:
-          ACTIONS_GOOGLESERVICES: ${{ secrets.ACTIONS_GOOGLESERVICES }}
-          ACTIONS_MAPSAPIKEY: ${{ secrets.ACTIONS_MAPSAPIKEY }}
+            ACTIONS: 1
+        steps:
+            - name: Checkout the code
+              uses: actions/checkout@v2
 
-      - name: Run lint
-        run: scripts/ci.sh lint
+            - name: Inflate CI Secrets
+              run: scripts/ci.sh inflate-ci-secrets
+              env:
+                  ACTIONS_GOOGLESERVICES: ${{ secrets.ACTIONS_GOOGLESERVICES }}
+                  ACTIONS_MAPSAPIKEY: ${{ secrets.ACTIONS_MAPSAPIKEY }}
 
-      - name: Upload html test report
-        uses: actions/upload-artifact@v4
-        with:
-          name: lint.html
-          path: code/app/build/reports/lint-results-debug.html
+            - name: Run lint
+              run: scripts/ci.sh lint
 
-  unit-test:
-    name: Perform Unit Testing
-    runs-on: ubuntu-latest
-    env:
-      ACTIONS: 1
-    steps:
-      - name: Checkout the code
-        uses: actions/checkout@v2
+            - name: Upload html test report
+              uses: actions/upload-artifact@v4
+              with:
+                  name: lint.html
+                  path: code/app/build/reports/lint-results-debug.html
 
-      - name: Inflate CI Secrets
-        run: scripts/ci.sh inflate-ci-secrets
+    unit-test:
+        name: Perform Unit Testing
+        runs-on: ubuntu-latest
         env:
-          ACTIONS_GOOGLESERVICES: ${{ secrets.ACTIONS_GOOGLESERVICES }}
-          ACTIONS_MAPSAPIKEY: ${{ secrets.ACTIONS_MAPSAPIKEY }}
+            ACTIONS: 1
+        steps:
+            - name: Checkout the code
+              uses: actions/checkout@v2
 
-      - name: Run tests
-        run: scripts/ci.sh unit-test
+            - name: Inflate CI Secrets
+              run: scripts/ci.sh inflate-ci-secrets
+              env:
+                  ACTIONS_GOOGLESERVICES: ${{ secrets.ACTIONS_GOOGLESERVICES }}
+                  ACTIONS_MAPSAPIKEY: ${{ secrets.ACTIONS_MAPSAPIKEY }}
 
-      - name: Upload test report
-        uses: actions/upload-artifact@v4
-        with:
-          name: unit_test_report
-          path: code/app/build/reports/test/testDebugUnitTest/
+            - name: Run tests
+              run: scripts/ci.sh unit-test
 
-  instrumentation-test:
-    name: Perform Instrumentation Testing
-    runs-on: ubuntu-latest
-    env:
-      ACTIONS: 1
-    steps:
-      - name: Checkout the code
-        uses: actions/checkout@v2
+            - name: Upload test report
+              uses: actions/upload-artifact@v4
+              with:
+                  name: unit_test_report
+                  path: code/app/build/reports/test/testDebugUnitTest/
 
-      # Gradle v8.0.0 requires java JDK v17
-      - name: Set up Java JDK 17
-        uses: actions/setup-java@v1
-        with:
-          java-version: '17'
-
-      - name: Inflate CI Secrets
-        run: scripts/ci.sh inflate-ci-secrets
+    instrumentation-test:
+        name: Perform Instrumentation Testing
+        runs-on: ubuntu-latest
         env:
-          ACTIONS_GOOGLESERVICES: ${{ secrets.ACTIONS_GOOGLESERVICES }}
-          ACTIONS_MAPSAPIKEY: ${{ secrets.ACTIONS_MAPSAPIKEY }}
+            ACTIONS: 1
+        steps:
+            - name: Checkout the code
+              uses: actions/checkout@v2
 
-      - name: Setup firebase
-        run: scripts/ci.sh setup-firebaserc
+            # Gradle v8.0.0 requires java JDK v17
+            - name: Set up Java JDK 17
+              uses: actions/setup-java@v1
+              with:
+                  java-version: "17"
+
+            - name: Inflate CI Secrets
+              run: scripts/ci.sh inflate-ci-secrets
+              env:
+                  ACTIONS_GOOGLESERVICES: ${{ secrets.ACTIONS_GOOGLESERVICES }}
+                  ACTIONS_MAPSAPIKEY: ${{ secrets.ACTIONS_MAPSAPIKEY }}
+
+            - name: Setup firebase
+              run: scripts/ci.sh setup-firebaserc
+              env:
+                  ACTIONS_FIREBASE_PROJECTID: ${{ secrets.ACTIONS_FIREBASE_PROJECTID }}
+
+            - name: Start firebase emulators
+              run: scripts/ci.sh start-firebase-emulators &
+              env:
+                  ACTIONS_FIREBASE_TOKEN: ${{ secrets.ACTIONS_FIREBASE_TOKEN }}
+
+            - name: Enable KVM
+              run: scripts/ci.sh enable-kvm
+
+            - name: Run espresso tests
+              uses: reactivecircus/android-emulator-runner@v2 # 3rd party tool
+              with:
+                  api-level: 34
+                  arch: x86_64
+                  target: google_apis
+                  script: scripts/ci.sh ui-test
+
+            - name: Upload Instrumentation Test report
+              uses: actions/upload-artifact@v4
+              with:
+                  name: instrumentation_test_report
+                  path: code/app/build/reports/androidTests/connected
+
+    debug-apk:
+        name: Generate Debug APK
+        runs-on: ubuntu-latest
         env:
-          ACTIONS_FIREBASE_PROJECTID: ${{ secrets.ACTIONS_FIREBASE_PROJECTID }}
+            ACTIONS: 1
+        steps:
+            - name: Checkout the code
+              uses: actions/checkout@v2
 
-      - name: Start firebase emulators
-        run: scripts/ci.sh start-firebase-emulators &
-        env:
-          ACTIONS_FIREBASE_TOKEN: ${{ secrets.ACTIONS_FIREBASE_TOKEN }}
+            - name: Set up Java JDK 17
+              uses: actions/setup-java@v1
+              with:
+                  java-version: "17"
 
-      - name: Enable KVM
-        run: scripts/ci.sh enable-kvm
+            - name: Inflate CI Secrets
+              run: scripts/ci.sh inflate-ci-secrets
+              env:
+                  ACTIONS_GOOGLESERVICES: ${{ secrets.ACTIONS_GOOGLESERVICES }}
+                  ACTIONS_MAPSAPIKEY: ${{ secrets.ACTIONS_MAPSAPIKEY }}
 
-      - name: Run espresso tests
-        uses: reactivecircus/android-emulator-runner@v2 # 3rd party tool
-        with:
-          api-level: 34
-          arch: x86_64
-          target: google_apis
-          script: scripts/ci.sh ui-test
+            - name: Build debug APK
+              run: scripts/ci.sh build-dbg-apk
 
-      - name: Upload Instrumentation Test report
-        uses: actions/upload-artifact@v4
-        with:
-          name: instrumentation_test_report
-          path: code/app/build/reports/androidTests/connected
-
-  debug-apk:
-    name: Generate Debug APK
-    runs-on: ubuntu-latest
-    env:
-      ACTIONS: 1
-    steps:
-      - name: Checkout the code
-        uses: actions/checkout@v2
-
-      - name: Set up Java JDK 17
-        uses: actions/setup-java@v1
-        with:
-          java-version: '17'
-
-      - name: Inflate CI Secrets
-        run: scripts/ci.sh inflate-ci-secrets
-        env:
-          ACTIONS_GOOGLESERVICES: ${{ secrets.ACTIONS_GOOGLESERVICES }}
-          ACTIONS_MAPSAPIKEY: ${{ secrets.ACTIONS_MAPSAPIKEY }}
-
-      - name: Build debug APK
-        run: scripts/ci.sh build-dbg-apk
-
-      - name: Upload APK
-        uses: actions/upload-artifact@v4
-        with:
-          name: sample-app.apk
-          path: code/app/build/outputs/apk/debug/app-debug.apk
+            - name: Upload APK
+              uses: actions/upload-artifact@v4
+              with:
+                  name: sample-app.apk
+                  path: code/app/build/outputs/apk/debug/app-debug.apk
