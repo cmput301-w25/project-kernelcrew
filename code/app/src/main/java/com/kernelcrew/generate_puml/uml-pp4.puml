@@ -163,10 +163,7 @@ class com.kernelcrew.moodapp.ui.LocationFragment {
 - void requestNewLocation()
 - void handleLocationSuccess(Location)
 + void saveMoodEventWithoutLocation()
-+ Double getLatitude()
-+ Double getLongitude()
-+ void setLocationUpdateListener(LocationUpdateListener)
-+ void setUpdateListener(MoodEventForm)
++ void setUpdateListener(LocationUpdateListener)
 }
 
 
@@ -486,6 +483,7 @@ class com.kernelcrew.moodapp.ui.HomeFeed {
 ~ BottomNavBarController navBarController
 ~ RecyclerView moodRecyclerView
 ~ MoodAdapter moodAdapter
++ {static} List<MoodEvent> currentFilteredList
 + View onCreateView(LayoutInflater,ViewGroup,Bundle)
 + void onViewCreated(View,Bundle)
 }
@@ -667,7 +665,30 @@ class com.kernelcrew.moodapp.ui.OtherUserProfile {
 - TextView emailText
 - MaterialToolbar toolbar
 - Button followButton
+- Button followersButton
+- Button followingButton
+- RecyclerView publicMoodsRecyclerView
 + View onCreateView(LayoutInflater,ViewGroup,Bundle)
+- void setupFollowButtonLogic()
+- void setupPublicMoodRecycler(View)
+}
+
+
+class com.kernelcrew.moodapp.ui.MoodMap {
+- NavigationBarView navigationBarView
+- BottomNavBarController navBarController
+- MoodEventProvider moodEventProvider
+- GoogleMap moodMap
+- Map<Marker,MoodEvent> markerToMoodMap
+- {static} List<MoodEvent> sharedMoodEvents
+- UserProvider userProvider
++ {static} void setSharedMoodEvents(List<MoodEvent>)
++ {static} List<MoodEvent> getSharedMoodEvents()
++ View onCreateView(LayoutInflater,ViewGroup,Bundle)
++ void onViewCreated(View,Bundle)
++ void onMapReady(GoogleMap)
++ void loadMoodEventsOnMap(List<MoodEvent>)
+- float getEmotionColour(String)
 }
 
 
@@ -771,6 +792,8 @@ com.kernelcrew.moodapp.ui.Adapter <|-- com.kernelcrew.moodapp.ui.FollowingFragme
 com.kernelcrew.moodapp.ui.FollowingFragment$FollowingAdapter +.. com.kernelcrew.moodapp.ui.FollowingFragment$FollowingAdapter$ViewHolder
 com.kernelcrew.moodapp.ui.ViewHolder <|-- com.kernelcrew.moodapp.ui.FollowingFragment$FollowingAdapter$ViewHolder
 androidx.fragment.app.Fragment <|-- com.kernelcrew.moodapp.ui.OtherUserProfile
+com.google.android.gms.maps.OnMapReadyCallback <|.. com.kernelcrew.moodapp.ui.MoodMap
+androidx.fragment.app.Fragment <|-- com.kernelcrew.moodapp.ui.MoodMap
 androidx.fragment.app.Fragment <|-- com.kernelcrew.moodapp.ui.FollowersFragment
 com.kernelcrew.moodapp.ui.FollowersFragment +.. com.kernelcrew.moodapp.ui.FollowersFragment$FollowersAdapter
 com.kernelcrew.moodapp.ui.Adapter <|-- com.kernelcrew.moodapp.ui.FollowersFragment$FollowersAdapter
