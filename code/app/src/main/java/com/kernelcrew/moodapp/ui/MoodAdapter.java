@@ -68,7 +68,7 @@ public class MoodAdapter extends RecyclerView.Adapter<MoodAdapter.MoodViewHolder
         int iconRes = MoodIconUtil.getMoodIconResource(mood.getEmotion().toString());
         holder.moodImageView.setImageResource(iconRes);
 
-        holder.usernameText.setText(mood.getUsername());
+        holder.usernameText.setText("@" + mood.getUsername());
 
         // Set click listener for the "View Details" button
         holder.viewDetailsButton.setOnClickListener(v -> {
