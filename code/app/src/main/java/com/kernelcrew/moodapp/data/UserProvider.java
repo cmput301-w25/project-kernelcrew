@@ -4,6 +4,8 @@ import androidx.annotation.NonNull;
 
 import com.google.android.gms.tasks.Task;
 import com.google.android.gms.tasks.Tasks;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -139,22 +141,27 @@ public class UserProvider {
     }
 
     /**
-     * Search for users by username prefix.
+     * Search for users by username.
+     * This search is case-insensitive, partial-match and excludes the current user.
+     *
      * @param query The search query string.
      * @return A Task containing a list of users matching the query.
      */
     public Task<List<User>> searchUsers(String query) {
         return db.collection("users")
-                .orderBy("username")
-                .startAt(query)
-                .endAt(query + "\uf8ff")
                 .get()
                 .onSuccessTask(querySnapshot -> {
                     List<User> users = new ArrayList<>();
+                    String lowerQuery = query.toLowerCase();
+                    FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
+                    String currentUserId = (currentUser != null) ? currentUser.getUid() : "";
                     for (DocumentSnapshot doc : querySnapshot.getDocuments()) {
+                        if (doc.getId().equals(currentUserId)) {
+                            continue;
+                        }
                         String name = doc.getString("username");
-                        if (name != null) {
-                            users.add(new User(name, false));
+                        if (name != null && name.toLowerCase().contains(lowerQuery)) {
+                            users.add(new User(doc.getId(), name, false));
                         }
                     }
                     return Tasks.forResult(users);

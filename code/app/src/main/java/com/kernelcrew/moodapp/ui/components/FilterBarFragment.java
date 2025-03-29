@@ -24,6 +24,7 @@ import com.kernelcrew.moodapp.R;
 import com.kernelcrew.moodapp.data.Emotion;
 import com.kernelcrew.moodapp.data.MoodEventFilter;
 import com.kernelcrew.moodapp.data.MoodEventProvider;
+import com.kernelcrew.moodapp.ui.MoodHistory;
 
 import java.util.Calendar;
 import java.util.Date;
@@ -59,7 +60,7 @@ public class FilterBarFragment extends Fragment {
     private MaterialButton filterCountAndEdit;
     private MaterialButton filterTimeRange;
     private MaterialButton filterLocation;
-    // Added UI elements for search type selection
+    // UI elements for search type selection
     private MaterialButton searchReason;
     private MaterialButton searchUser;
 
@@ -81,17 +82,23 @@ public class FilterBarFragment extends Fragment {
         filterCountAndEdit = view.findViewById(R.id.filterCountAndEdit);
         filterTimeRange = view.findViewById(R.id.filter_timeRange);
         filterLocation = view.findViewById(R.id.filter_location);
-        // Retrieve the search type buttons; ensure these IDs exist in your layout file.
+        // Retrieve the search type buttons; ensure these IDs exist in your layout.
         searchReason = view.findViewById(R.id.searchReason);
         searchUser = view.findViewById(R.id.searchUser);
+
+        // If this FilterBarFragment is used in MoodHistory, hide the searchUser button and rename searchReason to "Moods"
+        if (getParentFragment() instanceof MoodHistory) {
+            searchUser.setVisibility(View.GONE);
+            searchReason.setText("Moods");
+        }
 
         // Search bar listener
         searchEditText.addTextChangedListener(new TextWatcher() {
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) { }
-            @Override
+            @Override 
             public void beforeTextChanged(CharSequence s, int start, int count, int after) { }
-            @Override
+            @Override 
             public void afterTextChanged(Editable s) {
                 getMoodEventFilter().setSearchQuery(s.toString());
                 notifyFilterChanged();
