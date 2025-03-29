@@ -65,7 +65,7 @@ public class AuthSignUp extends Fragment {
         String password;
 
         SignUpDetails() {
-            this.userName = String.valueOf(usernameEditText.getText());
+            this.userName = String.valueOf(usernameEditText.getText()).toLowerCase();
             this.email = String.valueOf(emailEditText.getText());
             this.password = String.valueOf(passwordEditText.getText());
         }
@@ -96,6 +96,9 @@ public class AuthSignUp extends Fragment {
         // Synchronous validations
         if (details.userName.isBlank()) {
             usernameLayout.setError("Please enter a username.");
+            hasError = true;
+        } else if (details.userName.contains(" ")) {
+            usernameLayout.setError("Spaces are not allowed in your username.");
             hasError = true;
         }
 

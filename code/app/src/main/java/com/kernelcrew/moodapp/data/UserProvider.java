@@ -61,17 +61,18 @@ public class UserProvider {
      * @return All users following this user.
      */
     public Task<List<User>> fetchFollowers(@NonNull String uid) {
-        Task<QuerySnapshot> followers = db.collection("users").document(uid).collection("followers").get();
+        Task<QuerySnapshot> followers =
+                db.collection("users").document(uid).collection("followers").get();
         return followers.onSuccessTask(queryDocumentSnapshots -> {
             List<User> followersList = new ArrayList<>();
 
             for (DocumentSnapshot doc : queryDocumentSnapshots) {
-                String name = doc.getId();
+                String followerUid = doc.getId();  // doc ID as the user's UID
                 Boolean isFollowingBack = doc.getBoolean("isFollowingBack");
                 if (isFollowingBack == null) {
                     isFollowingBack = false;
                 }
-                followersList.add(new User(name, isFollowingBack));
+                followersList.add(new User(followerUid, followerUid, isFollowingBack));
             }
 
             return Tasks.forResult(followersList);
@@ -84,18 +85,19 @@ public class UserProvider {
      * @return All users followed by this user.
      */
     public Task<List<User>> fetchFollowing(@NonNull String uid) {
-        Task<QuerySnapshot> query = db.collection("users").document(uid).collection("following").get();
+        Task<QuerySnapshot> query =
+                db.collection("users").document(uid).collection("following").get();
         return query.onSuccessTask(queryDocumentSnapshots -> {
             List<User> followingList = new ArrayList<>();
 
             for (DocumentSnapshot doc : queryDocumentSnapshots) {
-                String name = doc.getId();
+                String followingUid = doc.getId();
                 Boolean isFollowed = doc.getBoolean("isFollowed");
                 if (isFollowed == null) {
                     isFollowed = false;
                 }
-
-                followingList.add(new User(name, isFollowed));
+                // Same approach here: pass the UID in both fields if that's all you have
+                followingList.add(new User(followingUid, followingUid, isFollowed));
             }
 
             return Tasks.forResult(followingList);
@@ -107,8 +109,32 @@ public class UserProvider {
      * @param uid Id of the user to listen to.
      * @param listener Snapshot listener to attach.
      */
-    public void addSnapshotListenerForUser(@NonNull String uid, @NonNull EventListener<DocumentSnapshot> listener) {
+    public void addSnapshotListenerForUser(@NonNull String uid,
+                                           @NonNull EventListener<DocumentSnapshot> listener) {
         db.collection("users").document(uid).addSnapshotListener(listener);
+    }
+
+    /**
+     * Search users by username (case-insensitive, partial-match) while excluding the current user.
+     *
+     * @param query The search string.
+     * @param currentUserId The current user's ID to exclude.
+     * @return A Task that returns a List of matching Users.
+     */
+    public Task<List<User>> searchUsers(String query, @NonNull String currentUserId) {
+        final String lowerQuery = query.toLowerCase();
+        return db.collection("users").get().onSuccessTask(querySnapshot -> {
+            List<User> results = new ArrayList<>();
+            for (DocumentSnapshot doc : querySnapshot.getDocuments()) {
+                if (doc.getId().equals(currentUserId)) continue;
+
+                String username = doc.getString("username");
+                if (username != null && username.toLowerCase().contains(lowerQuery)) {
+                    results.add(new User(doc.getId(), username, false));
+                }
+            }
+            return Tasks.forResult(results);
+        });
     }
 
     /**

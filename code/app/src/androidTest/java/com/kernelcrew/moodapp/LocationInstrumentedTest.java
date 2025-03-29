@@ -9,6 +9,7 @@ import static androidx.test.espresso.assertion.ViewAssertions.matches;
 import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static org.awaitility.Awaitility.await;
+import static org.hamcrest.Matchers.allOf;
 import static org.junit.Assert.assertTrue;
 
 import android.os.SystemClock;
@@ -80,6 +81,7 @@ public class LocationInstrumentedTest extends FirebaseEmulatorMixin {
         
         // Check that the add location button is displayed in the LocationFragment
         onView(withId(R.id.add_location_button))
+                .perform(scrollTo())
                 .check(matches(isDisplayed()));
     }
     
@@ -96,7 +98,7 @@ public class LocationInstrumentedTest extends FirebaseEmulatorMixin {
         SystemClock.sleep(1000);
         
         // Click the location button
-        onView(withId(R.id.add_location_button)).perform(click());
+        onView(withId(R.id.add_location_button)).perform(scrollTo(), click());
         
         // Wait for permission dialog or any other UI response
         SystemClock.sleep(1000);
@@ -131,7 +133,8 @@ public class LocationInstrumentedTest extends FirebaseEmulatorMixin {
         SystemClock.sleep(500);
         
         // Submit the form without adding location
-        onView(withId(R.id.submit_button)).perform(scrollTo(), click());
+        onView(allOf(withId(R.id.createMoodEvent_submitButton)))
+                .perform(click());
         
         // Wait for submission to process
         SystemClock.sleep(2000);

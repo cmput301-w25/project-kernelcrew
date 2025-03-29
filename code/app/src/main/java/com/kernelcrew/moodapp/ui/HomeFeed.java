@@ -1,65 +1,76 @@
 package com.kernelcrew.moodapp.ui;
 
+import android.annotation.SuppressLint;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
+import androidx.navigation.fragment.NavHostFragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-
+import com.google.android.gms.tasks.Task;
+import com.google.android.gms.tasks.Tasks;
+import com.google.android.material.imageview.ShapeableImageView;
 import com.google.android.material.navigation.NavigationBarView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.Query;
+import com.google.firebase.firestore.QuerySnapshot;
 import com.kernelcrew.moodapp.R;
 import com.kernelcrew.moodapp.data.FollowRequestProvider;
 import com.kernelcrew.moodapp.data.MoodEvent;
 import com.kernelcrew.moodapp.data.MoodEventProvider;
+import com.kernelcrew.moodapp.data.User;
+import com.kernelcrew.moodapp.data.UserProvider;
+import com.kernelcrew.moodapp.ui.components.DefaultFilterBarFragment;
 import com.kernelcrew.moodapp.ui.components.FilterBarFragment;
-
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
-public class HomeFeed extends Fragment {
-    FirebaseAuth auth;
-    FirebaseUser user;
-    MoodEventProvider provider;
+public class HomeFeed extends DefaultFilterBarFragment implements FilterBarFragment.OnUserSearchListener, FilterBarFragment.OnFilterChangedListener {
+    private FirebaseAuth auth;
+    private FirebaseUser user;
+    private MoodEventProvider provider;
 
-    FilterBarFragment searchNFilterFragment;
-    NavigationBarView navigationBar;
-    BottomNavBarController navBarController;
-    RecyclerView moodRecyclerView;
-    MoodAdapter moodAdapter;
+    private FilterBarFragment searchNFilterFragment;
+    private BottomNavBarController navBarController;
+    private RecyclerView recyclerView;
+    private MoodAdapter moodAdapter;
+    private UserAdapter userAdapter;
 
     public static List<MoodEvent> currentFilteredList = new ArrayList<>();
-
+    @SuppressLint("ClickableViewAccessibility")
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_home_feed, container, false);
-
         auth = FirebaseAuth.getInstance();
         user = auth.getCurrentUser();
         provider = MoodEventProvider.getInstance();
 
-        navigationBar = view.findViewById(R.id.bottom_navigation);
-        moodRecyclerView = view.findViewById(R.id.moodRecyclerView);
-
+        NavigationBarView navigationBar = view.findViewById(R.id.bottom_navigation);
+        recyclerView = view.findViewById(R.id.moodRecyclerView);
         navBarController = new BottomNavBarController(navigationBar);
 
+        // Get our filter and search fragment
         searchNFilterFragment = (FilterBarFragment) getChildFragmentManager().findFragmentById(R.id.filterBarFragment);
+        assert searchNFilterFragment != null;
+        searchNFilterFragment.setAllowUserSearch(true);
 
-        moodRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         moodAdapter = new MoodAdapter();
-
-        moodRecyclerView.setAdapter(moodAdapter);
+        userAdapter = new UserAdapter();
+        recyclerView.setAdapter(moodAdapter);
 
         if (user != null) {
             String myUid = user.getUid();
@@ -75,37 +86,12 @@ public class HomeFeed extends Fragment {
         }
 
         if (auth.getCurrentUser() == null) {
-            Log.e("Home", "User not authenticated!");
+            Log.e("HomeFeed", "User not authenticated!");
         }
 
         FollowRequestProvider followRequestProvider = new FollowRequestProvider(getContext());
 
-        // Listener for moodEvents collection
-        if (searchNFilterFragment != null) {
-            searchNFilterFragment.setOnFilterChangedListener(filter -> {
-                filter.buildQuery()
-                        .addSnapshotListener((snapshots, error) -> {
-                            if (error != null) {
-                                Log.w("HomeFeed", "Listen failed.", error);
-                                return;
-                            }
-                            if (snapshots == null) {
-                                Log.w("HomeFeed", "No snapshot data received.");
-                                return;
-                            }
-                            List<MoodEvent> moodList = new ArrayList<>();
-                            for (DocumentSnapshot doc : snapshots.getDocuments()) {
-                                MoodEvent mood = doc.toObject(MoodEvent.class);
-                                if (mood != null) {
-                                    mood.setId(doc.getId());
-                                    moodList.add(mood);
-                                }
-                            }
-                            currentFilteredList = moodList;
-                            moodAdapter.setMoods(moodList);
-                        });
-            });
-        }
+        searchNFilterFragment.setOnUserSearchListener(this);
 
         moodAdapter.setOnMoodClickListener(new MoodAdapter.OnMoodClickListener() {
             @Override
@@ -134,5 +120,141 @@ public class HomeFeed extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         navBarController.bind(view);
+    }
+
+    @Override
+    public void onUserSearchResults(List<User> users) {
+        recyclerView.setAdapter(userAdapter);
+        userAdapter.setUsers(users);
+        Log.d("HomeFeed", users.isEmpty() ? "No user results found." : "Showing " + users.size() + " user results.");
+    }
+
+    @Override
+    public void onFilterChanged(MoodEventFilter filter) {
+        recyclerView.setAdapter(moodAdapter);
+        fetchMoodEvents(filter);
+    }
+
+    private void fetchMoodEvents(MoodEventFilter filter) {
+        UserProvider.getInstance().fetchFollowing(user.getUid())
+                .addOnSuccessListener(following -> {
+                    Set<String> followedIds = new HashSet<>();
+                    for (User followedUser : following) {
+                        followedIds.add(followedUser.getUid());
+                    }
+                    List<Task<QuerySnapshot>> tasks = new ArrayList<>();
+                    List<MoodEvent> combinedEvents = new ArrayList<>();
+
+                    // Add user posts
+                    try {
+                        tasks.add(((MoodEventFilter) filter.clone())
+                                .setUser(user.getUid())
+                                .buildQuery()
+                                .get()
+                                .addOnSuccessListener(querySnapshot -> {
+                                    for (DocumentSnapshot doc : querySnapshot.getDocuments()) {
+                                        MoodEvent mood = doc.toObject(MoodEvent.class);
+                                        if (mood != null) {
+                                            mood.setId(doc.getId());
+                                            combinedEvents.add(mood);
+                                        }
+                                    }
+                                })
+                        );
+                    } catch (CloneNotSupportedException e) {
+                        throw new RuntimeException(e);
+                    }
+
+                    for (String followedId : followedIds) {
+                        try {
+                            tasks.add(((MoodEventFilter) filter.clone())
+                                    .setUser(followedId)
+                                        .setLimit(3)
+                                        .buildQuery()
+                                        .get()
+                                        .addOnSuccessListener(querySnapshot -> {
+                                            for (DocumentSnapshot doc : querySnapshot.getDocuments()) {
+                                                MoodEvent mood = doc.toObject(MoodEvent.class);
+                                                if (mood != null) {
+                                                    mood.setId(doc.getId());
+                                                    combinedEvents.add(mood);
+                                                }
+                                            }
+                                        })
+                            );
+                        } catch (CloneNotSupportedException e) {
+                            throw new RuntimeException(e);
+                        }
+                    }
+
+                    Tasks.whenAllSuccess(tasks)
+                            .addOnSuccessListener(results -> {
+                                combinedEvents.sort((m1, m2) -> m2.getCreated().compareTo(m1.getCreated()));
+                                List<MoodEvent> finalList = searchNFilterFragment.applyLocalSearch(combinedEvents);
+                                moodAdapter.setMoods(finalList);
+                            })
+                            .addOnFailureListener(e -> Log.e("HomeFeed", "Error fetching mood events for followers", e));
+                })
+                .addOnFailureListener(e -> Log.e("HomeFeed", "Failed to fetch following users", e));
+    }
+
+
+    private class UserAdapter extends RecyclerView.Adapter<UserAdapter.UserViewHolder> {
+        private final List<User> userList = new ArrayList<>();
+
+        @SuppressLint("NotifyDataSetChanged")
+        public void setUsers(List<User> newUsers) {
+            userList.clear();
+            userList.addAll(newUsers);
+            notifyDataSetChanged();
+        }
+
+        @NonNull
+        @Override
+        public UserViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+            View view = LayoutInflater.from(parent.getContext())
+                    .inflate(R.layout.item_user, parent, false);
+            return new UserViewHolder(view);
+        }
+
+        @Override
+        public void onBindViewHolder(@NonNull UserViewHolder holder, int position) {
+            User user = userList.get(position);
+            holder.bind(user);
+        }
+
+        @Override
+        public int getItemCount() {
+            return userList.size();
+        }
+
+        class UserViewHolder extends RecyclerView.ViewHolder {
+            private final ShapeableImageView avatar;
+            private final TextView usernameTextView;
+
+            public UserViewHolder(@NonNull View itemView) {
+                super(itemView);
+                avatar = itemView.findViewById(R.id.avatarImageView);
+                usernameTextView = itemView.findViewById(R.id.usernameTextView);
+
+                // Set a click listener for the entire item view.
+                itemView.setOnClickListener(v -> {
+                    int position = getAdapterPosition();
+                    if (position != RecyclerView.NO_POSITION) {
+                        User clickedUser = userList.get(position);
+
+                        Bundle args = new Bundle();
+                        args.putString("uid", clickedUser.getUid());
+                        NavHostFragment.findNavController(requireParentFragment())
+                                .navigate(R.id.otherUserProfile, args);
+                    }
+                });
+
+            }
+
+            public void bind(User user) {
+                usernameTextView.setText(user.getName());
+            }
+        }
     }
 }

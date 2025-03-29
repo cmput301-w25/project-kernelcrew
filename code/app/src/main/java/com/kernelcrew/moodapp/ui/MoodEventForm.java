@@ -70,7 +70,6 @@ public class MoodEventForm extends Fragment implements LocationUpdateListener {
      */
     private void resetPhoto() {
         photo = null;
-        photoButton.setImageResource(R.drawable.upload_splash);
 
         updateResetPhotoVisibility();
         resetPhotoButtonError(); // Clear any error if present
@@ -91,6 +90,7 @@ public class MoodEventForm extends Fragment implements LocationUpdateListener {
      * Update the visibility of the reset photo button based on the current value of photo.
      */
     private void updateResetPhotoVisibility() {
+        if (photo == null) photoButton.setImageResource(R.drawable.upload_splash);
         photoResetButton.setVisibility(photo == null ? INVISIBLE : VISIBLE);
 
         ViewGroup.LayoutParams layoutParams = photoResetButton.getLayoutParams();
@@ -105,14 +105,6 @@ public class MoodEventForm extends Fragment implements LocationUpdateListener {
      */
     public interface MoodEventFormSubmitCallback {
         void handleSubmit(MoodEventDetails details);
-    }
-
-    /**
-     * Register a on submit callback listener for the submit form action
-     * @param callback Callback to register
-     */
-    public void onSubmit(MoodEventFormSubmitCallback callback) {
-        this.callback = callback;
     }
 
     public static class MoodEventDetails {
@@ -172,6 +164,7 @@ public class MoodEventForm extends Fragment implements LocationUpdateListener {
         emotionPickerFragment.setSelected(details.emotion);
         situationAutoComplete.setText(details.socialSituation);
         reasonEditText.setText(details.reason);
+
         if (details.lat != null && details.lon != null) {
             // Update UI to show location is set
             this.currentLatitude = details.lat;
@@ -206,7 +199,7 @@ public class MoodEventForm extends Fragment implements LocationUpdateListener {
         photoButtonError.setLayoutParams(layoutParams);
     }
 
-    private @Nullable MoodEventDetails validateFields() {
+    @Nullable MoodEventDetails validateFields() {
         MoodEventDetails details = new MoodEventDetails();
 
         emotionPickerFragment.setError(null);
@@ -251,16 +244,6 @@ public class MoodEventForm extends Fragment implements LocationUpdateListener {
         return details;
     }
 
-    private void handleSubmit(View _buttonView) {
-        MoodEventDetails details = validateFields();
-        if (details == null) {
-            return;
-        }
-        Log.d("MoodEventForm", "Submitting form with location: lat=" + details.lat + ", lon=" + details.lon);
-
-        callback.handleSubmit(details);
-    }
-
     public MoodEventForm() {
         super(R.layout.fragment_mood_event_form);
     }
@@ -268,9 +251,6 @@ public class MoodEventForm extends Fragment implements LocationUpdateListener {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-
-        Button submitButton = view.findViewById(R.id.submit_button);
-        submitButton.setOnClickListener(this::handleSubmit);
 
         FragmentContainerView emotionPickerFragmentContainer =
                 view.findViewById(R.id.emotion_picker);
@@ -301,6 +281,7 @@ public class MoodEventForm extends Fragment implements LocationUpdateListener {
         updateResetPhotoVisibility();
         addLocation = view.findViewById(R.id.add_location_button);
     }
+
     @Override
     public void onLocationUpdated(Double latitude, Double longitude) {
         Log.d("MoodEventForm", "Location updated: lat=" + latitude + ", lon=" + longitude);

@@ -10,6 +10,7 @@ import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.Filter;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
+import com.google.firebase.firestore.Query;
 
 public class MoodEventProvider {
     private final CollectionReference collection;
@@ -46,9 +47,15 @@ public class MoodEventProvider {
             throw new IllegalArgumentException("MoodEvent cannot be null");
         }
 
-        FirebaseUser user = auth.getCurrentUser();
-        assert user != null;
+        if (moodEvent.getId() == null || moodEvent.getId().isEmpty()) {
+            String generatedId = collection.document().getId();
+            moodEvent.setId(generatedId);
+        }
 
+        FirebaseUser user = auth.getCurrentUser();
+        if (user == null) {
+            throw new IllegalStateException("User must be logged in");
+        }
         // Ensure the MoodEvent has the correct userId
         moodEvent.setUid(user.getUid());
 
@@ -102,5 +109,9 @@ public class MoodEventProvider {
                 Filter.and(Filter.equalTo("uid", user.getUid()),
                            Filter.equalTo("visibility", "PRIVATE")),
                 Filter.equalTo("visibility", "PUBLIC")));
+    }
+
+    public CollectionReference getCollectionReference() {
+        return collection;
     }
 }
