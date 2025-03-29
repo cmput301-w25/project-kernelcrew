@@ -1,12 +1,12 @@
 package com.kernelcrew.moodapp;
 
-import static androidx.test.espresso.Espresso.*;
-import static androidx.test.espresso.action.ViewActions.*;
+import static androidx.test.espresso.Espresso.onView;
+import static androidx.test.espresso.action.ViewActions.click;
+import static androidx.test.espresso.action.ViewActions.scrollTo;
 import static androidx.test.espresso.contrib.RecyclerViewActions.actionOnItemAtPosition;
-import static androidx.test.espresso.matcher.ViewMatchers.*;
-
+import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static org.awaitility.Awaitility.await;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 import android.os.SystemClock;
 
@@ -65,7 +65,9 @@ public class EditMoodEventTest extends FirebaseEmulatorMixin {
                         0,
                         MoodDetailsNavigationTest.clickChildViewWithId(R.id.viewDetailsButton)));
 
+        SystemClock.sleep(3000);
         onView(withId(R.id.btnEditMood)).perform(click());
+        SystemClock.sleep(3000);
         onView(withId(R.id.toggle_shame)).perform(click());
         onView(withId(R.id.visible_private_button)).perform(scrollTo()).perform(click());
         onView(withId(R.id.submit_button)).perform(scrollTo()).perform(click());
