@@ -198,6 +198,13 @@ public class MoodEvent implements Serializable {
     public void setLongitude(Double longitude) {
         this.longitude = longitude;
     }
+    @Exclude
+    public boolean hasLocation() {
+        return latitude != null && longitude != null;
+    }
+    public long getTimestamp() {
+        return this.created.getTime();
+    }
 
     public @NonNull MoodEventVisibility getVisibility() {
         return visibility;
