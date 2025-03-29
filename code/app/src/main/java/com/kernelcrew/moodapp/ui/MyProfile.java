@@ -1,11 +1,6 @@
 package com.kernelcrew.moodapp.ui;
 
 import android.os.Bundle;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.core.app.NotificationManagerCompat;
-import androidx.fragment.app.Fragment;
-import androidx.navigation.Navigation;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -15,6 +10,7 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.app.NotificationManagerCompat;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.Navigation;
 
@@ -125,7 +121,15 @@ public class MyProfile extends Fragment {
         Navigation.findNavController(btnView).navigate(R.id.authHome);
     }
 
-    // Listen for changes to the user's follow requests
+    /**
+     * Listens for changes in the user's follow requests and updates the follow request button image accordingly.
+     * This method sets up a snapshot listener that listens for any changes in the follow requests collection
+     * for the specified user. When a change occurs, the button image is updated to reflect the current status
+     * of follow requests.
+     *
+     * @param userId The unique ID of the user whose follow requests are being monitored.
+     * @param followRequestsButton The ImageView that will display the follow request status image.
+     */
     private void listenForFollowRequests(String userId, ImageView followRequestsButton) {
         CheckFollowRequestCount.listenToFollowRequests(userId, (snapshots, e) -> {
             if (e != null) {
