@@ -63,8 +63,8 @@
     <!-- Follow Request Button moved to top bar -->
     <ImageView
         android:id="@+id/followRequestsButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="64dp"
+        android:layout_height="64dp"
         android:src="@drawable/ic_follow_request_no"
         android:contentDescription="Follow Request"
         app:layout_constraintEnd_toEndOf="parent"
