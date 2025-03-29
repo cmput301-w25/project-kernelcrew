@@ -92,7 +92,7 @@ public class MoodAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         int iconRes = MoodIconUtil.getMoodIconResource(mood.getEmotion().toString());
         viewHolder.moodImageView.setImageResource(iconRes);
 
-        holder.usernameText.setText("@" + mood.getUsername());
+        viewHolder.usernameText.setText("@" + mood.getUsername());
 
         viewHolder.viewDetailsButton.setOnClickListener(v -> {
             if (onMoodClickListener != null) {
