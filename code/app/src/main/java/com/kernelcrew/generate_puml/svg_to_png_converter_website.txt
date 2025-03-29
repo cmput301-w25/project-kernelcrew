@@ -1,3 +1,0 @@
-https://vincerubinetti.github.io/svg-to-png/
-
-this is the website which takes in large svg files(like this one) and gives full uncut .png image
