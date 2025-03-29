@@ -4,8 +4,6 @@ import androidx.annotation.NonNull;
 
 import com.google.android.gms.tasks.Task;
 import com.google.android.gms.tasks.Tasks;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -65,7 +63,7 @@ public class UserProvider {
         return followers.onSuccessTask(queryDocumentSnapshots -> {
             List<User> followersList = new ArrayList<>();
 
-            for (DocumentSnapshot doc : queryDocumentSnapshots) {
+            for (DocumentSnapshot doc : queryDocumentSnapshots.getDocuments()) {
                 String name = doc.getId();
                 Boolean isFollowingBack = doc.getBoolean("isFollowingBack");
                 if (isFollowingBack == null) {
@@ -88,7 +86,7 @@ public class UserProvider {
         return query.onSuccessTask(queryDocumentSnapshots -> {
             List<User> followingList = new ArrayList<>();
 
-            for (DocumentSnapshot doc : queryDocumentSnapshots) {
+            for (DocumentSnapshot doc : queryDocumentSnapshots.getDocuments()) {
                 String name = doc.getId();
                 Boolean isFollowed = doc.getBoolean("isFollowed");
                 if (isFollowed == null) {
@@ -137,6 +135,29 @@ public class UserProvider {
                     } else {
                         throw new Exception("User not found");
                     }
+                });
+    }
+
+    /**
+     * Search for users by username prefix.
+     * @param query The search query string.
+     * @return A Task containing a list of users matching the query.
+     */
+    public Task<List<User>> searchUsers(String query) {
+        return db.collection("users")
+                .orderBy("username")
+                .startAt(query)
+                .endAt(query + "\uf8ff")
+                .get()
+                .onSuccessTask(querySnapshot -> {
+                    List<User> users = new ArrayList<>();
+                    for (DocumentSnapshot doc : querySnapshot.getDocuments()) {
+                        String name = doc.getString("username");
+                        if (name != null) {
+                            users.add(new User(name, false));
+                        }
+                    }
+                    return Tasks.forResult(users);
                 });
     }
 }
