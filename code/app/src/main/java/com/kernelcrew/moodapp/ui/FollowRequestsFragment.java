@@ -19,6 +19,7 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.kernelcrew.moodapp.R;
 import com.kernelcrew.moodapp.data.FollowProvider;
+import com.kernelcrew.moodapp.utils.NotificationHelper;
 
 import java.util.ArrayList;
 import java.util.Collections;

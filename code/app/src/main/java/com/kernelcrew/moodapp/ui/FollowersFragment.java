@@ -44,7 +44,6 @@ public class FollowersFragment extends Fragment {
         followersRecyclerView.setAdapter(adapter);
 
         userProvider = UserProvider.getInstance();
-        // Instead of a one-time fetch, set up a snapshot listener
         FirebaseFirestore.getInstance()
                 .collection("users")
                 .document(FirebaseAuth.getInstance().getCurrentUser().getUid())

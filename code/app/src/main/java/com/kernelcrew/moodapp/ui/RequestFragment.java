@@ -15,6 +15,7 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.kernelcrew.moodapp.R;
 import com.kernelcrew.moodapp.data.FollowProvider;
+import com.kernelcrew.moodapp.utils.NotificationHelper;
 
 import java.util.Collections;
 
@@ -47,7 +48,8 @@ public class RequestFragment extends Fragment {
             requestMessage.setText(username + " is requesting to follow you");
             acceptButton.setOnClickListener(v -> acceptFollowRequest(username));
             denyButton.setOnClickListener(v -> denyFollowRequest(username));
-        } else if ("unfollow_confirmation".equals(requestType)) {
+        }
+        else if ("unfollow_confirmation".equals(requestType)) {
             requestMessage.setText("Are you sure you want to unfollow " + username + "?");
             acceptButton.setOnClickListener(v -> confirmUnfollow(username));
             denyButton.setOnClickListener(v -> Navigation.findNavController(view).popBackStack());
@@ -59,8 +61,10 @@ public class RequestFragment extends Fragment {
         FollowProvider.getInstance()
                 .acceptRequest(me, username)
                 .addOnSuccessListener(aVoid ->
-                        Navigation.findNavController(requireView()).popBackStack());
+                        Navigation.findNavController(requireView()).popBackStack())
+                .addOnFailureListener(e -> Log.e("RequestFragment", "Accept failed", e));
     }
+
 
     private void denyFollowRequest(String username) {
         String me = FirebaseAuth.getInstance().getCurrentUser().getUid();

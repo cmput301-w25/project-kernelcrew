@@ -26,6 +26,7 @@ import com.kernelcrew.moodapp.R;
 import com.kernelcrew.moodapp.data.FollowProvider;
 import com.kernelcrew.moodapp.data.MoodEvent;
 import com.kernelcrew.moodapp.data.UserProvider;
+import com.kernelcrew.moodapp.utils.NotificationHelper;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -113,14 +114,14 @@ public class OtherUserProfile extends Fragment {
                                         } else {
                                             followButton.setText("Follow");
                                             followButton.setEnabled(true);
-                                            followButton.setOnClickListener(v ->
-                                                    provider.sendRequest(uidToLoad, currentUid)
-                                                            .addOnSuccessListener(a -> {
-                                                                followButton.setText("Requested");
-                                                                followButton.setEnabled(false);
-                                                            })
-                                                            .addOnFailureListener(e -> Log.e(TAG, "Request failed", e))
-                                            );
+                                            followButton.setOnClickListener(v -> {
+                                                provider.sendRequest(uidToLoad, currentUid)
+                                                        .addOnSuccessListener(a -> {
+                                                            followButton.setText("Requested");
+                                                            followButton.setEnabled(false);
+                                                        })
+                                                        .addOnFailureListener(e -> Log.e(TAG, "Request failed", e));
+                                            });
                                         }
                                     });
                         }
