@@ -1,23 +1,23 @@
 package com.kernelcrew.moodapp.ui;
 
 import android.os.Bundle;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.fragment.app.Fragment;
-import androidx.navigation.Navigation;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
+import androidx.navigation.Navigation;
+
 import com.google.android.material.navigation.NavigationBarView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.kernelcrew.moodapp.R;
-import com.kernelcrew.moodapp.data.FollowProvider;
-import com.kernelcrew.moodapp.data.UserProvider;
 
 public class MyProfile extends Fragment {
     FirebaseAuth auth;
@@ -41,7 +41,6 @@ public class MyProfile extends Fragment {
         signOutButton = view.findViewById(R.id.signOutButton);
         Button followersButton = view.findViewById(R.id.followers_button);
         Button followingButton = view.findViewById(R.id.following_button);
-        Button moodHistoryButton = view.findViewById(R.id.mood_history_button);
 
         navigationBarView = view.findViewById(R.id.bottom_navigation);
         navigationBarView.setSelectedItemId(R.id.page_myProfile);
@@ -56,10 +55,6 @@ public class MyProfile extends Fragment {
         followingButton.setOnClickListener(v -> Navigation.findNavController(v).navigate(R.id.action_myProfile_to_followingPage));
         Bundle bundle = new Bundle();
         bundle.putString("sourceScreen", "profile");
-        moodHistoryButton.setOnClickListener(v ->
-                Navigation.findNavController(v)
-                        .navigate(R.id.action_myProfile_to_moodHistoryPage, bundle)
-        );
 
         String uidToLoad = null;
         if (getArguments() != null) {
