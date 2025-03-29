@@ -195,6 +195,7 @@
 
                     <!-- Photo Card -->
                     <com.google.android.material.card.MaterialCardView
+                        android:id="@+id/cardPhoto"
                         android:layout_width="match_parent"
                         android:layout_height="200dp"
                         android:layout_marginTop="8dp"
@@ -222,6 +223,7 @@
 
                     <!-- Location Card -->
                     <com.google.android.material.card.MaterialCardView
+                        android:id="@+id/cardLocation"
                         android:layout_width="match_parent"
                         android:layout_height="200dp"
                         android:layout_marginTop="8dp"

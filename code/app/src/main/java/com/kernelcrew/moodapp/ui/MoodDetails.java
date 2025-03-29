@@ -19,6 +19,7 @@ import androidx.navigation.fragment.NavHostFragment;
 
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.chip.Chip;
+import com.google.android.material.card.MaterialCardView; // added import for MaterialCardView
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -37,6 +38,10 @@ public class MoodDetails extends Fragment implements DeleteDialogFragment.Delete
     private Button btnDeleteMood;
     private Button btnMoodComments;
     private ImageView visibilityIcon;
+    private TextView tvPhotoLabel;
+    private MaterialCardView cardPhoto;
+    private TextView tvLocationLabel;
+    private MaterialCardView cardLocation;
 
     private FirebaseFirestore db;
     private MoodEventProvider provider;
@@ -84,6 +89,10 @@ public class MoodDetails extends Fragment implements DeleteDialogFragment.Delete
         btnDeleteMood = view.findViewById(R.id.btnDeleteMood);
         btnMoodComments = view.findViewById(R.id.btnMoodComments);
         visibilityIcon = view.findViewById(R.id.visibility_icon);
+        tvPhotoLabel = view.findViewById(R.id.tvPhotoLabel);
+        cardPhoto = view.findViewById(R.id.cardPhoto);
+        tvLocationLabel = view.findViewById(R.id.tvLocationLabel);
+        cardLocation = view.findViewById(R.id.cardLocation);
 
         toolbar.setNavigationOnClickListener(v -> handleBackButton());
 
@@ -142,9 +151,26 @@ public class MoodDetails extends Fragment implements DeleteDialogFragment.Delete
         int moodImageRes = getMoodIconResource(moodEvent.getEmotion().toString());
         imageMoodIcon.setImageResource(moodImageRes);
 
+        // Photo Section - display conditionally only if user attached data/photo
         Bitmap photo = moodEvent.getPhoto();
         if (photo != null) {
             ivMoodPhoto.setImageBitmap(photo);
+            tvPhotoLabel.setVisibility(View.VISIBLE);
+            cardPhoto.setVisibility(View.VISIBLE);
+        } else {
+            tvPhotoLabel.setVisibility(View.GONE);
+            cardPhoto.setVisibility(View.GONE);
+        }
+
+        // Location Section - display conditionally only if user attached their location
+        String location = moodEvent.getLocation();
+        if (location != null && !location.trim().isEmpty()) {
+            tvLocationLabel.setVisibility(View.VISIBLE);
+            cardLocation.setVisibility(View.VISIBLE);
+            // Optionally: update mapContainer or display location details if available
+        } else {
+            tvLocationLabel.setVisibility(View.GONE);
+            cardLocation.setVisibility(View.GONE);
         }
 
         switch (moodEvent.getVisibility()) {
