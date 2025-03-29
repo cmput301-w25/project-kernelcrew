@@ -16,10 +16,10 @@ import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.google.android.material.navigation.NavigationBarView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.android.material.navigation.NavigationBarView;
 import com.kernelcrew.moodapp.R;
 import com.kernelcrew.moodapp.data.FollowRequestProvider;
 import com.kernelcrew.moodapp.data.MoodEvent;
@@ -123,13 +123,16 @@ public class HomeFeed extends Fragment {
                                     moodList.add(mood);
                                 }
                             }
-                                // Client-side filtering based on mood type (Emotion)
+                                // Client-side filtering: include mood events whose emotion OR reason matches the query
                                 String searchWord = filter.getSearchQuery().trim().toLowerCase();
                                 if (!searchWord.isEmpty()) {
                                     List<MoodEvent> filteredList = new ArrayList<>();
                                     for (MoodEvent m : moodList) {
-                                        if (m.getEmotion() != null &&
-                                                m.getEmotion().toString().toLowerCase().contains(searchWord)) {
+                                        boolean matchesEmotion = m.getEmotion() != null &&
+                                                m.getEmotion().toString().toLowerCase().contains(searchWord);
+                                        boolean matchesReason = m.getReason() != null &&
+                                                m.getReason().toLowerCase().contains(searchWord);
+                                        if (matchesEmotion || matchesReason) {
                                             filteredList.add(m);
                                         }
                                     }
