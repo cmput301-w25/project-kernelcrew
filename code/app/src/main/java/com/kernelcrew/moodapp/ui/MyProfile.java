@@ -45,7 +45,7 @@ public class MyProfile extends Fragment {
         navigationBarView = view.findViewById(R.id.bottom_navigation);
         navigationBarView.setSelectedItemId(R.id.page_myProfile);
         navBarController = new BottomNavBarController(navigationBarView);
-        Button followRequestsButton = view.findViewById(R.id.followRequestsButton);
+        Button followRequestsButton = view.findViewById(R.id.followRequestButton);
         followRequestsButton.setOnClickListener(v ->
                 Navigation.findNavController(v).navigate(R.id.action_myProfile_to_followRequestsFragment)
         );
