@@ -197,14 +197,13 @@
         android:name="com.kernelcrew.moodapp.ui.RequestFragment"
         android:label="Request"
         tools:layout="@layout/fragment_request" />
-
     <action
         android:id="@+id/action_followersFragment_to_requestFragment"
         app:destination="@id/requestFragment" />
-
     <action
         android:id="@+id/action_followingFragment_to_requestFragment"
         app:destination="@id/requestFragment" />
+
     <fragment
         android:id="@+id/otherUserProfile"
         android:name="com.kernelcrew.moodapp.ui.OtherUserProfile"
@@ -212,5 +211,8 @@
         <argument
             android:name="uid"
             app:argType="string" />
+        <action
+            android:id="@+id/action_otherUserProfile_to_moodDetails"
+            app:destination="@id/moodDetails" />
     </fragment>
 </navigation>
