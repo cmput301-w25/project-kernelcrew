@@ -609,11 +609,6 @@ class com.kernelcrew.moodapp.data.MoodEvent {
 + void setVisibility(MoodEventVisibility)
 }
 
-
-class com.kernelcrew.moodapp.ui.MainActivity {
-# void onCreate(Bundle)
-}
-
 class com.kernelcrew.moodapp.data.FollowProvider {
 - {static} FollowProvider instance
 - FirebaseFirestore db
@@ -734,18 +729,13 @@ class com.kernelcrew.moodapp.ui.FollowersFragment$FollowersAdapter$ViewHolder {
 
 
 
-com.kernelcrew.moodapp.ui.OnItemClickListener <|.. com.kernelcrew.moodapp.ui.MoodComments
-com.kernelcrew.moodapp.ui.Adapter <|-- com.kernelcrew.moodapp.ui.MoodHistoryAdapter
 com.kernelcrew.moodapp.ui.MoodHistoryAdapter +.. com.kernelcrew.moodapp.ui.MoodHistoryAdapter$OnItemClickListener
 com.kernelcrew.moodapp.ui.MoodHistoryAdapter +.. com.kernelcrew.moodapp.ui.MoodHistoryAdapter$MoodViewHolder
-com.kernelcrew.moodapp.ui.ViewHolder <|-- com.kernelcrew.moodapp.ui.MoodHistoryAdapter$MoodViewHolder
 com.kernelcrew.moodapp.ui.components.FilterBarFragment +.. com.kernelcrew.moodapp.ui.components.FilterBarFragment$OnFilterChangedListener
 com.kernelcrew.moodapp.ui.LocationUpdateListener <|.. com.kernelcrew.moodapp.ui.MoodEventForm
 com.kernelcrew.moodapp.ui.MoodEventForm +.. com.kernelcrew.moodapp.ui.MoodEventForm$MoodEventFormSubmitCallback
 com.kernelcrew.moodapp.ui.MoodEventForm +.. com.kernelcrew.moodapp.ui.MoodEventForm$MoodEventDetails
 com.kernelcrew.moodapp.ui.DeleteDialogFragment +.. com.kernelcrew.moodapp.ui.DeleteDialogFragment$DeleteDialogListener
-com.kernelcrew.moodapp.ui.DeleteDialogListener <|.. com.kernelcrew.moodapp.ui.MoodDetails
-com.kernelcrew.moodapp.ui.OnItemSelectedListener <|.. com.kernelcrew.moodapp.ui.BottomNavBarController
 com.kernelcrew.moodapp.ui.AuthSignUp +.. com.kernelcrew.moodapp.ui.AuthSignUp$SignUpDetails
 com.kernelcrew.moodapp.ui.AuthSignUp +.. com.kernelcrew.moodapp.ui.AuthSignUp$OnValidationCompleteListener
 com.kernelcrew.moodapp.ui.AuthSignUp +.. com.kernelcrew.moodapp.ui.AuthSignUp$OnUsernameCheckListener
@@ -753,26 +743,13 @@ com.kernelcrew.moodapp.ui.components.EmotionPickerFragment +.. com.kernelcrew.mo
 com.kernelcrew.moodapp.ui.components.EmotionPickerFragment +.. com.kernelcrew.moodapp.ui.components.EmotionPickerFragment$OnSelectEmotionListener
 com.kernelcrew.moodapp.data.LocationHandler +.. com.kernelcrew.moodapp.data.LocationHandler$OnLocationObtainedListener
 com.kernelcrew.moodapp.ui.components.UploadPhotoFragment +.. com.kernelcrew.moodapp.ui.components.UploadPhotoFragment$UploadPhotoListener
-com.kernelcrew.moodapp.ui.Adapter <|-- com.kernelcrew.moodapp.ui.MoodAdapter
 com.kernelcrew.moodapp.ui.MoodAdapter +.. com.kernelcrew.moodapp.ui.MoodAdapter$OnMoodClickListener
 com.kernelcrew.moodapp.ui.MoodAdapter +.. com.kernelcrew.moodapp.ui.MoodAdapter$MoodViewHolder
-com.kernelcrew.moodapp.ui.ViewHolder <|-- com.kernelcrew.moodapp.ui.MoodAdapter$MoodViewHolder
-com.kernelcrew.moodapp.ui.Adapter <|-- com.kernelcrew.moodapp.ui.CommentAdapter
 com.kernelcrew.moodapp.ui.CommentAdapter +.. com.kernelcrew.moodapp.ui.CommentAdapter$CommentViewHolder
-com.kernelcrew.moodapp.ui.ViewHolder <|-- com.kernelcrew.moodapp.ui.CommentAdapter$CommentViewHolder
-com.kernelcrew.moodapp.ui.OnItemClickListener <|.. com.kernelcrew.moodapp.ui.MoodHistory
-com.kernelcrew.moodapp.ui.Adapter <|-- com.kernelcrew.moodapp.ui.FollowRequestAdapter
 com.kernelcrew.moodapp.ui.FollowRequestAdapter +.. com.kernelcrew.moodapp.ui.FollowRequestAdapter$ViewHolder
-com.kernelcrew.moodapp.ui.ViewHolder <|-- com.kernelcrew.moodapp.ui.FollowRequestAdapter$ViewHolder
-java.io.Serializable <|.. com.kernelcrew.moodapp.data.Comment
 com.kernelcrew.moodapp.ui.AuthSignIn +.. com.kernelcrew.moodapp.ui.AuthSignIn$SignInDetails
-java.io.Serializable <|.. com.kernelcrew.moodapp.data.MoodEvent
 com.kernelcrew.moodapp.ui.FollowingFragment +.. com.kernelcrew.moodapp.ui.FollowingFragment$FollowingAdapter
-com.kernelcrew.moodapp.ui.Adapter <|-- com.kernelcrew.moodapp.ui.FollowingFragment$FollowingAdapter
 com.kernelcrew.moodapp.ui.FollowingFragment$FollowingAdapter +.. com.kernelcrew.moodapp.ui.FollowingFragment$FollowingAdapter$ViewHolder
-com.kernelcrew.moodapp.ui.ViewHolder <|-- com.kernelcrew.moodapp.ui.FollowingFragment$FollowingAdapter$ViewHolder
 com.kernelcrew.moodapp.ui.FollowersFragment +.. com.kernelcrew.moodapp.ui.FollowersFragment$FollowersAdapter
-com.kernelcrew.moodapp.ui.Adapter <|-- com.kernelcrew.moodapp.ui.FollowersFragment$FollowersAdapter
 com.kernelcrew.moodapp.ui.FollowersFragment$FollowersAdapter +.. com.kernelcrew.moodapp.ui.FollowersFragment$FollowersAdapter$ViewHolder
-com.kernelcrew.moodapp.ui.ViewHolder <|-- com.kernelcrew.moodapp.ui.FollowersFragment$FollowersAdapter$ViewHolder
 @enduml
