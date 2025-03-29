@@ -61,8 +61,8 @@
     </androidx.cardview.widget.CardView>
 
     <!-- Follow Request Button moved to top bar -->
-    <Button
-        android:id="@+id/followRequestButton"
+    <ImageView
+        android:id="@+id/followRequestsButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:src="@drawable/ic_follow_request_no"

@@ -45,7 +45,7 @@ public class MyProfile extends Fragment {
         navigationBarView = view.findViewById(R.id.bottom_navigation);
         navigationBarView.setSelectedItemId(R.id.page_myProfile);
         navBarController = new BottomNavBarController(navigationBarView);
-        Button followRequestsButton = view.findViewById(R.id.followRequestButton);
+        Button followRequestsButton = view.findViewById(R.id.followRequestsButton);
         followRequestsButton.setOnClickListener(v ->
                 Navigation.findNavController(v).navigate(R.id.action_myProfile_to_followRequestsFragment)
         );
@@ -74,6 +74,17 @@ public class MyProfile extends Fragment {
             } else {
                 profileImage.setImageResource(R.drawable.ic_person);
             }
+        }
+
+
+        // Example: After checking follow requests from server or local data
+        hasFollowRequest = checkForFollowRequest();  // Replace with your actual logic
+
+        // Assuming you have a boolean `hasFollowRequest` to check the status
+        if (hasFollowRequest) {
+            followRequestsButton.setImageResource(R.drawable.ic_follow_request_yes);  // Change to the "yes" image
+        } else {
+            followRequestsButton.setImageResource(R.drawable.ic_follow_request_no);  // Default image
         }
 
         if (uidToLoad != null) {
