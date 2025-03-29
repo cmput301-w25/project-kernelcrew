@@ -176,11 +176,6 @@ class DeleteDialogFragment {
 + Dialog onCreateDialog(Bundle)
 }
 
-
-interface DeleteDialogFragment$DeleteDialogListener {
-~ void onDeleteConfirmed()
-}
-
 class CommentProvider {
 - CollectionReference collection
 - {static} CommentProvider instance
@@ -280,14 +275,6 @@ class AuthSignUp$SignUpDetails {
 ~ String password
 }
 
-interface AuthSignUp$OnValidationCompleteListener {
-~ void onValidationComplete(SignUpDetails)
-}
-
-interface AuthSignUp$OnUsernameCheckListener {
-~ void onCheckComplete(boolean)
-}
-
 class CreateMoodEvent {
 - NavController navController
 - BottomNavBarController navBarController
@@ -316,19 +303,9 @@ class EmotionPickerFragment {
 + void setError(String)
 }
 
-
-class EmotionPickerFragment$EmotionToggle {
-~ MaterialButton button
-~ Emotion emotion
-}
-
 class EmotionToggleConfig {
 ~ int id
 ~ Emotion emotion
-}
-
-interface EmotionPickerFragment$OnSelectEmotionListener {
-~ void onSelectEmotion(Emotion)
 }
 
 class User {
@@ -360,12 +337,6 @@ class LocationHandler {
 - boolean isLocationEnabled()
 }
 
-
-interface LocationHandler$OnLocationObtainedListener {
-~ void onLocationObtained(double,double)
-~ void onLocationFailed(String)
-}
-
 class UploadPhotoFragment {
 ~ UploadPhotoListener uploadPhotoListener
 - ActivityResultLauncher<Intent> pickImageLauncher
@@ -379,11 +350,6 @@ class UploadPhotoFragment {
 - void openImageCapture()
 }
 
-
-interface UploadPhotoFragment$UploadPhotoListener {
-~ void onUpload(Bitmap)
-}
-
 class MoodAdapter {
 - List<MoodEvent> moods
 - OnMoodClickListener onMoodClickListener
@@ -395,24 +361,6 @@ class MoodAdapter {
 + int getItemCount()
 }
 
-
-interface MoodAdapter$OnMoodClickListener {
-~ void onViewDetails(MoodEvent)
-~ void onViewComments(MoodEvent)
-}
-
-class MoodAdapter$MoodViewHolder {
-~ ImageView moodImageView
-~ TextView moodTypeTextView
-~ TextView dayTimeTextView
-~ View viewDetailsButton
-~ TextView usernameText
-~ ImageView purple_icon_arrow
-~ ImageView comments_bubble
-~ View commentLayout
-~ ImageView visibilityIcon
-}
-
 class CommentAdapter {
 - List<Comment> comments
 + CommentViewHolder onCreateViewHolder(ViewGroup,int)
@@ -420,15 +368,6 @@ class CommentAdapter {
 + int getItemCount()
 + void setComments(List<Comment>)
 }
-
-
-class CommentAdapter$CommentViewHolder {
-- TextView commentText
-- TextView userNameText
-- TextView timestampText
-+ void bind(Comment)
-}
-
 
 class MoodHistory {
 - RecyclerView recyclerView
@@ -453,13 +392,6 @@ class FollowRequestAdapter {
 + ViewHolder onCreateViewHolder(ViewGroup,int)
 + void onBindViewHolder(ViewHolder,int)
 + int getItemCount()
-}
-
-
-class FollowRequestAdapter$ViewHolder {
-~ ImageView uid
-~ TextView requestMessage
-~ Button acceptButton
 }
 
 class UserProvider {
@@ -527,12 +459,6 @@ class AuthSignIn {
 - boolean checkEmailValid(String)
 - boolean checkPasswordValid(String)
 - void setGeneralError(Exception)
-}
-
-
-class AuthSignIn$SignInDetails {
-~ String email
-~ String password
 }
 
 interface LocationUpdateListener {
@@ -647,12 +573,6 @@ class FollowingFragment$FollowingAdapter {
 + int getItemCount()
 }
 
-
-class FollowingFragment$FollowingAdapter$ViewHolder {
-~ ShapeableImageView avatarImageView
-~ TextView usernameTextView
-}
-
 class OtherUserProfile {
 - {static} String TAG
 - String uidToLoad
@@ -722,34 +642,13 @@ class FollowersFragment$FollowersAdapter {
 }
 
 
-class FollowersFragment$FollowersAdapter$ViewHolder {
-~ ShapeableImageView avatarImageView
-~ TextView usernameTextView
-}
-
-
-
 MoodHistoryAdapter +.. MoodHistoryAdapter$OnItemClickListener
 MoodHistoryAdapter +.. MoodHistoryAdapter$MoodViewHolder
 FilterBarFragment +.. FilterBarFragment$OnFilterChangedListener
 LocationUpdateListener <|.. MoodEventForm
 MoodEventForm +.. MoodEventForm$MoodEventFormSubmitCallback
 MoodEventForm +.. MoodEventForm$MoodEventDetails
-DeleteDialogFragment +.. DeleteDialogFragment$DeleteDialogListener
 AuthSignUp +.. AuthSignUp$SignUpDetails
-AuthSignUp +.. AuthSignUp$OnValidationCompleteListener
-AuthSignUp +.. AuthSignUp$OnUsernameCheckListener
-EmotionPickerFragment +.. EmotionPickerFragment$EmotionToggle
-EmotionPickerFragment +.. EmotionPickerFragment$OnSelectEmotionListener
-LocationHandler +.. LocationHandler$OnLocationObtainedListener
-UploadPhotoFragment +.. UploadPhotoFragment$UploadPhotoListener
-MoodAdapter +.. MoodAdapter$OnMoodClickListener
-MoodAdapter +.. MoodAdapter$MoodViewHolder
-CommentAdapter +.. CommentAdapter$CommentViewHolder
-FollowRequestAdapter +.. FollowRequestAdapter$ViewHolder
-AuthSignIn +.. AuthSignIn$SignInDetails
 FollowingFragment +.. FollowingFragment$FollowingAdapter
-FollowingFragment$FollowingAdapter +.. FollowingFragment$FollowingAdapter$ViewHolder
 FollowersFragment +.. FollowersFragment$FollowersAdapter
-FollowersFragment$FollowersAdapter +.. FollowersFragment$FollowersAdapter$ViewHolder
 @enduml
