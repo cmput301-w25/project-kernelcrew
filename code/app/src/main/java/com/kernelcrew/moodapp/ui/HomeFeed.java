@@ -17,15 +17,12 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.google.android.material.navigation.NavigationBarView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.firestore.DocumentChange;
 import com.google.firebase.firestore.DocumentSnapshot;
-import com.google.firebase.firestore.Query;
-import com.google.firebase.firestore.FirebaseFirestore;
 import com.kernelcrew.moodapp.R;
+import com.kernelcrew.moodapp.data.FollowRequestProvider;
 import com.kernelcrew.moodapp.data.MoodEvent;
 import com.kernelcrew.moodapp.data.MoodEventProvider;
 import com.kernelcrew.moodapp.ui.components.FilterBarFragment;
-import com.kernelcrew.moodapp.utils.NotificationHelper;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -57,109 +54,6 @@ public class HomeFeed extends Fragment {
 
         navBarController = new BottomNavBarController(navigationBar);
 
-        if (user != null) {
-            String myUid = user.getUid();
-            FirebaseFirestore db = FirebaseFirestore.getInstance();
-
-            // Listener for followRequests (for incoming requests)
-            db.collection("users")
-                    .document(myUid)
-                    .collection("followRequests")
-                    .addSnapshotListener((snapshots, error) -> {
-                        if (error != null) {
-                            Log.e("HomeFeed", "Error listening to followRequests", error);
-                            return;
-                        }
-                        if (snapshots != null) {
-                            for (DocumentChange dc : snapshots.getDocumentChanges()) {
-                                if (dc.getType() == DocumentChange.Type.ADDED) {
-                                    String requesterUid = dc.getDocument().getId();
-                                    FirebaseFirestore.getInstance()
-                                            .collection("users")
-                                            .document(requesterUid)
-                                            .get()
-                                            .addOnSuccessListener(doc -> {
-                                                String userName = requesterUid; // fallback
-                                                if (doc.exists()) {
-                                                    String fetchedName = doc.getString("username");
-                                                    if (fetchedName != null && !fetchedName.isEmpty()) {
-                                                        userName = fetchedName;
-                                                    }
-                                                }
-                                                NotificationHelper notificationHelper = new NotificationHelper(getContext());
-                                                notificationHelper.sendNotification(
-                                                        "Follow Request",
-                                                        userName + " wants to follow you"
-                                                );
-                                            })
-                                            .addOnFailureListener(e -> {
-                                                NotificationHelper notificationHelper = new NotificationHelper(getContext());
-                                                notificationHelper.sendNotification(
-                                                        "Follow Request",
-                                                        requesterUid + " wants to follow you"
-                                                );
-                                            });
-                                }
-                            }
-                        }
-                    });
-
-            // Listener for notifications (to catch "followAccepted" events)
-            db.collection("users")
-                    .document(myUid)
-                    .collection("notifications")
-                    .addSnapshotListener((snapshots, error) -> {
-                        if (error != null) {
-                            Log.e("HomeFeed", "Error listening to notifications", error);
-                            return;
-                        }
-                        if (snapshots != null) {
-                            for (DocumentChange dc : snapshots.getDocumentChanges()) {
-                                if (dc.getType() == DocumentChange.Type.ADDED) {
-                                    String docId = dc.getDocument().getId();
-                                    String type = dc.getDocument().getString("type");
-                                    if ("followAccepted".equals(type)) {
-                                        // "fromUserId" is the user who accepted the follow request.
-                                        String fromUserId = dc.getDocument().getString("fromUserId");
-                                        if (fromUserId != null) {
-                                            db.collection("users")
-                                                    .document(fromUserId)
-                                                    .get()
-                                                    .addOnSuccessListener(doc -> {
-                                                        String userName = fromUserId; // fallback
-                                                        if (doc.exists()) {
-                                                            String fetchedName = doc.getString("username");
-                                                            if (fetchedName != null && !fetchedName.isEmpty()) {
-                                                                userName = fetchedName;
-                                                            }
-                                                        }
-                                                        NotificationHelper helper = new NotificationHelper(getContext());
-                                                        helper.sendNotification(
-                                                                "Follow Accepted",
-                                                                userName + " accepted your follow request"
-                                                        );
-                                                        // Optionally delete the notification doc after processing
-                                                        db.collection("users")
-                                                                .document(myUid)
-                                                                .collection("notifications")
-                                                                .document(docId)
-                                                                .delete();
-                                                    })
-                                                    .addOnFailureListener(e -> {
-                                                        NotificationHelper helper = new NotificationHelper(getContext());
-                                                        helper.sendNotification(
-                                                                "Follow Accepted",
-                                                                fromUserId + " accepted your follow request"
-                                                        );
-                                                    });
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    });
-        }
-
         searchNFilterFragment = (FilterBarFragment) getChildFragmentManager().findFragmentById(R.id.filterBarFragment);
 
         moodRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
@@ -167,9 +61,24 @@ public class HomeFeed extends Fragment {
 
         moodRecyclerView.setAdapter(moodAdapter);
 
+        if (user != null) {
+            String myUid = user.getUid();
+
+            // Initialize FollowRequestProvider
+            FollowRequestProvider followRequestProvider = new FollowRequestProvider(getContext());
+
+            // Listen for follow requests
+            followRequestProvider.listenForFollowRequests(myUid);
+
+            // Listen for follow accepted notifications
+            followRequestProvider.listenForFollowAcceptedNotifications(myUid);
+        }
+
         if (auth.getCurrentUser() == null) {
             Log.e("Home", "User not authenticated!");
         }
+
+        FollowRequestProvider followRequestProvider = new FollowRequestProvider(getContext());
 
         // Listener for moodEvents collection
         if (searchNFilterFragment != null) {
