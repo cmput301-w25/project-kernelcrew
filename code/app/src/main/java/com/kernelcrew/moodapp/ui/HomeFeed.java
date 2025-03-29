@@ -123,16 +123,13 @@ public class HomeFeed extends Fragment {
                                     moodList.add(mood);
                                 }
                             }
-                                // Client-side filtering: include mood events whose emotion OR reason matches the query
+                            // Client-side filtering based solely on reason text
                                 String searchWord = filter.getSearchQuery().trim().toLowerCase();
                                 if (!searchWord.isEmpty()) {
                                     List<MoodEvent> filteredList = new ArrayList<>();
                                     for (MoodEvent m : moodList) {
-                                        boolean matchesEmotion = m.getEmotion() != null &&
-                                                m.getEmotion().toString().toLowerCase().contains(searchWord);
-                                        boolean matchesReason = m.getReason() != null &&
-                                                m.getReason().toLowerCase().contains(searchWord);
-                                        if (matchesEmotion || matchesReason) {
+                                        if (m.getReason() != null &&
+                                                m.getReason().toLowerCase().contains(searchWord)) {
                                             filteredList.add(m);
                                         }
                                     }
