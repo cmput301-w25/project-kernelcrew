@@ -44,7 +44,7 @@ public class BottomNavBarController implements NavigationBarView.OnItemSelectedL
         if (itemId == R.id.page_home) {
             page = R.id.homeFeed;
         } else if (itemId == R.id.page_map) {
-            MoodMap.setSharedMoodEvents(currentFilteredList);
+//            MoodMap.setSharedMoodEvents(currentFilteredList);
             page = R.id.moodMap;
         } else if (itemId == R.id.page_createMoodEvent) {
             page = R.id.createMoodEvent;
