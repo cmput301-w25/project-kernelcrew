@@ -2,6 +2,7 @@ package com.kernelcrew.moodapp.ui.components;
 
 import android.content.Context;
 import android.graphics.Color;
+import android.location.Location;
 import android.os.Bundle;
 import android.os.Handler;
 import android.text.Editable;
@@ -30,6 +31,7 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.Query;
 import com.kernelcrew.moodapp.R;
 import com.kernelcrew.moodapp.data.Emotion;
+import com.kernelcrew.moodapp.data.LocationHandler;
 import com.kernelcrew.moodapp.data.MoodEvent;
 import com.kernelcrew.moodapp.data.MoodEventFilter;
 import com.kernelcrew.moodapp.data.MoodEventProvider;
@@ -245,6 +247,7 @@ public abstract class FilterBarFragment extends Fragment {
                 item.setCheckable(true);
                 item.setChecked(selectedEmotions.contains(emotion));
             }
+
             popup.setOnMenuItemClickListener(item -> {
                 item.setChecked(!item.isChecked());
                 Emotion emotion = Emotion.fromString(Objects.requireNonNull(item.getTitle()).toString());
@@ -258,6 +261,7 @@ public abstract class FilterBarFragment extends Fragment {
                 item.setActionView(new View(requireContext()));
                 return false;
             });
+
             popup.setOnDismissListener(menu -> {
                 getMoodEventFilter().setEmotions(selectedEmotions);
                 notifyFilterChanged();
@@ -275,7 +279,7 @@ public abstract class FilterBarFragment extends Fragment {
             popup.getMenu().add("All Time");
 
             popup.setOnMenuItemClickListener(item -> {
-                String selection = item.getTitle().toString();
+                String selection = Objects.requireNonNull(item.getTitle()).toString();
                 Date startDate = null;
                 Date endDate = null;
                 Calendar calendar = Calendar.getInstance();
@@ -328,10 +332,38 @@ public abstract class FilterBarFragment extends Fragment {
             SpannableString redTitle = new SpannableString("Clear Location Filter");
             redTitle.setSpan(new ForegroundColorSpan(Color.RED), 0, redTitle.length(), 0);
             clearLocationItem.setTitle(redTitle);
+
             popup.setOnMenuItemClickListener(item -> {
-                Toast.makeText(requireContext(), "Location Stuff not Implemented", Toast.LENGTH_SHORT).show();
+                String selected = Objects.requireNonNull(item.getTitle()).toString();
+                switch (selected) {
+                    case "Within 5 km": {
+                        Location currentLocation = LocationHandler.getCurrentLocation(requireContext());
+                        if (currentLocation != null) {
+                            Log.d("FilterBarFrag", "Current Location" + currentLocation.getLatitude() + currentLocation.getLongitude());
+                            getMoodEventFilter().setLocation(currentLocation.getLatitude(), currentLocation.getLongitude(), 5.0);
+                        } else {
+                            Toast.makeText(requireContext(), "Unable to retrieve location", Toast.LENGTH_SHORT).show();
+                        }
+                        break;
+                    }
+                    case "Within 10 km": {
+                        Location currentLocation = LocationHandler.getCurrentLocation(requireContext());
+                        if (currentLocation != null) {
+                            Log.d("FilterBarFrag", "Current Location" + currentLocation.getLatitude() + currentLocation.getLongitude());
+                            getMoodEventFilter().setLocation(currentLocation.getLatitude(), currentLocation.getLongitude(), 10.0);
+                        } else {
+                            Toast.makeText(requireContext(), "Unable to retrieve location", Toast.LENGTH_SHORT).show();
+                        }
+                        break;
+                    }
+                    case "Clear Location Filter": {
+                        getMoodEventFilter().setLocation(null, null, 0);
+                        break;
+                    }
+                }
                 return true;
             });
+
             popup.setOnDismissListener(menu -> {
                 notifyFilterChanged();
                 filterLocation.setChecked(false);
@@ -339,7 +371,10 @@ public abstract class FilterBarFragment extends Fragment {
             popup.show();
         });
 
-        // TODO: Maybe add more filters, I do not know what/how the app will look like in the future
+        // ......
+        // TODO: Maybe add more filters, I do not know
+        //      what/how the app will look like in the future
+        // ......
 
         notifyFilterChanged();
         return view;
@@ -431,7 +466,7 @@ public abstract class FilterBarFragment extends Fragment {
      */
     private void notifyFilterChanged() {
         getMoodEventFilter().setSortField("created", Query.Direction.DESCENDING);
-        filterCountAndEdit.setText(String.valueOf(getMoodEventFilter().count() - 1));
+        filterCountAndEdit.setText(String.valueOf(getMoodEventFilter().count()));
         if (listener != null) {
             listener.onFilterChanged(getMoodEventFilter());
         } else {

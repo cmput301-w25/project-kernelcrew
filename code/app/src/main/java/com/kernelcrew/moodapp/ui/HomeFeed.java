@@ -23,9 +23,13 @@ import com.google.android.material.navigation.NavigationBarView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestoreException;
+import com.google.firebase.firestore.ListenerRegistration;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.kernelcrew.moodapp.R;
+import com.kernelcrew.moodapp.data.CombinedListener;
+import com.kernelcrew.moodapp.data.FollowProvider;
 import com.kernelcrew.moodapp.data.FollowRequestProvider;
 import com.kernelcrew.moodapp.data.MoodEvent;
 import com.kernelcrew.moodapp.data.MoodEventFilter;
@@ -43,6 +47,9 @@ public class HomeFeed extends DefaultFilterBarFragment implements FilterBarFragm
     private FirebaseAuth auth;
     private FirebaseUser user;
     private MoodEventProvider provider;
+
+    private ListenerRegistration followingListener;
+    private ListenerRegistration moodEventsListener;
 
     private FilterBarFragment searchNFilterFragment;
     private BottomNavBarController navBarController;
@@ -138,67 +145,46 @@ public class HomeFeed extends DefaultFilterBarFragment implements FilterBarFragm
     }
 
     private void fetchMoodEvents(MoodEventFilter filter) {
-        UserProvider.getInstance().fetchFollowing(user.getUid())
-                .addOnSuccessListener(following -> {
-                    Set<String> followedIds = new HashSet<>();
-                    for (User followedUser : following) {
-                        followedIds.add(followedUser.getUid());
-                    }
-                    List<Task<QuerySnapshot>> tasks = new ArrayList<>();
-                    List<MoodEvent> combinedEvents = new ArrayList<>();
+        followingListener = FollowProvider.getInstance().listenForFollowing(user.getUid(), (snapshot, error) -> {
+            if (error != null) {
+                Log.e("HomeFeed", "Error listening to following changes", error);
+                return;
+            }
+            List<String> userIds = new ArrayList<>();
 
-                    // Add user posts
-                    try {
-                        tasks.add(((MoodEventFilter) filter.clone())
-                                .setUser(user.getUid())
-                                .buildQuery()
-                                .get()
-                                .addOnSuccessListener(querySnapshot -> {
-                                    for (DocumentSnapshot doc : querySnapshot.getDocuments()) {
-                                        MoodEvent mood = doc.toObject(MoodEvent.class);
-                                        if (mood != null) {
-                                            mood.setId(doc.getId());
-                                            combinedEvents.add(mood);
-                                        }
-                                    }
-                                })
-                        );
-                    } catch (CloneNotSupportedException e) {
-                        throw new RuntimeException(e);
-                    }
+            userIds.add(user.getUid());
+            if (snapshot != null && !snapshot.isEmpty()) {
+                for (DocumentSnapshot doc : snapshot.getDocuments()) {
+                    userIds.add(doc.getId());
+                }
+            }
 
-                    // Add followers
-                    for (String followedId : followedIds) {
-                        try {
-                            tasks.add(((MoodEventFilter) filter.clone())
-                                    .setUser(followedId)
-                                        .setLimit(3)
-                                        .buildQuery()
-                                        .get()
-                                        .addOnSuccessListener(querySnapshot -> {
-                                            for (DocumentSnapshot doc : querySnapshot.getDocuments()) {
-                                                MoodEvent mood = doc.toObject(MoodEvent.class);
-                                                if (mood != null) {
-                                                    mood.setId(doc.getId());
-                                                    combinedEvents.add(mood);
-                                                }
-                                            }
-                                        })
-                            );
-                        } catch (CloneNotSupportedException e) {
-                            throw new RuntimeException(e);
+            if (moodEventsListener != null) {
+                moodEventsListener.remove();
+            }
+
+            moodEventsListener = MoodEventProvider.getInstance()
+                    .listenToMoodEventsForUsers(userIds, filter, new CombinedListener() {
+                        @Override
+                        public void onEvent(List<DocumentSnapshot> documents, FirebaseFirestoreException error) {
+                            if (error != null) {
+                                Log.e("HomeFeed", "Error listening to mood events", error);
+                                return;
+                            }
+                            List<MoodEvent> events = new ArrayList<>();
+                            for (DocumentSnapshot doc : documents) {
+                                MoodEvent mood = doc.toObject(MoodEvent.class);
+                                if (mood != null) {
+                                    mood.setId(doc.getId());
+                                    events.add(mood);
+                                }
+                            }
+                            // Update your adapter with the combined, sorted events.
+                            Log.d("HomeFeed", events.isEmpty() ? "No moodEvent results found." : "Showing " + events.size() + " moodEvent results.");
+                            moodAdapter.setMoods(events);
                         }
-                    }
-
-                    Tasks.whenAllSuccess(tasks)
-                            .addOnSuccessListener(results -> {
-                                combinedEvents.sort((m1, m2) -> m2.getCreated().compareTo(m1.getCreated()));
-                                List<MoodEvent> finalList = searchNFilterFragment.applyLocalSearch(combinedEvents);
-                                moodAdapter.setMoods(finalList);
-                            })
-                            .addOnFailureListener(e -> Log.e("HomeFeed", "Error fetching mood events for followers", e));
-                })
-                .addOnFailureListener(e -> Log.e("HomeFeed", "Failed to fetch following users", e));
+                    });
+        });
     }
 
 
@@ -258,6 +244,17 @@ public class HomeFeed extends DefaultFilterBarFragment implements FilterBarFragm
             public void bind(User user) {
                 usernameTextView.setText(user.getName());
             }
+        }
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        if (followingListener != null) {
+            followingListener.remove();
+        }
+        if (moodEventsListener != null) {
+            moodEventsListener.remove();
         }
     }
 }

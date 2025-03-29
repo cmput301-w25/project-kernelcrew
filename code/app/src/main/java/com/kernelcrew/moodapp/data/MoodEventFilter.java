@@ -260,14 +260,10 @@ public class MoodEventFilter implements Cloneable {
      */
     public int count() {
         int count = 0;
-        if (!criteria.emotions.isEmpty()) count++;
+        if (!criteria.emotions.isEmpty()) count = count + criteria.emotions.size();
         if (criteria.dateRange != null && (criteria.dateRange.start != null || criteria.dateRange.end != null)) count++;
-        if (criteria.sorting != null) count++;
         if (criteria.location != null) count++;
-        if (!criteria.socialSituations.isEmpty()) count++;
-        if (!isValidString(criteria.userId)) count++;
-        if (criteria.limit != null) count++;
-        if (!isValidString(reasonQuery)) count++;
+        if (!criteria.socialSituations.isEmpty()) count = count + criteria.socialSituations.size();
         return count;
     }
 
@@ -385,26 +381,5 @@ public class MoodEventFilter implements Cloneable {
         }
 
         return query;
-    }
-
-    // ------------------------------------- Filtering Lists ----
-    /**
-     * Filters a list of mood events.
-     *
-     * @param events The events to filter.
-     * @return A filtered List containing only those with the correct filters.
-     */
-    public List<MoodEvent> applyReasonFilter(List<MoodEvent> events) {
-        if (reasonQuery == null || reasonQuery.isEmpty()) {
-            return events;
-        }
-        List<MoodEvent> filtered = new ArrayList<>();
-        for (MoodEvent event : events) {
-            String reason = event.getReason();
-            if (reason != null && reason.toLowerCase().contains(reasonQuery)) {
-                filtered.add(event);
-            }
-        }
-        return filtered;
     }
 }
