@@ -183,10 +183,10 @@ public class HomeFeed extends Fragment {
         public void onBindViewHolder(@NonNull UserViewHolder holder, int position) {
             User userItem = users.get(position);
             holder.usernameTextView.setText(userItem.getName());
-            // Set an onClick listener to navigate to OtherUserProfile
+            // When a user item is tapped, navigate to OtherUserProfile with the correct uid argument.
             holder.itemView.setOnClickListener(v -> {
                 Bundle args = new Bundle();
-                args.putString("userId", userItem.getId());
+                args.putString("uid", userItem.getId());
                 NavController navController = Navigation.findNavController(requireActivity(), R.id.nav_host_fragment);
                 navController.navigate(R.id.action_homeFeed_to_otherUserProfile, args);
             });
