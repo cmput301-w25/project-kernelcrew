@@ -38,6 +38,7 @@ public class MoodDetails extends Fragment implements DeleteDialogFragment.Delete
     private Button btnDeleteMood;
     private Button btnMoodComments;
     private ImageView visibilityIcon;
+
     private TextView tvPhotoLabel;
     private MaterialCardView cardPhoto;
     private TextView tvLocationLabel;
@@ -151,7 +152,7 @@ public class MoodDetails extends Fragment implements DeleteDialogFragment.Delete
         int moodImageRes = getMoodIconResource(moodEvent.getEmotion().toString());
         imageMoodIcon.setImageResource(moodImageRes);
 
-        // Photo Section - display conditionally only if user attached data/photo
+        // Conditionally display photo
         Bitmap photo = moodEvent.getPhoto();
         if (photo != null) {
             ivMoodPhoto.setImageBitmap(photo);
@@ -162,12 +163,10 @@ public class MoodDetails extends Fragment implements DeleteDialogFragment.Delete
             cardPhoto.setVisibility(View.GONE);
         }
 
-        // Location Section - display conditionally only if user attached their location
-        String location = moodEvent.getLocation();
-        if (location != null && !location.trim().isEmpty()) {
+        // Conditionally display location
+        if (moodEvent.hasLocation()) {
             tvLocationLabel.setVisibility(View.VISIBLE);
             cardLocation.setVisibility(View.VISIBLE);
-            // Optionally: update mapContainer or display location details if available
         } else {
             tvLocationLabel.setVisibility(View.GONE);
             cardLocation.setVisibility(View.GONE);
