@@ -48,7 +48,8 @@ public class RequestFragment extends Fragment {
             requestMessage.setText(username + " is requesting to follow you");
             acceptButton.setOnClickListener(v -> acceptFollowRequest(username));
             denyButton.setOnClickListener(v -> denyFollowRequest(username));
-        } else if ("unfollow_confirmation".equals(requestType)) {
+        }
+        else if ("unfollow_confirmation".equals(requestType)) {
             requestMessage.setText("Are you sure you want to unfollow " + username + "?");
             acceptButton.setOnClickListener(v -> confirmUnfollow(username));
             denyButton.setOnClickListener(v -> Navigation.findNavController(view).popBackStack());
