@@ -21,7 +21,6 @@
             android:layout_height="wrap_content"
             android:background="#FEF7FF"
             android:minHeight="?attr/actionBarSize"
-            app:navigationIcon="@drawable/ic_back"
             app:menu="@menu/top_app_bar"
             app:title="Moodable"
             app:titleCentered="true" />
