@@ -89,10 +89,6 @@ public class LocationFragment extends Fragment {
     private LocationUpdateListener listener;
 
     /**
-     * Listener for location updates.
-     */
-
-    /**
      * Creates the fragment view and initializes location services.
      * Sets up the location button and location client.
      *
