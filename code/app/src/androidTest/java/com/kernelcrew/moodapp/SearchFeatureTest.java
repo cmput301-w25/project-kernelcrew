@@ -133,7 +133,7 @@ public class SearchFeatureTest extends FirebaseEmulatorMixin {
      */
     @Test
     public void testMoodHistorySearchFeature() {
-        // Create a mood event if the creation view is available.
+        // Create mood event
         onView(withId(R.id.page_createMoodEvent)).perform(click());
         SystemClock.sleep(2000);
         String historyReason = "Project meeting update";
@@ -144,10 +144,11 @@ public class SearchFeatureTest extends FirebaseEmulatorMixin {
         onView(withId(R.id.toggle_sadness)).perform(click());
         onView(withId(R.id.submit_button)).perform(scrollTo(), click());
         SystemClock.sleep(3000);
+
         // Navigate to Mood History page.
-        onView(withId(R.id.bottom_navigation)).perform(click());
-        SystemClock.sleep(2000);
+        onView(withId(R.id.page_myHistory)).perform(click());
         onView(withId(R.id.recyclerViewMoodHistory)).check(matches(isDisplayed()));
+        SystemClock.sleep(2000);
 
         // Enter a search term.
         String historySearchTerm = "meeting";
@@ -155,6 +156,7 @@ public class SearchFeatureTest extends FirebaseEmulatorMixin {
                 .perform(replaceText(historySearchTerm));
         onView(withId(R.id.filterSearchEditText))
                 .perform(closeSoftKeyboard());
+        SystemClock.sleep(10000);
         onView(withId(R.id.searchReason)).perform(click());
         SystemClock.sleep(2000);
         // Verify that the Mood History RecyclerView displays an item containing the search term.
