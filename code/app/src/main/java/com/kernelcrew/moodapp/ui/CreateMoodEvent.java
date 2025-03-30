@@ -73,9 +73,6 @@ public class CreateMoodEvent extends Fragment {
         // Check nulls again
         assert form != null;
 
-        // First set update listener to connect fragments
-
-
         // Then set submit callback
         form.onSubmit(this::handleSubmit);
 

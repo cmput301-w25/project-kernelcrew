@@ -181,9 +181,6 @@ public class MoodEventForm extends Fragment implements LocationUpdateListener {
             if (locationFragment != null) {
                 locationFragment.populateMapFromExistingLocation(details.lat, details.lon);
             }
-
-        } else {
-            // locationStatusTextView.setText("No location set");
         }
 
         if (details.photo != null) {

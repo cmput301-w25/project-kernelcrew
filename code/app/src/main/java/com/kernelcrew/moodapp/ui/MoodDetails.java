@@ -54,16 +54,13 @@ public class MoodDetails extends Fragment implements DeleteDialogFragment.Delete
     private TextView tvLocationLabel;
     private MaterialCardView cardLocation;
 
-    private FirebaseFirestore db;
     private MoodEventProvider provider;
 
     // Document ID for the mood event and source of navigation
     private String moodEventId;
-    private String sourceScreen;
 
     // Use UID to identify the user
     private String userId;
-    //private MoodMap moodMap;
 
     public MoodDetails() {
     }
@@ -75,11 +72,9 @@ public class MoodDetails extends Fragment implements DeleteDialogFragment.Delete
         // Retrieve arguments passed from previous screen
         if (getArguments() != null) {
             moodEventId = getArguments().getString("moodEventId");
-            sourceScreen = getArguments().getString("sourceScreen", "home");
         }
 
         // Initialize Firestore
-        db = FirebaseFirestore.getInstance();
         provider = MoodEventProvider.getInstance();
     }
 
