@@ -4,6 +4,7 @@ import static com.kernelcrew.moodapp.ui.MoodIconUtil.getMoodIconResource;
 
 import android.graphics.Bitmap;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,6 +18,12 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.fragment.NavHostFragment;
 
+import com.google.android.gms.maps.CameraUpdateFactory;
+import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptor;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.chip.Chip;
 import com.google.android.material.card.MaterialCardView;
@@ -53,6 +60,7 @@ public class MoodDetails extends Fragment implements DeleteDialogFragment.Delete
 
     // Use UID to identify the user
     private String userId;
+    //private MoodMap moodMap;
 
     public MoodDetails() {
     }
@@ -121,6 +129,7 @@ public class MoodDetails extends Fragment implements DeleteDialogFragment.Delete
         });
 
         return view;
+
     }
 
     private void fetchMoodDetails(String moodEventId) {
@@ -203,6 +212,29 @@ public class MoodDetails extends Fragment implements DeleteDialogFragment.Delete
 
         // Update edit/delete button visibility based on ownership
         handleOwnershipUI(userId);
+
+        if (moodEvent.hasLocation()) {
+            SupportMapFragment mapFragment = (SupportMapFragment)
+                    getChildFragmentManager().findFragmentById(R.id.mapContainer);
+
+            if (mapFragment != null) {
+                mapFragment.getMapAsync(googleMap -> {
+                    Log.d("MoodDetails", "Map is ready");
+
+                    if (moodEvent.getLatitude() != null && moodEvent.getLongitude() != null) {
+                        LatLng location = new LatLng(moodEvent.getLatitude(), moodEvent.getLongitude());
+                        googleMap.addMarker(new MarkerOptions()
+                                .position(location)
+                                .title("Mood Location"));
+                        googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(location, 12f));
+                    } else {
+                        Log.e("MoodDetails", "MoodEvent has no coordinates");
+                    }
+                });
+            } else {
+                Log.e("MoodDetails", "Map fragment not found");
+            }
+        }
     }
 
     /**
