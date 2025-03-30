@@ -2,7 +2,9 @@ package com.kernelcrew.moodapp;
 
 import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.action.ViewActions.click;
+import static androidx.test.espresso.action.ViewActions.closeSoftKeyboard;
 import static androidx.test.espresso.action.ViewActions.replaceText;
+import static androidx.test.espresso.action.ViewActions.scrollTo;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
 import static androidx.test.espresso.contrib.RecyclerViewActions.actionOnItemAtPosition;
 import static androidx.test.espresso.matcher.ViewMatchers.hasDescendant;
@@ -72,10 +74,11 @@ public class SearchFeatureTest extends FirebaseEmulatorMixin {
             onView(withId(R.id.page_createMoodEvent)).perform(click());
             SystemClock.sleep(2000);
             String reasonText = "Team lunch meeting";
+            SystemClock.sleep(10000);
             onView(withId(R.id.emotion_reason))
                     .perform(replaceText(reasonText));
             onView(withId(R.id.emotion_reason))
-                    .perform(androidx.test.espresso.action.ViewActions.closeSoftKeyboard());
+                    .perform(closeSoftKeyboard());
             onView(withId(R.id.toggle_happy)).perform(click());
             onView(withId(R.id.submit_button)).perform(click());
             SystemClock.sleep(3000);
@@ -85,7 +88,7 @@ public class SearchFeatureTest extends FirebaseEmulatorMixin {
         onView(withId(R.id.filterSearchEditText))
                 .perform(replaceText(searchTerm));
         onView(withId(R.id.filterSearchEditText))
-                .perform(androidx.test.espresso.action.ViewActions.closeSoftKeyboard());
+                .perform(closeSoftKeyboard());
         onView(withId(R.id.searchReason)).perform(click());
         SystemClock.sleep(2000);
         // Verify that the HomeFeed RecyclerView displays an item containing the search term.
@@ -105,7 +108,7 @@ public class SearchFeatureTest extends FirebaseEmulatorMixin {
         onView(withId(R.id.filterSearchEditText))
                 .perform(replaceText(userQuery));
         onView(withId(R.id.filterSearchEditText))
-                .perform(androidx.test.espresso.action.ViewActions.closeSoftKeyboard());
+                .perform(closeSoftKeyboard());
         onView(withId(R.id.searchUser)).perform(click());
         SystemClock.sleep(2000);
         // Verify that user items appear in the RecyclerView.
@@ -131,18 +134,16 @@ public class SearchFeatureTest extends FirebaseEmulatorMixin {
     @Test
     public void testMoodHistorySearchFeature() {
         // Create a mood event if the creation view is available.
-        if (isViewDisplayed(R.id.page_createMoodEvent)) {
-            onView(withId(R.id.page_createMoodEvent)).perform(click());
-            SystemClock.sleep(2000);
-            String historyReason = "Project meeting update";
-            onView(withId(R.id.emotion_reason))
-                    .perform(replaceText(historyReason));
-            onView(withId(R.id.emotion_reason))
-                    .perform(androidx.test.espresso.action.ViewActions.closeSoftKeyboard());
-            onView(withId(R.id.toggle_sadness)).perform(click());
-            onView(withId(R.id.submit_button)).perform(click());
-            SystemClock.sleep(3000);
-        }
+        onView(withId(R.id.page_createMoodEvent)).perform(click());
+        SystemClock.sleep(2000);
+        String historyReason = "Project meeting update";
+        onView(withId(R.id.emotion_reason))
+                .perform(replaceText(historyReason));
+        onView(withId(R.id.emotion_reason))
+                .perform(closeSoftKeyboard());
+        onView(withId(R.id.toggle_sadness)).perform(click());
+        onView(withId(R.id.submit_button)).perform(scrollTo(), click());
+        SystemClock.sleep(3000);
         // Navigate to Mood History page.
         onView(withId(R.id.bottom_navigation)).perform(click());
         SystemClock.sleep(2000);
@@ -153,7 +154,7 @@ public class SearchFeatureTest extends FirebaseEmulatorMixin {
         onView(withId(R.id.filterSearchEditText))
                 .perform(replaceText(historySearchTerm));
         onView(withId(R.id.filterSearchEditText))
-                .perform(androidx.test.espresso.action.ViewActions.closeSoftKeyboard());
+                .perform(closeSoftKeyboard());
         onView(withId(R.id.searchReason)).perform(click());
         SystemClock.sleep(2000);
         // Verify that the Mood History RecyclerView displays an item containing the search term.
