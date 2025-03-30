@@ -64,7 +64,7 @@ public class FirebaseEmulatorMixin {
         // Clear the entire db and users list
 
         String projectId = FirebaseApp.getInstance().getOptions().getProjectId();
-        URL url = new URL("http://10.0.2.2:8080/emulator/v1/projects/" + projectId +
+        URL url = new URL("http://" + androidLocalhost + ":8080/emulator/v1/projects/" + projectId +
                 "/databases/(default)/documents/moodEvents");
         HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
         urlConnection.setRequestMethod("DELETE");
@@ -80,7 +80,7 @@ public class FirebaseEmulatorMixin {
         Log.i("Response Code", "Response Code: " + response);
         urlConnection.disconnect();
 
-        url = new URL("http://" + androidLocalhost + ":9099/emulator/v1/projects/" + projectId +
+        url = new URL("http://" + androidLocalhost + ":8080/emulator/v1/projects/" + projectId +
                 "/databases/(default)/documents/users");
         urlConnection = (HttpURLConnection) url.openConnection();
         urlConnection.setRequestMethod("DELETE");
@@ -88,7 +88,7 @@ public class FirebaseEmulatorMixin {
         Log.i("Response Code", "Response Code: " + response);
         urlConnection.disconnect();
 
-        url = new URL("http://" + androidLocalhost + ":9099/emulator/v1/projects/" + projectId +
+        url = new URL("http://" + androidLocalhost + ":8080/emulator/v1/projects/" + projectId +
                 "/databases/(default)/documents/usernames");
         urlConnection = (HttpURLConnection) url.openConnection();
         urlConnection.setRequestMethod("DELETE");
