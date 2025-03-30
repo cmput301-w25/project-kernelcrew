@@ -175,8 +175,9 @@ public abstract class FilterBarFragment extends Fragment {
         HorizontalScrollView filterButtonsContainer = view.findViewById(R.id.filterButtonsContainer);
 
         // Hide keyboard if user touches outside of EditText.
-        assert getParentFragment() != null;
-        setupKeyboardHiding(getParentFragment().getView());
+        if (getParentFragment() != null) {
+            setupKeyboardHiding(getParentFragment().getView());
+        }
 
         // ----- Event Listeners -----
 

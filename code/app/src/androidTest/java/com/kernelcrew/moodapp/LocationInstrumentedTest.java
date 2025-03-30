@@ -198,7 +198,7 @@ public class LocationInstrumentedTest extends FirebaseEmulatorMixin {
         onView(withId(R.id.add_location_button)).perform(scrollTo(), click());
         SystemClock.sleep(2000);
 
-        onView(withId(R.id.submit_button)).perform(scrollTo(), click());
+        onView(withId(R.id.createMoodEvent_submitButton)).perform(scrollTo(), click());
         SystemClock.sleep(2000);
 
         // Java 11 compatible version of the verification

@@ -158,7 +158,7 @@ public class CreateMoodEventTest extends FirebaseEmulatorMixin {
         onView(withId(R.id.toggle_anger)).perform(click());
 
         onView(withId(R.id.emotion_reason))
-                .perform(scrollTo(), typeText("AAAAAAAAAAAAAAAAAAAAAAAAAAA"));
+                .perform(typeText("AAAAAAAAAAAAAAAAAAAAAAAAAAA"));
         Espresso.closeSoftKeyboard();
 
         onView(allOf(withId(R.id.createMoodEvent_submitButton)))

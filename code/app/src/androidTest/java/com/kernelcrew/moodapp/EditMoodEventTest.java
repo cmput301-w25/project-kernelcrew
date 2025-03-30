@@ -12,6 +12,7 @@ import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.isAssignableFrom;
 import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
+import static androidx.test.espresso.matcher.ViewMatchers.withText;
 
 import static org.awaitility.Awaitility.await;
 import static org.junit.Assert.assertEquals;
@@ -85,7 +86,7 @@ public class EditMoodEventTest extends FirebaseEmulatorMixin {
         onView(withId(R.id.btnEditMood)).perform(click());
         SystemClock.sleep(3000);
         onView(withId(R.id.toggle_shame)).perform(click());
-        onView(withId(R.id.visible_private_button)).perform(click());
+        onView(withText("Private")).perform(click());
         onView(withId(R.id.editMood_submitButton)).perform(click());
 
         await().atMost(10, TimeUnit.SECONDS)

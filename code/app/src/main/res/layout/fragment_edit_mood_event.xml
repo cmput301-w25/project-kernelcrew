@@ -47,6 +47,36 @@
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>
 
+    <com.google.android.material.button.MaterialButtonToggleGroup
+        android:id="@+id/editMoodEvent_visibilityButton"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/white"
+        android:paddingVertical="16dp"
+        android:paddingHorizontal="5dp"
+        app:layout_constraintBottom_toTopOf="@id/editMood_submitButton"
+        app:checkedButton="@id/visible_public_button"
+        app:singleSelection="true">
+
+        <Button
+            android:id="@+id/visible_public_button"
+            style="?attr/materialButtonOutlinedStyle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            app:icon="@drawable/ic_person"
+            android:text="Public" />
+
+        <Button
+            android:id="@+id/visible_private_button"
+            style="?attr/materialButtonOutlinedStyle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            app:icon="@drawable/ic_lock"
+            android:text="Private" />
+    </com.google.android.material.button.MaterialButtonToggleGroup>
+
     <Button
         android:id="@+id/editMood_submitButton"
         android:layout_width="match_parent"

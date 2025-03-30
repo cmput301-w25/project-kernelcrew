@@ -204,7 +204,8 @@ public class MoodEventForm extends Fragment implements LocationUpdateListener {
         photoButtonError.setLayoutParams(layoutParams);
     }
 
-    @Nullable MoodEventDetails validateFields() {
+    @Nullable
+    MoodEventDetails validateFields() {
         MoodEventDetails details = new MoodEventDetails();
 
         emotionPickerFragment.setError(null);
@@ -236,15 +237,25 @@ public class MoodEventForm extends Fragment implements LocationUpdateListener {
             return null;
         }
 
+        // Attempt to read from "create" toggle
+        visibilityToggle = getActivity().findViewById(R.id.createMoodEvent_visibilityButton);
+        if (visibilityToggle == null) {
+            // If that was null, we try the "edit" toggle
+            visibilityToggle = getActivity().findViewById(R.id.editMoodEvent_visibilityButton);
+        }
+
         if (visibilityToggle != null) {
             int checkedButton = visibilityToggle.getCheckedButtonId();
             if (checkedButton == R.id.visible_public_button) {
                 details.visibility = MoodEventVisibility.PUBLIC;
             } else if (checkedButton == R.id.visible_private_button) {
                 details.visibility = MoodEventVisibility.PRIVATE;
+            } else {
+                // If no valid button is checked, default to public
+                details.visibility = MoodEventVisibility.PUBLIC;
             }
         } else {
-            // Default to PUBLIC if the toggle is not present (e.g. in edit mode)
+            // If no toggle found, default to PUBLIC
             details.visibility = MoodEventVisibility.PUBLIC;
         }
 
@@ -300,8 +311,7 @@ public class MoodEventForm extends Fragment implements LocationUpdateListener {
         photoResetButton = view.findViewById(R.id.photo_reset_button);
         photoResetButton.setOnClickListener(_v -> resetPhoto());
         photoButtonError = view.findViewById(R.id.photo_button_error);
-        // Replace below line with a lookup from parent activity (ID from create mood layout)
-        visibilityToggle = getActivity().findViewById(R.id.createMoodEvent_visibilityButton);
+
         updateResetPhotoVisibility();
     }
 

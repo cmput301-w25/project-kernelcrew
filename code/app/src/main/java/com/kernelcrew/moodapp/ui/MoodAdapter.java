@@ -1,5 +1,6 @@
 package com.kernelcrew.moodapp.ui;
 
+import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -7,6 +8,7 @@ import android.widget.TextView;
 import android.widget.ImageView;
 
 import androidx.annotation.NonNull;
+import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.kernelcrew.moodapp.R;
@@ -92,7 +94,22 @@ public class MoodAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         int iconRes = MoodIconUtil.getMoodIconResource(mood.getEmotion().toString());
         viewHolder.moodImageView.setImageResource(iconRes);
 
-        viewHolder.usernameText.setText("@" + mood.getUsername());
+        UserProvider.getInstance().fetchUsername(mood.getUid())
+                .addOnSuccessListener(username -> {
+                    viewHolder.usernameText.setText("@" + username);
+
+                    // Replace requireView with v in the click callback
+                    viewHolder.usernameText.setOnClickListener(v -> {
+                        Bundle args = new Bundle();
+                        args.putString("uid", mood.getUid());
+                        // Use Navigation.findNavController(...) with the clicked view
+                        Navigation.findNavController(v)
+                                .navigate(R.id.otherUserProfile, args);
+                    });
+                })
+                .addOnFailureListener(e -> {
+                    viewHolder.usernameText.setText(R.string.error_loading_user);
+                });
 
         viewHolder.viewDetailsButton.setOnClickListener(v -> {
             if (onMoodClickListener != null) {
