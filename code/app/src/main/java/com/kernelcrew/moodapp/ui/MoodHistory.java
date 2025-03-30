@@ -111,13 +111,13 @@ public class MoodHistory extends Fragment implements MoodHistoryAdapter.OnItemCl
                                 }
                             }
 
-                            // Apply client-side filtering based on search query from the emotion text
+                            // Apply client-side filtering based on search query from reason
                             String searchWord = filter.getSearchQuery().trim().toLowerCase();
                             if (!searchWord.isEmpty()) {
                                 List<MoodEvent> filteredList = new ArrayList<>();
                                 for (MoodEvent m : moodList) {
-                                    if (m.getEmotion() != null &&
-                                        m.getEmotion().toString().toLowerCase().contains(searchWord)) {
+                                    if (m.getReason() != null &&
+                                            m.getReason().toLowerCase().contains(searchWord)) {
                                         filteredList.add(m);
                                     }
                                 }
