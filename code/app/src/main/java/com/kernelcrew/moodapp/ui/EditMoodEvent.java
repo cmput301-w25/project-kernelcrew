@@ -77,6 +77,6 @@ public class EditMoodEvent extends Fragment {
 
         provider.getMoodEvent(moodEventId)
                 .addOnSuccessListener(moodEvent ->
-                    form.bind(new MoodEventForm.MoodEventDetails(moodEvent)));
+                        form.bind(new MoodEventForm.MoodEventDetails(moodEvent)));
     }
 }

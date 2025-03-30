@@ -53,7 +53,6 @@ import java.util.Locale;
  * When editing a mood event, update the form state per a mood event using the .bind() method.
  */
 public class MoodEventForm extends Fragment implements LocationUpdateListener {
-    private Button addLocation;
     private EmotionPickerFragment emotionPickerFragment;
     private AutoCompleteTextView situationAutoComplete;
     private TextInputEditText reasonEditText;
@@ -61,9 +60,13 @@ public class MoodEventForm extends Fragment implements LocationUpdateListener {
     private Double currentLongitude = null;
     private Bitmap photo;
     private ImageButton photoButton;
+    private ImageButton addLocation;
+
     private Button photoResetButton;
     private TextView photoButtonError;
     private MaterialButtonToggleGroup visibilityToggle;
+
+    private LocationFragment locationFragment;
 
     /**
      * Clear the currently selected photo.
@@ -269,6 +272,8 @@ public class MoodEventForm extends Fragment implements LocationUpdateListener {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
+
+
         Button submitButton = view.findViewById(R.id.submit_button);
         submitButton.setOnClickListener(this::handleSubmit);
 
@@ -299,7 +304,6 @@ public class MoodEventForm extends Fragment implements LocationUpdateListener {
         visibilityToggle = view.findViewById(R.id.visibility_button);
 
         updateResetPhotoVisibility();
-        addLocation = view.findViewById(R.id.add_location_button);
     }
     @Override
     public void onLocationUpdated(Double latitude, Double longitude) {
