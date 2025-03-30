@@ -1,24 +1,25 @@
 package com.kernelcrew.moodapp.ui;
 
 import android.os.Bundle;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.core.app.NotificationManagerCompat;
-import androidx.fragment.app.Fragment;
-import androidx.navigation.Navigation;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.core.app.NotificationManagerCompat;
+import androidx.fragment.app.Fragment;
+import androidx.navigation.Navigation;
+
 import com.google.android.material.navigation.NavigationBarView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.kernelcrew.moodapp.R;
 import com.kernelcrew.moodapp.data.FollowProvider;
-import com.kernelcrew.moodapp.data.UserProvider;
 
 public class MyProfile extends Fragment {
     FirebaseAuth auth;
@@ -30,6 +31,8 @@ public class MyProfile extends Fragment {
     NavigationBarView navigationBarView;
     BottomNavBarController navBarController;
 
+    private boolean hasFollowRequest = false;
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         auth = FirebaseAuth.getInstance();
@@ -38,16 +41,16 @@ public class MyProfile extends Fragment {
 
         usernameText = view.findViewById(R.id.username_text);
         profileImage = view.findViewById(R.id.profile_image);
-
         signOutButton = view.findViewById(R.id.signOutButton);
         Button followersButton = view.findViewById(R.id.followers_button);
         Button followingButton = view.findViewById(R.id.following_button);
-        Button moodHistoryButton = view.findViewById(R.id.mood_history_button);
 
         navigationBarView = view.findViewById(R.id.bottom_navigation);
         navigationBarView.setSelectedItemId(R.id.page_myProfile);
         navBarController = new BottomNavBarController(navigationBarView);
-        Button followRequestsButton = view.findViewById(R.id.followRequestsButton);
+        ImageView followRequestsButton = view.findViewById(R.id.followRequestsButton);
+
+        // Navigation click listener
         followRequestsButton.setOnClickListener(v ->
                 Navigation.findNavController(v).navigate(R.id.action_myProfile_to_followRequestsFragment)
         );
@@ -57,10 +60,6 @@ public class MyProfile extends Fragment {
         followingButton.setOnClickListener(v -> Navigation.findNavController(v).navigate(R.id.action_myProfile_to_followingPage));
         Bundle bundle = new Bundle();
         bundle.putString("sourceScreen", "profile");
-        moodHistoryButton.setOnClickListener(v ->
-                Navigation.findNavController(v)
-                        .navigate(R.id.action_myProfile_to_moodHistoryPage, bundle)
-        );
 
         String uidToLoad = null;
         if (getArguments() != null) {
@@ -82,6 +81,10 @@ public class MyProfile extends Fragment {
             }
         }
 
+        // Start listening for follow request changes
+        listenForFollowRequests(uidToLoad, followRequestsButton);  // Listen for changes to follow requests
+
+        // Firebase Firestore listeners for followers and following count
         if (uidToLoad != null) {
             FirebaseFirestore.getInstance()
                     .collection("users")
@@ -116,5 +119,37 @@ public class MyProfile extends Fragment {
         manager.cancelAll();
         auth.signOut();
         Navigation.findNavController(btnView).navigate(R.id.authHome);
+    }
+
+    /**
+     * Listens for changes in the user's follow requests and updates the follow request button image accordingly.
+     * This method sets up a snapshot listener that listens for any changes in the follow requests collection
+     * for the specified user. When a change occurs, the button image is updated to reflect the current status
+     * of follow requests.
+     *
+     * @param userId The unique ID of the user whose follow requests are being monitored.
+     * @param followRequestsButton The ImageView that will display the follow request status image.
+     */
+    private void listenForFollowRequests(String userId, ImageView followRequestsButton) {
+        // Using FollowProvider to listen for changes in follow requests for current user
+        FollowProvider.listenToFollowRequests(userId, (snapshots, e) -> {
+            if (e != null) {
+                // Handle error
+                return;
+            }
+
+            if (snapshots != null && !snapshots.isEmpty()) {
+                hasFollowRequest = true; // If there are follow requests
+            } else {
+                hasFollowRequest = false; // No follow requests
+            }
+
+            // Update the image based on the follow request status
+            if (hasFollowRequest) {
+                followRequestsButton.setImageResource(R.drawable.ic_follow_request_yes);  // Image for "yes"
+            } else {
+                followRequestsButton.setImageResource(R.drawable.ic_follow_request_no);  // Default image
+            }
+        });
     }
 }
