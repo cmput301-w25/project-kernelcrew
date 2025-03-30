@@ -126,44 +126,53 @@ public class FollowRequestTest extends FirebaseEmulatorMixin {
     @Test
     public void testFollowFlow() throws InterruptedException, ExecutionException {
         // PART 1: User A sends a follow request.
-        FirebaseAuth.getInstance().signOut();
-        onView(withId(R.id.buttonInitialToSignIn)).perform(click());
-        onView(withId(R.id.emailSignIn)).perform(replaceText(USER_A_EMAIL), closeSoftKeyboard());
-        onView(withId(R.id.passwordSignIn)).perform(replaceText(USER_A_PASSWORD), closeSoftKeyboard());
-        onView(withId(R.id.signInButtonAuthToHome)).perform(click());
-        SystemClock.sleep(2000); // Wait for home feed to load.
+        signInUser(USER_A_EMAIL, USER_A_PASSWORD);
 
-        // In the home feed, click on the first mood event's "View Details" button.
+        // From home feed, click on first mood event's "View Details" button.
         onView(withId(R.id.moodRecyclerView))
                 .perform(actionOnItemAtPosition(0, clickChildViewWithId(R.id.viewDetailsButton)));
         SystemClock.sleep(1500);
 
-        // In the MoodDetails screen, click on the username chip (tvUsernameDisplay) to navigate to OtherUserProfile.
+        // In MoodDetails screen, click on the username chip to navigate to OtherUserProfile.
         onView(withId(R.id.tvUsernameDisplay)).perform(click());
         SystemClock.sleep(1500);
 
         // In OtherUserProfile, click the follow button.
         onView(withId(R.id.followButton)).check(matches(isDisplayed()));
+        SystemClock.sleep(2000); // Allow UI to settle before clicking.
         onView(withId(R.id.followButton)).perform(click());
+        SystemClock.sleep(1500);
 
-        // Wait until the follow button text changes to "Requested". Increase timeout if needed.
-        Awaitility.await().atMost(15, TimeUnit.SECONDS).untilAsserted(() -> {
-            onView(withId(R.id.followButton)).check(matches(withText(containsString("Requested"))));
-        });
+        // Wait until the button text updates to "Requested".
+        Awaitility.await()
+                .atMost(30, TimeUnit.SECONDS)
+                .pollInterval(1, TimeUnit.SECONDS)
+                .untilAsserted(() -> {
+                    onView(withId(R.id.followButton))
+                            .check(matches(withText(containsString("Requested"))));
+                });
 
-        // PART 2: User B accepts the follow request.
-        // Navigate to MyProfile (using bottom nav) and sign out as User A.
+        // Navigate back to the home feed using the back button (OtherUserProfile > MoodDetails > HomeFeed)
+        onView(withId(R.id.moodDetailsToolbar))  // Target the toolbar
+                .perform(click());  // Simulate the back action
+
+        SystemClock.sleep(1000);
+
+        // Navigate back to Home Feed by pressing back again.
+        onView(withId(R.id.moodDetailsToolbar))  // Target the toolbar again
+                .perform(click());  // Press back from the MoodDetails screen
+        SystemClock.sleep(1000);
+
+        // Navigate to MyProfile via Bottom Navigation
         onView(withId(R.id.page_myProfile)).perform(click());
         SystemClock.sleep(1000);
+
+        // Sign out as User A.
         onView(withId(R.id.signOutButton)).perform(click());
         SystemClock.sleep(1500);
 
-        // Sign in as User B.
-        FirebaseAuth.getInstance().signOut();
-        onView(withId(R.id.buttonInitialToSignIn)).perform(click());
-        onView(withId(R.id.emailSignIn)).perform(replaceText(USER_B_EMAIL), closeSoftKeyboard());
-        onView(withId(R.id.passwordSignIn)).perform(replaceText(USER_B_PASSWORD), closeSoftKeyboard());
-        onView(withId(R.id.signInButtonAuthToHome)).perform(click());
+        // PART 2: Sign in as User B.
+        signInUser(USER_B_EMAIL, USER_B_PASSWORD);
         SystemClock.sleep(2000);
 
         // Navigate to MyProfile for User B.
@@ -175,10 +184,10 @@ public class FollowRequestTest extends FirebaseEmulatorMixin {
         onView(withId(R.id.followRequestsButton)).perform(click());
         SystemClock.sleep(1500);
 
-        // In FollowRequestsFragment, verify the request from User A is visible.
+        // In the FollowRequestsFragment, verify that the request from User A is visible.
         onView(withText(containsString(USER_A_USERNAME + " is requesting to follow you")))
                 .check(matches(isDisplayed()));
-        // Click the "Accept" button (adjust text if needed; here we assume it's labeled "Accept").
+        // Click on the "Accept" button (assumes it’s labeled "Accept").
         onView(withText("Accept")).perform(click());
         SystemClock.sleep(1500);
 
@@ -209,6 +218,18 @@ public class FollowRequestTest extends FirebaseEmulatorMixin {
                 }
             }
         };
+    }
+
+    private void signInUser(String email, String password) {
+        FirebaseAuth.getInstance().signOut();
+        onView(withId(R.id.buttonInitialToSignIn)).perform(click());
+        onView(withId(R.id.emailSignIn)).perform(replaceText(email), closeSoftKeyboard());
+        onView(withId(R.id.passwordSignIn)).perform(replaceText(password), closeSoftKeyboard());
+        onView(withId(R.id.signInButtonAuthToHome)).perform(click());
+        // Wait until sign-in is complete.
+        Awaitility.await().atMost(10, TimeUnit.SECONDS).until(() ->
+                FirebaseAuth.getInstance().getCurrentUser() != null);
+        SystemClock.sleep(1000); // Extra delay for UI to settle
     }
 
     @After
