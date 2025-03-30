@@ -409,6 +409,7 @@ public class LocationFragment extends Fragment {
 
         if (mapFragment != null) {
             mapFragment.getMapAsync(googleMap -> {
+                googleMap.clear();
                 Log.d("LocationFragment", "Map is ready");
                 if (latitude != null && longitude != null) {
                     LatLng locationLatLng = new LatLng(latitude, longitude);
@@ -462,6 +463,51 @@ public class LocationFragment extends Fragment {
     public void setLocation(Double lat, Double lon) {
         this.latitude = lat;
         this.longitude = lon;
+    }
+
+    public void populateMapFromExistingLocation (double latitude, double longitude) {
+        this.latitude = latitude;
+        this.longitude = longitude;
+
+        View cardLocation = getView().findViewById(R.id.cardLocation);
+        ImageButton requestLocationButton = getView().findViewById(R.id.add_location_button);
+        Button removeLocationButton = getView().findViewById(R.id.remove_location_button);
+
+        if (cardLocation != null && requestLocationButton != null) {
+            cardLocation.setVisibility(View.VISIBLE);
+            requestLocationButton.setVisibility(View.GONE);
+        }
+
+        if (removeLocationButton != null) {
+            removeLocationButton.setVisibility(View.VISIBLE);
+        }
+
+        SupportMapFragment mapFragment = (SupportMapFragment)
+                getChildFragmentManager().findFragmentById(R.id.mapContainer);
+
+        if (mapFragment != null) {
+            mapFragment.getMapAsync(googleMap -> {
+                googleMap.clear();
+                LatLng locationLatLng = new LatLng(latitude, longitude);
+                googleMap.addMarker(new MarkerOptions()
+                        .position(locationLatLng)
+                        .title("Existing Mood Location"));
+                googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(locationLatLng, 12f));
+
+                // Allow user to tap to update location
+                googleMap.setOnMapClickListener(latLng -> {
+                    googleMap.clear();
+                    googleMap.addMarker(new MarkerOptions()
+                            .position(latLng)
+                            .title("Updated Mood Location"));
+                    googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 12f));
+                    // Notify any listener of the update
+                    if (updateListener != null) {
+                        updateListener.onLocationUpdated(latLng.latitude, latLng.longitude);
+                    }
+                });
+            });
+        }
     }
 }
 

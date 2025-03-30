@@ -227,6 +227,7 @@ public class MoodDetails extends Fragment implements DeleteDialogFragment.Delete
                     if (moodEvent.getLatitude() != null && moodEvent.getLongitude() != null) {
                         LatLng location = new LatLng(moodEvent.getLatitude(), moodEvent.getLongitude());
                         BitmapDescriptor icon = EmotionIconUtils.getEmotionIcon(requireContext(), moodEvent.getEmotion().toString());
+                        googleMap.clear();
                         googleMap.addMarker(new MarkerOptions()
                                 .position(location)
                                 .title(moodEvent.getUsername())

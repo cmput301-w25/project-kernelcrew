@@ -178,6 +178,9 @@ public class MoodEventForm extends Fragment implements LocationUpdateListener {
             // Update UI to show location is set
             this.currentLatitude = details.lat;
             this.currentLongitude = details.lon;
+            if (locationFragment != null) {
+                locationFragment.populateMapFromExistingLocation(details.lat, details.lon);
+            }
 
         } else {
             // locationStatusTextView.setText("No location set");
@@ -274,6 +277,7 @@ public class MoodEventForm extends Fragment implements LocationUpdateListener {
         FragmentContainerView locationFragmentContainer = view.findViewById(R.id.location_fragment);
         if (locationFragmentContainer != null) {
             locationFragment = locationFragmentContainer.getFragment();
+            Log.e("MoodEventForm", "LocationFragment attached.");
             if (locationFragment != null) {
                 locationFragment.setUpdateListener(this);
             } else {
@@ -314,7 +318,6 @@ public class MoodEventForm extends Fragment implements LocationUpdateListener {
         photoResetButton.setOnClickListener(_v -> resetPhoto());
         photoButtonError = view.findViewById(R.id.photo_button_error);
         visibilityToggle = view.findViewById(R.id.visibility_button);
-
         updateResetPhotoVisibility();
         
 
