@@ -304,6 +304,22 @@ public class MoodEventForm extends Fragment implements LocationUpdateListener {
         visibilityToggle = view.findViewById(R.id.visibility_button);
 
         updateResetPhotoVisibility();
+
+        FragmentContainerView locationFragmentContainer = view.findViewById(R.id.location_fragment);
+        if (locationFragmentContainer == null) {
+            Log.e("MoodEventForm", "Location fragment container not found in layout.");
+            return;
+        }
+
+        locationFragment = locationFragmentContainer.getFragment();
+        if (locationFragment == null) {
+            Log.e("MoodEventForm", "LocationFragment not attached. Ensure it's specified in the layout.");
+            return;
+        }
+
+// Set the listener so LocationFragment can send updates here
+        locationFragment.setUpdateListener(this);
+
     }
     @Override
     public void onLocationUpdated(Double latitude, Double longitude) {

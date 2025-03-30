@@ -123,15 +123,18 @@ public class LocationFragment extends Fragment {
         View cardLocation = view.findViewById(R.id.cardLocation);
         cardLocation.setVisibility(View.GONE); // Hide initially
 
+        Button removeLocationButton = view.findViewById(R.id.remove_location_button);
+        removeLocationButton.setVisibility(View.GONE); // Initially hidden
+
         // Set up the button click listener to start the location request process and show map
         requestLocationButton.setOnClickListener(v -> {
             Log.i("LocationFragment", "Location button clicked");
             requestLocationButton.setVisibility(View.GONE);
             cardLocation.setVisibility(View.VISIBLE);
+            removeLocationButton.setVisibility(View.VISIBLE);
             checkLocationAndRequestPermission();
         });
 
-        Button removeLocationButton = view.findViewById(R.id.remove_location_button);
 
         removeLocationButton.setOnClickListener(v -> {
             Log.i("LocationFragment", "Remove location clicked");
@@ -140,6 +143,7 @@ public class LocationFragment extends Fragment {
 
             cardLocation.setVisibility(View.GONE);
             requestLocationButton.setVisibility(View.VISIBLE);
+            removeLocationButton.setVisibility(View.GONE);
 
             if (updateListener != null) {
                 updateListener.onLocationUpdated(null, null);
@@ -408,7 +412,6 @@ public class LocationFragment extends Fragment {
                 Log.d("LocationFragment", "Map is ready");
                 if (latitude != null && longitude != null) {
                     LatLng locationLatLng = new LatLng(latitude, longitude);
-                    BitmapDescriptor icon = EmotionIconUtils.getEmotionIcon(requireContext(), "Default"); // TODO: Replace "Default" with dynamic emotion string if available
                     googleMap.addMarker(new MarkerOptions()
                             .position(locationLatLng)
                             .title("Mood Location"));
@@ -416,6 +419,24 @@ public class LocationFragment extends Fragment {
                 } else {
                     Log.e("LocationFragment", "No coordinates to show on map.");
                 }
+                // Set up an OnMapClickListener so that if the user taps elsewhere, we update the location.
+                googleMap.setOnMapClickListener(latLng -> {
+                    // Clear current markers
+                    googleMap.clear();
+                    // Add a new marker at the tapped location with the same style
+                    googleMap.addMarker(new MarkerOptions()
+                            .position(latLng)
+                            .title("Mood Location"));
+                    // Move the camera to the new location
+                    googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 12f));
+                    // Update stored coordinates
+                    latitude = latLng.latitude;
+                    longitude = latLng.longitude;
+                    // Notify any listener of the update
+                    if (updateListener != null) {
+                        updateListener.onLocationUpdated(latitude, longitude);
+                    }
+                });
             });
         } else {
             Log.e("LocationFragment", "Map fragment not found.");
@@ -436,6 +457,11 @@ public class LocationFragment extends Fragment {
      */
     public void setUpdateListener(LocationUpdateListener form) {
         this.updateListener = form;
+    }
+
+    public void setLocation(Double lat, Double lon) {
+        this.latitude = lat;
+        this.longitude = lon;
     }
 }
 
