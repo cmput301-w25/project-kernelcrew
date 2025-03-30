@@ -10,12 +10,11 @@ service cloud.firestore {
                     && isUniqueUsernameAndOwner(request.resource.data.username);
 
       // 2) Read any user doc if authenticated
-      allow read: if true;
+      allow read: if request.auth != null;
 
       // 3) Update or delete your own user doc
-      allow update, delete: if request.auth != null 
-                    && request.auth.uid == resource.data.uid;
-                    
+      allow update, delete: if request.auth != null && request.auth.uid == userId;
+
       // Subcollection: followRequests
       match /followRequests/{requesterId} {
         allow create: if request.auth != null && request.auth.uid == requesterId;
