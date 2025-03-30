@@ -156,12 +156,19 @@ public class SearchFeatureTest extends FirebaseEmulatorMixin {
                 .perform(replaceText(historySearchTerm));
         onView(withId(R.id.filterSearchEditText))
                 .perform(closeSoftKeyboard());
-        SystemClock.sleep(10000);
         onView(withId(R.id.searchReason)).perform(click());
-        SystemClock.sleep(2000);
-        // Verify that the Mood History RecyclerView displays an item containing the search term.
+
+        // Click the first item in the Mood History RecyclerView.
         onView(withId(R.id.recyclerViewMoodHistory))
-                .check(matches(hasDescendant(withText(containsString(historySearchTerm)))));
+                .perform(actionOnItemAtPosition(0, click()));
+
+        // Wait for Mood Details screen to load.
+        SystemClock.sleep(3000);
+
+        // Verify that the Mood Details screen's reason TextView contains the search term.
+        onView(withId(R.id.tvReasonValue))
+                .check(matches(withText(containsString(historySearchTerm))));
+
     }
 
     // Helper ViewAction: clicks a child view with the specified id within a RecyclerView item.
