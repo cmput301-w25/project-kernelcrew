@@ -3,7 +3,10 @@ package com.kernelcrew.moodapp.ui;
 import static com.kernelcrew.moodapp.ui.MoodIconUtil.getMoodIconResource;
 
 import android.graphics.Bitmap;
+import android.graphics.Canvas;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,9 +17,16 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.fragment.NavHostFragment;
 
+import com.google.android.gms.maps.CameraUpdateFactory;
+import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptor;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.chip.Chip;
 import com.google.android.material.card.MaterialCardView;
@@ -44,12 +54,10 @@ public class MoodDetails extends Fragment implements DeleteDialogFragment.Delete
     private TextView tvLocationLabel;
     private MaterialCardView cardLocation;
 
-    private FirebaseFirestore db;
     private MoodEventProvider provider;
 
     // Document ID for the mood event and source of navigation
     private String moodEventId;
-    private String sourceScreen;
 
     // Use UID to identify the user
     private String userId;
@@ -64,11 +72,9 @@ public class MoodDetails extends Fragment implements DeleteDialogFragment.Delete
         // Retrieve arguments passed from previous screen
         if (getArguments() != null) {
             moodEventId = getArguments().getString("moodEventId");
-            sourceScreen = getArguments().getString("sourceScreen", "home");
         }
 
         // Initialize Firestore
-        db = FirebaseFirestore.getInstance();
         provider = MoodEventProvider.getInstance();
     }
 
@@ -121,6 +127,7 @@ public class MoodDetails extends Fragment implements DeleteDialogFragment.Delete
         });
 
         return view;
+
     }
 
     private void fetchMoodDetails(String moodEventId) {
@@ -203,6 +210,33 @@ public class MoodDetails extends Fragment implements DeleteDialogFragment.Delete
 
         // Update edit/delete button visibility based on ownership
         handleOwnershipUI(userId);
+
+        if (moodEvent.hasLocation()) {
+            SupportMapFragment mapFragment = (SupportMapFragment)
+                    getChildFragmentManager().findFragmentById(R.id.mapContainer);
+
+            if (mapFragment != null) {
+                mapFragment.getMapAsync(googleMap -> {
+                    Log.d("MoodDetails", "Map is ready");
+
+                    if (moodEvent.getLatitude() != null && moodEvent.getLongitude() != null) {
+                        LatLng location = new LatLng(moodEvent.getLatitude(), moodEvent.getLongitude());
+                        BitmapDescriptor icon = EmotionIconUtils.getEmotionIcon(requireContext(), moodEvent.getEmotion().toString());
+                        googleMap.clear();
+                        googleMap.addMarker(new MarkerOptions()
+                                .position(location)
+                                .title(moodEvent.getUsername())
+                                .snippet(moodEvent.getEmotion().toString())
+                                .icon(icon));
+                        googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(location, 12f));
+                    } else {
+                        Log.e("MoodDetails", "MoodEvent has no coordinates");
+                    }
+                });
+            } else {
+                Log.e("MoodDetails", "Map fragment not found");
+            }
+        }
     }
 
     /**
@@ -240,4 +274,6 @@ public class MoodDetails extends Fragment implements DeleteDialogFragment.Delete
         Toast.makeText(requireContext(), "Mood deleted successfully", Toast.LENGTH_SHORT).show();
         NavHostFragment.findNavController(this).popBackStack();
     }
+
+
 }
