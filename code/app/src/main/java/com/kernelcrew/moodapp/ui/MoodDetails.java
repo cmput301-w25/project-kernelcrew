@@ -3,6 +3,8 @@ package com.kernelcrew.moodapp.ui;
 import static com.kernelcrew.moodapp.ui.MoodIconUtil.getMoodIconResource;
 
 import android.graphics.Bitmap;
+import android.graphics.Canvas;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -15,6 +17,7 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.fragment.NavHostFragment;
 
@@ -223,9 +226,12 @@ public class MoodDetails extends Fragment implements DeleteDialogFragment.Delete
 
                     if (moodEvent.getLatitude() != null && moodEvent.getLongitude() != null) {
                         LatLng location = new LatLng(moodEvent.getLatitude(), moodEvent.getLongitude());
+                        BitmapDescriptor icon = EmotionIconUtils.getEmotionIcon(requireContext(), moodEvent.getEmotion().toString());
                         googleMap.addMarker(new MarkerOptions()
                                 .position(location)
-                                .title("Mood Location"));
+                                .title(moodEvent.getUsername())
+                                .snippet(moodEvent.getEmotion().toString())
+                                .icon(icon));
                         googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(location, 12f));
                     } else {
                         Log.e("MoodDetails", "MoodEvent has no coordinates");
@@ -272,4 +278,6 @@ public class MoodDetails extends Fragment implements DeleteDialogFragment.Delete
         Toast.makeText(requireContext(), "Mood deleted successfully", Toast.LENGTH_SHORT).show();
         NavHostFragment.findNavController(this).popBackStack();
     }
+
+
 }
