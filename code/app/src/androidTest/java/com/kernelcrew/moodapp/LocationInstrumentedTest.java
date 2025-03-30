@@ -41,6 +41,7 @@ import java.util.concurrent.TimeUnit;
 /**
  * Instrumented tests for location functionality in the app.
  * These tests verify the UI and data persistence related to location features.
+ * Created by Anthropic, Claude 3.7 Sonnet, "Develop LocationInstrumentedTest for Android", accessed 03-30-2025
  */
 @RunWith(AndroidJUnit4.class)
 public class LocationInstrumentedTest extends FirebaseEmulatorMixin {

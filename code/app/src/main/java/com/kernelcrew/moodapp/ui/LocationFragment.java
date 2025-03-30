@@ -461,6 +461,32 @@ public class LocationFragment extends Fragment {
         this.longitude = lon;
     }
 
+    //Created by Anthropic, Claude 3.7 Sonnet, "Generate comprehensive JavaDoc for LocationFragment methods", accessed 03-30-2025
+    /**
+     * Populates the map with an existing location coordinate pair.
+     * This method is used when editing a mood event that already has location data,
+     * or when restoring a previously saved location.
+     *
+     * The method performs the following actions:
+     * <ul>
+     *     <li>Updates the internal latitude and longitude properties</li>
+     *     <li>Shows the map card and hides the add location button</li>
+     *     <li>Shows the remove location button</li>
+     *     <li>Initializes the map with a marker at the specified coordinates</li>
+     *     <li>Sets up a click listener to allow the user to change the location by tapping elsewhere on the map</li>
+     * </ul>
+     *
+     * Note that this method uses getView() which may return null if the fragment
+     * is not attached to its activity. Callers should ensure the fragment is
+     * in the proper lifecycle state before calling this method.
+     *
+     * @param latitude The latitude coordinate to display on the map
+     * @param longitude The longitude coordinate to display on the map
+     *
+     * @throws NullPointerException if getView() returns null or if map initialization fails
+     * @throws IllegalStateException if the fragment is not attached to an activity
+     */
+
     public void populateMapFromExistingLocation (double latitude, double longitude) {
         this.latitude = latitude;
         this.longitude = longitude;
