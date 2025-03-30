@@ -231,11 +231,12 @@
                         app:cardElevation="2dp"
                         android:backgroundTint="@android:color/white">
 
-                        <FrameLayout
+                        <androidx.fragment.app.FragmentContainerView
                             android:id="@+id/mapContainer"
                             android:layout_width="match_parent"
                             android:layout_height="match_parent"
-                            android:background="@android:color/darker_gray" />
+                            android:name="com.google.android.gms.maps.SupportMapFragment"
+                            tools:context="com.kernelcrew.moodapp.ui.MoodMap"/>
                     </com.google.android.material.card.MaterialCardView>
 
 

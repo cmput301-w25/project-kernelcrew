@@ -65,6 +65,8 @@ public class MoodEventForm extends Fragment implements LocationUpdateListener {
     private TextView photoButtonError;
     private MaterialButtonToggleGroup visibilityToggle;
 
+    private LocationFragment locationFragment;
+
     /**
      * Clear the currently selected photo.
      */
@@ -169,8 +171,9 @@ public class MoodEventForm extends Fragment implements LocationUpdateListener {
             // Update UI to show location is set
             this.currentLatitude = details.lat;
             this.currentLongitude = details.lon;
-        } else {
-            // locationStatusTextView.setText("No location set");
+            if (locationFragment != null) {
+                locationFragment.populateMapFromExistingLocation(details.lat, details.lon);
+            }
         }
 
         if (details.photo != null) {
@@ -250,7 +253,22 @@ public class MoodEventForm extends Fragment implements LocationUpdateListener {
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+
+        FragmentContainerView locationFragmentContainer = view.findViewById(R.id.location_fragment);
+        if (locationFragmentContainer != null) {
+            locationFragment = locationFragmentContainer.getFragment();
+            Log.e("MoodEventForm", "LocationFragment attached.");
+            if (locationFragment != null) {
+                locationFragment.setUpdateListener(this);
+            } else {
+                Log.e("MoodEventForm", "LocationFragment not attached. Ensure it's specified in the layout.");
+            }
+        } else {
+            Log.e("MoodEventForm", "Location fragment container not found in layout.");
+        }
+        
         super.onViewCreated(view, savedInstanceState);
+
 
         FragmentContainerView emotionPickerFragmentContainer =
                 view.findViewById(R.id.emotion_picker);
@@ -277,9 +295,10 @@ public class MoodEventForm extends Fragment implements LocationUpdateListener {
         photoResetButton.setOnClickListener(_v -> resetPhoto());
         photoButtonError = view.findViewById(R.id.photo_button_error);
         visibilityToggle = view.findViewById(R.id.visibility_button);
-
         updateResetPhotoVisibility();
-        addLocation = view.findViewById(R.id.add_location_button);
+        
+
+
     }
 
     @Override

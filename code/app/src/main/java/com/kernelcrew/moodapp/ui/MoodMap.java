@@ -68,7 +68,7 @@ public class MoodMap extends Fragment implements OnMapReadyCallback, FilterBarFr
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
+            Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_map, container, false);
         NavigationBarView navigationBarView = view.findViewById(R.id.bottom_navigation);
         navigationBarView.setSelectedItemId(R.id.page_map);
@@ -129,7 +129,8 @@ public class MoodMap extends Fragment implements OnMapReadyCallback, FilterBarFr
         locationCallback = new LocationCallback() {
             @Override
             public void onLocationResult(LocationResult locationResult) {
-                if (locationResult == null) return;
+                if (locationResult == null)
+                    return;
                 Location location = locationResult.getLastLocation();
                 if (location != null) {
                     currentUserLocation = new LatLng(location.getLatitude(), location.getLongitude());
@@ -139,6 +140,18 @@ public class MoodMap extends Fragment implements OnMapReadyCallback, FilterBarFr
         };
     }
 
+    /**
+     * Manipulates the map when it's available.
+     * The API invokes this callback when the map is ready to be used.
+     * This is where we can add markers or lines, add listeners or move the camera.
+     * In this case,
+     * we just add a marker near Sydney, Australia.
+     * If Google Play services is not installed on the device, the user receives a
+     * prompt to install
+     * Play services inside the SupportMapFragment. The API invokes this method
+     * after the user has
+     * installed Google Play services and returned to the app.
+     */
     @Override
     public void onMapReady(GoogleMap googleMap) {
         moodMap = googleMap;
@@ -153,7 +166,8 @@ public class MoodMap extends Fragment implements OnMapReadyCallback, FilterBarFr
                     String moodEventId = (String) tag;
                     Bundle args = new Bundle();
                     args.putString("moodEventId", moodEventId);
-                    NavController navController = Navigation.findNavController(requireActivity(), R.id.nav_host_fragment);
+                    NavController navController = Navigation.findNavController(requireActivity(),
+                            R.id.nav_host_fragment);
                     navController.navigate(R.id.moodDetails, args);
                     return true;
                 }
@@ -168,7 +182,8 @@ public class MoodMap extends Fragment implements OnMapReadyCallback, FilterBarFr
     }
 
     private void loadMoodEventsOnMap() {
-        if (moodMap == null || currentFilter == null) return;
+        if (moodMap == null || currentFilter == null)
+            return;
 
         moodMap.clear();
 
@@ -260,12 +275,14 @@ public class MoodMap extends Fragment implements OnMapReadyCallback, FilterBarFr
     public void onResume() {
         super.onResume();
         LocationRequest locationRequest = LocationRequest.create()
-                .setInterval(5000)          // update every 5 seconds
-                .setFastestInterval(2000)   // fastest update 2 seconds
+                .setInterval(5000) // update every 5 seconds
+                .setFastestInterval(2000) // fastest update 2 seconds
                 .setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
 
-        if (ActivityCompat.checkSelfPermission(requireContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
-                ActivityCompat.checkSelfPermission(requireContext(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+        if (ActivityCompat.checkSelfPermission(requireContext(),
+                Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
+                ActivityCompat.checkSelfPermission(requireContext(),
+                        Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             // Request missing permissions here if needed.
             return;
         }
@@ -280,6 +297,8 @@ public class MoodMap extends Fragment implements OnMapReadyCallback, FilterBarFr
 
     private BitmapDescriptor getEmotionIcon(String emotion) {
         int resourceId;
+
+        // Assign the appropriate drawable resource based on the emotion
         switch (emotion) {
             case "Anger":
                 resourceId = R.drawable.ic_anger_color_with_bg;
@@ -309,6 +328,8 @@ public class MoodMap extends Fragment implements OnMapReadyCallback, FilterBarFr
                 resourceId = R.drawable.ic_error_color;
                 break;
         }
+
+        // Create a properly scaled bitmap from the drawable resource
         return getBitmapDescriptorFromVector(getContext(), resourceId);
     }
 
@@ -317,12 +338,17 @@ public class MoodMap extends Fragment implements OnMapReadyCallback, FilterBarFr
         if (vectorDrawable == null) {
             return BitmapDescriptorFactory.defaultMarker();
         }
+
         int width = vectorDrawable.getIntrinsicWidth();
         int height = vectorDrawable.getIntrinsicHeight();
+
         vectorDrawable.setBounds(0, 0, width, height);
+
         Bitmap bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
         Canvas canvas = new Canvas(bitmap);
         vectorDrawable.draw(canvas);
+
         return BitmapDescriptorFactory.fromBitmap(bitmap);
     }
+
 }
