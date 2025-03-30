@@ -1,6 +1,5 @@
 package com.kernelcrew.moodapp.data;
 
-import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.Query;
@@ -11,132 +10,48 @@ import java.util.List;
 import java.util.Set;
 
 /**
- * A class for filtering mood events through Firestore. It is used to build
- * queries based on various filters.
+ * A class for filtering mood events through Firestore. It is used to build queries based on various filters.
  */
-public class MoodEventFilter implements Cloneable {
+public class MoodEventFilter {
     private static final double EARTH_RADIUS_KM = 6371.0;
 
-    private final Query allMoodEvents;
+    private final CollectionReference collectionReference;
     private final FilterCriteria criteria = new FilterCriteria();
     private String reasonQuery;
 
-    public Double getFilterLatitude() {
-        return criteria.location != null ? criteria.location.latitude : null;
-    }
-
-    public Double getFilterLongitude() {
-        return criteria.location != null ? criteria.location.longitude : null;
-    }
-
-    public Double getFilterRadius() {
-        return criteria.location != null ? criteria.location.radius : null;
-    }
-
-    private static class FilterCriteria implements Cloneable {
+    private static class FilterCriteria {
         Set<Emotion> emotions = new HashSet<>();
         Set<String> socialSituations = new HashSet<>();
-        String userId;
+        Set<String> userIds = new HashSet<>();
         DateRange dateRange;
         Sorting sorting;
         LocationFilter location;
         Integer limit;
-
-        @NonNull
-        @Override
-        protected Object clone() throws CloneNotSupportedException {
-            FilterCriteria cloned = (FilterCriteria) super.clone();
-
-            cloned.emotions = new HashSet<>(this.emotions);
-            cloned.socialSituations = new HashSet<>(this.socialSituations);
-            cloned.userId = this.userId;
-
-            if (this.dateRange != null) {
-                cloned.dateRange = (DateRange) this.dateRange.clone();
-            }
-            if (this.sorting != null) {
-                cloned.sorting = (Sorting) this.sorting.clone();
-            }
-            if (this.location != null) {
-                cloned.location = (LocationFilter) this.location.clone();
-            }
-
-            return cloned;
-        }
     }
 
-    private static class DateRange implements Cloneable {
+    private static class DateRange {
         Date start;
         Date end;
-
-        @NonNull
-        @Override
-        protected Object clone() throws CloneNotSupportedException {
-            DateRange cloned = (DateRange) super.clone();
-
-            if (this.start != null) {
-                cloned.start = (Date) this.start.clone();
-            }
-            if (this.end != null) {
-                cloned.end = (Date) this.end.clone();
-            }
-
-            return cloned;
-        }
     }
 
-    private static class Sorting implements Cloneable {
+    private static class Sorting {
         String field;
         Query.Direction direction;
-
-        @NonNull
-        @Override
-        protected Object clone() throws CloneNotSupportedException {
-            return super.clone();
-        }
     }
 
-    private static class LocationFilter implements Cloneable {
+    private static class LocationFilter {
         Double latitude;
         Double longitude;
         Double radius;
-
-        @NonNull
-        @Override
-        protected Object clone() throws CloneNotSupportedException {
-            LocationFilter cloned = (LocationFilter) super.clone();
-
-            cloned.latitude = this.latitude;
-            cloned.longitude = this.longitude;
-            cloned.radius = this.radius;
-
-            return cloned;
-        }
-    }
-
-    @NonNull
-    @Override
-    public Object clone() throws CloneNotSupportedException {
-        MoodEventFilter cloned = (MoodEventFilter) super.clone();
-
-        cloned.criteria.clone();
-
-        return cloned;
     }
 
     // Constructors
-    /**
-     * Constructor accepting a CollectionReference directly.
-     * This is useful if you have the Firestore collection from your provider.
-     *
-     * @param allMoodEvents All mood events query
-     */
-    public MoodEventFilter(Query allMoodEvents) {
-        this.allMoodEvents = allMoodEvents;
+    public MoodEventFilter(CollectionReference collectionReference) {
+        this.collectionReference = collectionReference;
     }
 
     public MoodEventFilter(MoodEventProvider provider) {
-        this.allMoodEvents = provider.getAll();
+        this(provider.getCollectionReference());
     }
 
     // Helper method to check if a string is valid (non-null and non-blank)
@@ -146,18 +61,24 @@ public class MoodEventFilter implements Cloneable {
 
     // Emotion filters
     public MoodEventFilter addEmotion(Emotion emotion) {
-        criteria.emotions.add(emotion);
+        if (emotion != null) {
+            criteria.emotions.add(emotion);
+        }
         return this;
     }
 
     public MoodEventFilter addEmotions(Set<Emotion> emotions) {
-        criteria.emotions.addAll(emotions);
+        if (emotions != null) {
+            criteria.emotions.addAll(emotions);
+        }
         return this;
     }
 
     public MoodEventFilter setEmotions(Set<Emotion> emotions) {
         criteria.emotions.clear();
-        criteria.emotions.addAll(emotions);
+        if (emotions != null) {
+            criteria.emotions.addAll(emotions);
+        }
         return this;
     }
 
@@ -180,13 +101,15 @@ public class MoodEventFilter implements Cloneable {
         if (startDate != null && endDate != null && startDate.after(endDate)) {
             throw new IllegalArgumentException("Start date must not be after end date.");
         }
-        if (criteria.dateRange == null) {
-            criteria.dateRange = new DateRange();
+        if (startDate == null && endDate == null) {
+            criteria.dateRange = null;
+        } else {
+            if (criteria.dateRange == null) {
+                criteria.dateRange = new DateRange();
+            }
+            criteria.dateRange.start = startDate;
+            criteria.dateRange.end = endDate;
         }
-
-        criteria.dateRange.start = startDate;
-        criteria.dateRange.end = endDate;
-
         return this;
     }
 
@@ -207,16 +130,54 @@ public class MoodEventFilter implements Cloneable {
     }
 
     // User filters
+    /**
+     * Set user filter to a single user ID.
+     */
     public MoodEventFilter setUser(String userId) {
+        criteria.userIds.clear();
         if (isValidString(userId)) {
-            this.criteria.userId = userId;
+            criteria.userIds.add(userId);
+        }
+        return this;
+    }
+
+    public MoodEventFilter setUsers(Set<String> userIds) {
+        criteria.userIds.clear();
+        if (userIds != null) {
+            for (String userId: userIds) {
+                if (isValidString(userId)) {
+                    criteria.userIds.add(userId);
+                }
+            }
+        }
+        return this;
+    }
+
+    public MoodEventFilter addUser(String userId) {
+        if (isValidString(userId)) {
+            criteria.userIds.add(userId);
+        }
+        return this;
+    }
+
+    public MoodEventFilter addUsers(Set<String> userIds) {
+        if (userIds != null) {
+            for (String userId: userIds) {
+                if (isValidString(userId)) {
+                    criteria.userIds.add(userId);
+                }
+            }
         }
         return this;
     }
 
     // Limit filter
     public MoodEventFilter setLimit(int limit) {
-        criteria.limit = limit;
+        if (limit <= 0) {
+            criteria.limit = null; // or throw an exception if desired
+        } else {
+            criteria.limit = limit;
+        }
         return this;
     }
 
@@ -265,17 +226,31 @@ public class MoodEventFilter implements Cloneable {
         return reasonQuery;
     }
 
+    public Double getFilterLatitude() {
+        return (criteria.location != null) ? criteria.location.latitude : null;
+    }
+
+    public Double getFilterLongitude() {
+        return (criteria.location != null) ? criteria.location.longitude : null;
+    }
+
+    public Double getFilterRadius() {
+        return (criteria.location != null) ? criteria.location.radius : null;
+    }
+
     /**
      * Counts the number of applied filters.
-     * 
      * @return The number of active filters.
      */
     public int count() {
         int count = 0;
-        if (!criteria.emotions.isEmpty()) count = count + criteria.emotions.size();
+        if (!criteria.emotions.isEmpty()) count++;
         if (criteria.dateRange != null && (criteria.dateRange.start != null || criteria.dateRange.end != null)) count++;
-        if (criteria.location != null) count++;
-        if (!criteria.socialSituations.isEmpty()) count = count + criteria.socialSituations.size();
+        if (criteria.location != null
+                && criteria.location.latitude != null
+                && criteria.location.longitude != null
+                && criteria.location.radius != null ) count++;
+        if (!criteria.socialSituations.isEmpty()) count++;
         return count;
     }
 
@@ -283,7 +258,7 @@ public class MoodEventFilter implements Cloneable {
      * Clears all applied filters.
      */
     public void clearFilters() {
-        criteria.userId = null;
+        criteria.userIds.clear();
         criteria.emotions.clear();
         criteria.socialSituations.clear();
         criteria.dateRange = null;
@@ -295,13 +270,12 @@ public class MoodEventFilter implements Cloneable {
 
     /**
      * Returns a summary of the currently applied filters.
-     * 
      * @return A summary string.
      */
     public String getSummary() {
         StringBuilder sb = new StringBuilder();
-        if (criteria.userId != null) {
-            sb.append("User ID: ").append(criteria.userId).append("\n");
+        if (!criteria.userIds.isEmpty()) {
+            sb.append("User IDs: ").append(criteria.userIds).append("\n");
         }
         if (!criteria.emotions.isEmpty()) {
             sb.append("Emotions: ").append(criteria.emotions).append("\n");
@@ -340,15 +314,17 @@ public class MoodEventFilter implements Cloneable {
 
     /**
      * Builds a Firestore Query using the applied filters.
-     * 
      * @return A Query with filtering and sorting applied.
      */
     public Query buildQuery() {
-        // Start with the collection reference
-        Query query = allMoodEvents;
+        Query query = collectionReference;
 
-        if (isValidString(criteria.userId)) {
-            query = query.whereEqualTo("uid", criteria.userId);
+        if (!criteria.userIds.isEmpty()) {
+            if (criteria.userIds.size() == 1) {
+                query = query.whereEqualTo("uid", criteria.userIds.iterator().next());
+            } else {
+                query = query.whereIn("uid", new ArrayList<>(criteria.userIds));
+            }
         }
 
         if (!criteria.emotions.isEmpty()) {
@@ -369,6 +345,7 @@ public class MoodEventFilter implements Cloneable {
         }
 
         if (criteria.location != null) {
+            // Great-circle bounding box approximation
             double latDelta = Math.toDegrees(criteria.location.radius / EARTH_RADIUS_KM);
             double lonDelta = Math.toDegrees(criteria.location.radius / (EARTH_RADIUS_KM *
                     Math.cos(Math.toRadians(criteria.location.latitude))));
@@ -388,10 +365,31 @@ public class MoodEventFilter implements Cloneable {
             query = query.whereIn("socialSituation", new ArrayList<>(criteria.socialSituations));
         }
 
-        if (criteria.limit != null && criteria.limit != 0) {
+        if (criteria.limit != null && criteria.limit > 0) {
             query = query.limit(criteria.limit);
         }
 
         return query;
+    }
+
+    // ------------------------------------- Filtering Lists ----
+    /**
+     * Filters a list of mood events by reasonQuery if set.
+     *
+     * @param events The events to filter.
+     * @return A filtered List containing only those with a matching reason if reasonQuery is set.
+     */
+    public List<MoodEvent> applyReasonFilter(List<MoodEvent> events) {
+        if (reasonQuery == null || reasonQuery.isEmpty()) {
+            return events;
+        }
+        List<MoodEvent> filtered = new ArrayList<>();
+        for (MoodEvent event : events) {
+            String reason = event.getReason();
+            if (reason != null && reason.toLowerCase().contains(reasonQuery)) {
+                filtered.add(event);
+            }
+        }
+        return filtered;
     }
 }

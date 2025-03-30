@@ -6,21 +6,22 @@ import android.view.ViewGroup;
 import android.widget.EditText;
 import com.kernelcrew.moodapp.data.Utility;
 
+/**
+ * Default implementation of FilterBarFragment's abstract setupKeyboardHiding.
+ */
 public class DefaultFilterBarFragment extends FilterBarFragment {
     @SuppressLint("ClickableViewAccessibility")
     @Override
     public void setupKeyboardHiding(View view) {
         if (!(view instanceof EditText)) {
             view.setOnTouchListener((v, event) -> {
-                assert getActivity() != null;
-                Utility.hideSoftKeyboard(getActivity());
-
-                // Stop the editing of all textboxes
-                View currentFocus = getActivity().getCurrentFocus();
-                if (currentFocus instanceof EditText) {
-                    currentFocus.clearFocus();
+                if (getActivity() != null) {
+                    Utility.hideSoftKeyboard(getActivity());
+                    View currentFocus = getActivity().getCurrentFocus();
+                    if (currentFocus instanceof EditText) {
+                        currentFocus.clearFocus();
+                    }
                 }
-
                 return false;
             });
         }

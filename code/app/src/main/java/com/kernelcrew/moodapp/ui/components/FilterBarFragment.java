@@ -49,9 +49,9 @@ import java.util.Set;
  * A fragment that interfaces the filtering options for mood events.
  */
 public abstract class FilterBarFragment extends Fragment {
-    // ! Constants
+    // Toggles for which search mode is active
     private boolean userSearchActive = false;
-    private boolean reasonSearchActive = false;
+    private boolean reasonSearchActive = true;  // default to reason search being on
     private boolean allowUserSearch = false;
 
     // UI Elements
@@ -123,6 +123,35 @@ public abstract class FilterBarFragment extends Fragment {
         this.userSearchListener = listener;
     }
 
+    // Add this interface (if you’re not using Java 8 lambdas)
+    // Taha used chatgpt, "how do I make my filter class updatable from outside? <Code>"
+    public interface FilterUpdater {
+        void update(MoodEventFilter filter);
+    }
+
+    /**
+     * Allows external code to update the current MoodEventFilter. After the update,
+     * notifyFilterChanged() is automatically called to refresh the filter state.
+     *
+     * Usage:
+     *   filterBarFragment.updateFilter(new FilterUpdater() {
+     *       @Override
+     *       public void update(MoodEventFilter filter) {
+     *           filter.setLimit(10);
+     *       }
+     *   });
+     *
+     * Or, if using Java 8 lambdas:
+     *   filterBarFragment.updateFilter(filter -> filter.setLimit(10));
+     *
+     * @param updater The updater that modifies the MoodEventFilter.
+     */
+    public void updateFilter(FilterUpdater updater) {
+        updater.update(getMoodEventFilter());
+        notifyFilterChanged();
+    }
+
+
     /**
      * Inflates the filter bar layout and initializes filter options.
      */
@@ -143,26 +172,24 @@ public abstract class FilterBarFragment extends Fragment {
         searchUser = view.findViewById(R.id.searchUser);
         searchReason = view.findViewById(R.id.searchReason);
 
-        // Local Variables
         HorizontalScrollView filterButtonsContainer = view.findViewById(R.id.filterButtonsContainer);
 
-        // Call the abstract setupUI to enforce keyboard-hiding and other UI setups.
-        if (getParentFragment() != null) {
-            setupKeyboardHiding(getParentFragment().getView());
-        }
+        // Hide keyboard if user touches outside of EditText.
+        assert getParentFragment() != null;
+        setupKeyboardHiding(getParentFragment().getView());
 
-        // -- Event Listeners -----------------
-        // Search bar listeners
+        // ----- Event Listeners -----
+
+        // Search bar watchers
         searchEditText.addTextChangedListener(new TextWatcher() {
             @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) { }
             @Override public void onTextChanged(CharSequence s, int start, int before, int count) {
                 scheduleSearch(s.toString());
             }
             @Override public void afterTextChanged(Editable s) {
-                handleSearchText(s.toString());
+                // Optionally re-run
             }
         });
-
         searchEditText.setOnEditorActionListener((TextView v, int actionId, KeyEvent event) -> {
             if (actionId == EditorInfo.IME_ACTION_SEARCH
                     || actionId == EditorInfo.IME_ACTION_DONE
@@ -177,45 +204,42 @@ public abstract class FilterBarFragment extends Fragment {
 
         // Toggle for "Search User"
         searchUser.setOnClickListener(v -> {
-            if (!userSearchActive) {
-                userSearchActive = true;
-                reasonSearchActive = false;
-                searchUser.setChecked(true);
-                searchReason.setChecked(false);
-                filterSearchLayout.setError(null);
-                filterSearchLayout.setErrorEnabled(false);
-                filterButtonsContainer.setVisibility(View.GONE);
-                filterButtonsContainer.setBackground(null);
-                updateSearchLogic();
-            }
+            userSearchActive = true;
+            searchUser.setChecked(true);
+
+            // If userSearchActive -> disable reasonSearch
+            reasonSearchActive = false;
+            searchReason.setChecked(false);
+            filterButtonsContainer.setVisibility(View.GONE);
+            filterButtonsContainer.setBackground(null);
+
+            updateSearchLogic();
         });
 
         // Toggle for "Search Reason"
         reasonSearchActive = true;
-        searchReason.setChecked(true);
+        searchReason.setChecked(reasonSearchActive);
+
         searchReason.setOnClickListener(v -> {
-            if (!reasonSearchActive) {
-                reasonSearchActive = true;
-                userSearchActive = false;
-                searchReason.setChecked(true);
-                searchUser.setChecked(false);
-                filterSearchLayout.setError(null);
-                filterSearchLayout.setErrorEnabled(false);
-                filterButtonsContainer.setVisibility(View.VISIBLE);
-                filterButtonsContainer.setBackgroundResource(R.drawable.black_border);
-                updateSearchLogic();
-            }
+            reasonSearchActive = true;
+            searchReason.setChecked(true);
+
+            userSearchActive = false;
+            searchUser.setChecked(false);
+            filterButtonsContainer.setVisibility(View.VISIBLE);
+            filterButtonsContainer.setBackgroundResource(R.drawable.black_border);
+            updateSearchLogic();
         });
 
-        // Filter count and edit popup menu
+        // Filter count & summary
         filterCountAndEdit.setOnClickListener(v -> {
             PopupMenu popup = new PopupMenu(requireContext(), filterCountAndEdit);
             MenuItem clearFiltersItem = popup.getMenu().add("Clear All Filters");
             SpannableString redTitle = new SpannableString("Clear All Filters");
             redTitle.setSpan(new ForegroundColorSpan(Color.RED), 0, redTitle.length(), 0);
             clearFiltersItem.setTitle(redTitle);
-            popup.getMenu().add("Show Filter Summary");
 
+            popup.getMenu().add("Show Filter Summary");
             popup.setOnMenuItemClickListener(item -> {
                 String title = Objects.requireNonNull(item.getTitle()).toString();
                 if (title.equals("Clear All Filters")) {
@@ -240,7 +264,7 @@ public abstract class FilterBarFragment extends Fragment {
             popup.show();
         });
 
-        // Emotion filter popup menu
+        // Emotion filter
         filterEmotion.setOnClickListener(v -> {
             PopupMenu popup = new PopupMenu(requireContext(), filterEmotion);
             for (Emotion emotion : Emotion.values()) {
@@ -257,7 +281,6 @@ public abstract class FilterBarFragment extends Fragment {
                 } else {
                     selectedEmotions.remove(emotion);
                 }
-                // Prevent the popup from closing immediately.
                 item.setShowAsAction(MenuItem.SHOW_AS_ACTION_COLLAPSE_ACTION_VIEW);
                 item.setActionView(new View(requireContext()));
                 return false;
@@ -271,7 +294,7 @@ public abstract class FilterBarFragment extends Fragment {
             popup.show();
         });
 
-        // Time range filter popup menu
+        // Time range filter
         filterTimeRange.setOnClickListener(v -> {
             PopupMenu popup = new PopupMenu(requireContext(), filterTimeRange);
             popup.getMenu().add("Today");
@@ -294,6 +317,7 @@ public abstract class FilterBarFragment extends Fragment {
                         endDate = calendar.getTime();
                         break;
                     case "This Week":
+                        // Set to the first day of week per device locale.
                         calendar.set(Calendar.DAY_OF_WEEK, calendar.getFirstDayOfWeek());
                         resetTime(calendar);
                         startDate = calendar.getTime();
@@ -302,6 +326,7 @@ public abstract class FilterBarFragment extends Fragment {
                         endDate = calendar.getTime();
                         break;
                     case "This Month":
+                        // Set to first day of current month.
                         calendar.set(Calendar.DAY_OF_MONTH, 1);
                         resetTime(calendar);
                         startDate = calendar.getTime();
@@ -309,7 +334,10 @@ public abstract class FilterBarFragment extends Fragment {
                         calendar.add(Calendar.MILLISECOND, -1);
                         endDate = calendar.getTime();
                         break;
-                    default:
+                    case "All Time":
+                        // No date filtering.
+                        startDate = null;
+                        endDate = null;
                         break;
                 }
                 getMoodEventFilter().setDateRange(startDate, endDate);
@@ -324,7 +352,7 @@ public abstract class FilterBarFragment extends Fragment {
             popup.show();
         });
 
-        // Location filter popup menu
+        // Location filter
         filterLocation.setOnClickListener(v -> {
             PopupMenu popup = new PopupMenu(requireContext(), filterLocation);
             popup.getMenu().add("Within 5 km");
@@ -340,7 +368,6 @@ public abstract class FilterBarFragment extends Fragment {
                     case "Within 5 km": {
                         Location currentLocation = LocationHandler.getCurrentLocation(requireContext());
                         if (currentLocation != null) {
-                            Log.d("FilterBarFrag", "Current Location" + currentLocation.getLatitude() + currentLocation.getLongitude());
                             getMoodEventFilter().setLocation(currentLocation.getLatitude(), currentLocation.getLongitude(), 5.0);
                         } else {
                             Toast.makeText(requireContext(), "Unable to retrieve location", Toast.LENGTH_SHORT).show();
@@ -350,7 +377,6 @@ public abstract class FilterBarFragment extends Fragment {
                     case "Within 10 km": {
                         Location currentLocation = LocationHandler.getCurrentLocation(requireContext());
                         if (currentLocation != null) {
-                            Log.d("FilterBarFrag", "Current Location" + currentLocation.getLatitude() + currentLocation.getLongitude());
                             getMoodEventFilter().setLocation(currentLocation.getLatitude(), currentLocation.getLongitude(), 10.0);
                         } else {
                             Toast.makeText(requireContext(), "Unable to retrieve location", Toast.LENGTH_SHORT).show();
@@ -372,11 +398,6 @@ public abstract class FilterBarFragment extends Fragment {
             popup.show();
         });
 
-        // ......
-        // TODO: Maybe add more filters, I do not know
-        //      what/how the app will look like in the future
-        // ......
-
         notifyFilterChanged();
         return view;
     }
@@ -391,9 +412,8 @@ public abstract class FilterBarFragment extends Fragment {
 
     /**
      * Updates the search logic whenever a toggle changes.
-     * If "Search User" is active, we remove MoodEventFilter's query and do user search.
-     * If Reason is active, we apply local searching on reason.
-     * If none are active, we clear results and do nothing.
+     * If "Search User" is active, we remove reasonQuery from the filter and do user search.
+     * If Reason is active, we rely on local searching by reason.
      */
     private void updateSearchLogic() {
         if (!userSearchActive && !reasonSearchActive) {
@@ -401,8 +421,10 @@ public abstract class FilterBarFragment extends Fragment {
             return;
         }
         if (userSearchActive) {
-            performUserSearch("");
+            // Perform user search with whatever is typed
+            performUserSearch(searchEditText.getText().toString().trim());
         } else {
+            // Clear reason query so local searching doesn't filter everything out
             getMoodEventFilter().setReasonQuery(null);
             notifyFilterChanged();
         }
@@ -410,8 +432,6 @@ public abstract class FilterBarFragment extends Fragment {
 
     /**
      * Executes a Firestore search for users based on the typed query.
-     *
-     * @param query The text typed by the user for searching.
      */
     private void performUserSearch(String query) {
         Task<List<User>> q = UserProvider.getInstance().searchUsers(
@@ -433,18 +453,11 @@ public abstract class FilterBarFragment extends Fragment {
 
     /**
      * Abstract method that MUST be implemented by subclasses.
-     * Used to set up touch listeners on all views (except EditText)
-     * so that touching outside of a text box hides the keyboard.
-     * See documentation for more details.
-     *
-     * @param view The root view to set up.
      */
     public abstract void setupKeyboardHiding(View view);
 
     /**
-     * Retrieves the current mood event filter or creates a new one if not initialized.
-     *
-     * @return The current {@link MoodEventFilter} instance.
+     * Retrieves (or creates) the current mood event filter.
      */
     public MoodEventFilter getMoodEventFilter() {
         if (moodEventFilter == null) {
@@ -455,8 +468,6 @@ public abstract class FilterBarFragment extends Fragment {
 
     /**
      * Sets a listener to be notified when the filter changes.
-     *
-     * @param listener The listener to notify.
      */
     public void setOnFilterChangedListener(OnFilterChangedListener listener) {
         this.listener = listener;
@@ -466,6 +477,7 @@ public abstract class FilterBarFragment extends Fragment {
      * Notifies the listener that the filter has changed.
      */
     private void notifyFilterChanged() {
+        // Always sort by "created" desc by default
         getMoodEventFilter().setSortField("created", Query.Direction.DESCENDING);
         filterCountAndEdit.setText(String.valueOf(getMoodEventFilter().count()));
         if (listener != null) {
@@ -476,17 +488,20 @@ public abstract class FilterBarFragment extends Fragment {
     }
 
     /**
-     * Filters a list of MoodEvents locally based on the user’s current search settings.
-     * If "reasonSearchActive" is on, we match mood.getReason().
+     * Filters a list of MoodEvents locally based on the user’s current reasonSearchActive state.
      */
     public List<MoodEvent> applyLocalSearch(List<MoodEvent> allMoods) {
-        String query = getMoodEventFilter().getReasonQuery();
-        boolean hasQuery = (query != null && !query.trim().isEmpty());
-        String lowerQuery = hasQuery ? query.trim().toLowerCase() : null;
+        String reasonQ = getMoodEventFilter().getReasonQuery();
+        boolean hasQuery = (reasonQ != null && !reasonQ.trim().isEmpty());
+        if (!reasonSearchActive || !hasQuery) {
+            // If we aren't using reason search or there's no text, we just return them all
+            return allMoods;
+        }
+        String lowerQuery = reasonQ.trim().toLowerCase();
         List<MoodEvent> filtered = new ArrayList<>();
         for (MoodEvent event : allMoods) {
-            if (!hasQuery || (reasonSearchActive && event.getReason() != null
-                    && event.getReason().toLowerCase().contains(lowerQuery))) {
+            String reason = event.getReason();
+            if (reason != null && reason.toLowerCase().contains(lowerQuery)) {
                 filtered.add(event);
             }
         }
@@ -494,9 +509,7 @@ public abstract class FilterBarFragment extends Fragment {
     }
 
     /**
-     * Resets the time of a calendar instance to the start of the day.
-     *
-     * @param calendar The calendar instance to reset.
+     * Reset time to start of day
      */
     private void resetTime(Calendar calendar) {
         calendar.set(Calendar.HOUR_OF_DAY, 0);
@@ -506,9 +519,7 @@ public abstract class FilterBarFragment extends Fragment {
     }
 
     /**
-     * Schedules the search query after a delay to avoid frequent invocations.
-     *
-     * @param text The current search text.
+     * Delay frequent invocations of user searching
      */
     private void scheduleSearch(String text) {
         if (userSearchRunnable != null) {
@@ -519,16 +530,14 @@ public abstract class FilterBarFragment extends Fragment {
     }
 
     /**
-     * Handles the search text change based on the active search mode.
-     *
-     * @param text The current search text.
+     * Decide how to handle typed text given which toggle is active.
      */
     private void handleSearchText(String text) {
         String typed = text.trim();
         if (userSearchActive) {
             performUserSearch(typed);
         } else if (reasonSearchActive) {
-            getMoodEventFilter().setReasonQuery(typed);
+            getMoodEventFilter().setReasonQuery(typed.isEmpty() ? null : typed);
             notifyFilterChanged();
         }
     }

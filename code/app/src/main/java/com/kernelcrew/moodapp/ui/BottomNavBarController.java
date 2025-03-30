@@ -1,7 +1,5 @@
 package com.kernelcrew.moodapp.ui;
 
-import static com.kernelcrew.moodapp.ui.HomeFeed.currentFilteredList;
-
 import android.os.Bundle;
 import android.view.MenuItem;
 import android.view.View;

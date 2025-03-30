@@ -106,13 +106,14 @@ public class MoodMap extends Fragment implements OnMapReadyCallback, FilterBarFr
                             .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE)));
                 }
 
-                currentFilter = filterBarFragment.getMoodEventFilter().setLocation(
-                        currentUserLocation.latitude,
-                        currentUserLocation.longitude,
-                        5
-                );
+                filterBarFragment.updateFilter(filter -> {
+                    filter.setLocation(
+                                currentUserLocation.latitude,
+                                currentUserLocation.longitude,
+                                5)
+                            ;
+                });
 
-                // Now load mood events with the obtained location.
                 loadMoodEventsOnMap();
             }
 
@@ -152,7 +153,7 @@ public class MoodMap extends Fragment implements OnMapReadyCallback, FilterBarFr
     }
 
     private void loadMoodEventsOnMap() {
-        if (moodMap == null || currentFilter == null) return;
+        if (moodMap == null) return;
 
         moodMap.clear();
 
@@ -166,9 +167,9 @@ public class MoodMap extends Fragment implements OnMapReadyCallback, FilterBarFr
             moodMap.animateCamera(CameraUpdateFactory.newLatLngZoom(currentUserLocation, 12f));
         }
 
-        Double filterLat = currentFilter.getFilterLatitude();
-        Double filterLon = currentFilter.getFilterLongitude();
-        Double filterRadius = currentFilter.getFilterRadius();
+        Double filterLat = filterBarFragment.getMoodEventFilter().getFilterLatitude();
+        Double filterLon = filterBarFragment.getMoodEventFilter().getFilterLongitude();
+        Double filterRadius = filterBarFragment.getMoodEventFilter().getFilterRadius();
         if (filterLat != null && filterLon != null && filterRadius != null) {
             LatLng center = new LatLng(filterLat, filterLon);
             CircleOptions circleOptions = new CircleOptions()
@@ -190,6 +191,7 @@ public class MoodMap extends Fragment implements OnMapReadyCallback, FilterBarFr
                 Log.e("MoodMap", "Error listening for following", error);
                 return;
             }
+
             // Build a list of user IDs: include the current user and all users they follow.
             List<String> userIds = new ArrayList<>();
             userIds.add(myUid);
@@ -205,17 +207,15 @@ public class MoodMap extends Fragment implements OnMapReadyCallback, FilterBarFr
                 reg = null;
             }
 
-            // Now listen to mood events only from these userIds using a helper method.
-            // (Assuming your MoodEventProvider has a method listenToMoodEventsForUsers that accepts
-            // a list of user IDs and a filter.)
             reg = MoodEventProvider.getInstance()
-                    .listenToMoodEventsForUsers(userIds, currentFilter, new CombinedListener() {
+                    .listenToMoodEventsForUsers(userIds, filterBarFragment.getMoodEventFilter(), 1, new CombinedListener() {
                         @Override
                         public void onEvent(List<DocumentSnapshot> documents, FirebaseFirestoreException error) {
                             if (error != null) {
                                 Log.e("MoodMap", "Error listening to mood events", error);
                                 return;
                             }
+
                             // Convert documents to MoodEvent objects.
                             List<MoodEvent> moodList = new ArrayList<>();
                             for (DocumentSnapshot document : documents) {
@@ -226,10 +226,9 @@ public class MoodMap extends Fragment implements OnMapReadyCallback, FilterBarFr
                                 }
                             }
 
-                            // Clear mood markers (user marker and circle overlays were already added above)
-                            // (If you want to preserve them, you can re-add them after clearing.)
                             // For simplicity, clear and then re-add:
                             moodMap.clear();
+
                             // Re-add the user marker and circle overlays:
                             if (currentUserLocation != null) {
                                 MarkerOptions userMarkerOptions = new MarkerOptions()
@@ -240,11 +239,12 @@ public class MoodMap extends Fragment implements OnMapReadyCallback, FilterBarFr
                                 moodMap.addMarker(userMarkerOptions);
                                 moodMap.animateCamera(CameraUpdateFactory.newLatLngZoom(currentUserLocation, 12f));
                             }
+
                             if (filterLat != null && filterLon != null && filterRadius != null) {
                                 LatLng center = new LatLng(filterLat, filterLon);
                                 CircleOptions circleOptions = new CircleOptions()
                                         .center(center)
-                                        .radius(filterRadius * 1000)
+                                        .radius(filterRadius * 1000) // km -> m ie. k = 10^3 = 1000
                                         .strokeColor(Color.BLUE)
                                         .fillColor(0x220000FF);
                                 moodMap.addCircle(circleOptions);
@@ -268,7 +268,6 @@ public class MoodMap extends Fragment implements OnMapReadyCallback, FilterBarFr
 
     @Override
     public void onFilterChanged(MoodEventFilter filter) {
-        currentFilter = filter;
         loadMoodEventsOnMap();
     }
 

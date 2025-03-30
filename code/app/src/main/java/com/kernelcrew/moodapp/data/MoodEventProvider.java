@@ -127,7 +127,7 @@ public class MoodEventProvider {
      * For each followed user, only the 3 most recent posts are returned.
      * The results from all queries are combined and returned via the CombinedListener.
      */
-    public ListenerRegistration listenToMoodEventsForUsers(List<String> userIds, MoodEventFilter filter, CombinedListener listener) {
+    public ListenerRegistration listenToMoodEventsForUsers(List<String> userIds, MoodEventFilter filter, int followerLimit, CombinedListener listener) {
         if (userIds == null || userIds.isEmpty()) {
             // Return a dummy registration if nothing is passed.
             return new ListenerRegistration() {
@@ -142,9 +142,8 @@ public class MoodEventProvider {
 
         for (String uid : userIds) {
             Query query = filter.buildQuery().whereEqualTo("uid", uid);
-            // For followed users, apply a limit of 3.
             if (!uid.equals(currentUserId)) {
-                query = query.limit(3);
+                query = query.limit(followerLimit);
             }
             ListenerRegistration reg = query.addSnapshotListener((querySnapshot, error) -> {
                 if (error != null) {
