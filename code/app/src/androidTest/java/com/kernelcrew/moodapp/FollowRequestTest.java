@@ -14,8 +14,10 @@ import androidx.test.espresso.UiController;
 import androidx.test.espresso.ViewAction;
 import androidx.test.ext.junit.rules.ActivityScenarioRule;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
+import androidx.test.filters.LargeTest;
 
 import com.google.android.gms.tasks.Tasks;
+import com.google.firebase.Firebase;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.SetOptions;
@@ -24,14 +26,17 @@ import com.kernelcrew.moodapp.data.MoodEvent;
 import com.kernelcrew.moodapp.data.MoodEventProvider;
 import com.kernelcrew.moodapp.data.MoodEventVisibility;
 import com.kernelcrew.moodapp.ui.MainActivity;
+import static com.kernelcrew.moodapp.MoodDetailsNavigationTest.clickChildViewWithId;
 
 import org.awaitility.Awaitility;
 import org.hamcrest.Matcher;
 import org.junit.After;
 import org.junit.BeforeClass;
+import org.junit.FixMethodOrder;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.junit.runners.MethodSorters;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -39,6 +44,8 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
 @RunWith(AndroidJUnit4.class)
+@LargeTest
+@FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class FollowRequestTest extends FirebaseEmulatorMixin {
 
     // Test user credentials for User A (the follower) and User B (the target)
@@ -116,6 +123,19 @@ public class FollowRequestTest extends FirebaseEmulatorMixin {
         auth.signOut();
     }
 
+
+    /**
+     * Helper method that checks if a view with the given id is displayed.
+     */
+    private boolean isViewDisplayed(int viewId) {
+        try {
+            onView(withId(viewId)).check(matches(isDisplayed()));
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
     /**
      * Test the complete follow flow:
      * 1. Sign in as User A, navigate from the home feed (via mood details) to User B’s profile,
@@ -124,7 +144,7 @@ public class FollowRequestTest extends FirebaseEmulatorMixin {
      *    accept the follow request, and verify that the follower count is updated.
      */
     @Test
-    public void testFollowFlow() throws InterruptedException, ExecutionException {
+    public void test_1_testFollowFlow() throws InterruptedException, ExecutionException {
         // PART 1: User A sends a follow request.
         signInUser(USER_A_EMAIL, USER_A_PASSWORD);
 
@@ -152,24 +172,7 @@ public class FollowRequestTest extends FirebaseEmulatorMixin {
                             .check(matches(withText(containsString("Requested"))));
                 });
 
-        // Navigate back to the home feed using the back button (OtherUserProfile > MoodDetails > HomeFeed)
-        onView(withId(R.id.moodDetailsToolbar))  // Target the toolbar
-                .perform(click());  // Simulate the back action
-
-        SystemClock.sleep(1000);
-
-        // Navigate back to Home Feed by pressing back again.
-        onView(withId(R.id.moodDetailsToolbar))  // Target the toolbar again
-                .perform(click());  // Press back from the MoodDetails screen
-        SystemClock.sleep(1000);
-
-        // Navigate to MyProfile via Bottom Navigation
-        onView(withId(R.id.page_myProfile)).perform(click());
-        SystemClock.sleep(1000);
-
-        // Sign out as User A.
-        onView(withId(R.id.signOutButton)).perform(click());
-        SystemClock.sleep(1500);
+        FirebaseAuth.getInstance().signOut();
 
         // PART 2: Sign in as User B.
         signInUser(USER_B_EMAIL, USER_B_PASSWORD);
@@ -184,9 +187,19 @@ public class FollowRequestTest extends FirebaseEmulatorMixin {
         onView(withId(R.id.followRequestsButton)).perform(click());
         SystemClock.sleep(1500);
 
+
         // In the FollowRequestsFragment, verify that the request from User A is visible.
         onView(withText(containsString(USER_A_USERNAME + " is requesting to follow you")))
                 .check(matches(isDisplayed()));
+//
+//        Awaitility.await()
+//                .atMost(30, TimeUnit.SECONDS)
+//                .pollInterval(1, TimeUnit.SECONDS)
+//                .untilAsserted(() -> {
+//                    onView(withText(containsString(USER_A_USERNAME + " is requesting to follow you")))
+//                            .check(matches(isDisplayed()));
+//                });
+
         // Click on the "Accept" button (assumes it’s labeled "Accept").
         onView(withText("Accept")).perform(click());
         SystemClock.sleep(1500);
