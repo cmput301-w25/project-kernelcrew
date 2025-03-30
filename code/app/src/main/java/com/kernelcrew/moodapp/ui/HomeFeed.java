@@ -39,7 +39,8 @@ import java.util.Set;
 import com.google.android.gms.tasks.Task;
 
 /**
- * A fragment that displays the user's feed: mood events from people the user is following.
+ * A fragment that displays the user's feed: mood events from people the user is
+ * following.
  */
 public class HomeFeed extends DefaultFilterBarFragment
         implements FilterBarFragment.OnUserSearchListener, FilterBarFragment.OnFilterChangedListener {
@@ -57,7 +58,7 @@ public class HomeFeed extends DefaultFilterBarFragment
     @SuppressLint("ClickableViewAccessibility")
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
+            Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_home_feed, container, false);
 
         auth = FirebaseAuth.getInstance();
@@ -148,10 +149,11 @@ public class HomeFeed extends DefaultFilterBarFragment
                         userIds.add(followedUser.getUid());
                     }
 
-                    registration =
-                            MoodEventProvider.getInstance().listenToMoodEventsForUsers(userIds, filter, 3, new CombinedListener() {
+                    registration = MoodEventProvider.getInstance().listenToMoodEventsForUsers(userIds, filter, 3,
+                            new CombinedListener() {
                                 @Override
-                                public void onEvent(List<DocumentSnapshot> documents, FirebaseFirestoreException error) {
+                                public void onEvent(List<DocumentSnapshot> documents,
+                                        FirebaseFirestoreException error) {
                                     if (error != null) {
                                         Log.e("HomeFeed", "Error listening to mood events", error);
                                         return;
@@ -226,7 +228,15 @@ public class HomeFeed extends DefaultFilterBarFragment
 
             public void bind(User user) {
                 usernameTextView.setText(user.getName());
+
+                itemView.setOnClickListener(v -> {
+                    Bundle args = new Bundle();
+                    args.putString("uid", user.getUid());
+                    NavController navController = Navigation.findNavController(itemView);
+                    navController.navigate(R.id.otherUserProfile, args);
+                });
             }
+
         }
     }
 }

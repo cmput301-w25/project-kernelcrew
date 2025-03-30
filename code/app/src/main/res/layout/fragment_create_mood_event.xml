@@ -38,13 +38,41 @@
             android:orientation="vertical">
 
             <androidx.fragment.app.FragmentContainerView
-                android:id="@+id/location_fragment"
-                android:name="com.kernelcrew.moodapp.ui.LocationFragment"
+                android:id="@+id/mood_event_form"
+                android:name="com.kernelcrew.moodapp.ui.MoodEventForm"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content" />
+                android:layout_height="wrap_content"
+                tools:layout="@layout/fragment_mood_event_form" />
 
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>
+
+    <com.google.android.material.button.MaterialButtonToggleGroup
+        android:id="@+id/createMoodEvent_visibilityButton"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toTopOf="@id/createMoodEvent_submitButton"
+        app:checkedButton="@id/visible_public_button"
+        app:singleSelection="true">
+
+        <Button
+            android:id="@+id/visible_public_button"
+            style="?attr/materialButtonOutlinedStyle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            app:icon="@drawable/ic_person"
+            android:text="Public" />
+
+        <Button
+            android:id="@+id/visible_private_button"
+            style="?attr/materialButtonOutlinedStyle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            app:icon="@drawable/ic_lock"
+            android:text="Private" />
+    </com.google.android.material.button.MaterialButtonToggleGroup>
 
     <Button
         android:id="@+id/createMoodEvent_submitButton"

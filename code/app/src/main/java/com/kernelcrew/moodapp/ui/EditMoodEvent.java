@@ -10,7 +10,7 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentContainerView;
+import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 
 import com.google.android.material.button.MaterialButton;
@@ -63,10 +63,8 @@ public class EditMoodEvent extends Fragment {
         super.onViewCreated(view, savedInstanceState);
         navBarController.bind(view);
 
-        FragmentContainerView formFragmentContainer =
-                view.findViewById(R.id.mood_event_form);
-        assert formFragmentContainer != null;
-        MoodEventForm form = formFragmentContainer.getFragment();
+        // Get fragment using child fragment manager instead of container's getFragment()
+        MoodEventForm form = (MoodEventForm) getChildFragmentManager().findFragmentById(R.id.mood_event_form);
         assert form != null;
 
         moodEventId = getArguments().getString("moodEventId");
@@ -77,7 +75,7 @@ public class EditMoodEvent extends Fragment {
 
         provider.getMoodEvent(moodEventId)
                 .addOnSuccessListener(moodEvent ->
-                    form.bind(new MoodEventForm.MoodEventDetails(moodEvent)));
+                        form.bind(new MoodEventForm.MoodEventDetails(moodEvent)));
 
         MaterialButton submitButton = view.findViewById(R.id.editMood_submitButton);
         submitButton.setOnClickListener(v -> {

@@ -5,7 +5,6 @@ import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentContainerView;
 import androidx.navigation.Navigation;
 
 import android.util.Log;
@@ -64,15 +63,8 @@ public class CreateMoodEvent extends Fragment {
         super.onViewCreated(view, savedInstanceState);
         navBarController.bind(view);
 
-        // Get fragments
-        FragmentContainerView formFragmentContainer = view.findViewById(R.id.mood_event_form);
-
-        // Check nulls first
-        assert formFragmentContainer != null;
-
-        MoodEventForm form = formFragmentContainer.getFragment();
-
-        // Check nulls again
+        // Get fragment using child fragment manager instead of container's getFragment()
+        MoodEventForm form = (MoodEventForm) getChildFragmentManager().findFragmentById(R.id.mood_event_form);
         assert form != null;
 
         MaterialButton submitButton = view.findViewById(R.id.createMoodEvent_submitButton);

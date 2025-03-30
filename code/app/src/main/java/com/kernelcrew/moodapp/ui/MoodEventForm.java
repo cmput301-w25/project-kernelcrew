@@ -182,14 +182,16 @@ public class MoodEventForm extends Fragment implements LocationUpdateListener {
             updateResetPhotoVisibility();
         }
 
-        visibilityToggle.clearChecked();
-        switch (details.visibility) {
-            case PUBLIC:
-                visibilityToggle.check(R.id.visible_public_button);
-                break;
-            case PRIVATE:
-                visibilityToggle.check(R.id.visible_private_button);
-                break;
+        if (visibilityToggle != null) {
+            visibilityToggle.clearChecked();
+            switch (details.visibility) {
+                case PUBLIC:
+                    visibilityToggle.check(R.id.visible_public_button);
+                    break;
+                case PRIVATE:
+                    visibilityToggle.check(R.id.visible_private_button);
+                    break;
+            }
         }
     }
 
@@ -234,11 +236,16 @@ public class MoodEventForm extends Fragment implements LocationUpdateListener {
             return null;
         }
 
-        int checkedButton = visibilityToggle.getCheckedButtonId();
-        if (checkedButton == R.id.visible_public_button) {
+        if (visibilityToggle != null) {
+            int checkedButton = visibilityToggle.getCheckedButtonId();
+            if (checkedButton == R.id.visible_public_button) {
+                details.visibility = MoodEventVisibility.PUBLIC;
+            } else if (checkedButton == R.id.visible_private_button) {
+                details.visibility = MoodEventVisibility.PRIVATE;
+            }
+        } else {
+            // Default to PUBLIC if the toggle is not present (e.g. in edit mode)
             details.visibility = MoodEventVisibility.PUBLIC;
-        } else if (checkedButton == R.id.visible_private_button) {
-            details.visibility = MoodEventVisibility.PRIVATE;
         }
 
         details.lat = currentLatitude;
@@ -266,9 +273,8 @@ public class MoodEventForm extends Fragment implements LocationUpdateListener {
         } else {
             Log.e("MoodEventForm", "Location fragment container not found in layout.");
         }
-        
-        super.onViewCreated(view, savedInstanceState);
 
+        super.onViewCreated(view, savedInstanceState);
 
         FragmentContainerView emotionPickerFragmentContainer =
                 view.findViewById(R.id.emotion_picker);
@@ -294,11 +300,9 @@ public class MoodEventForm extends Fragment implements LocationUpdateListener {
         photoResetButton = view.findViewById(R.id.photo_reset_button);
         photoResetButton.setOnClickListener(_v -> resetPhoto());
         photoButtonError = view.findViewById(R.id.photo_button_error);
-        visibilityToggle = view.findViewById(R.id.visibility_button);
+        // Replace below line with a lookup from parent activity (ID from create mood layout)
+        visibilityToggle = getActivity().findViewById(R.id.createMoodEvent_visibilityButton);
         updateResetPhotoVisibility();
-        
-
-
     }
 
     @Override

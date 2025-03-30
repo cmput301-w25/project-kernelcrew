@@ -44,12 +44,6 @@
                 android:layout_height="wrap_content"
                 tools:layout="@layout/fragment_mood_event_form" />
 
-            <androidx.fragment.app.FragmentContainerView
-                android:id="@+id/location_fragment"
-                android:name="com.kernelcrew.moodapp.ui.LocationFragment"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content" />
-
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>
 
