@@ -85,8 +85,8 @@ public class EditMoodEventTest extends FirebaseEmulatorMixin {
         onView(withId(R.id.btnEditMood)).perform(click());
         SystemClock.sleep(3000);
         onView(withId(R.id.toggle_shame)).perform(click());
-        onView(withId(R.id.visible_private_button)).perform(scrollTo()).perform(click());
-        onView(withId(R.id.createMoodEvent_submitButton)).perform(scrollTo()).perform(click());
+        onView(withId(R.id.visible_private_button)).perform(click());
+        onView(withId(R.id.editMood_submitButton)).perform(click());
 
         await().atMost(10, TimeUnit.SECONDS)
                 .untilAsserted(() -> {
@@ -96,7 +96,7 @@ public class EditMoodEventTest extends FirebaseEmulatorMixin {
                     assertEquals(1, moodEvents.size());
                     MoodEvent moodEvent = moodEvents.get(0).toObject(MoodEvent.class);
                     assertEquals(Emotion.SHAME, moodEvent.getEmotion());
-                    assertEquals(MoodEventVisibility.PUBLIC, moodEvent.getVisibility());
+                    assertEquals(MoodEventVisibility.PRIVATE, moodEvent.getVisibility());
                 });
     }
 
@@ -128,5 +128,9 @@ public class EditMoodEventTest extends FirebaseEmulatorMixin {
                 }
             }
         };
+    }
+
+    public void setupKeyboardHiding(View view) {
+        // No-op for testing
     }
 }

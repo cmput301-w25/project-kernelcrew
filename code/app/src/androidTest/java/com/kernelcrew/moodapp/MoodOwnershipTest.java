@@ -101,7 +101,7 @@ public class MoodOwnershipTest extends FirebaseEmulatorMixin {
     }
 
     /**
-     * Combined test: 
+     * Combined test:
      * - Sign up as User1, create a mood via GUI and verify that Edit/Delete buttons are displayed.
      * - Sign out User1.
      * - Sign up as User2, view User1’s mood details, and verify that Edit/Delete buttons are not displayed.

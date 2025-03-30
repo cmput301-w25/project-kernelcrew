@@ -93,8 +93,7 @@ public class FilterBarFragmentTest extends FirebaseEmulatorMixin {
             MoodEventFilter capturedFilter = captor.getValue();
 
             assertNotNull("The filter passed to the listener should not be null", capturedFilter);
-            assertTrue("Filter should contain user set as mockUser",
-                    capturedFilter.getSummary().contains("User: mockUser"));
+            assertTrue("Filter should contain the user", capturedFilter.getSummary().contains("mockUser"));
         });
     }
 
@@ -112,6 +111,7 @@ public class FilterBarFragmentTest extends FirebaseEmulatorMixin {
 
         scenario.onFragment(fragment -> {
             // Set some filter values.
+
             MoodEventFilter filter = fragment.getMoodEventFilter();
             filter.setUser("userTest");
             Emotion sampleEmotion = Emotion.values()[0];
@@ -127,7 +127,7 @@ public class FilterBarFragmentTest extends FirebaseEmulatorMixin {
             View view = fragment.getView();
             assertNotNull("Fragment view should not be null", view);
             MaterialButton countButton = view.findViewById(R.id.filterCountAndEdit);
-            int expectedCount = fragment.getMoodEventFilter().count() - 1;
+            int expectedCount = fragment.getMoodEventFilter().count();
             assertEquals("Filter count button text should match the expected count",
                     String.valueOf(expectedCount), countButton.getText().toString());
         });

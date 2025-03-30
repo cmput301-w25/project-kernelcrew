@@ -197,7 +197,7 @@ public class OtherUserProfileMoodTest extends FirebaseEmulatorMixin {
         onView(withId(R.id.username_text))
                 .check(matches(withText(containsString(USER2_USERNAME))));
         onView(withId(R.id.email_text))
-                .check(matches(withText(USER2_EMAIL)));
+                .check(matches(withText("automatedtests2@kernelcrew.com")));
 
         // Check that the RecyclerView for public moods displays at least 2 items.
         onView(withId(R.id.public_moods_recycler_view))

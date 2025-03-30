@@ -147,8 +147,9 @@ public abstract class FilterBarFragment extends Fragment {
         HorizontalScrollView filterButtonsContainer = view.findViewById(R.id.filterButtonsContainer);
 
         // Call the abstract setupUI to enforce keyboard-hiding and other UI setups.
-        assert getParentFragment() != null;
-        setupKeyboardHiding(getParentFragment().getView());
+        if (getParentFragment() != null) {
+            setupKeyboardHiding(getParentFragment().getView());
+        }
 
         // -- Event Listeners -----------------
         // Search bar listeners
