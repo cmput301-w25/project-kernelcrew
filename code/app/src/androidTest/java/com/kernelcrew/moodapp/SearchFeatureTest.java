@@ -80,20 +80,23 @@ public class SearchFeatureTest extends FirebaseEmulatorMixin {
             onView(withId(R.id.emotion_reason))
                     .perform(closeSoftKeyboard());
             onView(withId(R.id.toggle_happy)).perform(click());
-            onView(withId(R.id.submit_button)).perform(click());
+            onView(withId(R.id.submit_button))
+                    .perform(scrollTo(), click());
             SystemClock.sleep(3000);
         }
         // Now search by reason.
         String searchTerm = "lunch";
         onView(withId(R.id.filterSearchEditText))
-                .perform(replaceText(searchTerm));
-        onView(withId(R.id.filterSearchEditText))
-                .perform(closeSoftKeyboard());
+                .perform(replaceText(searchTerm), closeSoftKeyboard());
         onView(withId(R.id.searchReason)).perform(click());
         SystemClock.sleep(2000);
-        // Verify that the HomeFeed RecyclerView displays an item containing the search term.
+        // Click the first mood item’s "View Details" button (adjust the child view id if needed)
         onView(withId(R.id.moodRecyclerView))
-                .check(matches(hasDescendant(withText(containsString(searchTerm)))));
+                .perform(actionOnItemAtPosition(0, clickChildViewWithId(R.id.viewDetailsButton)));
+        SystemClock.sleep(5000);
+        // Verify that the Mood Details screen displays a reason containing the search term.
+        onView(withId(R.id.tvReasonValue))
+                .check(matches(withText(containsString(searchTerm))));
     }
 
     /**
