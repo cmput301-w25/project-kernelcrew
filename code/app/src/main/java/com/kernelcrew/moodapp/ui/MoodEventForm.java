@@ -53,6 +53,7 @@ import java.util.Locale;
  * When editing a mood event, update the form state per a mood event using the .bind() method.
  */
 public class MoodEventForm extends Fragment implements LocationUpdateListener {
+    private Button addLocation;
     private EmotionPickerFragment emotionPickerFragment;
     private AutoCompleteTextView situationAutoComplete;
     private TextInputEditText reasonEditText;
@@ -60,8 +61,6 @@ public class MoodEventForm extends Fragment implements LocationUpdateListener {
     private Double currentLongitude = null;
     private Bitmap photo;
     private ImageButton photoButton;
-    private ImageButton addLocation;
-
     private Button photoResetButton;
     private TextView photoButtonError;
     private MaterialButtonToggleGroup visibilityToggle;
@@ -179,6 +178,7 @@ public class MoodEventForm extends Fragment implements LocationUpdateListener {
             // Update UI to show location is set
             this.currentLatitude = details.lat;
             this.currentLongitude = details.lon;
+
         } else {
             // locationStatusTextView.setText("No location set");
         }
@@ -270,8 +270,20 @@ public class MoodEventForm extends Fragment implements LocationUpdateListener {
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
-        super.onViewCreated(view, savedInstanceState);
 
+        FragmentContainerView locationFragmentContainer = view.findViewById(R.id.location_fragment);
+        if (locationFragmentContainer != null) {
+            locationFragment = locationFragmentContainer.getFragment();
+            if (locationFragment != null) {
+                locationFragment.setUpdateListener(this);
+            } else {
+                Log.e("MoodEventForm", "LocationFragment not attached. Ensure it's specified in the layout.");
+            }
+        } else {
+            Log.e("MoodEventForm", "Location fragment container not found in layout.");
+        }
+        
+        super.onViewCreated(view, savedInstanceState);
 
 
         Button submitButton = view.findViewById(R.id.submit_button);
@@ -304,21 +316,8 @@ public class MoodEventForm extends Fragment implements LocationUpdateListener {
         visibilityToggle = view.findViewById(R.id.visibility_button);
 
         updateResetPhotoVisibility();
+        
 
-        FragmentContainerView locationFragmentContainer = view.findViewById(R.id.location_fragment);
-        if (locationFragmentContainer == null) {
-            Log.e("MoodEventForm", "Location fragment container not found in layout.");
-            return;
-        }
-
-        locationFragment = locationFragmentContainer.getFragment();
-        if (locationFragment == null) {
-            Log.e("MoodEventForm", "LocationFragment not attached. Ensure it's specified in the layout.");
-            return;
-        }
-
-// Set the listener so LocationFragment can send updates here
-        locationFragment.setUpdateListener(this);
 
     }
     @Override

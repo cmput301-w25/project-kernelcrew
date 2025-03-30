@@ -75,6 +75,7 @@ public class CreateMoodEvent extends Fragment {
 
         // First set update listener to connect fragments
 
+
         // Then set submit callback
         form.onSubmit(this::handleSubmit);
 
