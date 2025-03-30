@@ -13,16 +13,6 @@
         android:orientation="vertical"
         android:padding="8dp">
 
-        <TextView
-            android:id="@+id/textView4"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="How are you feeling?"
-            android:layout_marginHorizontal="10dp"
-            android:textSize="20sp"
-            android:layout_marginTop="10dp"
-            android:textStyle="bold" />
-
         <androidx.fragment.app.FragmentContainerView
             android:id="@+id/emotion_picker"
             android:name="com.kernelcrew.moodapp.ui.components.EmotionPickerFragment"
@@ -30,16 +20,6 @@
             android:layout_height="wrap_content"
             android:padding="10dp"
             android:layout_marginTop="8dp" />
-
-        <TextView
-            android:id="@+id/textView5"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="What caused this feeling?"
-            android:textSize="20sp"
-            android:layout_marginTop="10dp"
-            android:layout_marginHorizontal="10dp"
-            android:textStyle="bold" />
 
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/layout_situation"
@@ -68,16 +48,6 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content" />
         </com.google.android.material.textfield.TextInputLayout>
-
-        <TextView
-            android:id="@+id/textView6"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Are there asscociated items?"
-            android:layout_marginHorizontal="10dp"
-            android:layout_marginTop="10dp"
-            android:textSize="20sp"
-            android:textStyle="bold" />
 
         <TextView
             android:id="@+id/textView7"

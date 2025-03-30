@@ -9,6 +9,8 @@ import static org.awaitility.Awaitility.await;
 import static org.hamcrest.Matchers.allOf;
 import static org.junit.Assert.*;
 
+import android.os.SystemClock;
+
 import androidx.fragment.app.FragmentContainerView;
 import androidx.test.espresso.Espresso;
 import androidx.test.ext.junit.rules.ActivityScenarioRule;
@@ -136,16 +138,18 @@ public class CreateMoodEventTest extends FirebaseEmulatorMixin {
     @Test
     public void createNewMoodReasonTooManyChars() {
         onView(withId(R.id.page_createMoodEvent)).perform(click());
+        SystemClock.sleep(1000);
 
         onView(withId(R.id.toggle_happy)).perform(click());
 
         onView(withId(R.id.emotion_reason))
-                .perform(scrollTo(), typeText("This is a really long string with too many characters when will it end. I have to make this stretch until 200 characters which is absurdly long so the text field should be able to handle almost all messages -- except for this one! Just a few more characters to go"));
+                .perform(scrollTo(), replaceText("This is a really long string with too many characters when will it end. I have to make this stretch until 200 characters which is absurdly long so the text field should be able to handle almost all messages -- except for this one! Just a few more characters to go"));
         Espresso.closeSoftKeyboard();
 
         onView(allOf(withId(R.id.createMoodEvent_submitButton)))
                 .perform(click());
         onView(withId(R.id.emotion_reason))
+                .perform(scrollTo())
                 .check(matches(hasErrorText("Reason must be less than 200 characters")));
     }
 
@@ -158,7 +162,7 @@ public class CreateMoodEventTest extends FirebaseEmulatorMixin {
         onView(withId(R.id.toggle_anger)).perform(click());
 
         onView(withId(R.id.emotion_reason))
-                .perform(typeText("AAAAAAAAAAAAAAAAAAAAAAAAAAA"));
+                .perform(scrollTo(), typeText("AAAAAAAAAAAAAAAAAAAAAAAAAAA"));
         Espresso.closeSoftKeyboard();
 
         onView(allOf(withId(R.id.createMoodEvent_submitButton)))
