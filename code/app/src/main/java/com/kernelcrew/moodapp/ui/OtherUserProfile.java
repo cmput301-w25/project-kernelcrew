@@ -26,6 +26,7 @@ import com.kernelcrew.moodapp.R;
 import com.kernelcrew.moodapp.data.FollowProvider;
 import com.kernelcrew.moodapp.data.MoodEvent;
 import com.kernelcrew.moodapp.data.UserProvider;
+import com.kernelcrew.moodapp.utils.NotificationHelper;
 
 import java.util.ArrayList;
 import java.util.List;
