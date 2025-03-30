@@ -19,9 +19,6 @@ import com.google.android.material.navigation.NavigationBarView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.ListenerRegistration;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.firestore.DocumentSnapshot;
-import com.google.firebase.firestore.ListenerRegistration;
 import com.kernelcrew.moodapp.R;
 import com.kernelcrew.moodapp.data.MoodEvent;
 import com.kernelcrew.moodapp.data.MoodEventProvider;
@@ -41,7 +38,6 @@ public class MoodHistory extends Fragment implements MoodHistoryAdapter.OnItemCl
     NavigationBarView navigationBar;
 
     private BottomNavBarController navBarController;
-
 
     /** Adapter for binding mood data to the RecyclerView */
     public MoodHistoryAdapter adapter;
@@ -85,7 +81,7 @@ public class MoodHistory extends Fragment implements MoodHistoryAdapter.OnItemCl
         // When FilterBar changes, build the Firestore query and listen for changes
         if (searchNFilterFragment != null) {
             searchNFilterFragment.setOnFilterChangedListener(filter -> {
-                 filter.setUser(FirebaseAuth.getInstance().getCurrentUser().getUid());
+                filter.setUser(FirebaseAuth.getInstance().getCurrentUser().getUid());
 
                 // Remove any existing snapshot listener to avoid duplicates
                 if (snapshotListener != null) {
@@ -110,13 +106,25 @@ public class MoodHistory extends Fragment implements MoodHistoryAdapter.OnItemCl
                             for (DocumentSnapshot doc : snapshots.getDocuments()) {
                                 MoodEvent mood = doc.toObject(MoodEvent.class);
                                 if (mood != null) {
-                                    // Keep track of document ID if you need it
                                     mood.setId(doc.getId());
                                     moodList.add(mood);
                                 }
                             }
 
-                            // If you want them sorted newest-first by timestamp, do so here:
+                            // Apply client-side filtering based on search query from reason
+                            String searchWord = filter.getSearchQuery().trim().toLowerCase();
+                            if (!searchWord.isEmpty()) {
+                                List<MoodEvent> filteredList = new ArrayList<>();
+                                for (MoodEvent m : moodList) {
+                                    if (m.getReason() != null &&
+                                            m.getReason().toLowerCase().contains(searchWord)) {
+                                        filteredList.add(m);
+                                    }
+                                }
+                                moodList = filteredList;
+                            }
+
+                            // Sort newest-first by timestamp
                             moodList.sort((m1, m2) -> Long.compare(m2.getTimestamp(), m1.getTimestamp()));
 
                             // Update the adapter
@@ -134,10 +142,6 @@ public class MoodHistory extends Fragment implements MoodHistoryAdapter.OnItemCl
         navBarController.bind(view);
     }
 
-    /**
-     * We no longer need onResume/onPause to set/remove a Firestore listener because
-     * the FilterBarFragment's callback sets up the listener whenever the user changes filters.
-     */
     @Override
     public void onResume() {
         super.onResume();
@@ -153,9 +157,6 @@ public class MoodHistory extends Fragment implements MoodHistoryAdapter.OnItemCl
         }
     }
 
-    /**
-     * Called when a user clicks on a mood event row. Navigates to the mood details screen.
-     */
     @Override
     public void onItemClick(String moodEventId) {
         // Navigate to MoodDetails fragment with the moodEventId as an argument
