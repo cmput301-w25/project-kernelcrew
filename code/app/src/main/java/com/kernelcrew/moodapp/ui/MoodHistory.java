@@ -84,8 +84,6 @@ public class MoodHistory extends DefaultFilterBarFragment implements MoodHistory
                 // Set the filter to only show the current user's mood events
                 String currentUserId = Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid();
                 filter.setUser(currentUserId);
-                // Clear any reason query so that local filtering doesn't unintentionally remove events
-                filter.setReasonQuery(null);
 
                 if (snapshotListener != null) {
                     snapshotListener.remove();
@@ -111,7 +109,6 @@ public class MoodHistory extends DefaultFilterBarFragment implements MoodHistory
                     }
                     Log.d("MoodHistory", "Fetched " + moodList.size() + " mood events from Firestore.");
 
-                    // Use the updated local search that accepts only a list of MoodEvent objects.
                     List<MoodEvent> localFiltered = searchNFilterFragment.applyLocalSearch(moodList);
                     Log.d("MoodHistory", "After local filtering, " + localFiltered.size() + " events remain.");
                     adapter.setMoods(localFiltered);

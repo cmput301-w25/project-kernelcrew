@@ -21,6 +21,18 @@ public class MoodEventFilter implements Cloneable {
     private final FilterCriteria criteria = new FilterCriteria();
     private String reasonQuery;
 
+    public Double getFilterLatitude() {
+        return criteria.location != null ? criteria.location.latitude : null;
+    }
+
+    public Double getFilterLongitude() {
+        return criteria.location != null ? criteria.location.longitude : null;
+    }
+
+    public Double getFilterRadius() {
+        return criteria.location != null ? criteria.location.radius : null;
+    }
+
     private static class FilterCriteria implements Cloneable {
         Set<Emotion> emotions = new HashSet<>();
         Set<String> socialSituations = new HashSet<>();
@@ -376,7 +388,7 @@ public class MoodEventFilter implements Cloneable {
             query = query.whereIn("socialSituation", new ArrayList<>(criteria.socialSituations));
         }
 
-        if (criteria.limit != null) {
+        if (criteria.limit != null && criteria.limit != 0) {
             query = query.limit(criteria.limit);
         }
 

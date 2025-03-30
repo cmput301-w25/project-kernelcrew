@@ -155,11 +155,10 @@ public abstract class FilterBarFragment extends Fragment {
         searchEditText.addTextChangedListener(new TextWatcher() {
             @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) { }
             @Override public void onTextChanged(CharSequence s, int start, int before, int count) {
-                // Post a delayed search query to reduce rapid invocations.
                 scheduleSearch(s.toString());
             }
             @Override public void afterTextChanged(Editable s) {
-                // No additional action needed; onTextChanged handles the search delay.
+                handleSearchText(s.toString());
             }
         });
 
@@ -191,6 +190,7 @@ public abstract class FilterBarFragment extends Fragment {
         });
 
         // Toggle for "Search Reason"
+        reasonSearchActive = true;
         searchReason.setChecked(true);
         searchReason.setOnClickListener(v -> {
             if (!reasonSearchActive) {
@@ -527,7 +527,7 @@ public abstract class FilterBarFragment extends Fragment {
         if (userSearchActive) {
             performUserSearch(typed);
         } else if (reasonSearchActive) {
-            getMoodEventFilter().setReasonQuery(typed.isEmpty() ? null : typed);
+            getMoodEventFilter().setReasonQuery(typed);
             notifyFilterChanged();
         }
     }
