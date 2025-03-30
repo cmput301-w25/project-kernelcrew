@@ -24,6 +24,7 @@ import com.kernelcrew.moodapp.R;
 import com.kernelcrew.moodapp.data.Emotion;
 import com.kernelcrew.moodapp.data.MoodEventFilter;
 import com.kernelcrew.moodapp.data.MoodEventProvider;
+import com.kernelcrew.moodapp.ui.MoodHistory;
 
 import java.util.Calendar;
 import java.util.Date;
@@ -59,6 +60,9 @@ public class FilterBarFragment extends Fragment {
     private MaterialButton filterCountAndEdit;
     private MaterialButton filterTimeRange;
     private MaterialButton filterLocation;
+    // UI elements for search type selection
+    private MaterialButton searchReason;
+    private MaterialButton searchUser;
 
     /**
      * Inflates the filter bar layout and initializes filter options.
@@ -78,15 +82,25 @@ public class FilterBarFragment extends Fragment {
         filterCountAndEdit = view.findViewById(R.id.filterCountAndEdit);
         filterTimeRange = view.findViewById(R.id.filter_timeRange);
         filterLocation = view.findViewById(R.id.filter_location);
+        // Retrieve the search type buttons; ensure these IDs exist in your layout.
+        searchReason = view.findViewById(R.id.searchReason);
+        searchUser = view.findViewById(R.id.searchUser);
 
-        // -- Event Listeners -----------------
+        // If this FilterBarFragment is used in MoodHistory, hide the searchUser button and rename searchReason to "Moods"
+        if (getParentFragment() instanceof MoodHistory) {
+            searchUser.setVisibility(View.GONE);
+        }
+
         // Search bar listener
         searchEditText.addTextChangedListener(new TextWatcher() {
             @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {}
-            @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) { }
-            @Override public void afterTextChanged(Editable s) {
-                // TODO: Implement Search
+            public void onTextChanged(CharSequence s, int start, int before, int count) { }
+            @Override 
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) { }
+            @Override 
+            public void afterTextChanged(Editable s) {
+                getMoodEventFilter().setSearchQuery(s.toString());
+                notifyFilterChanged();
             }
         });
 
@@ -117,9 +131,6 @@ public class FilterBarFragment extends Fragment {
             popup.show();
         });
 
-        // Taha used the following resources,
-        // https://stackoverflow.com/questions/21329132/android-custom-dropdown-popup-menu
-        // https://stackoverflow.com/questions/13784088/setting-popupmenu-menu-items-programmatically
         // Emotion filter popup menu
         filterEmotion.setOnClickListener(v -> {
             PopupMenu popup = new PopupMenu(requireContext(), filterEmotion);
@@ -130,34 +141,26 @@ public class FilterBarFragment extends Fragment {
                 item.setChecked(selectedEmotions.contains(emotion));
             }
 
-            // Taha used the following resources,
-            // https://stackoverflow.com/questions/29726039/how-to-prevent-popup-menu-from-closing-on-checkbox-click
-            popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
-                @Override
-                public boolean onMenuItemClick(MenuItem item) {
-                    item.setChecked(!item.isChecked());
-
-                    if (item.isChecked()) {
-                        selectedEmotions.add(Emotion.fromString(Objects.requireNonNull(item.getTitle()).toString()));
-                    } else {
-                        selectedEmotions.remove(Emotion.fromString(Objects.requireNonNull(item.getTitle()).toString()));
-                    }
-
-                    item.setShowAsAction(MenuItem.SHOW_AS_ACTION_COLLAPSE_ACTION_VIEW);
-                    item.setActionView(new View(requireContext()));
-                    item.setOnActionExpandListener(new MenuItem.OnActionExpandListener() {
-                        @Override
-                        public boolean onMenuItemActionExpand(MenuItem item) {
-                            return false;
-                        }
-
-                        @Override
-                        public boolean onMenuItemActionCollapse(MenuItem item) {
-                            return false;
-                        }
-                    });
-                    return false;
+            popup.setOnMenuItemClickListener(item -> {
+                item.setChecked(!item.isChecked());
+                if (item.isChecked()) {
+                    selectedEmotions.add(Emotion.fromString(Objects.requireNonNull(item.getTitle()).toString()));
+                } else {
+                    selectedEmotions.remove(Emotion.fromString(Objects.requireNonNull(item.getTitle()).toString()));
                 }
+                item.setShowAsAction(MenuItem.SHOW_AS_ACTION_COLLAPSE_ACTION_VIEW);
+                item.setActionView(new View(requireContext()));
+                item.setOnActionExpandListener(new MenuItem.OnActionExpandListener() {
+                    @Override
+                    public boolean onMenuItemActionExpand(MenuItem item) {
+                        return false;
+                    }
+                    @Override
+                    public boolean onMenuItemActionCollapse(MenuItem item) {
+                        return false;
+                    }
+                });
+                return false;
             });
 
             popup.setOnDismissListener(menu -> {
@@ -192,7 +195,6 @@ public class FilterBarFragment extends Fragment {
                         endDate = calendar.getTime();
                         break;
                     case "This Week":
-                        // Move to the first day of the week then reset time
                         calendar.set(Calendar.DAY_OF_WEEK, calendar.getFirstDayOfWeek());
                         resetTime(calendar);
                         startDate = calendar.getTime();
@@ -209,7 +211,6 @@ public class FilterBarFragment extends Fragment {
                         endDate = calendar.getTime();
                         break;
                     case "All Time":
-                        // Clear any date range filter
                         startDate = null;
                         endDate = null;
                         break;
@@ -217,7 +218,6 @@ public class FilterBarFragment extends Fragment {
                         break;
                 }
 
-                // Update the filter with the selected date range
                 getMoodEventFilter().setDateRange(startDate, endDate);
                 notifyFilterChanged();
                 return true;
@@ -245,7 +245,6 @@ public class FilterBarFragment extends Fragment {
 
             popup.setOnMenuItemClickListener(item -> {
                 Toast.makeText(requireContext(), "Location Stuff not Implemented", Toast.LENGTH_SHORT).show();
-
                 return true;
             });
 
@@ -257,13 +256,16 @@ public class FilterBarFragment extends Fragment {
             popup.show();
         });
 
-        // ...
-        // TODO: Maybe add more filters, I do not know what/how the app will look like in the future
-        //          so currently the implementation only has filters for things I could think of.
-        // If you want to add a filter, just copy the (one of the preexisting) xml buttons and
-        //      and simply change the ID and android:text. Then use the above as a template, all the
-        //      buttons should have very similar if not the same pop-up menu logic.
-        // ...
+        // Search type button listeners
+        searchReason.setOnClickListener(v -> {
+            getMoodEventFilter().setSearchType("MOODS");
+            notifyFilterChanged();
+        });
+
+        searchUser.setOnClickListener(v -> {
+            getMoodEventFilter().setSearchType("USERS");
+            notifyFilterChanged();
+        });
 
         // Display the initial mood list with 0 filters.
         notifyFilterChanged();

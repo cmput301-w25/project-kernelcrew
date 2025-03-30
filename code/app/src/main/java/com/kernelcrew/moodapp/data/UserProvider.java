@@ -65,7 +65,7 @@ public class UserProvider {
         return followers.onSuccessTask(queryDocumentSnapshots -> {
             List<User> followersList = new ArrayList<>();
 
-            for (DocumentSnapshot doc : queryDocumentSnapshots) {
+            for (DocumentSnapshot doc : queryDocumentSnapshots.getDocuments()) {
                 String name = doc.getId();
                 Boolean isFollowingBack = doc.getBoolean("isFollowingBack");
                 if (isFollowingBack == null) {
@@ -88,7 +88,7 @@ public class UserProvider {
         return query.onSuccessTask(queryDocumentSnapshots -> {
             List<User> followingList = new ArrayList<>();
 
-            for (DocumentSnapshot doc : queryDocumentSnapshots) {
+            for (DocumentSnapshot doc : queryDocumentSnapshots.getDocuments()) {
                 String name = doc.getId();
                 Boolean isFollowed = doc.getBoolean("isFollowed");
                 if (isFollowed == null) {
@@ -137,6 +137,34 @@ public class UserProvider {
                     } else {
                         throw new Exception("User not found");
                     }
+                });
+    }
+
+    /**
+     * Search for users by username.
+     * This search is case-insensitive, partial-match and excludes the current user.
+     *
+     * @param query The search query string.
+     * @return A Task containing a list of users matching the query.
+     */
+    public Task<List<User>> searchUsers(String query) {
+        return db.collection("users")
+                .get()
+                .onSuccessTask(querySnapshot -> {
+                    List<User> users = new ArrayList<>();
+                    String lowerQuery = query.toLowerCase();
+                    FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
+                    String currentUserId = (currentUser != null) ? currentUser.getUid() : "";
+                    for (DocumentSnapshot doc : querySnapshot.getDocuments()) {
+                        if (doc.getId().equals(currentUserId)) {
+                            continue;
+                        }
+                        String name = doc.getString("username");
+                        if (name != null && name.toLowerCase().contains(lowerQuery)) {
+                            users.add(new User(doc.getId(), name, false));
+                        }
+                    }
+                    return Tasks.forResult(users);
                 });
     }
 }

@@ -5,6 +5,8 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
+import android.widget.ImageView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -14,14 +16,16 @@ import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.google.android.material.navigation.NavigationBarView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.android.material.navigation.NavigationBarView;
 import com.kernelcrew.moodapp.R;
 import com.kernelcrew.moodapp.data.FollowRequestProvider;
 import com.kernelcrew.moodapp.data.MoodEvent;
 import com.kernelcrew.moodapp.data.MoodEventProvider;
+import com.kernelcrew.moodapp.data.User;
+import com.kernelcrew.moodapp.data.UserProvider;
 import com.kernelcrew.moodapp.ui.components.FilterBarFragment;
 
 import java.util.ArrayList;
@@ -37,6 +41,7 @@ public class HomeFeed extends Fragment {
     BottomNavBarController navBarController;
     RecyclerView moodRecyclerView;
     MoodAdapter moodAdapter;
+    UserAdapter userAdapter; // adapter for user search results
 
     public static List<MoodEvent> currentFilteredList = new ArrayList<>();
 
@@ -58,7 +63,9 @@ public class HomeFeed extends Fragment {
 
         moodRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         moodAdapter = new MoodAdapter();
+        userAdapter = new UserAdapter(new ArrayList<>()); // initialize user adapter
 
+        // Initially show mood events
         moodRecyclerView.setAdapter(moodAdapter);
 
         if (user != null) {
@@ -80,10 +87,25 @@ public class HomeFeed extends Fragment {
 
         FollowRequestProvider followRequestProvider = new FollowRequestProvider(getContext());
 
-        // Listener for moodEvents collection
+        // Listener for filter changes
         if (searchNFilterFragment != null) {
             searchNFilterFragment.setOnFilterChangedListener(filter -> {
-                filter.buildQuery()
+                // Check the search type from the filter.
+                if ("USERS".equalsIgnoreCase(filter.getSearchType())) {
+                    String query = filter.getSearchQuery();
+                    UserProvider.getInstance().searchUsers(query)
+                        .addOnSuccessListener(users -> {
+                            // Switch to the user adapter and update the list
+                            userAdapter.setUsers(users);
+                            moodRecyclerView.setAdapter(userAdapter);
+                        })
+                        .addOnFailureListener(e -> {
+                            Log.w("HomeFeed", "User search failed.", e);
+                        });
+                } else {
+                    // Otherwise, perform mood event search as before
+                    moodRecyclerView.setAdapter(moodAdapter); // ensure mood adapter is active
+                    filter.buildQuery()
                         .addSnapshotListener((snapshots, error) -> {
                             if (error != null) {
                                 Log.w("HomeFeed", "Listen failed.", error);
@@ -101,9 +123,22 @@ public class HomeFeed extends Fragment {
                                     moodList.add(mood);
                                 }
                             }
-                            currentFilteredList = moodList;
-                            moodAdapter.setMoods(moodList);
-                        });
+                            // Client-side filtering based solely on reason text
+                                String searchWord = filter.getSearchQuery().trim().toLowerCase();
+                                if (!searchWord.isEmpty()) {
+                                    List<MoodEvent> filteredList = new ArrayList<>();
+                                    for (MoodEvent m : moodList) {
+                                        if (m.getReason() != null &&
+                                                m.getReason().toLowerCase().contains(searchWord)) {
+                                            filteredList.add(m);
+                                        }
+                                    }
+                                    moodList = filteredList;
+                                }
+                                currentFilteredList = moodList;
+                                moodAdapter.setMoods(moodList);
+                            });
+                }
             });
         }
 
@@ -134,5 +169,55 @@ public class HomeFeed extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         navBarController.bind(view);
+    }
+
+    // Inner adapter for displaying user search results
+    private class UserAdapter extends RecyclerView.Adapter<UserAdapter.UserViewHolder> {
+        private List<User> users;
+
+        UserAdapter(List<User> users) {
+            this.users = users;
+        }
+
+        public void setUsers(List<User> users) {
+            this.users = users;
+            notifyDataSetChanged();
+        }
+
+        @NonNull
+        @Override
+        public UserViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+            View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_user, parent, false);
+            return new UserViewHolder(view);
+        }
+
+        @Override
+        public void onBindViewHolder(@NonNull UserViewHolder holder, int position) {
+            User userItem = users.get(position);
+            holder.usernameTextView.setText(userItem.getName());
+            // When a user item is tapped, navigate to OtherUserProfile with the correct uid argument.
+            holder.itemView.setOnClickListener(v -> {
+                Bundle args = new Bundle();
+                args.putString("uid", userItem.getId());
+                NavController navController = Navigation.findNavController(requireActivity(), R.id.nav_host_fragment);
+                navController.navigate(R.id.action_homeFeed_to_otherUserProfile, args);
+            });
+        }
+
+        @Override
+        public int getItemCount() {
+            return users.size();
+        }
+
+        class UserViewHolder extends RecyclerView.ViewHolder {
+            TextView usernameTextView;
+            ImageView avatarImageView;
+
+            UserViewHolder(@NonNull View itemView) {
+                super(itemView);
+                usernameTextView = itemView.findViewById(R.id.usernameTextView);
+                avatarImageView = itemView.findViewById(R.id.avatarImageView);
+            }
+        }
     }
 }
