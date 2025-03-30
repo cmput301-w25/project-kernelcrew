@@ -165,10 +165,11 @@ public class SearchFeatureTest extends FirebaseEmulatorMixin {
         // Verify that user items appear in the RecyclerView.
         onView(withId(R.id.moodRecyclerView))
                 .check(matches(hasDescendant(withId(R.id.usernameTextView))));
+        SystemClock.sleep(3000);
 
-        // Click on the first user item.
+        // Then, click on the first user item's child view (usernameTextView).
         onView(withId(R.id.moodRecyclerView))
-                .perform(actionOnItemAtPosition(0, clickChildViewWithId(R.id.usernameTextView)));
+                .perform(actionOnItemAtPosition(0, click()));
         SystemClock.sleep(3000);
 
         // Verify that the OtherUserProfile screen displays the expected data.
