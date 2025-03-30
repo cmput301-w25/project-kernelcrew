@@ -1,7 +1,7 @@
 package com.kernelcrew.moodapp;
 
 import static androidx.test.espresso.Espresso.onView;
-import static androidx.test.espresso.action.ViewActions.closeSoftKeyboard;  // Import from ViewActions
+import static androidx.test.espresso.Espresso.closeSoftKeyboard;
 import static androidx.test.espresso.action.ViewActions.click;
 import static androidx.test.espresso.action.ViewActions.replaceText;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
@@ -38,37 +38,58 @@ public class SearchFeatureTest extends FirebaseEmulatorMixin {
 
     @BeforeClass
     public static void setUpDatabase() throws Exception {
-        // Seed your test data using your staticCreateUser() method.
+        // Seed your test data.
         staticCreateUser();
+        // Ensure that dummy user "Bob" exists (seed your database accordingly).
     }
 
     @Before
     public void signInUser() throws Exception {
-        // Wait for HomeFeed to load; assumes user is already signed in via seed data.
-        SystemClock.sleep(2000);
+        // Simulate signing in by clicking on "Sign In", filling in credentials, and tapping the sign-in button.
+        // Adjust IDs and texts as needed based on your SignInAndSignUpTest.
+        onView(withId(R.id.buttonInitialToSignIn)).perform(click());
+        onView(withId(R.id.emailSignIn)).perform(replaceText("dummy1@test.com"));
+        onView(withId(R.id.passwordSignIn)).perform(replaceText("password1"));
+        onView(withId(R.id.signInButtonAuthToHome)).perform(click());
+        SystemClock.sleep(3000);
     }
 
     /**
-     * Test 1: Home Feed Reason Search
-     * Enters a search term in the FilterBar, selects "Mood Reason" (filter type MOODS),
-     * and verifies that the HomeFeed RecyclerView is updated.
+     * Test 1: Home Feed Reason Search Test
+     * - Create a mood event with reason "Team lunch meeting".
+     * - On Home Feed, enter "lunch" in the search field and tap the "Mood Reason" button.
+     * - Verify that the created mood event is visible.
      */
     @Test
     public void testHomeFeedSearchReason() {
+        // Create a mood event via UI.
+        onView(withId(R.id.page_createMoodEvent)).perform(click());
+        SystemClock.sleep(2000);
+        String reasonText = "Team lunch meeting";
+        onView(withId(R.id.emotion_reason)).perform(replaceText(reasonText));
+        onView(withId(R.id.emotion_reason)).perform(closeSoftKeyboard());
+        onView(withId(R.id.toggle_happy)).perform(click());
+        onView(withId(R.id.submit_button)).perform(click());
+        SystemClock.sleep(3000); // Wait for mood event to appear in Home Feed
+
+        // Go back to Home Feed if needed (depends on your navigation).
+        // Now, search by reason.
         String searchTerm = "lunch";
         onView(withId(R.id.filterSearchEditText)).perform(replaceText(searchTerm));
         onView(withId(R.id.filterSearchEditText)).perform(closeSoftKeyboard());
         onView(withId(R.id.searchReason)).perform(click());
         SystemClock.sleep(2000);
-        // Verify that the RecyclerView is displayed.
-        onView(withId(R.id.moodRecyclerView)).check(matches(isDisplayed()));
+
+        // Verify that the Home Feed RecyclerView displays an item whose text contains "lunch".
+        // (Assumes that the reason is visible in the item view.)
+        onView(withId(R.id.moodRecyclerView))
+                .check(matches(hasDescendant(withText(containsString(searchTerm)))));
     }
 
     /**
-     * Test 2: User Search Navigation
-     * Enters a user query (e.g. "Bob") in the search field, taps the "Users" button,
-     * clicks on the first user result, and verifies that the OtherUserProfile screen displays
-     * the expected data.
+     * Test 2: Home Feed User Search & Navigation Test
+     * - Switch to user search by entering "Bob" and tapping the "Users" button.
+     * - Click on the first user item and verify that OtherUserProfile displays expected info.
      */
     @Test
     public void testHomeFeedSearchUserNavigation() {
@@ -77,41 +98,54 @@ public class SearchFeatureTest extends FirebaseEmulatorMixin {
         onView(withId(R.id.filterSearchEditText)).perform(closeSoftKeyboard());
         onView(withId(R.id.searchUser)).perform(click());
         SystemClock.sleep(2000);
-        // Verify that user items appear in the RecyclerView (by checking for the username view).
+        // Verify that user items are shown in the RecyclerView.
         onView(withId(R.id.moodRecyclerView)).check(matches(hasDescendant(withId(R.id.usernameTextView))));
         // Click on the first user item.
         onView(withId(R.id.moodRecyclerView))
                 .perform(actionOnItemAtPosition(0, clickChildViewWithId(R.id.usernameTextView)));
         SystemClock.sleep(2000);
-        // Verify that OtherUserProfile is displayed with expected username containing "Bob".
+        // Verify that OtherUserProfile screen is displayed with username containing "Bob".
         onView(withId(R.id.username_text)).check(matches(isDisplayed()));
-        onView(withId(R.id.username_text))
-                .check(matches(withText(containsString("Bob"))));
+        onView(withId(R.id.username_text)).check(matches(withText(containsString("Bob"))));
     }
 
     /**
-     * Test 3: Mood History Reason Search
-     * Navigates to the Mood History page, enters a reason search term, selects "Mood Reason",
-     * and verifies that the Mood History RecyclerView displays items whose reason text
-     * contains the search term.
+     * Test 3: Mood History Reason Search Test
+     * - Create a mood event with reason "Project meeting update".
+     * - Navigate to Mood History page.
+     * - Enter "meeting" in the search field and tap the "Mood Reason" button.
+     * - Verify that the mood history list displays the mood event.
      */
     @Test
     public void testMoodHistorySearchFeature() {
-        // Navigate to Mood History.
+        // Create a mood event via UI.
+        onView(withId(R.id.page_createMoodEvent)).perform(click());
+        SystemClock.sleep(2000);
+        String historyReason = "Project meeting update";
+        onView(withId(R.id.emotion_reason)).perform(replaceText(historyReason));
+        onView(withId(R.id.emotion_reason)).perform(closeSoftKeyboard());
+        onView(withId(R.id.toggle_sadness)).perform(click());
+        onView(withId(R.id.submit_button)).perform(click());
+        SystemClock.sleep(3000);
+
+        // Navigate to Mood History page via bottom navigation.
         onView(withId(R.id.bottom_navigation)).perform(click());
         SystemClock.sleep(2000);
         onView(withId(R.id.recyclerViewMoodHistory)).check(matches(isDisplayed()));
+
+        // Enter a search term (partial string from the reason).
         String historySearchTerm = "meeting";
         onView(withId(R.id.filterSearchEditText)).perform(replaceText(historySearchTerm));
         onView(withId(R.id.filterSearchEditText)).perform(closeSoftKeyboard());
         onView(withId(R.id.searchReason)).perform(click());
         SystemClock.sleep(2000);
-        // Verify that at least one item in the Mood History list displays a reason containing the search term.
+
+        // Verify that the Mood History RecyclerView displays an item with the reason containing "meeting".
         onView(withId(R.id.recyclerViewMoodHistory))
-                .check(matches(hasDescendant(withText(containsString(historySearchTerm.toLowerCase())))));
+                .check(matches(hasDescendant(withText(containsString(historySearchTerm)))));
     }
 
-    // Helper ViewAction: clicks a child view with the specified id.
+    // Helper ViewAction: clicks a child view with the specified id within a RecyclerView item.
     public static ViewAction clickChildViewWithId(final int id) {
         return new ViewAction() {
             @Override
