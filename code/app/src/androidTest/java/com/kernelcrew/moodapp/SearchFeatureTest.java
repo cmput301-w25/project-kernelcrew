@@ -21,7 +21,10 @@ import androidx.test.espresso.ViewAction;
 import androidx.test.ext.junit.rules.ActivityScenarioRule;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
+import com.google.android.gms.tasks.Tasks;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.auth.UserProfileChangeRequest;
 import com.kernelcrew.moodapp.ui.MainActivity;
 
 import org.hamcrest.Matcher;
@@ -102,41 +105,45 @@ public class SearchFeatureTest extends FirebaseEmulatorMixin {
 
     /**
      * Test 2: Home Feed User Search & Navigation Test
-     * - Signs out current user, then creates a dummy user "Bob" via the UI,
-     *   signs out "Bob", and signs back in as the default test user.
+     * - Signs out the current user.
+     * - Programmatically creates a dummy user "Bob" (with email "bob@test.com" and password "passwordBob").
+     * - Signs out "Bob" and then signs back in as the default test user.
      * - Enters "Bob" in the search field, taps the "Users" button,
      *   clicks on the first user result, and verifies that the OtherUserProfile screen displays
      *   the expected data (username containing "Bob").
      */
     @Test
-    public void testHomeFeedSearchUserNavigation() {
-        // Create dummy user "Bob"
+    public void testHomeFeedSearchUserNavigation() throws Exception {
+        // Sign out current user.
         FirebaseAuth.getInstance().signOut();
-        SystemClock.sleep(2000);
-        onView(withId(R.id.buttonInitialToSignUp)).perform(replaceText("Bob"), click());
-        onView(withId(R.id.username)).perform(replaceText("Bob"));
-        onView(withId(R.id.emailSignUp)).perform(replaceText("bob@test.com"));
-        onView(withId(R.id.passwordSignUp)).perform(replaceText("passwordBob"));
+        SystemClock.sleep(3000);
+
+        // Sign up mark
+//        onView(withId(R.id.buttonInitialToSignUp)).perform(click());
+//        onView(withId(R.id.username)).perform(replaceText("Mark"));
+//        onView(withId(R.id.emailSignUp)).perform(replaceText("mark@test.com"));
+//        onView(withId(R.id.passwordSignUp)).perform(replaceText("passwordMark"));
+//        onView(withId(R.id.signUpButtonAuthToHome)).perform(click());
+        SystemClock.sleep(3000);
+
+        onView(withId(R.id.page_myProfile)).perform(click());
+        onView(withId(R.id.signOutButton)).perform(click());
+        SystemClock.sleep(3000);
+
+        // Sign back in as the default test user.
+        onView(withId(R.id.buttonInitialToSignUp)).perform(click());
+        onView(withId(R.id.username)).perform(replaceText("dummy123"));
+        onView(withId(R.id.emailSignUp)).perform(replaceText("dummy1@test.com"));
+        onView(withId(R.id.passwordSignUp)).perform(replaceText("password1"));
         onView(withId(R.id.signUpButtonAuthToHome)).perform(click());
         SystemClock.sleep(3000);
 
-        // Sign out dummy "Bob"
-        FirebaseAuth.getInstance().signOut();
-        SystemClock.sleep(2000);
-
-        // Sign back in as default test user (e.g., "dummy1@test.com" with password "password1")
-        onView(withId(R.id.buttonInitialToSignIn)).perform(click());
-        onView(withId(R.id.emailSignIn)).perform(replaceText("dummy1@test.com"));
-        onView(withId(R.id.passwordSignIn)).perform(replaceText("password1"));
-        onView(withId(R.id.signInButtonAuthToHome)).perform(click());
-        SystemClock.sleep(3000);
-
-        // Now search for "Bob"
-        String userQuery = "Bob";
+        // Now search for a substring of Mark
+        String userQuery = "ar";
         onView(withId(R.id.filterSearchEditText)).perform(replaceText(userQuery));
         onView(withId(R.id.filterSearchEditText)).perform(closeSoftKeyboard());
         onView(withId(R.id.searchUser)).perform(click());
-        SystemClock.sleep(2000);
+        SystemClock.sleep(3000);
 
         // Verify that user items appear in the RecyclerView.
         onView(withId(R.id.moodRecyclerView))
@@ -145,12 +152,31 @@ public class SearchFeatureTest extends FirebaseEmulatorMixin {
         // Click on the first user item.
         onView(withId(R.id.moodRecyclerView))
                 .perform(actionOnItemAtPosition(0, clickChildViewWithId(R.id.usernameTextView)));
-        SystemClock.sleep(2000);
+        SystemClock.sleep(3000);
 
         // Verify that the OtherUserProfile screen is displayed with a username containing "Bob".
         onView(withId(R.id.username_text)).check(matches(isDisplayed()));
         onView(withId(R.id.username_text))
-                .check(matches(withText(containsString("Bob"))));
+                .check(matches(withText(containsString("Mark"))));
+    }
+
+    /**
+     * Helper method to sign up a user programmatically.
+     */
+    private void signUpUserProgrammatically(String email, String password, String displayName) throws Exception {
+        FirebaseAuth auth = FirebaseAuth.getInstance();
+        // Create the user.
+        Tasks.await(auth.createUserWithEmailAndPassword(email, password));
+        // Update the user's display name.
+        FirebaseUser user = auth.getCurrentUser();
+        if (user != null) {
+            UserProfileChangeRequest profileUpdates = new UserProfileChangeRequest.Builder()
+                    .setDisplayName(displayName)
+                    .build();
+            Tasks.await(user.updateProfile(profileUpdates));
+        }
+        SystemClock.sleep(3000);
+        FirebaseAuth.getInstance().signOut();
     }
 
     /**
