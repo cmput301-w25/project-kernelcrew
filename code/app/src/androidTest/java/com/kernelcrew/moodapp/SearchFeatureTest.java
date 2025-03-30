@@ -1,7 +1,7 @@
 package com.kernelcrew.moodapp;
 
 import static androidx.test.espresso.Espresso.onView;
-import static androidx.test.espresso.Espresso.closeSoftKeyboard;
+import static androidx.test.espresso.action.ViewActions.closeSoftKeyboard; // Correct import from ViewActions
 import static androidx.test.espresso.action.ViewActions.click;
 import static androidx.test.espresso.action.ViewActions.replaceText;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
@@ -38,27 +38,21 @@ public class SearchFeatureTest extends FirebaseEmulatorMixin {
 
     @BeforeClass
     public static void setUpDatabase() throws Exception {
-        // Seed your test data.
+        // Seed your test data using your staticCreateUser() method.
         staticCreateUser();
-        // Ensure that dummy user "Bob" exists (seed your database accordingly).
     }
 
     @Before
     public void signInUser() throws Exception {
-        // Simulate signing in by clicking on "Sign In", filling in credentials, and tapping the sign-in button.
-        // Adjust IDs and texts as needed based on your SignInAndSignUpTest.
-        onView(withId(R.id.buttonInitialToSignIn)).perform(click());
-        onView(withId(R.id.emailSignIn)).perform(replaceText("dummy1@test.com"));
-        onView(withId(R.id.passwordSignIn)).perform(replaceText("password1"));
-        onView(withId(R.id.signInButtonAuthToHome)).perform(click());
-        SystemClock.sleep(3000);
+        // Wait for HomeFeed to load; assumes user is already signed in via seed data.
+        SystemClock.sleep(2000);
     }
 
     /**
      * Test 1: Home Feed Reason Search Test
-     * - Create a mood event with reason "Team lunch meeting".
-     * - On Home Feed, enter "lunch" in the search field and tap the "Mood Reason" button.
-     * - Verify that the created mood event is visible.
+     * - Creates a mood event with reason "Team lunch meeting" via the UI,
+     *   then searches for "lunch" using the filter search field and tapping the "Mood Reason" button.
+     * - Verifies that the HomeFeed RecyclerView displays an item with the expected reason.
      */
     @Test
     public void testHomeFeedSearchReason() {
@@ -70,26 +64,24 @@ public class SearchFeatureTest extends FirebaseEmulatorMixin {
         onView(withId(R.id.emotion_reason)).perform(closeSoftKeyboard());
         onView(withId(R.id.toggle_happy)).perform(click());
         onView(withId(R.id.submit_button)).perform(click());
-        SystemClock.sleep(3000); // Wait for mood event to appear in Home Feed
+        SystemClock.sleep(3000);
 
-        // Go back to Home Feed if needed (depends on your navigation).
-        // Now, search by reason.
+        // Search by reason.
         String searchTerm = "lunch";
         onView(withId(R.id.filterSearchEditText)).perform(replaceText(searchTerm));
         onView(withId(R.id.filterSearchEditText)).perform(closeSoftKeyboard());
         onView(withId(R.id.searchReason)).perform(click());
         SystemClock.sleep(2000);
-
-        // Verify that the Home Feed RecyclerView displays an item whose text contains "lunch".
-        // (Assumes that the reason is visible in the item view.)
+        // Verify that at least one mood item contains the search term.
         onView(withId(R.id.moodRecyclerView))
                 .check(matches(hasDescendant(withText(containsString(searchTerm)))));
     }
 
     /**
      * Test 2: Home Feed User Search & Navigation Test
-     * - Switch to user search by entering "Bob" and tapping the "Users" button.
-     * - Click on the first user item and verify that OtherUserProfile displays expected info.
+     * - Enters a user query (e.g. "Bob") in the search field, taps the "Users" button,
+     *   clicks on the first user result, and verifies that the OtherUserProfile screen displays
+     *   the expected data (username containing "Bob").
      */
     @Test
     public void testHomeFeedSearchUserNavigation() {
@@ -98,23 +90,24 @@ public class SearchFeatureTest extends FirebaseEmulatorMixin {
         onView(withId(R.id.filterSearchEditText)).perform(closeSoftKeyboard());
         onView(withId(R.id.searchUser)).perform(click());
         SystemClock.sleep(2000);
-        // Verify that user items are shown in the RecyclerView.
-        onView(withId(R.id.moodRecyclerView)).check(matches(hasDescendant(withId(R.id.usernameTextView))));
+        // Verify that user items appear.
+        onView(withId(R.id.moodRecyclerView))
+                .check(matches(hasDescendant(withId(R.id.usernameTextView))));
         // Click on the first user item.
         onView(withId(R.id.moodRecyclerView))
                 .perform(actionOnItemAtPosition(0, clickChildViewWithId(R.id.usernameTextView)));
         SystemClock.sleep(2000);
-        // Verify that OtherUserProfile screen is displayed with username containing "Bob".
+        // Verify that OtherUserProfile screen is displayed with expected username containing "Bob".
         onView(withId(R.id.username_text)).check(matches(isDisplayed()));
-        onView(withId(R.id.username_text)).check(matches(withText(containsString("Bob"))));
+        onView(withId(R.id.username_text))
+                .check(matches(withText(containsString("Bob"))));
     }
 
     /**
      * Test 3: Mood History Reason Search Test
-     * - Create a mood event with reason "Project meeting update".
-     * - Navigate to Mood History page.
-     * - Enter "meeting" in the search field and tap the "Mood Reason" button.
-     * - Verify that the mood history list displays the mood event.
+     * - Creates a mood event with reason "Project meeting update",
+     *   navigates to the Mood History page, enters "meeting" as a search term,
+     *   taps the "Mood Reason" button, and verifies that the mood history list is filtered accordingly.
      */
     @Test
     public void testMoodHistorySearchFeature() {
@@ -128,19 +121,18 @@ public class SearchFeatureTest extends FirebaseEmulatorMixin {
         onView(withId(R.id.submit_button)).perform(click());
         SystemClock.sleep(3000);
 
-        // Navigate to Mood History page via bottom navigation.
+        // Navigate to Mood History.
         onView(withId(R.id.bottom_navigation)).perform(click());
         SystemClock.sleep(2000);
         onView(withId(R.id.recyclerViewMoodHistory)).check(matches(isDisplayed()));
 
-        // Enter a search term (partial string from the reason).
+        // Enter search term.
         String historySearchTerm = "meeting";
         onView(withId(R.id.filterSearchEditText)).perform(replaceText(historySearchTerm));
         onView(withId(R.id.filterSearchEditText)).perform(closeSoftKeyboard());
         onView(withId(R.id.searchReason)).perform(click());
         SystemClock.sleep(2000);
-
-        // Verify that the Mood History RecyclerView displays an item with the reason containing "meeting".
+        // Verify that at least one item in the Mood History list contains the search term.
         onView(withId(R.id.recyclerViewMoodHistory))
                 .check(matches(hasDescendant(withText(containsString(historySearchTerm)))));
     }
