@@ -26,7 +26,6 @@ import com.kernelcrew.moodapp.R;
 import com.kernelcrew.moodapp.data.FollowProvider;
 import com.kernelcrew.moodapp.data.MoodEvent;
 import com.kernelcrew.moodapp.data.UserProvider;
-import com.kernelcrew.moodapp.utils.NotificationHelper;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -96,18 +95,15 @@ public class OtherUserProfile extends Fragment {
             String currentUid = currentUser.getUid();
             FollowProvider provider = FollowProvider.getInstance();
 
-            // Check if the user is following
             provider.isFollowing(currentUid, uidToLoad)
                     .addOnSuccessListener(isFollowing -> {
                         if (isFollowing) {
                             followButton.setText("Unfollow");
-                            followButton.setOnClickListener(v -> {
-                                provider.unfollow(currentUid, uidToLoad)
-                                        .addOnSuccessListener(a -> {
-                                            followButton.setText("Follow");
-                                        })
-                                        .addOnFailureListener(e -> Log.e(TAG, "Unfollow failed", e));
-                            });
+                            followButton.setOnClickListener(v ->
+                                    provider.unfollow(currentUid, uidToLoad)
+                                            .addOnSuccessListener(a -> followButton.setText("Follow"))
+                                            .addOnFailureListener(e -> Log.e(TAG, "Unfollow failed", e))
+                            );
                         } else {
                             provider.hasPendingRequest(uidToLoad, currentUid)
                                     .addOnSuccessListener(isRequested -> {
@@ -121,7 +117,7 @@ public class OtherUserProfile extends Fragment {
                                                 provider.sendRequest(uidToLoad, currentUid)
                                                         .addOnSuccessListener(a -> {
                                                             followButton.setText("Requested");
-                                                            followButton.setEnabled(false);  // Disable button after requesting
+                                                            followButton.setEnabled(false);
                                                         })
                                                         .addOnFailureListener(e -> Log.e(TAG, "Request failed", e));
                                             });
@@ -161,13 +157,21 @@ public class OtherUserProfile extends Fragment {
                         followingButton.setText("Following: " + count);
                     });
 
-            // Setup public mood recycler view
+            // Setup follow button logic and public moods recycler view
+            setupFollowButtonLogic();
             setupPublicMoodRecycler(view);
         }
 
         return view;
     }
 
+    // Helper method for follow button logic.
+    // (This is kept as a placeholder since the logic is already handled above.)
+    private void setupFollowButtonLogic() {
+        // Additional follow button logic can be placed here if needed.
+    }
+
+    // Helper method to setup the RecyclerView for public moods.
     private void setupPublicMoodRecycler(View view) {
         MoodAdapter moodAdapter = new MoodAdapter();
         publicMoodsRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
@@ -195,6 +199,21 @@ public class OtherUserProfile extends Fragment {
                         }
                     }
                     moodAdapter.setMoods(moodList);
+                    moodAdapter.setOnMoodClickListener(new MoodAdapter.OnMoodClickListener() {
+                        @Override
+                        public void onViewDetails(MoodEvent mood) {
+                            Bundle args = new Bundle();
+                            args.putString("moodEventId", mood.getId());
+                            args.putString("sourceScreen", "otherUserProfile");
+                            NavController navController = Navigation.findNavController(requireActivity(), R.id.nav_host_fragment);
+                            navController.navigate(R.id.action_otherUserProfile_to_moodDetails, args);
+                        }
+
+                        @Override
+                        public void onViewComments(MoodEvent mood) {
+                            // Handle view comments action here if needed.
+                        }
+                    });
                 }
             });
         }
