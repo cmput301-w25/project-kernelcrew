@@ -129,12 +129,12 @@ public class MoodEventProvider {
      */
     public ListenerRegistration listenToMoodEventsForUsers(List<String> userIds, MoodEventFilter filter, int followerLimit, CombinedListener listener) {
         if (userIds == null || userIds.isEmpty()) {
-            // Return a dummy registration if nothing is passed.
             return new ListenerRegistration() {
                 @Override
                 public void remove() { }
             };
         }
+
         // Assume first element is the current user's UID.
         String currentUserId = userIds.get(0);
         Map<String, List<DocumentSnapshot>> snapshotsByUser = new HashMap<>();
@@ -153,12 +153,14 @@ public class MoodEventProvider {
                 if (querySnapshot != null) {
                     // Save the latest documents for this uid.
                     snapshotsByUser.put(uid, querySnapshot.getDocuments());
+
                     // Combine all documents from all users.
                     List<DocumentSnapshot> combined = new ArrayList<>();
                     for (List<DocumentSnapshot> docs : snapshotsByUser.values()) {
                         combined.addAll(docs);
                     }
-                    // Optionally, sort combined results by creation time (assuming a "created" field).
+
+                    // Sorting the combined by time created aswell
                     combined.sort((d1, d2) -> {
                         Date t1 = d1.getDate("created");
                         Date t2 = d2.getDate("created");

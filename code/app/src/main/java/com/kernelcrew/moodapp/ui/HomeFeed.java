@@ -33,7 +33,6 @@ import com.kernelcrew.moodapp.data.UserProvider;
 import com.kernelcrew.moodapp.ui.components.DefaultFilterBarFragment;
 import com.kernelcrew.moodapp.ui.components.FilterBarFragment;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -145,7 +144,6 @@ public class HomeFeed extends DefaultFilterBarFragment
                     // Build list of user IDs, including the current user's UID.
                     List<String> userIds = new ArrayList<>();
                     userIds.add(user.getUid());
-
                     for (User followedUser : following) {
                         userIds.add(followedUser.getUid());
                     }
@@ -158,7 +156,6 @@ public class HomeFeed extends DefaultFilterBarFragment
                                         Log.e("HomeFeed", "Error listening to mood events", error);
                                         return;
                                     }
-
                                     List<MoodEvent> moods = new ArrayList<>();
                                     for (DocumentSnapshot doc : documents) {
                                         MoodEvent mood = doc.toObject(MoodEvent.class);
@@ -170,7 +167,7 @@ public class HomeFeed extends DefaultFilterBarFragment
 
                                     moods.sort((m1, m2) -> m2.getCreated().compareTo(m1.getCreated()));
                                     Log.v("HomeFeed", "Displaying " + String.valueOf(moods.size()) + " Mood Events");
-                                    moodAdapter.setMoods(moods);
+                                    moodAdapter.setMoods(searchNFilterFragment.applyLocalSearch(moods));
                                 }
                             });
                 })

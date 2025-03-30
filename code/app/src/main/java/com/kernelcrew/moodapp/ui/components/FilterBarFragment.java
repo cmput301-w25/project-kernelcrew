@@ -51,7 +51,7 @@ import java.util.Set;
 public abstract class FilterBarFragment extends Fragment {
     // Toggles for which search mode is active
     private boolean userSearchActive = false;
-    private boolean reasonSearchActive = true;  // default to reason search being on
+    private boolean reasonSearchActive = false;
     private boolean allowUserSearch = false;
 
     // UI Elements
@@ -187,7 +187,6 @@ public abstract class FilterBarFragment extends Fragment {
                 scheduleSearch(s.toString());
             }
             @Override public void afterTextChanged(Editable s) {
-                // Optionally re-run
             }
         });
         searchEditText.setOnEditorActionListener((TextView v, int actionId, KeyEvent event) -> {

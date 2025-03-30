@@ -22,6 +22,8 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
+import androidx.navigation.NavController;
+import androidx.navigation.Navigation;
 
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationCallback;
@@ -39,25 +41,21 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.material.navigation.NavigationBarView;
-import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentSnapshot;
-import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.ListenerRegistration;
-import com.google.firebase.firestore.Query;
 import com.kernelcrew.moodapp.R;
-import com.kernelcrew.moodapp.data.CombinedListener;
-import com.kernelcrew.moodapp.data.FollowProvider;
 import com.kernelcrew.moodapp.data.LocationHandler;
 import com.kernelcrew.moodapp.data.MoodEvent;
 import com.kernelcrew.moodapp.data.MoodEventFilter;
-import com.kernelcrew.moodapp.data.MoodEventProvider;
 import com.kernelcrew.moodapp.ui.components.DefaultFilterBarFragment;
 import com.kernelcrew.moodapp.ui.components.FilterBarFragment;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicReference;
 
 public class MoodMap extends Fragment implements OnMapReadyCallback, FilterBarFragment.OnFilterChangedListener {
+
     private FusedLocationProviderClient fusedLocationClient;
     private LocationCallback locationCallback;
     private GoogleMap moodMap;
@@ -83,36 +81,39 @@ public class MoodMap extends Fragment implements OnMapReadyCallback, FilterBarFr
         super.onViewCreated(view, savedInstanceState);
         navBarController.bind(view);
 
+        // Setup map fragment
         SupportMapFragment mapFragment = (SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.map);
         if (mapFragment != null) {
             mapFragment.getMapAsync(this);
         }
 
+        // Dynamically add the FilterBarFragment into the container in the map layout.
         filterBarFragment = new DefaultFilterBarFragment();
         FragmentTransaction transaction = getChildFragmentManager().beginTransaction();
         transaction.replace(R.id.filterBarContainer, filterBarFragment);
         transaction.commit();
         filterBarFragment.setOnFilterChangedListener(this);
+        currentFilter = filterBarFragment.getMoodEventFilter();
 
+        // Request user's current location (permission if needed)
         new LocationHandler(getContext()).fetchLocation(new LocationHandler.OnLocationObtainedListener() {
             @Override
             public void onLocationObtained(double latitude, double longitude) {
                 currentUserLocation = new LatLng(latitude, longitude);
                 if (moodMap != null) {
                     moodMap.animateCamera(CameraUpdateFactory.newLatLngZoom(currentUserLocation, 15f));
-                    moodMap.addMarker(new MarkerOptions()
+                    // Add marker for user's current location
+                    MarkerOptions options = new MarkerOptions()
                             .position(currentUserLocation)
                             .title("You are here")
-                            .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE)));
+                            .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE));
+                    userMarker = moodMap.addMarker(options);
                 }
-
-                filterBarFragment.updateFilter(filter -> {
-                    filter.setLocation(
-                                currentUserLocation.latitude,
-                                currentUserLocation.longitude,
-                                5)
-                            ;
-                });
+                // Update filter with current location (e.g., radius 5 km)
+                filterBarFragment.updateFilter(filter -> filter.setLocation(
+                        currentUserLocation.latitude,
+                        currentUserLocation.longitude,
+                        5.0));
 
                 loadMoodEventsOnMap();
             }
@@ -123,14 +124,12 @@ public class MoodMap extends Fragment implements OnMapReadyCallback, FilterBarFr
             }
         });
 
+        // Setup continuous location updates
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(requireContext());
         locationCallback = new LocationCallback() {
             @Override
             public void onLocationResult(LocationResult locationResult) {
-                if (locationResult == null) {
-                    return;
-                }
-                // Use the most recent location
+                if (locationResult == null) return;
                 Location location = locationResult.getLastLocation();
                 if (location != null) {
                     currentUserLocation = new LatLng(location.getLatitude(), location.getLongitude());
@@ -146,6 +145,22 @@ public class MoodMap extends Fragment implements OnMapReadyCallback, FilterBarFr
         moodMap.getUiSettings().setZoomControlsEnabled(true);
         moodMap.getUiSettings().setZoomGesturesEnabled(true);
 
+        moodMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
+            @Override
+            public boolean onMarkerClick(Marker marker) {
+                Object tag = marker.getTag();
+                if (tag != null && tag instanceof String) {
+                    String moodEventId = (String) tag;
+                    Bundle args = new Bundle();
+                    args.putString("moodEventId", moodEventId);
+                    NavController navController = Navigation.findNavController(requireActivity(), R.id.nav_host_fragment);
+                    navController.navigate(R.id.moodDetails, args);
+                    return true;
+                }
+                return false;
+            }
+        });
+
         if (currentUserLocation != null) {
             moodMap.animateCamera(CameraUpdateFactory.newLatLngZoom(currentUserLocation, 12f));
         }
@@ -153,23 +168,13 @@ public class MoodMap extends Fragment implements OnMapReadyCallback, FilterBarFr
     }
 
     private void loadMoodEventsOnMap() {
-        if (moodMap == null) return;
+        if (moodMap == null || currentFilter == null) return;
 
         moodMap.clear();
 
-        if (currentUserLocation != null) {
-            MarkerOptions userMarkerOptions = new MarkerOptions()
-                    .position(currentUserLocation)
-                    .title("You are here")
-                    .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE))
-                    .zIndex(10f);
-            moodMap.addMarker(userMarkerOptions);
-            moodMap.animateCamera(CameraUpdateFactory.newLatLngZoom(currentUserLocation, 12f));
-        }
-
-        Double filterLat = filterBarFragment.getMoodEventFilter().getFilterLatitude();
-        Double filterLon = filterBarFragment.getMoodEventFilter().getFilterLongitude();
-        Double filterRadius = filterBarFragment.getMoodEventFilter().getFilterRadius();
+        Double filterLat = currentFilter.getFilterLatitude();
+        Double filterLon = currentFilter.getFilterLongitude();
+        Double filterRadius = currentFilter.getFilterRadius();
         if (filterLat != null && filterLon != null && filterRadius != null) {
             LatLng center = new LatLng(filterLat, filterLon);
             CircleOptions circleOptions = new CircleOptions()
@@ -185,90 +190,92 @@ public class MoodMap extends Fragment implements OnMapReadyCallback, FilterBarFr
             reg = null;
         }
 
-        String myUid = FirebaseAuth.getInstance().getCurrentUser().getUid();
-        FollowProvider.getInstance().listenForFollowing(myUid, (snapshot, error) -> {
+        reg = currentFilter.buildQuery().addSnapshotListener((queryDocumentSnapshots, error) -> {
             if (error != null) {
-                Log.e("MoodMap", "Error listening for following", error);
+                Log.e("MoodMap", "loadMoodEventsOnMap: ", error);
                 return;
             }
-
-            // Build a list of user IDs: include the current user and all users they follow.
-            List<String> userIds = new ArrayList<>();
-            userIds.add(myUid);
-            if (snapshot != null && !snapshot.isEmpty()) {
-                for (DocumentSnapshot doc : snapshot.getDocuments()) {
-                    userIds.add(doc.getId());
+            if (queryDocumentSnapshots == null) {
+                Log.w("MoodMap", "No snapshot data received.");
+                return;
+            }
+            List<MoodEvent> moodList = new ArrayList<>();
+            for (DocumentSnapshot doc : queryDocumentSnapshots.getDocuments()) {
+                MoodEvent mood = doc.toObject(MoodEvent.class);
+                if (mood != null && mood.getLatitude() != null && mood.getLongitude() != null) {
+                    mood.setId(doc.getId());
+                    moodList.add(mood);
                 }
             }
 
-            // Remove any previous mood event listener
-            if (reg != null) {
-                reg.remove();
-                reg = null;
+            moodList = filterBarFragment.applyLocalSearch(moodList);
+
+            float h = 1f;
+            for (MoodEvent moodEvent : moodList) {
+                LatLng position = new LatLng(moodEvent.getLatitude(), moodEvent.getLongitude());
+                MarkerOptions markerOptions = new MarkerOptions()
+                        .position(position)
+                        .title(moodEvent.getUsername())
+                        .snippet(moodEvent.getEmotion().toString())
+                        .icon(getEmotionIcon(moodEvent.getEmotion().toString()))
+                        .zIndex(h++);
+                Marker marker = moodMap.addMarker(markerOptions);
+                marker.setTag(moodEvent.getId());
             }
 
-            reg = MoodEventProvider.getInstance()
-                    .listenToMoodEventsForUsers(userIds, filterBarFragment.getMoodEventFilter(), 1, new CombinedListener() {
-                        @Override
-                        public void onEvent(List<DocumentSnapshot> documents, FirebaseFirestoreException error) {
-                            if (error != null) {
-                                Log.e("MoodMap", "Error listening to mood events", error);
-                                return;
-                            }
-
-                            // Convert documents to MoodEvent objects.
-                            List<MoodEvent> moodList = new ArrayList<>();
-                            for (DocumentSnapshot document : documents) {
-                                MoodEvent mood = document.toObject(MoodEvent.class);
-                                if (mood != null && mood.getLatitude() != null && mood.getLongitude() != null) {
-                                    mood.setId(document.getId());
-                                    moodList.add(mood);
-                                }
-                            }
-
-                            // For simplicity, clear and then re-add:
-                            moodMap.clear();
-
-                            // Re-add the user marker and circle overlays:
-                            if (currentUserLocation != null) {
-                                MarkerOptions userMarkerOptions = new MarkerOptions()
-                                        .position(currentUserLocation)
-                                        .title("You are here")
-                                        .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE))
-                                        .zIndex(10f);
-                                moodMap.addMarker(userMarkerOptions);
-                                moodMap.animateCamera(CameraUpdateFactory.newLatLngZoom(currentUserLocation, 12f));
-                            }
-
-                            if (filterLat != null && filterLon != null && filterRadius != null) {
-                                LatLng center = new LatLng(filterLat, filterLon);
-                                CircleOptions circleOptions = new CircleOptions()
-                                        .center(center)
-                                        .radius(filterRadius * 1000) // km -> m ie. k = 10^3 = 1000
-                                        .strokeColor(Color.BLUE)
-                                        .fillColor(0x220000FF);
-                                moodMap.addCircle(circleOptions);
-                            }
-
-                            // Add markers for each mood event.
-                            for (MoodEvent moodEvent : moodList) {
-                                LatLng position = new LatLng(moodEvent.getLatitude(), moodEvent.getLongitude());
-                                MarkerOptions markerOptions = new MarkerOptions()
-                                        .position(position)
-                                        .title(moodEvent.getUsername())
-                                        .snippet(moodEvent.getEmotion().toString())
-                                        .icon(getEmotionIcon(moodEvent.getEmotion().toString()))
-                                        .zIndex(1f);
-                                moodMap.addMarker(markerOptions);
-                            }
-                        }
-                    });
+            if (currentUserLocation != null) {
+                MarkerOptions userOptions = new MarkerOptions()
+                        .position(currentUserLocation)
+                        .title("You are here")
+                        .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE))
+                        .zIndex(h);
+                userMarker = moodMap.addMarker(userOptions);
+                moodMap.animateCamera(CameraUpdateFactory.newLatLngZoom(currentUserLocation, 12f));
+            }
         });
     }
 
     @Override
     public void onFilterChanged(MoodEventFilter filter) {
+        currentFilter = filter;
         loadMoodEventsOnMap();
+    }
+
+    private void updateUserLocationOnMap() {
+        if (moodMap != null && currentUserLocation != null) {
+            if (userMarker == null) {
+                MarkerOptions options = new MarkerOptions()
+                        .position(currentUserLocation)
+                        .title("You are here")
+                        .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE));
+                userMarker = moodMap.addMarker(options);
+                moodMap.animateCamera(CameraUpdateFactory.newLatLngZoom(currentUserLocation, 12f));
+            } else {
+                userMarker.setPosition(currentUserLocation);
+            }
+        }
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        LocationRequest locationRequest = LocationRequest.create()
+                .setInterval(5000)          // update every 5 seconds
+                .setFastestInterval(2000)   // fastest update 2 seconds
+                .setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+
+        if (ActivityCompat.checkSelfPermission(requireContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
+                ActivityCompat.checkSelfPermission(requireContext(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            // Request missing permissions here if needed.
+            return;
+        }
+        fusedLocationClient.requestLocationUpdates(locationRequest, locationCallback, Looper.getMainLooper());
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        fusedLocationClient.removeLocationUpdates(locationCallback);
     }
 
     private BitmapDescriptor getEmotionIcon(String emotion) {
@@ -303,50 +310,6 @@ public class MoodMap extends Fragment implements OnMapReadyCallback, FilterBarFr
                 break;
         }
         return getBitmapDescriptorFromVector(getContext(), resourceId);
-    }
-
-    @Override
-    public void onResume() {
-        super.onResume();
-        LocationRequest locationRequest = LocationRequest.create()
-                .setInterval(5000)            // Update interval in milliseconds
-                .setFastestInterval(2000)     // Fastest update interval
-                .setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
-
-        if (ActivityCompat.checkSelfPermission(requireContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(requireContext(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            // TODO: Consider calling
-            //    ActivityCompat#requestPermissions
-            // here to request the missing permissions, and then overriding
-            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-            //                                          int[] grantResults)
-            // to handle the case where the user grants the permission. See the documentation
-            // for ActivityCompat#requestPermissions for more details.
-            return;
-        }
-        fusedLocationClient.requestLocationUpdates(locationRequest, locationCallback, Looper.getMainLooper());
-    }
-
-    @Override
-    public void onPause() {
-        super.onPause();
-        fusedLocationClient.removeLocationUpdates(locationCallback);
-    }
-
-    private void updateUserLocationOnMap() {
-        if (moodMap != null && currentUserLocation != null) {
-            if (userMarker == null) {
-                // Create the marker if it doesn't exist yet
-                MarkerOptions markerOptions = new MarkerOptions()
-                        .position(currentUserLocation)
-                        .title("You are here")
-                        .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE));
-                userMarker = moodMap.addMarker(markerOptions);
-                moodMap.animateCamera(CameraUpdateFactory.newLatLngZoom(currentUserLocation, 12f));
-            } else {
-                // Update the marker's position
-                userMarker.setPosition(currentUserLocation);
-            }
-        }
     }
 
     private BitmapDescriptor getBitmapDescriptorFromVector(Context context, int vectorResId) {
