@@ -9,6 +9,7 @@ import static androidx.test.espresso.assertion.ViewAssertions.matches;
 import static androidx.test.espresso.contrib.RecyclerViewActions.actionOnItemAtPosition;
 import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
+import static androidx.test.espresso.matcher.ViewMatchers.withText;
 import static com.kernelcrew.moodapp.MoodDetailsNavigationTest.clickChildViewWithId;
 import static org.hamcrest.Matchers.not;
 
@@ -157,9 +158,13 @@ public class MoodOwnershipTest extends FirebaseEmulatorMixin {
         SystemClock.sleep(3000);
 
         // Open the mood details of the mood created by User1 (should appear at position 0)
-        onView(withId(R.id.moodRecyclerView))
-                .perform(actionOnItemAtPosition(0, clickChildViewWithId(R.id.viewDetailsButton)));
+        onView(withText("Users")).perform(click());
         SystemClock.sleep(3000);
+
+        onView(withText(USER1_USERNAME)).perform(click());
+        SystemClock.sleep(3000);
+
+        onView(withText("View Details")).perform(click());
 
         // Verify that Edit/Delete buttons are NOT displayed for a mood not owned by User2
         onView(withId(R.id.btnEditMood)).check(matches(not(isDisplayed())));
@@ -170,31 +175,5 @@ public class MoodOwnershipTest extends FirebaseEmulatorMixin {
         FirebaseAuth.getInstance().signOut();
         SystemClock.sleep(3000);
         scenario2.close();
-    }
-
-    // code from lab 7
-    @AfterClass
-    public static void tearDown() {
-        String projectId = "kernel-crew-mood-app";
-        URL url = null;
-        try {
-            url = new URL("http://10.0.2.2:4000/emulator/v1/projects/" + projectId + "/databases/(default)/documents");
-        } catch (MalformedURLException exception) {
-            Log.e("URL Error", Objects.requireNonNull(exception.getMessage()));
-        }
-        HttpURLConnection urlConnection = null;
-        try {
-            assert url != null;
-            urlConnection = (HttpURLConnection) url.openConnection();
-            urlConnection.setRequestMethod("DELETE");
-            int response = urlConnection.getResponseCode();
-            Log.i("Response Code", "Response Code: " + response);
-        } catch (IOException exception) {
-            Log.e("IO Error", Objects.requireNonNull(exception.getMessage()));
-        } finally {
-            if (urlConnection != null) {
-                urlConnection.disconnect();
-            }
-        }
     }
 }
