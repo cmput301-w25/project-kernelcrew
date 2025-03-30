@@ -21,6 +21,7 @@ import androidx.test.espresso.ViewAction;
 import androidx.test.ext.junit.rules.ActivityScenarioRule;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
+import com.google.firebase.auth.FirebaseAuth;
 import com.kernelcrew.moodapp.ui.MainActivity;
 
 import org.hamcrest.Matcher;
@@ -101,27 +102,52 @@ public class SearchFeatureTest extends FirebaseEmulatorMixin {
 
     /**
      * Test 2: Home Feed User Search & Navigation Test
-     * - Enters a user query (e.g. "Bob") in the search field, taps the "Users" button,
+     * - Signs out current user, then creates a dummy user "Bob" via the UI,
+     *   signs out "Bob", and signs back in as the default test user.
+     * - Enters "Bob" in the search field, taps the "Users" button,
      *   clicks on the first user result, and verifies that the OtherUserProfile screen displays
      *   the expected data (username containing "Bob").
      */
     @Test
     public void testHomeFeedSearchUserNavigation() {
+        // Create dummy user "Bob"
+        FirebaseAuth.getInstance().signOut();
+        SystemClock.sleep(2000);
+        onView(withId(R.id.buttonInitialToSignUp)).perform(replaceText("Bob"), click());
+        onView(withId(R.id.username)).perform(replaceText("Bob"));
+        onView(withId(R.id.emailSignUp)).perform(replaceText("bob@test.com"));
+        onView(withId(R.id.passwordSignUp)).perform(replaceText("passwordBob"));
+        onView(withId(R.id.signUpButtonAuthToHome)).perform(click());
+        SystemClock.sleep(3000);
+
+        // Sign out dummy "Bob"
+        FirebaseAuth.getInstance().signOut();
+        SystemClock.sleep(2000);
+
+        // Sign back in as default test user (e.g., "dummy1@test.com" with password "password1")
+        onView(withId(R.id.buttonInitialToSignIn)).perform(click());
+        onView(withId(R.id.emailSignIn)).perform(replaceText("dummy1@test.com"));
+        onView(withId(R.id.passwordSignIn)).perform(replaceText("password1"));
+        onView(withId(R.id.signInButtonAuthToHome)).perform(click());
+        SystemClock.sleep(3000);
+
+        // Now search for "Bob"
         String userQuery = "Bob";
-        onView(withId(R.id.filterSearchEditText))
-                .perform(replaceText(userQuery));
-        onView(withId(R.id.filterSearchEditText))
-                .perform(closeSoftKeyboard());
+        onView(withId(R.id.filterSearchEditText)).perform(replaceText(userQuery));
+        onView(withId(R.id.filterSearchEditText)).perform(closeSoftKeyboard());
         onView(withId(R.id.searchUser)).perform(click());
         SystemClock.sleep(2000);
+
         // Verify that user items appear in the RecyclerView.
         onView(withId(R.id.moodRecyclerView))
                 .check(matches(hasDescendant(withId(R.id.usernameTextView))));
+
         // Click on the first user item.
         onView(withId(R.id.moodRecyclerView))
                 .perform(actionOnItemAtPosition(0, clickChildViewWithId(R.id.usernameTextView)));
         SystemClock.sleep(2000);
-        // Verify that OtherUserProfile screen is displayed with expected username containing "Bob".
+
+        // Verify that the OtherUserProfile screen is displayed with a username containing "Bob".
         onView(withId(R.id.username_text)).check(matches(isDisplayed()));
         onView(withId(R.id.username_text))
                 .check(matches(withText(containsString("Bob"))));
