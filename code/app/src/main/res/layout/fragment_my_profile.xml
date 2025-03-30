@@ -60,45 +60,62 @@
         </LinearLayout>
     </androidx.cardview.widget.CardView>
 
-    <ImageView
-        android:id="@+id/followRequestsButton"
-        android:layout_width="64dp"
-        android:layout_height="64dp"
-        android:src="@drawable/ic_follow_request_no"
-        android:contentDescription="Follow Request"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        android:layout_marginEnd="16dp" />
-
-    <LinearLayout
-        android:id="@+id/followersFollowingLayout"
+    <Button
+        android:id="@+id/following_button"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:gravity="center"
-        android:layout_marginTop="20dp"
-        app:layout_constraintTop_toBottomOf="@id/profileCard"
+        android:layout_marginStart="24dp"
+        android:layout_marginTop="36dp"
+        android:layout_marginEnd="24dp"
+        android:text="Following: 0"
+        android:textSize="16sp"
+        android:textStyle="normal"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent">
+        app:layout_constraintTop_toBottomOf="@id/profileCard" />
 
-        <Button
-            android:id="@+id/followers_button"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Followers: 0"
-            android:textSize="14sp"
-            android:textStyle="normal"
-            android:layout_marginStart="24dp" />
 
-        <Button
-            android:id="@+id/following_button"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Following: 0"
-            android:textSize="14sp"
-            android:textStyle="normal"
-            android:layout_marginStart="24dp" />
-    </LinearLayout>
+    <Button
+        android:id="@+id/followRequestsButton"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="24dp"
+        android:layout_marginTop="20dp"
+        android:layout_marginEnd="24dp"
+        android:text="Follow Requests"
+        android:textSize="16sp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/followers_button" />
+
+    <Button
+        android:id="@+id/followers_button"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="24dp"
+        android:layout_marginTop="20dp"
+        android:layout_marginEnd="24dp"
+        android:text="Followers: 0"
+        android:textSize="16sp"
+        android:textStyle="normal"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/following_button" />
+
+    <Button
+        android:id="@+id/mood_history_button"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="24dp"
+        android:layout_marginTop="20dp"
+        android:layout_marginEnd="24dp"
+        android:text="Mood History"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/followRequestsButton" />
 
     <com.google.android.material.button.MaterialButton
         android:id="@+id/signOutButton"
@@ -109,14 +126,10 @@
         android:layout_marginTop="20dp"
         android:layout_marginEnd="24dp"
         android:text="Sign Out"
-        android:textColor="@android:color/white"
-        android:backgroundTint="@color/colorAccent"
-        android:textSize="16sp"
-        android:textStyle="bold"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/followersFollowingLayout" />
+        app:layout_constraintTop_toBottomOf="@id/mood_history_button" />
 
     <com.google.android.material.bottomnavigation.BottomNavigationView
         android:id="@+id/bottom_navigation"

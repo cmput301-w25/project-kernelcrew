@@ -109,6 +109,9 @@
             android:id="@+id/action_myProfile_to_followingPage"
             app:destination="@id/followingFragment" />
         <action
+            android:id="@+id/action_myProfile_to_moodHistoryPage"
+            app:destination="@id/moodHistory" />
+        <action
             android:id="@+id/action_myProfile_to_followRequestsFragment"
             app:destination="@id/followRequestsFragment" />
     </fragment>
