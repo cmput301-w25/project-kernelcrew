@@ -39,10 +39,14 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.material.navigation.NavigationBarView;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.ListenerRegistration;
 import com.google.firebase.firestore.Query;
 import com.kernelcrew.moodapp.R;
+import com.kernelcrew.moodapp.data.CombinedListener;
+import com.kernelcrew.moodapp.data.FollowProvider;
 import com.kernelcrew.moodapp.data.LocationHandler;
 import com.kernelcrew.moodapp.data.MoodEvent;
 import com.kernelcrew.moodapp.data.MoodEventFilter;
@@ -89,7 +93,6 @@ public class MoodMap extends Fragment implements OnMapReadyCallback, FilterBarFr
         transaction.replace(R.id.filterBarContainer, filterBarFragment);
         transaction.commit();
         filterBarFragment.setOnFilterChangedListener(this);
-        currentFilter = filterBarFragment.getMoodEventFilter();
 
         new LocationHandler(getContext()).fetchLocation(new LocationHandler.OnLocationObtainedListener() {
             @Override
@@ -102,6 +105,13 @@ public class MoodMap extends Fragment implements OnMapReadyCallback, FilterBarFr
                             .title("You are here")
                             .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE)));
                 }
+
+                currentFilter = filterBarFragment.getMoodEventFilter().setLocation(
+                        currentUserLocation.latitude,
+                        currentUserLocation.longitude,
+                        5
+                );
+
                 // Now load mood events with the obtained location.
                 loadMoodEventsOnMap();
             }
@@ -174,38 +184,86 @@ public class MoodMap extends Fragment implements OnMapReadyCallback, FilterBarFr
             reg = null;
         }
 
-        reg = currentFilter.buildQuery()
-                .addSnapshotListener((queryDocumentSnapshots, error) -> {
-                    if (error != null) {
-                        Log.e("MoodMap", "loadMoodEventsOnMap: ", error);
-                        return;
-                    }
-                    if (queryDocumentSnapshots == null) {
-                        Log.w("MoodMap", "No snapshot data received.");
-                        return;
-                    }
-                    List<MoodEvent> moodList = new ArrayList<>();
-                    for (DocumentSnapshot document : queryDocumentSnapshots.getDocuments()) {
-                        MoodEvent mood = document.toObject(MoodEvent.class);
-                        if (mood != null && mood.getLatitude() != null && mood.getLongitude() != null) {
-                            mood.setId(document.getId());
-                            moodList.add(mood);
+        String myUid = FirebaseAuth.getInstance().getCurrentUser().getUid();
+        FollowProvider.getInstance().listenForFollowing(myUid, (snapshot, error) -> {
+            if (error != null) {
+                Log.e("MoodMap", "Error listening for following", error);
+                return;
+            }
+            // Build a list of user IDs: include the current user and all users they follow.
+            List<String> userIds = new ArrayList<>();
+            userIds.add(myUid);
+            if (snapshot != null && !snapshot.isEmpty()) {
+                for (DocumentSnapshot doc : snapshot.getDocuments()) {
+                    userIds.add(doc.getId());
+                }
+            }
+
+            // Remove any previous mood event listener
+            if (reg != null) {
+                reg.remove();
+                reg = null;
+            }
+
+            // Now listen to mood events only from these userIds using a helper method.
+            // (Assuming your MoodEventProvider has a method listenToMoodEventsForUsers that accepts
+            // a list of user IDs and a filter.)
+            reg = MoodEventProvider.getInstance()
+                    .listenToMoodEventsForUsers(userIds, currentFilter, new CombinedListener() {
+                        @Override
+                        public void onEvent(List<DocumentSnapshot> documents, FirebaseFirestoreException error) {
+                            if (error != null) {
+                                Log.e("MoodMap", "Error listening to mood events", error);
+                                return;
+                            }
+                            // Convert documents to MoodEvent objects.
+                            List<MoodEvent> moodList = new ArrayList<>();
+                            for (DocumentSnapshot document : documents) {
+                                MoodEvent mood = document.toObject(MoodEvent.class);
+                                if (mood != null && mood.getLatitude() != null && mood.getLongitude() != null) {
+                                    mood.setId(document.getId());
+                                    moodList.add(mood);
+                                }
+                            }
+
+                            // Clear mood markers (user marker and circle overlays were already added above)
+                            // (If you want to preserve them, you can re-add them after clearing.)
+                            // For simplicity, clear and then re-add:
+                            moodMap.clear();
+                            // Re-add the user marker and circle overlays:
+                            if (currentUserLocation != null) {
+                                MarkerOptions userMarkerOptions = new MarkerOptions()
+                                        .position(currentUserLocation)
+                                        .title("You are here")
+                                        .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE))
+                                        .zIndex(10f);
+                                moodMap.addMarker(userMarkerOptions);
+                                moodMap.animateCamera(CameraUpdateFactory.newLatLngZoom(currentUserLocation, 12f));
+                            }
+                            if (filterLat != null && filterLon != null && filterRadius != null) {
+                                LatLng center = new LatLng(filterLat, filterLon);
+                                CircleOptions circleOptions = new CircleOptions()
+                                        .center(center)
+                                        .radius(filterRadius * 1000)
+                                        .strokeColor(Color.BLUE)
+                                        .fillColor(0x220000FF);
+                                moodMap.addCircle(circleOptions);
+                            }
+
+                            // Add markers for each mood event.
+                            for (MoodEvent moodEvent : moodList) {
+                                LatLng position = new LatLng(moodEvent.getLatitude(), moodEvent.getLongitude());
+                                MarkerOptions markerOptions = new MarkerOptions()
+                                        .position(position)
+                                        .title(moodEvent.getUsername())
+                                        .snippet(moodEvent.getEmotion().toString())
+                                        .icon(getEmotionIcon(moodEvent.getEmotion().toString()))
+                                        .zIndex(1f);
+                                moodMap.addMarker(markerOptions);
+                            }
                         }
-                    }
-
-                    moodList = filterBarFragment.applyLocalSearch(moodList);
-
-                    for (MoodEvent moodEvent : moodList) {
-                        LatLng position = new LatLng(moodEvent.getLatitude(), moodEvent.getLongitude());
-                        MarkerOptions markerOptions = new MarkerOptions()
-                                .position(position)
-                                .title(moodEvent.getUsername())
-                                .snippet(moodEvent.getEmotion().toString())
-                                .icon(getEmotionIcon(moodEvent.getEmotion().toString()))
-                                .zIndex(1f);
-                        moodMap.addMarker(markerOptions);
-                    }
-                });
+                    });
+        });
     }
 
     @Override
