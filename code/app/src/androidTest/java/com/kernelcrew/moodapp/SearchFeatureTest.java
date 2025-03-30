@@ -1,7 +1,7 @@
 package com.kernelcrew.moodapp;
 
 import static androidx.test.espresso.Espresso.onView;
-import static androidx.test.espresso.Espresso.closeSoftKeyboard;
+import static androidx.test.espresso.action.ViewActions.closeSoftKeyboard;  // Import from ViewActions
 import static androidx.test.espresso.action.ViewActions.click;
 import static androidx.test.espresso.action.ViewActions.replaceText;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
@@ -38,30 +38,29 @@ public class SearchFeatureTest extends FirebaseEmulatorMixin {
 
     @BeforeClass
     public static void setUpDatabase() throws Exception {
-        // Seed your test data
+        // Seed your test data using your staticCreateUser() method.
         staticCreateUser();
     }
 
     @Before
     public void signInUser() throws Exception {
-        // Wait for HomeFeed to load; assumes user is signed in via seed data.
+        // Wait for HomeFeed to load; assumes user is already signed in via seed data.
         SystemClock.sleep(2000);
     }
 
     /**
      * Test 1: Home Feed Reason Search
-     * Enters a search term in the FilterBar, selects "Mood Reason" (i.e. filtering by reason),
+     * Enters a search term in the FilterBar, selects "Mood Reason" (filter type MOODS),
      * and verifies that the HomeFeed RecyclerView is updated.
      */
     @Test
     public void testHomeFeedSearchReason() {
         String searchTerm = "lunch";
-        onView(withId(R.id.filterSearchEditText))
-                .perform(replaceText(searchTerm))
-                .perform(closeSoftKeyboard());
+        onView(withId(R.id.filterSearchEditText)).perform(replaceText(searchTerm));
+        onView(withId(R.id.filterSearchEditText)).perform(closeSoftKeyboard());
         onView(withId(R.id.searchReason)).perform(click());
         SystemClock.sleep(2000);
-        // Verify that the RecyclerView is displayed; further assertions can be added if needed.
+        // Verify that the RecyclerView is displayed.
         onView(withId(R.id.moodRecyclerView)).check(matches(isDisplayed()));
     }
 
@@ -74,20 +73,18 @@ public class SearchFeatureTest extends FirebaseEmulatorMixin {
     @Test
     public void testHomeFeedSearchUserNavigation() {
         String userQuery = "Bob";
-        onView(withId(R.id.filterSearchEditText))
-                .perform(replaceText(userQuery))
-                .perform(closeSoftKeyboard());
+        onView(withId(R.id.filterSearchEditText)).perform(replaceText(userQuery));
+        onView(withId(R.id.filterSearchEditText)).perform(closeSoftKeyboard());
         onView(withId(R.id.searchUser)).perform(click());
         SystemClock.sleep(2000);
         // Verify that user items appear in the RecyclerView (by checking for the username view).
         onView(withId(R.id.moodRecyclerView)).check(matches(hasDescendant(withId(R.id.usernameTextView))));
-        // Click the first user item.
+        // Click on the first user item.
         onView(withId(R.id.moodRecyclerView))
                 .perform(actionOnItemAtPosition(0, clickChildViewWithId(R.id.usernameTextView)));
         SystemClock.sleep(2000);
-        // Verify that OtherUserProfile is displayed with the expected username containing "Bob".
-        onView(withId(R.id.username_text))
-                .check(matches(isDisplayed()));
+        // Verify that OtherUserProfile is displayed with expected username containing "Bob".
+        onView(withId(R.id.username_text)).check(matches(isDisplayed()));
         onView(withId(R.id.username_text))
                 .check(matches(withText(containsString("Bob"))));
     }
@@ -95,18 +92,18 @@ public class SearchFeatureTest extends FirebaseEmulatorMixin {
     /**
      * Test 3: Mood History Reason Search
      * Navigates to the Mood History page, enters a reason search term, selects "Mood Reason",
-     * and verifies that the Mood History RecyclerView displays items whose reason text contains the search term.
+     * and verifies that the Mood History RecyclerView displays items whose reason text
+     * contains the search term.
      */
     @Test
     public void testMoodHistorySearchFeature() {
-        // Navigate to Mood History (assumes bottom navigation tap triggers it).
+        // Navigate to Mood History.
         onView(withId(R.id.bottom_navigation)).perform(click());
         SystemClock.sleep(2000);
         onView(withId(R.id.recyclerViewMoodHistory)).check(matches(isDisplayed()));
         String historySearchTerm = "meeting";
-        onView(withId(R.id.filterSearchEditText))
-                .perform(replaceText(historySearchTerm))
-                .perform(closeSoftKeyboard());
+        onView(withId(R.id.filterSearchEditText)).perform(replaceText(historySearchTerm));
+        onView(withId(R.id.filterSearchEditText)).perform(closeSoftKeyboard());
         onView(withId(R.id.searchReason)).perform(click());
         SystemClock.sleep(2000);
         // Verify that at least one item in the Mood History list displays a reason containing the search term.
