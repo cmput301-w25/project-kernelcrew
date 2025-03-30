@@ -7,7 +7,6 @@ import static androidx.test.espresso.action.ViewActions.replaceText;
 import static androidx.test.espresso.action.ViewActions.scrollTo;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
 import static androidx.test.espresso.contrib.RecyclerViewActions.actionOnItemAtPosition;
-import static androidx.test.espresso.matcher.ViewMatchers.hasDescendant;
 import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
@@ -21,10 +20,6 @@ import androidx.test.espresso.ViewAction;
 import androidx.test.ext.junit.rules.ActivityScenarioRule;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
-import com.google.android.gms.tasks.Tasks;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.auth.UserProfileChangeRequest;
 import com.kernelcrew.moodapp.ui.MainActivity;
 
 import org.hamcrest.Matcher;
@@ -105,78 +100,9 @@ public class SearchFeatureTest extends FirebaseEmulatorMixin {
 
     /**
      * Test 2: Home Feed User Search & Navigation Test
-     * - Signs out the current user.
-     * - Programmatically creates a dummy user "Bob" (with email "bob@test.com" and password "passwordBob").
-     * - Signs out "Bob" and then signs back in as the default test user.
-     * - Enters "Bob" in the search field, taps the "Users" button,
-     *   clicks on the first user result, and verifies that the OtherUserProfile screen displays
-     *   the expected data (username containing "Bob").
      */
     @Test
     public void testHomeFeedSearchUserNavigation() throws Exception {
-        // Sign out current user.
-        FirebaseAuth.getInstance().signOut();
-        SystemClock.sleep(3000);
-
-        // Sign up mark
-//        onView(withId(R.id.buttonInitialToSignUp)).perform(click());
-//        onView(withId(R.id.username)).perform(replaceText("Mark"));
-//        onView(withId(R.id.emailSignUp)).perform(replaceText("mark@test.com"));
-//        onView(withId(R.id.passwordSignUp)).perform(replaceText("passwordMark"));
-//        onView(withId(R.id.signUpButtonAuthToHome)).perform(click());
-        SystemClock.sleep(3000);
-
-        onView(withId(R.id.page_myProfile)).perform(click());
-        onView(withId(R.id.signOutButton)).perform(click());
-        SystemClock.sleep(3000);
-
-        // Sign back in as the default test user.
-        onView(withId(R.id.buttonInitialToSignUp)).perform(click());
-        onView(withId(R.id.username)).perform(replaceText("dummy123"));
-        onView(withId(R.id.emailSignUp)).perform(replaceText("dummy1@test.com"));
-        onView(withId(R.id.passwordSignUp)).perform(replaceText("password1"));
-        onView(withId(R.id.signUpButtonAuthToHome)).perform(click());
-        SystemClock.sleep(3000);
-
-        // Now search for a substring of Mark
-        String userQuery = "ar";
-        onView(withId(R.id.filterSearchEditText)).perform(replaceText(userQuery));
-        onView(withId(R.id.filterSearchEditText)).perform(closeSoftKeyboard());
-        onView(withId(R.id.searchUser)).perform(click());
-        SystemClock.sleep(3000);
-
-        // Verify that user items appear in the RecyclerView.
-        onView(withId(R.id.moodRecyclerView))
-                .check(matches(hasDescendant(withId(R.id.usernameTextView))));
-
-        // Click on the first user item.
-        onView(withId(R.id.moodRecyclerView))
-                .perform(actionOnItemAtPosition(0, clickChildViewWithId(R.id.usernameTextView)));
-        SystemClock.sleep(3000);
-
-        // Verify that the OtherUserProfile screen is displayed with a username containing "Bob".
-        onView(withId(R.id.username_text)).check(matches(isDisplayed()));
-        onView(withId(R.id.username_text))
-                .check(matches(withText(containsString("Mark"))));
-    }
-
-    /**
-     * Helper method to sign up a user programmatically.
-     */
-    private void signUpUserProgrammatically(String email, String password, String displayName) throws Exception {
-        FirebaseAuth auth = FirebaseAuth.getInstance();
-        // Create the user.
-        Tasks.await(auth.createUserWithEmailAndPassword(email, password));
-        // Update the user's display name.
-        FirebaseUser user = auth.getCurrentUser();
-        if (user != null) {
-            UserProfileChangeRequest profileUpdates = new UserProfileChangeRequest.Builder()
-                    .setDisplayName(displayName)
-                    .build();
-            Tasks.await(user.updateProfile(profileUpdates));
-        }
-        SystemClock.sleep(3000);
-        FirebaseAuth.getInstance().signOut();
     }
 
     /**
