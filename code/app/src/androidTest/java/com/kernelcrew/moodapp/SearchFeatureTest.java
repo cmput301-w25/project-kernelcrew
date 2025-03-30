@@ -45,7 +45,7 @@ public class SearchFeatureTest extends FirebaseEmulatorMixin {
     }
 
     @Before
-    public void signInUser() throws Exception {
+    public void signInUser() {
         // Wait for HomeFeed to load; assumes user is already signed in via seed data.
         SystemClock.sleep(2000);
     }
@@ -110,7 +110,7 @@ public class SearchFeatureTest extends FirebaseEmulatorMixin {
      *   the expected data (username containing "Frederick" and email "frederick@test.com").
      */
     @Test
-    public void testHomeFeedSearchUserNavigation() throws Exception {
+    public void testHomeFeedSearchUserNavigation() {
         // Ensure no user is currently signed in.
         FirebaseAuth.getInstance().signOut();
         SystemClock.sleep(3000);
