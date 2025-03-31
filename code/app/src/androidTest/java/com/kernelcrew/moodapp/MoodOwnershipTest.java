@@ -24,6 +24,7 @@ import com.google.android.gms.tasks.Tasks;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.Filter;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.kernelcrew.moodapp.ui.MainActivity;
 
@@ -38,6 +39,7 @@ import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.ExecutionException;
@@ -155,6 +157,23 @@ public class MoodOwnershipTest extends FirebaseEmulatorMixin {
         onView(withId(R.id.emailSignUp)).perform(replaceText(USER2_EMAIL));
         onView(withId(R.id.passwordSignUp)).perform(replaceText(USER2_PASSWORD));
         onView(withId(R.id.signUpButtonAuthToHome)).perform(click());
+
+        // Make user2 follow user1
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        String userAUid = Tasks.await(db.collection("usernames").document(USER1_USERNAME).get()).getString("uid");
+        String userBUid = Tasks.await(db.collection("usernames").document(USER2_USERNAME).get()).getString("uid");
+        db.collection("users").document(userAUid)
+                .collection("followers")
+                .document(userBUid)
+                .set(Collections.emptyMap());
+        db.collection("users").document(userBUid)
+                .collection("following")
+                .document(userAUid)
+                .set(Collections.emptyMap());
+        SystemClock.sleep(1000);
+        onView(withId(R.id.page_myProfile)).perform(click());
+        SystemClock.sleep(1000);
+        onView(withId(R.id.page_home)).perform(click());
         SystemClock.sleep(3000);
 
         // Open the mood details of the mood created by User1 (should appear at position 0)
