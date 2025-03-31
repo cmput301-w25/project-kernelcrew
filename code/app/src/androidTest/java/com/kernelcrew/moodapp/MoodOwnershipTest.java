@@ -127,7 +127,7 @@ public class MoodOwnershipTest extends FirebaseEmulatorMixin {
         onView(withId(R.id.emotion_reason))
                 .perform(scrollTo(), replaceText(MOOD1_REASON), closeSoftKeyboard());
         onView(withId(R.id.toggle_happy)).perform(click());
-        onView(withId(R.id.submit_button)).perform(click());
+        onView(withId(R.id.submit_button)).perform(scrollTo()).perform(click());
         SystemClock.sleep(3000);
 
         // Open the newly created mood's details (position 0)
@@ -158,12 +158,6 @@ public class MoodOwnershipTest extends FirebaseEmulatorMixin {
         SystemClock.sleep(3000);
 
         // Open the mood details of the mood created by User1 (should appear at position 0)
-        onView(withText("Users")).perform(click());
-        SystemClock.sleep(3000);
-
-        onView(withText(USER1_USERNAME)).perform(click());
-        SystemClock.sleep(3000);
-
         onView(withText("View Details")).perform(click());
 
         // Verify that Edit/Delete buttons are NOT displayed for a mood not owned by User2

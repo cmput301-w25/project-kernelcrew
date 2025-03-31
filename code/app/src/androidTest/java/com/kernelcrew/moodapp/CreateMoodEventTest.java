@@ -44,6 +44,11 @@ public class CreateMoodEventTest extends FirebaseEmulatorMixin {
         staticCreateUser();
     }
 
+    @Before
+    public void signingUser() throws ExecutionException, InterruptedException {
+        loginUser();
+    }
+
     @Test
     public void createNewMood() {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
