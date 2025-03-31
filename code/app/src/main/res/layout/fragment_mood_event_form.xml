@@ -57,6 +57,20 @@
                 android:layout_height="wrap_content" />
         </com.google.android.material.textfield.TextInputLayout>
 
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/timestamp_layout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Select Date and Time">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/timestamp_input"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:clickable="true"
+                android:focusable="false" />
+        </com.google.android.material.textfield.TextInputLayout>
+
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -95,11 +109,11 @@
             android:textAppearance="@style/TextAppearance.Material3.LabelLarge"
             android:textColor="@color/design_default_color_error" />
 
-<androidx.fragment.app.FragmentContainerView
-    android:id="@+id/location_fragment"
-    android:name="com.kernelcrew.moodapp.ui.LocationFragment"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content" />
+        <androidx.fragment.app.FragmentContainerView
+            android:id="@+id/location_fragment"
+            android:name="com.kernelcrew.moodapp.ui.LocationFragment"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
 
         <TextView
             android:id="@+id/location_hint"
@@ -136,6 +150,7 @@
                 app:icon="@drawable/ic_lock"
                 android:text="Private" />
         </com.google.android.material.button.MaterialButtonToggleGroup>
+
 
         <Button
             android:id="@+id/submit_button"
