@@ -192,14 +192,16 @@ public class LocationFragment extends Fragment {
     }
 
     /**
-     * Called when the fragment is attached to an activity.
-     * Initializes the permission request launcher.
+     * Called after this view has been created.
+     * Initializes the permission request launcher. We do this here since the map should be
+     * initialized first.
      *
-     * @param context The context the fragment is attached to
+     * @param view The view that was created
+     * @param savedInstanceState State bundle provided by the fragment manager
      */
     @Override
-    public void onAttach(@NonNull Context context) {
-        super.onAttach(context);
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
 
         // Code from Anthropic, Claude 3.7 Sonnet, "Update to use modern Activity Result API", accessed 05-13-2024
         // Initialize the permission request launcher
