@@ -17,6 +17,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
 
 import com.google.android.gms.tasks.Tasks;
+import com.google.android.material.appbar.MaterialToolbar;
 import com.google.firebase.Firebase;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -26,7 +27,6 @@ import com.kernelcrew.moodapp.data.MoodEvent;
 import com.kernelcrew.moodapp.data.MoodEventProvider;
 import com.kernelcrew.moodapp.data.MoodEventVisibility;
 import com.kernelcrew.moodapp.ui.MainActivity;
-import static com.kernelcrew.moodapp.MoodDetailsNavigationTest.clickChildViewWithId;
 
 import org.awaitility.Awaitility;
 import org.hamcrest.Matcher;
@@ -172,7 +172,21 @@ public class FollowRequestTest extends FirebaseEmulatorMixin {
                             .check(matches(withText(containsString("Requested"))));
                 });
 
-        FirebaseAuth.getInstance().signOut();
+        // Click the back button in the top app bar (MaterialToolbar)
+        onView(withContentDescription("BackButton_OtherUserProfile")).perform(click());
+        SystemClock.sleep(1500);
+
+        // this takes us to mood details, so go back 1 more screen
+        onView(withContentDescription("BackButton_MoodDetails")).perform(click());
+        SystemClock.sleep(1500);
+
+        // If the current page is not AuthHome, navigate to MyProfile and then sign out.
+        if (!isViewDisplayed(R.id.authHome)) {
+            onView(withId(R.id.page_myProfile)).perform(click());
+            SystemClock.sleep(2000);
+            onView(withId(R.id.signOutButton)).perform(click());
+            SystemClock.sleep(2000);
+        }
 
         // PART 2: Sign in as User B.
         signInUser(USER_B_EMAIL, USER_B_PASSWORD);
@@ -186,7 +200,6 @@ public class FollowRequestTest extends FirebaseEmulatorMixin {
         onView(withId(R.id.followRequestsButton)).check(matches(isDisplayed()));
         onView(withId(R.id.followRequestsButton)).perform(click());
         SystemClock.sleep(1500);
-
 
         // In the FollowRequestsFragment, verify that the request from User A is visible.
         onView(withText(containsString(USER_A_USERNAME + " is requesting to follow you")))

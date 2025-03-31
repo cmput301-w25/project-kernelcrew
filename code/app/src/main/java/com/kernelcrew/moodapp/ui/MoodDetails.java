@@ -95,6 +95,8 @@ public class MoodDetails extends Fragment implements DeleteDialogFragment.Delete
         tvLocationLabel = view.findViewById(R.id.tvLocationLabel);
         cardLocation = view.findViewById(R.id.cardLocation);
 
+        toolbar.setNavigationContentDescription("BackButton_MoodDetails");
+
         toolbar.setNavigationOnClickListener(v -> handleBackButton());
 
         fetchMoodDetails(moodEventId);
