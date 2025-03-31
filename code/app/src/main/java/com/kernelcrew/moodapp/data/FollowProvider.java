@@ -67,6 +67,7 @@ public class FollowProvider {
                     notifData.put("toUserId", requesterUid);    // The original requester (User1)
                     notifData.put("type", "followAccepted");
                     notifData.put("timestamp", com.google.firebase.firestore.FieldValue.serverTimestamp());
+                    notifData.put("shown", false);
 
                     db.collection("users")
                             .document(requesterUid)
