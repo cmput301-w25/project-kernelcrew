@@ -29,6 +29,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
@@ -40,7 +41,8 @@ public class EditMoodEventTest extends FirebaseEmulatorMixin {
             new ActivityScenarioRule<>(MainActivity.class);
 
     @BeforeClass
-    public static void seedDatabase() throws ExecutionException, InterruptedException {
+    public static void seedDatabase() throws ExecutionException, InterruptedException, IOException {
+        teardownAll();
         staticCreateUser();
 
         FirebaseAuth auth = FirebaseAuth.getInstance();

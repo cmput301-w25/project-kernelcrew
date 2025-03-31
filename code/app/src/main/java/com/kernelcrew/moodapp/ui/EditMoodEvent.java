@@ -1,5 +1,6 @@
 package com.kernelcrew.moodapp.ui;
 
+import android.content.Context;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -13,6 +14,9 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentContainerView;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
+
 
 import com.google.android.material.navigation.NavigationBarView;
 import com.google.firebase.auth.FirebaseAuth;
@@ -30,11 +34,27 @@ public class EditMoodEvent extends Fragment {
     private FirebaseUser currentUser;
     private MoodEventProvider provider;
 
+    private boolean isOnline() {
+        ConnectivityManager cm = (ConnectivityManager) requireContext().getSystemService(Context.CONNECTIVITY_SERVICE);
+        if (cm != null) {
+            NetworkInfo net = cm.getActiveNetworkInfo();
+            return net != null && net.isConnected();
+        }
+        return false;
+    }
+
+
     private void handleSubmit(MoodEventForm.MoodEventDetails details) {
         MoodEvent moodEvent = details.toMoodEvent(currentUser.getUid());
         moodEvent.setId(moodEventId);
+        moodEvent.setSynced(false);
+
+        if (!isOnline()) {
+            Toast.makeText(getContext(), "You're offline! Mood will be updated when you're back online.", Toast.LENGTH_LONG).show();
+        }
         provider.updateMoodEvent(moodEventId, moodEvent)
                 .addOnSuccessListener(_result -> {
+                    moodEvent.setSynced(true);
                     navController.popBackStack();
                 })
                 .addOnFailureListener(error -> {

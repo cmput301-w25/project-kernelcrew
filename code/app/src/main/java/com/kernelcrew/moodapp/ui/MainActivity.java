@@ -8,6 +8,8 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.FirebaseFirestoreSettings;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.kernelcrew.moodapp.R;
@@ -31,6 +33,13 @@ public class MainActivity extends AppCompatActivity {
             return insets;
         });
 
+        // Enable Firestore offline persistence
+        FirebaseFirestoreSettings settings = new FirebaseFirestoreSettings.Builder()
+                .setPersistenceEnabled(true)
+                .build();
+        FirebaseFirestore.getInstance().setFirestoreSettings(settings);
+
+
         auth = FirebaseAuth.getInstance();
         followRequestProvider = new FollowRequestProvider(this);
 
@@ -39,8 +48,6 @@ public class MainActivity extends AppCompatActivity {
 
             if (newUser != null && (currentUser == null || !newUser.getUid().equals(currentUser.getUid()))) {
                 currentUser = newUser;
-
-                // Attach listeners for new signed-in user
                 followRequestProvider.listenForFollowRequests(currentUser.getUid());
                 followRequestProvider.listenForFollowAcceptedNotifications(currentUser.getUid());
 

@@ -176,4 +176,17 @@ public class MoodEvent implements Serializable {
 
         this.visibility = visibility;
     }
+
+    @Exclude
+    private boolean isSynced = true;
+
+    @Exclude
+    public boolean isSynced() {
+        return isSynced;
+    }
+
+    @Exclude
+    public void setSynced(boolean synced) {
+        this.isSynced = synced;
+    }
 }
