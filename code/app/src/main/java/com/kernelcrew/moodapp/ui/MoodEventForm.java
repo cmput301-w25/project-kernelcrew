@@ -26,6 +26,7 @@ import android.view.ViewGroup;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.ImageButton;
+import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -272,6 +273,18 @@ public class MoodEventForm extends Fragment implements LocationUpdateListener {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
 
         FragmentContainerView locationFragmentContainer = view.findViewById(R.id.location_fragment);
+
+        MapTouchWrapper mapTouchWrapper = view.findViewById(R.id.map_touch_wrapper);
+        ScrollView scrollView = requireActivity().findViewById(R.id.scrollView); // Use your ScrollView's ID
+
+        mapTouchWrapper.setOnTouchListener(() -> {
+            if (scrollView != null) {
+                scrollView.requestDisallowInterceptTouchEvent(true);
+            }
+        });
+
+
+
         if (locationFragmentContainer != null) {
             locationFragment = locationFragmentContainer.getFragment();
             Log.e("MoodEventForm", "LocationFragment attached.");

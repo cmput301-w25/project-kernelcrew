@@ -44,7 +44,6 @@
             app:cardCornerRadius="12dp"
             app:cardElevation="2dp"
             android:backgroundTint="@android:color/white">
-
             <androidx.fragment.app.FragmentContainerView
                 android:id="@+id/mapContainer"
                 android:layout_width="match_parent"

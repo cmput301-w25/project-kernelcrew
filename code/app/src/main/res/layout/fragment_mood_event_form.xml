@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ScrollView
+    android:id="@+id/scrollView"
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     xmlns:app="http://schemas.android.com/apk/res-auto"
@@ -94,12 +95,17 @@
             android:textAppearance="@style/TextAppearance.Material3.LabelLarge"
             android:textColor="@color/design_default_color_error" />
 
-<androidx.fragment.app.FragmentContainerView
-    android:id="@+id/location_fragment"
-    android:name="com.kernelcrew.moodapp.ui.LocationFragment"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content" />
 
+        <com.kernelcrew.moodapp.ui.MapTouchWrapper
+            android:id="@+id/map_touch_wrapper"
+            android:layout_width="match_parent"
+            android:layout_height="200dp">
+        <androidx.fragment.app.FragmentContainerView
+            android:id="@+id/location_fragment"
+            android:name="com.kernelcrew.moodapp.ui.LocationFragment"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+        </com.kernelcrew.moodapp.ui.MapTouchWrapper>
 
         <com.google.android.material.button.MaterialButtonToggleGroup
             android:id="@+id/visibility_button"
