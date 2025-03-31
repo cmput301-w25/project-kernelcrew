@@ -41,6 +41,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.MethodSorters;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
@@ -52,13 +53,13 @@ import java.util.concurrent.TimeUnit;
 public class FollowRequestTest extends FirebaseEmulatorMixin {
 
     // Test user credentials for User A (the follower) and User B (the target)
-    private static final String USER_A_EMAIL = "auto1@test.com";
-    private static final String USER_A_USERNAME = "automatedtests1";
-    private static final String USER_A_PASSWORD = "TestPass1";
+    private static final String USER_A_EMAIL = "followrequest_auto1@test.com";
+    private static final String USER_A_USERNAME = "followrequestautomatedtests1";
+    private static final String USER_A_PASSWORD = "FRTestPass1";
 
-    private static final String USER_B_EMAIL = "auto2@test.com";
-    private static final String USER_B_USERNAME = "automatedtests2";
-    private static final String USER_B_PASSWORD = "TestPass2";
+    private static final String USER_B_EMAIL = "followrequest_auto2@test.com";
+    private static final String USER_B_USERNAME = "followrequestautomatedtests2";
+    private static final String USER_B_PASSWORD = "FRTestPass2";
 
     @Rule
     public ActivityScenarioRule<MainActivity> activityScenarioRule =
@@ -70,7 +71,11 @@ public class FollowRequestTest extends FirebaseEmulatorMixin {
      * - Sign in as USER B and add one public mood event.
      */
     @BeforeClass
-    public static void seedDatabase() throws ExecutionException, InterruptedException {
+    public static void seedDatabase() throws ExecutionException, InterruptedException, IOException {
+        // Clear all users before running
+        teardownAll();
+
+        // Then seed required users only
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         FirebaseAuth auth = FirebaseAuth.getInstance();
 
