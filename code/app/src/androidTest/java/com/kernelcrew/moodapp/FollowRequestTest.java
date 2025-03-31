@@ -5,6 +5,7 @@ import static androidx.test.espresso.action.ViewActions.*;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
 import static androidx.test.espresso.contrib.RecyclerViewActions.actionOnItemAtPosition;
 import static androidx.test.espresso.matcher.ViewMatchers.*;
+import static com.kernelcrew.moodapp.MoodDetailsNavigationTest.clickChildViewWithId;
 import static org.hamcrest.Matchers.containsString;
 
 import android.os.SystemClock;
@@ -71,13 +72,6 @@ public class FollowRequestTest extends FirebaseEmulatorMixin {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         FirebaseAuth auth = FirebaseAuth.getInstance();
 
-        // Create or ensure USER A exists.
-        try {
-            Tasks.await(auth.createUserWithEmailAndPassword(USER_A_EMAIL, USER_A_PASSWORD));
-        } catch (ExecutionException e) {
-            if (!(e.getCause() instanceof com.google.firebase.auth.FirebaseAuthUserCollisionException))
-                throw e;
-        }
         // Create or ensure USER B exists.
         try {
             Tasks.await(auth.createUserWithEmailAndPassword(USER_B_EMAIL, USER_B_PASSWORD));
@@ -146,7 +140,12 @@ public class FollowRequestTest extends FirebaseEmulatorMixin {
     @Test
     public void test_1_testFollowFlow() throws InterruptedException, ExecutionException {
         // PART 1: User A sends a follow request.
-        signInUser(USER_A_EMAIL, USER_A_PASSWORD);
+        onView(withId(R.id.buttonInitialToSignUp)).perform(click());
+        onView(withId(R.id.username)).perform(replaceText(USER_A_USERNAME));
+        onView(withId(R.id.emailSignUp)).perform(replaceText(USER_A_EMAIL));
+        onView(withId(R.id.passwordSignUp)).perform(replaceText(USER_A_PASSWORD));
+        onView(withId(R.id.signUpButtonAuthToHome)).perform(click());
+        SystemClock.sleep(3000);
 
         // From home feed, click on first mood event's "View Details" button.
         onView(withId(R.id.moodRecyclerView))
@@ -199,22 +198,15 @@ public class FollowRequestTest extends FirebaseEmulatorMixin {
         // Click on the Follow Requests button.
         onView(withId(R.id.followRequestsButton)).check(matches(isDisplayed()));
         onView(withId(R.id.followRequestsButton)).perform(click());
-        SystemClock.sleep(1500);
+        SystemClock.sleep(3000);
 
         // In the FollowRequestsFragment, verify that the request from User A is visible.
         onView(withText(containsString(USER_A_USERNAME + " is requesting to follow you")))
                 .check(matches(isDisplayed()));
-//
-//        Awaitility.await()
-//                .atMost(30, TimeUnit.SECONDS)
-//                .pollInterval(1, TimeUnit.SECONDS)
-//                .untilAsserted(() -> {
-//                    onView(withText(containsString(USER_A_USERNAME + " is requesting to follow you")))
-//                            .check(matches(isDisplayed()));
-//                });
 
         // Click on the "Accept" button (assumes it’s labeled "Accept").
-        onView(withText("Accept")).perform(click());
+        onView(withId(R.id.followRequestsRecyclerView))
+                .perform(actionOnItemAtPosition(0, clickChildViewWithId(R.id.acceptButton)));
         SystemClock.sleep(1500);
 
         // Finally, navigate back to MyProfile for User B and verify that the followers count shows at least "1".
