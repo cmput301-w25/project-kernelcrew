@@ -139,7 +139,7 @@ public class FollowRequestTest extends FirebaseEmulatorMixin {
      */
     @Test
     public void test_1_testFollowFlow() throws InterruptedException, ExecutionException {
-        // PART 1: User A sends a follow request.
+        // TEST 1: User A sends a follow request to USER B
         onView(withId(R.id.buttonInitialToSignUp)).perform(click());
         onView(withId(R.id.username)).perform(replaceText(USER_A_USERNAME));
         onView(withId(R.id.emailSignUp)).perform(replaceText(USER_A_EMAIL));
@@ -187,7 +187,9 @@ public class FollowRequestTest extends FirebaseEmulatorMixin {
             SystemClock.sleep(2000);
         }
 
-        // PART 2: Sign in as User B.
+
+
+        // TEST 2: Sign in as User B, check if user A's follow request is being displayed correctly or not
         signInUser(USER_B_EMAIL, USER_B_PASSWORD);
         SystemClock.sleep(2000);
 
@@ -213,6 +215,9 @@ public class FollowRequestTest extends FirebaseEmulatorMixin {
         onView(withId(R.id.page_myProfile)).perform(click());
         SystemClock.sleep(1500);
         onView(withId(R.id.followers_button)).check(matches(withText(containsString("1"))));
+
+
+        // TEST 3: User B unfollows User A
     }
 
     /**
