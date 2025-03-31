@@ -14,6 +14,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.CheckBox;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -41,6 +42,7 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.material.navigation.NavigationBarView;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.ListenerRegistration;
 import com.kernelcrew.moodapp.R;
@@ -65,6 +67,7 @@ public class MoodMap extends Fragment implements OnMapReadyCallback, FilterBarFr
     private LatLng currentUserLocation;
     private ListenerRegistration reg;
     private Marker userMarker;
+    private CheckBox moodToggle;
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
@@ -94,6 +97,18 @@ public class MoodMap extends Fragment implements OnMapReadyCallback, FilterBarFr
         transaction.commit();
         filterBarFragment.setOnFilterChangedListener(this);
         currentFilter = filterBarFragment.getMoodEventFilter();
+
+        moodToggle = view.findViewById(R.id.toggleMoodEvents);
+        moodToggle.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            filterBarFragment.updateFilter(filter -> {
+                if (isChecked) {
+                    String currentUid = FirebaseAuth.getInstance().getCurrentUser().getUid();
+                    filter.setUser(currentUid);
+                } else {
+                    filter.setUsers(null);
+                }
+            });
+        });
 
         // Request user's current location (permission if needed)
         new LocationHandler(getContext()).fetchLocation(new LocationHandler.OnLocationObtainedListener() {
