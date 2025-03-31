@@ -22,10 +22,13 @@ import java.util.List;
 
 public class CommentProvider {
     private final CollectionReference collection;
+    private final FirebaseAuth auth;
 
     private CommentProvider() {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         collection = db.collection("comments");
+
+        auth = FirebaseAuth.getInstance();
     }
 
     private static CommentProvider instance;
@@ -43,8 +46,19 @@ public class CommentProvider {
     }
 
     public Task<Void> insertComment(Comment comment) {
+        if (comment == null){
+            throw new IllegalArgumentException("Comment cannot be null");
+        }
+
+        FirebaseUser user = auth.getCurrentUser();
+        assert user != null;
+
+        comment.setUid(user.getUid());
+
         DocumentReference docRef = collection.document();
+
         comment.setId(docRef.getId());
+
         return docRef.set(comment);
     }
 
