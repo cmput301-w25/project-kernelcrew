@@ -180,10 +180,6 @@ public class FollowRequestTest extends FirebaseEmulatorMixin {
         onView(withContentDescription("BackButton_OtherUserProfile")).perform(click());
         SystemClock.sleep(1500);
 
-        // this takes us to mood details, so go back 1 more screen
-        onView(withContentDescription("BackButton_MoodDetails")).perform(click());
-        SystemClock.sleep(1500);
-
         // If the current page is not AuthHome, navigate to MyProfile and then sign out.
         if (!isViewDisplayed(R.id.authHome)) {
             onView(withId(R.id.page_myProfile)).perform(click());
