@@ -35,6 +35,20 @@
             app:cardCornerRadius="12dp"
             app:cardElevation="2dp"
             android:backgroundTint="@android:color/white">
+            <!-- Following TextView Created by OpenAI, ChatGPT-4, "Add map tip xml using TextView for location_fragment", accessed 03-30-2025 -->
+            <TextView
+                android:id="@+id/map_tip_text"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginTop="12dp"
+                android:text="Tip: Move around the map to change your location"
+                android:textColor="#65558f"
+                android:background="@drawable/tip_background"
+                android:padding="10dp"
+                android:visibility="gone"
+                android:elevation="4dp"
+                android:textAppearance="@style/TextAppearance.Material3.BodyMedium"/>
 
             <androidx.fragment.app.FragmentContainerView
                 android:id="@+id/mapContainer"
@@ -42,7 +56,11 @@
                 android:layout_height="match_parent"
                 android:name="com.google.android.gms.maps.SupportMapFragment" />
         </com.google.android.material.card.MaterialCardView>
+
+
     </FrameLayout>
+
+
 
     <!-- Remove Location Button (moved out of card) -->
     <com.google.android.material.button.MaterialButton
@@ -55,4 +73,6 @@
         android:layout_marginEnd="16dp"
         android:layout_marginBottom="24dp"
         android:text="Remove Location" />
+
+
 </LinearLayout>
