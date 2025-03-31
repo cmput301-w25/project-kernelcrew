@@ -127,7 +127,7 @@ public class MoodOwnershipTest extends FirebaseEmulatorMixin {
         onView(withId(R.id.emotion_reason))
                 .perform(scrollTo(), replaceText(MOOD1_REASON), closeSoftKeyboard());
         onView(withId(R.id.toggle_happy)).perform(click());
-        onView(withId(R.id.createMoodEvent_submitButton)).perform(click());
+        onView(withId(R.id.submit_button)).perform(click());
         SystemClock.sleep(3000);
 
         // Open the newly created mood's details (position 0)
