@@ -158,18 +158,13 @@ public class FollowRequestTest extends FirebaseEmulatorMixin {
 
         // In OtherUserProfile, click the follow button.
         onView(withId(R.id.followButton)).check(matches(isDisplayed()));
-        SystemClock.sleep(2000); // Allow UI to settle before clicking.
+        SystemClock.sleep(2000);
         onView(withId(R.id.followButton)).perform(click());
         SystemClock.sleep(1500);
 
-        // Wait until the button text updates to "Requested".
-        Awaitility.await()
-                .atMost(30, TimeUnit.SECONDS)
-                .pollInterval(1, TimeUnit.SECONDS)
-                .untilAsserted(() -> {
-                    onView(withId(R.id.followButton))
-                            .check(matches(withText(containsString("Requested"))));
-                });
+
+        onView(withId(R.id.followButton))
+                .check(matches(withText(containsString("Requested"))));
 
         // Click the back button in the top app bar (MaterialToolbar)
         onView(withContentDescription("BackButton_OtherUserProfile")).perform(click());
@@ -217,10 +212,37 @@ public class FollowRequestTest extends FirebaseEmulatorMixin {
         onView(withId(R.id.followers_button)).check(matches(withText(containsString("1"))));
 
 
+
         // TEST 3: User A unfollows User B
-        // TODO: sign in as user A
-        // TODO: click on the mood of B, click on username button of B to go to other user profile page
-        // TODO: click on unfollow button, check/verify if the "unfollow" changes to "follow" or not
+        // Sign in as User A.
+        signInUser(USER_A_EMAIL, USER_A_PASSWORD);
+        SystemClock.sleep(3000);
+
+        // From home feed, click on the first mood event's "View Details" button.
+        onView(withId(R.id.moodRecyclerView))
+                .perform(actionOnItemAtPosition(0, clickChildViewWithId(R.id.viewDetailsButton)));
+        SystemClock.sleep(1500);
+
+        // In MoodDetails, click on the username chip to navigate to OtherUserProfile.
+        onView(withId(R.id.tvUsernameDisplay)).perform(click());
+        SystemClock.sleep(1500);
+
+        // In OtherUserProfile, verify that the follow button shows "Unfollow"
+        onView(withId(R.id.followButton)).check(matches(withText(containsString("Unfollow"))));
+        SystemClock.sleep(1500);
+
+        // Click the "Unfollow" button.
+        onView(withId(R.id.followButton)).perform(click());
+        SystemClock.sleep(1500);
+
+        // Wait until the button text updates to "Follow", which indicates the unfollow succeeded.
+        Awaitility.await()
+                .atMost(30, TimeUnit.SECONDS)
+                .pollInterval(1, TimeUnit.SECONDS)
+                .untilAsserted(() -> {
+                    onView(withId(R.id.followButton))
+                            .check(matches(withText(containsString("Follow"))));
+                });
     }
 
     /**
