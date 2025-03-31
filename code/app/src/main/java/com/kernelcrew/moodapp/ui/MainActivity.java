@@ -13,7 +13,12 @@ import com.google.firebase.auth.FirebaseUser;
 import com.kernelcrew.moodapp.R;
 import com.kernelcrew.moodapp.data.FollowRequestProvider;
 
+
 public class MainActivity extends AppCompatActivity {
+    private FirebaseAuth auth;
+    private FirebaseUser currentUser;
+    private FollowRequestProvider followRequestProvider;
+    private boolean listenersAttached = false;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -26,12 +31,21 @@ public class MainActivity extends AppCompatActivity {
             return insets;
         });
 
-        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        auth = FirebaseAuth.getInstance();
+        followRequestProvider = new FollowRequestProvider(this);
 
-        if (user != null) {
-            FollowRequestProvider followRequestProvider = new FollowRequestProvider(this);
-            followRequestProvider.listenForFollowRequests(user.getUid());
-            followRequestProvider.listenForFollowAcceptedNotifications(user.getUid());
-        }
+        auth.addAuthStateListener(firebaseAuth -> {
+            FirebaseUser newUser = firebaseAuth.getCurrentUser();
+
+            if (newUser != null && (currentUser == null || !newUser.getUid().equals(currentUser.getUid()))) {
+                currentUser = newUser;
+
+                // Attach listeners for new signed-in user
+                followRequestProvider.listenForFollowRequests(currentUser.getUid());
+                followRequestProvider.listenForFollowAcceptedNotifications(currentUser.getUid());
+
+                listenersAttached = true;
+            }
+        });
     }
 }
