@@ -33,8 +33,11 @@ public class EditMoodEvent extends Fragment {
     private void handleSubmit(MoodEventForm.MoodEventDetails details) {
         MoodEvent moodEvent = details.toMoodEvent(currentUser.getUid());
         moodEvent.setId(moodEventId);
+        moodEvent.setSynced(false);
+
         provider.updateMoodEvent(moodEventId, moodEvent)
                 .addOnSuccessListener(_result -> {
+                    moodEvent.setSynced(true);
                     navController.popBackStack();
                 })
                 .addOnFailureListener(error -> {

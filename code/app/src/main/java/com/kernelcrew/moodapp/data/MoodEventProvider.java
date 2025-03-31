@@ -91,6 +91,10 @@ public class MoodEventProvider {
         });
     }
 
+    public Task<Void> deleteMoodEvent(String moodId) {
+        return collection.document(moodId).delete();
+    }
+
     /**
      * Returns all mood events which can then be further filtered.
      *

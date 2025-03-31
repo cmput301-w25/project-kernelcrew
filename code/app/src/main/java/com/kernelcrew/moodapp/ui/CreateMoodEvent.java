@@ -34,8 +34,11 @@ public class CreateMoodEvent extends Fragment {
     private void handleSubmit(MoodEventForm.MoodEventDetails details) {
         details.username = currentUser.getDisplayName();
         MoodEvent moodEvent = details.toMoodEvent(currentUser.getUid());
+        moodEvent.setSynced(false);
+
         provider.insertMoodEvent(moodEvent)
                 .addOnSuccessListener(_result -> {
+                    moodEvent.setSynced(true);
                     navController.navigate(R.id.homeFeed);
                 })
                 .addOnFailureListener(error -> {

@@ -13,6 +13,7 @@ import androidx.fragment.app.DialogFragment;
 
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.kernelcrew.moodapp.R;
+import com.kernelcrew.moodapp.data.MoodEventProvider;
 
 /**
  * Dialog fragment for confirming mood event deletion
@@ -79,7 +80,7 @@ public class DeleteDialogFragment extends DialogFragment {
         deleteButton.setOnClickListener(v -> {
             // Check if ID exists before deleting
             if (finalMoodEventId != null && listener != null) {
-                db.collection("moodEvents").document(finalMoodEventId).delete();
+                MoodEventProvider.getInstance().deleteMoodEvent(finalMoodEventId);
                 listener.onDeleteConfirmed();
             }
             dismiss();
