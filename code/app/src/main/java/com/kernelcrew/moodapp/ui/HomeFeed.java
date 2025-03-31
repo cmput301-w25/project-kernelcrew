@@ -181,7 +181,10 @@ public class HomeFeed extends DefaultFilterBarFragment
     @Override
     public void onDestroyView() {
         super.onDestroyView();
-        this.registration.remove();
+
+        if (this.registration != null) {
+            this.registration.remove();
+        }
     }
 
     /**
