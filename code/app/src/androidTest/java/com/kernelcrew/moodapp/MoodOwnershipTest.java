@@ -9,6 +9,7 @@ import static androidx.test.espresso.assertion.ViewAssertions.matches;
 import static androidx.test.espresso.contrib.RecyclerViewActions.actionOnItemAtPosition;
 import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
+import static androidx.test.espresso.matcher.ViewMatchers.withText;
 import static com.kernelcrew.moodapp.MoodDetailsNavigationTest.clickChildViewWithId;
 import static org.hamcrest.Matchers.not;
 
@@ -23,6 +24,7 @@ import com.google.android.gms.tasks.Tasks;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.Filter;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.kernelcrew.moodapp.ui.MainActivity;
 
@@ -37,6 +39,7 @@ import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.ExecutionException;
@@ -101,7 +104,7 @@ public class MoodOwnershipTest extends FirebaseEmulatorMixin {
     }
 
     /**
-     * Combined test: 
+     * Combined test:
      * - Sign up as User1, create a mood via GUI and verify that Edit/Delete buttons are displayed.
      * - Sign out User1.
      * - Sign up as User2, view User1’s mood details, and verify that Edit/Delete buttons are not displayed.
@@ -126,7 +129,7 @@ public class MoodOwnershipTest extends FirebaseEmulatorMixin {
         onView(withId(R.id.emotion_reason))
                 .perform(scrollTo(), replaceText(MOOD1_REASON), closeSoftKeyboard());
         onView(withId(R.id.toggle_happy)).perform(click());
-        onView(withId(R.id.submit_button)).perform(scrollTo(), click());
+        onView(withId(R.id.submit_button)).perform(scrollTo()).perform(click());
         SystemClock.sleep(3000);
 
         // Open the newly created mood's details (position 0)
@@ -154,12 +157,34 @@ public class MoodOwnershipTest extends FirebaseEmulatorMixin {
         onView(withId(R.id.emailSignUp)).perform(replaceText(USER2_EMAIL));
         onView(withId(R.id.passwordSignUp)).perform(replaceText(USER2_PASSWORD));
         onView(withId(R.id.signUpButtonAuthToHome)).perform(click());
+
+        // Make user2 follow user1
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        String userAUid = Tasks.await(db.collection("usernames").document(USER1_USERNAME).get()).getString("uid");
+        String userBUid = Tasks.await(db.collection("usernames").document(USER2_USERNAME).get()).getString("uid");
+
+        FirebaseAuth auth = FirebaseAuth.getInstance();
+        Tasks.await(db.collection("users").document(userAUid)
+                .collection("followers")
+                .document(userBUid)
+                .set(Collections.emptyMap()));
+
+        // Note, this must be done as USER1
+        Tasks.await(auth.signInWithEmailAndPassword(USER1_EMAIL, USER1_PASSWORD));
+        Tasks.await(db.collection("users").document(userBUid)
+                .collection("following")
+                .document(userAUid)
+                .set(Collections.emptyMap()));
+        Tasks.await(auth.signInWithEmailAndPassword(USER2_EMAIL, USER2_PASSWORD));
+
+        SystemClock.sleep(1000);
+        onView(withId(R.id.page_myProfile)).perform(click());
+        SystemClock.sleep(1000);
+        onView(withId(R.id.page_home)).perform(click());
         SystemClock.sleep(3000);
 
         // Open the mood details of the mood created by User1 (should appear at position 0)
-        onView(withId(R.id.moodRecyclerView))
-                .perform(actionOnItemAtPosition(0, clickChildViewWithId(R.id.viewDetailsButton)));
-        SystemClock.sleep(3000);
+        onView(withText("View Details")).perform(click());
 
         // Verify that Edit/Delete buttons are NOT displayed for a mood not owned by User2
         onView(withId(R.id.btnEditMood)).check(matches(not(isDisplayed())));
@@ -170,31 +195,5 @@ public class MoodOwnershipTest extends FirebaseEmulatorMixin {
         FirebaseAuth.getInstance().signOut();
         SystemClock.sleep(3000);
         scenario2.close();
-    }
-
-    // code from lab 7
-    @AfterClass
-    public static void tearDown() {
-        String projectId = "kernel-crew-mood-app";
-        URL url = null;
-        try {
-            url = new URL("http://10.0.2.2:4000/emulator/v1/projects/" + projectId + "/databases/(default)/documents");
-        } catch (MalformedURLException exception) {
-            Log.e("URL Error", Objects.requireNonNull(exception.getMessage()));
-        }
-        HttpURLConnection urlConnection = null;
-        try {
-            assert url != null;
-            urlConnection = (HttpURLConnection) url.openConnection();
-            urlConnection.setRequestMethod("DELETE");
-            int response = urlConnection.getResponseCode();
-            Log.i("Response Code", "Response Code: " + response);
-        } catch (IOException exception) {
-            Log.e("IO Error", Objects.requireNonNull(exception.getMessage()));
-        } finally {
-            if (urlConnection != null) {
-                urlConnection.disconnect();
-            }
-        }
     }
 }

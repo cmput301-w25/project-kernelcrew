@@ -72,15 +72,7 @@ public class FirebaseEmulatorMixin {
         Log.i("Response Code", "Response Code: " + response);
         urlConnection.disconnect();
 
-        url = new URL("http://" + androidLocalhost + ":9099/emulator/v1/projects/" + projectId +
-                "/accounts");
-        urlConnection = (HttpURLConnection) url.openConnection();
-        urlConnection.setRequestMethod("DELETE");
-        response = urlConnection.getResponseCode();
-        Log.i("Response Code", "Response Code: " + response);
-        urlConnection.disconnect();
-
-        url = new URL("http://" + androidLocalhost + ":9099/emulator/v1/projects/" + projectId +
+        url = new URL("http://" + androidLocalhost + ":8080/emulator/v1/projects/" + projectId +
                 "/databases/(default)/documents/users");
         urlConnection = (HttpURLConnection) url.openConnection();
         urlConnection.setRequestMethod("DELETE");
@@ -88,8 +80,17 @@ public class FirebaseEmulatorMixin {
         Log.i("Response Code", "Response Code: " + response);
         urlConnection.disconnect();
 
-        url = new URL("http://" + androidLocalhost + ":9099/emulator/v1/projects/" + projectId +
+        url = new URL("http://" + androidLocalhost + ":8080/emulator/v1/projects/" + projectId +
                 "/databases/(default)/documents/usernames");
+        urlConnection = (HttpURLConnection) url.openConnection();
+        urlConnection.setRequestMethod("DELETE");
+        response = urlConnection.getResponseCode();
+        Log.i("Response Code", "Response Code: " + response);
+        urlConnection.disconnect();
+
+        // Clear all users from firebase auth
+        url = new URL("http://" + androidLocalhost + ":9099/emulator/v1/projects/" + projectId +
+                "/accounts");
         urlConnection = (HttpURLConnection) url.openConnection();
         urlConnection.setRequestMethod("DELETE");
         response = urlConnection.getResponseCode();
@@ -115,16 +116,19 @@ public class FirebaseEmulatorMixin {
         FirebaseAuth auth = FirebaseAuth.getInstance();
         try {
             Tasks.await(auth.createUserWithEmailAndPassword(TEST_EMAIL, TEST_PASSWORD));
-            // Add username field to this new user
+            // Now include the uid and username fields in the user document.
             FirebaseFirestore db = FirebaseFirestore.getInstance();
             Map<String, Object> userData = new HashMap<>();
+            // Add uid property required by the security rules.
+            userData.put("uid", auth.getCurrentUser().getUid());
             userData.put("username", TEST_USERNAME);
+            // Optionally, add email if your rules require it.
+            userData.put("email", TEST_EMAIL);
             Tasks.await(db.collection("users").document(auth.getCurrentUser().getUid()).set(userData));
         } catch (ExecutionException e) {
             if (!(e.getCause() instanceof com.google.firebase.auth.FirebaseAuthUserCollisionException)) {
                 throw e;
             }
-            // Ignore collision since the user already exists.
         }
     }
 

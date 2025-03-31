@@ -8,6 +8,8 @@ import static androidx.test.espresso.matcher.ViewMatchers.*;
 import static com.kernelcrew.moodapp.MoodDetailsNavigationTest.clickChildViewWithId;
 import static org.hamcrest.Matchers.containsString;
 
+import static java.util.EnumSet.allOf;
+
 import android.os.SystemClock;
 import android.view.View;
 
@@ -39,6 +41,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.MethodSorters;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
@@ -50,13 +53,13 @@ import java.util.concurrent.TimeUnit;
 public class FollowRequestTest extends FirebaseEmulatorMixin {
 
     // Test user credentials for User A (the follower) and User B (the target)
-    private static final String USER_A_EMAIL = "auto1@test.com";
-    private static final String USER_A_USERNAME = "automatedtests1";
-    private static final String USER_A_PASSWORD = "TestPass1";
+    private static final String USER_A_EMAIL = "followrequest_auto1@test.com";
+    private static final String USER_A_USERNAME = "frautotest1";
+    private static final String USER_A_PASSWORD = "FRTestPass1";
 
-    private static final String USER_B_EMAIL = "auto2@test.com";
-    private static final String USER_B_USERNAME = "automatedtests2";
-    private static final String USER_B_PASSWORD = "TestPass2";
+    private static final String USER_B_EMAIL = "followrequest_auto2@test.com";
+    private static final String USER_B_USERNAME = "frautotest2";
+    private static final String USER_B_PASSWORD = "FRTestPass2";
 
     @Rule
     public ActivityScenarioRule<MainActivity> activityScenarioRule =
@@ -68,7 +71,11 @@ public class FollowRequestTest extends FirebaseEmulatorMixin {
      * - Sign in as USER B and add one public mood event.
      */
     @BeforeClass
-    public static void seedDatabase() throws ExecutionException, InterruptedException {
+    public static void seedDatabase() throws ExecutionException, InterruptedException, IOException {
+        // Clear all users before running
+        teardownAll();
+
+        // Then seed required users only
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         FirebaseAuth auth = FirebaseAuth.getInstance();
 
@@ -147,13 +154,21 @@ public class FollowRequestTest extends FirebaseEmulatorMixin {
         onView(withId(R.id.signUpButtonAuthToHome)).perform(click());
         SystemClock.sleep(3000);
 
-        // From home feed, click on first mood event's "View Details" button.
-        onView(withId(R.id.moodRecyclerView))
-                .perform(actionOnItemAtPosition(0, clickChildViewWithId(R.id.viewDetailsButton)));
+        // Search for the user here
+        // Click on the "Users" button within the filter bar fragment.
+        // (Assuming the button is a child of the filter bar, we can use a matcher such as isDescendantOfA.)
+        onView(withId(R.id.searchUser))
+                .perform(click());
+        SystemClock.sleep(1000);
+
+        // If a separate search button is needed, click it.
+        // Replace "R.id.searchButton" with the actual search button ID if it exists.
+        onView(withId(R.id.searchUser)).perform(click());
         SystemClock.sleep(1500);
 
-        // In MoodDetails screen, click on the username chip to navigate to OtherUserProfile.
-        onView(withId(R.id.tvUsernameDisplay)).perform(click());
+        // we only have one user i.e. USER B
+        onView(withId(R.id.moodRecyclerView))
+                .perform(actionOnItemAtPosition(0, click()));
         SystemClock.sleep(1500);
 
         // In OtherUserProfile, click the follow button.
@@ -168,10 +183,6 @@ public class FollowRequestTest extends FirebaseEmulatorMixin {
 
         // Click the back button in the top app bar (MaterialToolbar)
         onView(withContentDescription("BackButton_OtherUserProfile")).perform(click());
-        SystemClock.sleep(1500);
-
-        // this takes us to mood details, so go back 1 more screen
-        onView(withContentDescription("BackButton_MoodDetails")).perform(click());
         SystemClock.sleep(1500);
 
         // If the current page is not AuthHome, navigate to MyProfile and then sign out.

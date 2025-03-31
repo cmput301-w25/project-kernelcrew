@@ -2,13 +2,13 @@ rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
-    // can create user if and only if they have a valid user (which involves having a valid username)
+
     match /users/{userId} {
-        allow create: if request.auth.uid == userId && isUniqueUsernameAndOwner(request.resource.data.username) && request.auth != null;
-      	allow read: if request.auth != null;
-        allow update: if request.auth.uid == userId  && request.auth != null;
-        allow write: if request.auth != null && request.auth.uid == userId;
-        allow delete: if request.auth != null && request.auth.uid == userId;
+      allow create: if request.auth != null && request.auth.uid == userId && isUniqueUsernameAndOwner(request.resource.data.username);
+      allow read: if request.auth != null;
+      allow update: if request.auth != null && request.auth.uid == userId;
+      allow write: if request.auth != null && request.auth.uid == userId;
+      allow delete: if request.auth != null && request.auth.uid == userId;
 
       // Subcollection: followRequests
       match /followRequests/{requesterId} {
@@ -39,7 +39,6 @@ service cloud.firestore {
       }
     }
 
-    // makes sure that only unique usernames can be added to usernames
     match /usernames/{username} {
       allow create: if isUniqueUsernameAndOwner(username);
       allow read;
@@ -57,13 +56,9 @@ service cloud.firestore {
       allow update, delete: if request.auth != null && request.auth.uid == resource.data.uid;
     }
 
-    // Function to ensure a user can create an account with a unique username
     function isUniqueUsernameAndOwner(username) {
       let isOwner = request.auth.uid == request.resource.data.uid;
-
-      // Check if username already exists in the database
       let usernameNotExists = !exists(/databases/$(database)/documents/usernames/$(username));
-
       return isOwner && usernameNotExists;
     }
   }
