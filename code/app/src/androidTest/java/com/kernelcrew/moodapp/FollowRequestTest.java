@@ -236,21 +236,16 @@ public class FollowRequestTest extends FirebaseEmulatorMixin {
         SystemClock.sleep(1500);
 
         // In OtherUserProfile, verify that the follow button shows "Unfollow"
-        onView(withId(R.id.followButton)).check(matches(withText(containsString("Unfollow"))));
+        onView(withId(R.id.followButton))
+                .check(matches(withText(containsString("Unfollow"))));
         SystemClock.sleep(1500);
 
         // Click the "Unfollow" button.
         onView(withId(R.id.followButton)).perform(click());
         SystemClock.sleep(1500);
 
-        // Wait until the button text updates to "Follow", which indicates the unfollow succeeded.
-        Awaitility.await()
-                .atMost(30, TimeUnit.SECONDS)
-                .pollInterval(1, TimeUnit.SECONDS)
-                .untilAsserted(() -> {
-                    onView(withId(R.id.followButton))
-                            .check(matches(withText(containsString("Follow"))));
-                });
+        onView(withId(R.id.followButton))
+                .check(matches(withText(containsString("Follow"))));
     }
 
     /**
