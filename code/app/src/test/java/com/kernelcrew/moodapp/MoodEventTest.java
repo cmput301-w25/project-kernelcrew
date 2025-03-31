@@ -68,4 +68,6 @@ public class MoodEventTest {
         MoodEvent moodEvent = new MoodEvent();
         assertNull(moodEvent.getPhotoBytes());
     }
+    
+    
 }
