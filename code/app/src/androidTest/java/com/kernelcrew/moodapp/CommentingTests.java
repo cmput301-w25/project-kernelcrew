@@ -144,23 +144,11 @@ public class CommentingTests extends FirebaseEmulatorMixin {
         await().atMost(10, TimeUnit.SECONDS)
                 .untilAsserted(() -> onView(withId(R.id.moodContainer)).check(matches(isDisplayed())));
 
-    }
 
-    @Test
-    public void testCreateComment() throws InterruptedException {
-        onView(withText("Sign In")).perform(click());
-        onView(withId(R.id.emailSignIn)).perform(replaceText(USER_EMAIL), closeSoftKeyboard());
-        onView(withId(R.id.passwordSignIn)).perform(replaceText(USER_PASSWORD), closeSoftKeyboard());
-        onView(withId(R.id.signInButtonAuthToHome)).perform(click());
 
+        // TEST 02: testCreateComment()
         SystemClock.sleep(1000);
-
-        onView(withId(R.id.filterBarFragment)).check(matches(isDisplayed()));
-
-        SystemClock.sleep(1000);
-
-        onView(withId(R.id.moodRecyclerView)).perform(actionOnItemAtPosition(0,
-                clickChildViewWithId(R.id.commentLayout)));
+        // User is already signed in and on home feed screen from previous test
 
         onView(withId(R.id.searchInput)).perform(replaceText("A second comment"), closeSoftKeyboard());
 
