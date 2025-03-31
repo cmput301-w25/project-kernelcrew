@@ -44,6 +44,11 @@
             app:cardCornerRadius="12dp"
             app:cardElevation="2dp"
             android:backgroundTint="@android:color/white">
+
+            <com.kernelcrew.moodapp.ui.MapTouchWrapper
+                android:id="@+id/map_touch_wrapper"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
             <!-- Following TextView Created by OpenAI, ChatGPT-4, "Add map tip xml using TextView for location_fragment", accessed 03-30-2025 -->
             <TextView
                 android:id="@+id/map_tip_text"
@@ -64,12 +69,9 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:name="com.google.android.gms.maps.SupportMapFragment" />
+            </com.kernelcrew.moodapp.ui.MapTouchWrapper>
         </com.google.android.material.card.MaterialCardView>
-
-
     </FrameLayout>
-
-
 
     <!-- Remove Location Button (moved out of card) -->
     <com.google.android.material.button.MaterialButton
@@ -82,6 +84,4 @@
         android:layout_marginEnd="16dp"
         android:layout_marginBottom="24dp"
         android:text="Remove Location" />
-
-
 </LinearLayout>

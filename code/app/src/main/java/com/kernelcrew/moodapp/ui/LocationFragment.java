@@ -27,6 +27,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.TextView;
+import android.widget.ScrollView;
 import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
@@ -51,7 +52,6 @@ import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationResult;
 import android.os.Looper;
 import android.location.Location;
-
 
 public class LocationFragment extends Fragment {
 
@@ -105,6 +105,16 @@ public class LocationFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.location_fragment, container, false);
         TextView mapTipText = view.findViewById(R.id.map_tip_text);
+
+        MapTouchWrapper mapTouchWrapper = view.findViewById(R.id.map_touch_wrapper);
+        ScrollView scrollView = requireActivity().findViewById(R.id.scrollView);
+
+        if (mapTouchWrapper != null && scrollView != null) {
+            mapTouchWrapper.setOnTouchListener(() -> {
+                scrollView.requestDisallowInterceptTouchEvent(true);
+            });
+        }
+
         // Code from Claude AI, Anthropic, "Fix location API initialization", accessed 03-07-2024
         try {
             // Initialize the fusedLocationClient with the activity context
