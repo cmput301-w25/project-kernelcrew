@@ -64,21 +64,14 @@ public class CreateMoodEvent extends Fragment {
 
         // Get fragments
         FragmentContainerView formFragmentContainer = view.findViewById(R.id.mood_event_form);
-        FragmentContainerView locationFragmentContainer = view.findViewById(R.id.location_fragment);
 
         // Check nulls first
         assert formFragmentContainer != null;
-        assert locationFragmentContainer != null;
 
         MoodEventForm form = formFragmentContainer.getFragment();
-        LocationFragment locationFragment = locationFragmentContainer.getFragment();
 
         // Check nulls again
         assert form != null;
-        assert locationFragment != null;
-
-        // First set update listener to connect fragments
-        locationFragment.setUpdateListener(form);
 
         // Then set submit callback
         form.onSubmit(this::handleSubmit);

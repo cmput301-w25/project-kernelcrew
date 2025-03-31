@@ -23,10 +23,6 @@ public class MoodEventFilter {
     private Double longitude;
     private Double radius;
 
-    // Added fields for search functionality
-    private String searchQuery = "";
-    private String searchType = "MOODS";
-
     /**
      * Constructor accepting a CollectionReference directly.
      * This is useful if you have the Firestore collection from your provider.
@@ -181,8 +177,6 @@ public class MoodEventFilter {
         latitude = null;
         longitude = null;
         radius = null;
-        searchQuery = "";
-        searchType = "MOODS";
     }
 
     /**
@@ -244,13 +238,21 @@ public class MoodEventFilter {
         }
 
         if (latitude != null && longitude != null && radius != null) {
+            // Taha used the following resources,
+            // https://en.wikipedia.org/wiki/Great-circle_distance
+            // https://www.movable-type.co.uk/scripts/latlong.html
+
             double earthRadius = 6371.0;
             double latDelta = Math.toDegrees(radius / earthRadius);
             double lonDelta = Math.toDegrees(radius / (earthRadius * Math.cos(Math.toRadians(latitude))));
+
+            // Getting the max/mins
             double minLat = latitude - latDelta;
             double maxLat = latitude + latDelta;
             double minLon = longitude - lonDelta;
             double maxLon = longitude + lonDelta;
+
+            // Build Query
             query = query.whereGreaterThanOrEqualTo("latitude", minLat)
                     .whereLessThanOrEqualTo("latitude", maxLat)
                     .whereGreaterThanOrEqualTo("longitude", minLon)
@@ -259,22 +261,5 @@ public class MoodEventFilter {
 
         return query;
     }
-
-    // New getters and setters for search functionality
-
-    public String getSearchQuery() {
-        return searchQuery;
-    }
-
-    public void setSearchQuery(String searchQuery) {
-        this.searchQuery = searchQuery;
-    }
-
-    public String getSearchType() {
-        return searchType;
-    }
-
-    public void setSearchType(String searchType) {
-        this.searchType = searchType;
-    }
 }
+
