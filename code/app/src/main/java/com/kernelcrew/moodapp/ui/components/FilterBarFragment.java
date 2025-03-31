@@ -135,7 +135,6 @@ public abstract class FilterBarFragment extends Fragment {
      *
      * Usage:
      *   filterBarFragment.updateFilter(new FilterUpdater() {
-     *       @Override
      *       public void update(MoodEventFilter filter) {
      *           filter.setLimit(10);
      *       }
