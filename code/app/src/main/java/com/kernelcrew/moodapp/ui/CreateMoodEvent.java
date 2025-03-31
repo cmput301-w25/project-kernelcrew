@@ -49,7 +49,7 @@ public class CreateMoodEvent extends Fragment {
         moodEvent.setSynced(false);
 
         if (!isOnline()) {
-            Toast.makeText(getContext(), "Your offline mood will be created when you're online!", Toast.LENGTH_LONG).show();
+            Toast.makeText(getContext(), "Local mood set! Offline mood will sync when you're online.", Toast.LENGTH_LONG).show();
         }
 
         provider.insertMoodEvent(moodEvent)
