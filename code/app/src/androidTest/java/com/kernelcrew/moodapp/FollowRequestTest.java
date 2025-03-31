@@ -8,6 +8,8 @@ import static androidx.test.espresso.matcher.ViewMatchers.*;
 import static com.kernelcrew.moodapp.MoodDetailsNavigationTest.clickChildViewWithId;
 import static org.hamcrest.Matchers.containsString;
 
+import static java.util.EnumSet.allOf;
+
 import android.os.SystemClock;
 import android.view.View;
 
@@ -148,9 +150,27 @@ public class FollowRequestTest extends FirebaseEmulatorMixin {
         SystemClock.sleep(3000);
 
         // Search for the user here
-        // TODO: click on "users" button(this is a child inside filterbarfragment not home feed)
-        // TODO: search for "user B", click again on users
-        // TODO: click on the 0th item i.e. "user B"
+        // Click on the "Users" button within the filter bar fragment.
+        // (Assuming the button is a child of the filter bar, we can use a matcher such as isDescendantOfA.)
+        onView(R.id.searchUser).perform(click());
+        SystemClock.sleep(1000);
+
+        // In the user search screen, type in USER_B's username.
+        // Replace "R.id.searchInput" with the actual ID for the search field if different.
+        onView(withId(R.id.searchInput))
+                .perform(click(), replaceText(USER_B_USERNAME), closeSoftKeyboard());
+        SystemClock.sleep(1000);
+
+        // If a separate search button is needed, click it.
+        // Replace "R.id.searchButton" with the actual search button ID if it exists.
+        onView(withId(R.id.searchUser)).perform(click());
+        SystemClock.sleep(1500);
+
+        // Finally, click on the 0th item in the RecyclerView showing search results.
+        // This should correspond to USER B.
+        onView(withId(R.id.moodRecyclerView))
+                .perform(actionOnItemAtPosition(0, click()));
+        SystemClock.sleep(1500);
 
         // In OtherUserProfile, click the follow button.
         onView(withId(R.id.followButton)).check(matches(isDisplayed()));
