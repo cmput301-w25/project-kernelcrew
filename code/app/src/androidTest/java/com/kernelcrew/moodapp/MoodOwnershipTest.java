@@ -162,14 +162,21 @@ public class MoodOwnershipTest extends FirebaseEmulatorMixin {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         String userAUid = Tasks.await(db.collection("usernames").document(USER1_USERNAME).get()).getString("uid");
         String userBUid = Tasks.await(db.collection("usernames").document(USER2_USERNAME).get()).getString("uid");
-        db.collection("users").document(userAUid)
+
+        FirebaseAuth auth = FirebaseAuth.getInstance();
+        Tasks.await(db.collection("users").document(userAUid)
                 .collection("followers")
                 .document(userBUid)
-                .set(Collections.emptyMap());
-        db.collection("users").document(userBUid)
+                .set(Collections.emptyMap()));
+
+        // Note, this must be done as USER1
+        Tasks.await(auth.signInWithEmailAndPassword(USER1_EMAIL, USER1_PASSWORD));
+        Tasks.await(db.collection("users").document(userBUid)
                 .collection("following")
                 .document(userAUid)
-                .set(Collections.emptyMap());
+                .set(Collections.emptyMap()));
+        Tasks.await(auth.signInWithEmailAndPassword(USER2_EMAIL, USER2_PASSWORD));
+
         SystemClock.sleep(1000);
         onView(withId(R.id.page_myProfile)).perform(click());
         SystemClock.sleep(1000);
