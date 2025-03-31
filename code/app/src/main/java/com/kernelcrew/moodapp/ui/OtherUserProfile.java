@@ -25,7 +25,6 @@ import com.google.firebase.firestore.Query;
 import com.kernelcrew.moodapp.R;
 import com.kernelcrew.moodapp.data.FollowProvider;
 import com.kernelcrew.moodapp.data.MoodEvent;
-import com.kernelcrew.moodapp.data.MoodEventProvider;
 import com.kernelcrew.moodapp.data.UserProvider;
 import com.kernelcrew.moodapp.utils.NotificationHelper;
 
@@ -181,11 +180,11 @@ public class OtherUserProfile extends Fragment {
         publicMoodsRecyclerView.setAdapter(moodAdapter);
 
         if (uidToLoad != null) {
-            Query query = MoodEventProvider.getInstance()
-                    .getAll()
+            Query query = FirebaseFirestore.getInstance()
+                    .collection("moodEvents")
                     .whereEqualTo("uid", uidToLoad)
-                    .orderBy("created", Query.Direction.DESCENDING)
-                    .limit(3);
+                    .whereEqualTo("visibility", "PUBLIC")
+                    .orderBy("created", Query.Direction.DESCENDING);
 
             query.addSnapshotListener((snapshots, error) -> {
                 if (error != null) {
