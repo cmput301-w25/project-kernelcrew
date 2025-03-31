@@ -181,8 +181,4 @@ public class MoodEventProvider {
 
         return new CombinedListenerComposer(registrations);
     }
-
-    public CollectionReference getCollectionReference() {
-        return collection;
-    }
 }

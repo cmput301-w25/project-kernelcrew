@@ -15,7 +15,7 @@ import java.util.Set;
 public class MoodEventFilter {
     private static final double EARTH_RADIUS_KM = 6371.0;
 
-    private final CollectionReference collectionReference;
+    private final Query allMoodEvents;
     private final FilterCriteria criteria = new FilterCriteria();
     private String reasonQuery;
 
@@ -46,12 +46,12 @@ public class MoodEventFilter {
     }
 
     // Constructors
-    public MoodEventFilter(CollectionReference collectionReference) {
-        this.collectionReference = collectionReference;
+    public MoodEventFilter(Query allMoodEvents) {
+        this.allMoodEvents = allMoodEvents;
     }
 
     public MoodEventFilter(MoodEventProvider provider) {
-        this(provider.getCollectionReference());
+        this(provider.getAll());
     }
 
     // Helper method to check if a string is valid (non-null and non-blank)
@@ -317,7 +317,7 @@ public class MoodEventFilter {
      * @return A Query with filtering and sorting applied.
      */
     public Query buildQuery() {
-        Query query = collectionReference;
+        Query query = allMoodEvents;
 
         if (!criteria.userIds.isEmpty()) {
             if (criteria.userIds.size() == 1) {
