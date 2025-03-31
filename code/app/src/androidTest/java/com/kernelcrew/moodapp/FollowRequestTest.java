@@ -54,11 +54,11 @@ public class FollowRequestTest extends FirebaseEmulatorMixin {
 
     // Test user credentials for User A (the follower) and User B (the target)
     private static final String USER_A_EMAIL = "followrequest_auto1@test.com";
-    private static final String USER_A_USERNAME = "followrequestautomatedtests1";
+    private static final String USER_A_USERNAME = "frautotest1";
     private static final String USER_A_PASSWORD = "FRTestPass1";
 
     private static final String USER_B_EMAIL = "followrequest_auto2@test.com";
-    private static final String USER_B_USERNAME = "followrequestautomatedtests2";
+    private static final String USER_B_USERNAME = "frautotest2";
     private static final String USER_B_PASSWORD = "FRTestPass2";
 
     @Rule
