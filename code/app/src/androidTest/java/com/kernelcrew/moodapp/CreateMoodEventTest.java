@@ -8,10 +8,15 @@ import static androidx.test.espresso.matcher.ViewMatchers.*;
 import static org.awaitility.Awaitility.await;
 import static org.junit.Assert.*;
 
+import android.app.DatePickerDialog;
+import android.app.TimePickerDialog;
 import android.os.SystemClock;
+import android.widget.DatePicker;
+import android.widget.TimePicker;
 
 import androidx.fragment.app.FragmentContainerView;
 import androidx.test.espresso.Espresso;
+import androidx.test.espresso.matcher.ViewMatchers;
 import androidx.test.ext.junit.rules.ActivityScenarioRule;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
@@ -23,6 +28,7 @@ import com.kernelcrew.moodapp.data.Emotion;
 import com.kernelcrew.moodapp.data.MoodEvent;
 import com.kernelcrew.moodapp.data.MoodEventVisibility;
 import com.kernelcrew.moodapp.ui.MainActivity;
+import com.kernelcrew.moodapp.ui.MoodEventForm;
 import com.kernelcrew.moodapp.ui.components.EmotionPickerFragment;
 
 import org.junit.Before;
@@ -31,6 +37,8 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import java.lang.reflect.Field;
+import java.util.Date;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
@@ -106,6 +114,45 @@ public class CreateMoodEventTest extends FirebaseEmulatorMixin {
                     }
                     assertNotNull(newEvent);
                     assertEquals(MoodEventVisibility.PRIVATE, newEvent.getVisibility());
+                });
+    }
+
+    @Test
+    public void createMoodTimestamp() throws Exception {
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+
+        SystemClock.sleep(3000);
+        onView(withId(R.id.page_createMoodEvent)).perform(click());
+
+        onView(withId(R.id.toggle_sadness)).perform(click());
+
+        onView(withId(R.id.timestamp_input)).perform(click());
+        onView(ViewMatchers.withText("OK")).perform(click());
+        onView(ViewMatchers.withText("OK")).perform(click());
+
+        Date testDate = new Date(2025, 3, 1, 14, 30);
+        onView(withId(R.id.mood_event_form)).check((view, noViewFoundException) -> {
+            FragmentContainerView fragmentContainerView = (FragmentContainerView) view;
+            MoodEventForm moodEventForm = fragmentContainerView.getFragment();
+            moodEventForm.setSelectedDate(testDate);
+        });
+
+        onView(withId(R.id.submit_button)).perform(scrollTo()).perform(click());
+
+        await().atMost(10, TimeUnit.SECONDS)
+                .untilAsserted(() -> {
+                    QuerySnapshot results = Tasks.await(db.collection("moodEvents").get());
+                    List<DocumentSnapshot> moodEvents = results.getDocuments();
+                    MoodEvent newEvent = null;
+                    for (DocumentSnapshot snapshot : moodEvents) {
+                        MoodEvent event = snapshot.toObject(MoodEvent.class);
+                        assertNotNull(event);
+                        if (event.getEmotion() == Emotion.SADNESS) {
+                            newEvent = event;
+                        }
+                    }
+                    assertNotNull(newEvent);
+                    assertEquals(testDate, newEvent.getCreated());
                 });
     }
 
