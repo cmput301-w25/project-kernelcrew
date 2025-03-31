@@ -26,6 +26,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageButton;
+import android.widget.TextView;
 import android.widget.ScrollView;
 import android.widget.Toast;
 
@@ -44,6 +45,7 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptor;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.material.snackbar.Snackbar;
 import com.kernelcrew.moodapp.R;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationCallback;
@@ -102,6 +104,7 @@ public class LocationFragment extends Fragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.location_fragment, container, false);
+        TextView mapTipText = view.findViewById(R.id.map_tip_text);
 
         MapTouchWrapper mapTouchWrapper = view.findViewById(R.id.map_touch_wrapper);
         ScrollView scrollView = requireActivity().findViewById(R.id.scrollView);
@@ -139,6 +142,23 @@ public class LocationFragment extends Fragment {
             cardLocation.setVisibility(View.VISIBLE);
             removeLocationButton.setVisibility(View.VISIBLE);
             checkLocationAndRequestPermission();
+            //Following map tip text created by OpenAI, ChatGPT-4, "Add map tip using TextView in Java Android studio for OnCreateView", accessed 03-30-2025
+            mapTipText.setAlpha(0f);
+            mapTipText.setVisibility(View.VISIBLE);
+            mapTipText.animate()
+                    .alpha(1f)
+                    .setDuration(500)
+                    .withEndAction(() -> {
+                        mapTipText.postDelayed(() -> {
+                            mapTipText.animate()
+                                    .alpha(0f)
+                                    .setDuration(500)
+                                    .withEndAction(() -> mapTipText.setVisibility(View.GONE))
+                                    .start();
+                        }, 4000);
+                    })
+                    .start();
+
         });
 
 
@@ -512,6 +532,29 @@ public class LocationFragment extends Fragment {
 
         if (removeLocationButton != null) {
             removeLocationButton.setVisibility(View.VISIBLE);
+            //Following map tip created by OpenAI, ChatGPT-4, "Add map tip using TextView in Java Android studio for populateMapFromExistingLocation", accessed 03-30-2025
+            TextView mapTipText = getView().findViewById(R.id.map_tip_text);
+            if (mapTipText != null) {
+                mapTipText.setTranslationY(-50);
+                mapTipText.setAlpha(0f);
+                mapTipText.setVisibility(View.VISIBLE);
+
+                mapTipText.animate()
+                        .alpha(1f)
+                        .translationY(0)
+                        .setDuration(500)
+                        .withEndAction(() -> {
+                            mapTipText.postDelayed(() -> {
+                                mapTipText.animate()
+                                        .alpha(0f)
+                                        .translationY(-50)
+                                        .setDuration(500)
+                                        .withEndAction(() -> mapTipText.setVisibility(View.GONE))
+                                        .start();
+                            }, 4000);
+                        })
+                        .start();
+            }
         }
 
         SupportMapFragment mapFragment = (SupportMapFragment)
