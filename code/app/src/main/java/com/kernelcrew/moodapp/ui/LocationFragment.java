@@ -147,15 +147,15 @@ public class LocationFragment extends Fragment {
             mapTipText.setVisibility(View.VISIBLE);
             mapTipText.animate()
                     .alpha(1f)
-                    .setDuration(500)
+                    .setDuration(1000)
                     .withEndAction(() -> {
                         mapTipText.postDelayed(() -> {
                             mapTipText.animate()
                                     .alpha(0f)
-                                    .setDuration(500)
+                                    .setDuration(1000)
                                     .withEndAction(() -> mapTipText.setVisibility(View.GONE))
                                     .start();
-                        }, 4000);
+                        }, 10000);
                     })
                     .start();
 
@@ -542,16 +542,16 @@ public class LocationFragment extends Fragment {
                 mapTipText.animate()
                         .alpha(1f)
                         .translationY(0)
-                        .setDuration(500)
+                        .setDuration(1000)
                         .withEndAction(() -> {
                             mapTipText.postDelayed(() -> {
                                 mapTipText.animate()
                                         .alpha(0f)
                                         .translationY(-50)
-                                        .setDuration(500)
+                                        .setDuration(1000)
                                         .withEndAction(() -> mapTipText.setVisibility(View.GONE))
                                         .start();
-                            }, 4000);
+                            }, 15000);
                         })
                         .start();
             }
