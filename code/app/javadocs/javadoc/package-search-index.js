@@ -1,0 +1,1 @@
+packageSearchIndex = [{"l":"All Packages","u":"allpackages-index.html"},{"l":"com.kernelcrew.moodapp.data"},{"l":"com.kernelcrew.moodapp.ui"},{"l":"com.kernelcrew.moodapp.ui.components"},{"l":"com.kernelcrew.moodapp.utils"}];updateSearchResults();
