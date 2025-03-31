@@ -8,6 +8,8 @@ import static androidx.test.espresso.matcher.ViewMatchers.*;
 import static org.awaitility.Awaitility.await;
 import static org.junit.Assert.*;
 
+import android.os.SystemClock;
+
 import androidx.fragment.app.FragmentContainerView;
 import androidx.test.espresso.Espresso;
 import androidx.test.ext.junit.rules.ActivityScenarioRule;
@@ -44,6 +46,11 @@ public class CreateMoodEventTest extends FirebaseEmulatorMixin {
         staticCreateUser();
     }
 
+    @Before
+    public void signingUser() throws ExecutionException, InterruptedException {
+        loginUser();
+    }
+
     @Test
     public void createNewMood() {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
@@ -78,6 +85,7 @@ public class CreateMoodEventTest extends FirebaseEmulatorMixin {
     public void createMoodVisibilitySelector() {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
 
+        SystemClock.sleep(3000);
         onView(withId(R.id.page_createMoodEvent)).perform(click());
 
         onView(withId(R.id.toggle_sadness)).perform(click());

@@ -5,7 +5,9 @@ import android.util.Log;
 import com.google.android.gms.tasks.Task;
 import com.google.android.gms.tasks.Tasks;
 import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.ListenerRegistration;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.android.gms.tasks.Tasks;
 import com.google.firebase.firestore.DocumentSnapshot;
@@ -28,6 +30,13 @@ public class FollowProvider {
             instance = new FollowProvider();
         }
         return instance;
+    }
+
+    public ListenerRegistration listenForFollowing(String userUid, EventListener<QuerySnapshot> listener) {
+        return db.collection("users")
+                .document(userUid)
+                .collection("following")
+                .addSnapshotListener(listener);
     }
 
     // Send a follow request
@@ -67,6 +76,7 @@ public class FollowProvider {
                     notifData.put("toUserId", requesterUid);    // The original requester (User1)
                     notifData.put("type", "followAccepted");
                     notifData.put("timestamp", com.google.firebase.firestore.FieldValue.serverTimestamp());
+                    notifData.put("shown", false);
 
                     db.collection("users")
                             .document(requesterUid)
@@ -90,7 +100,7 @@ public class FollowProvider {
                 .onSuccessTask(snapshot -> {
                     List<User> list = new ArrayList<>();
                     for (DocumentSnapshot doc : snapshot.getDocuments()) {
-                        list.add(new User(doc.getId(), false));
+                        list.add(new User(doc.getId(), doc.getString("username"),false));
                     }
                     return Tasks.forResult(list);
                 });
@@ -104,7 +114,7 @@ public class FollowProvider {
                 .onSuccessTask(snapshot -> {
                     List<User> list = new ArrayList<>();
                     for (DocumentSnapshot doc : snapshot.getDocuments()) {
-                        list.add(new User(doc.getId(), false));
+                        list.add(new User(doc.getId(), doc.getString("username"), false));
                     }
                     return Tasks.forResult(list);
                 });

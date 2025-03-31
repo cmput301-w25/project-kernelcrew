@@ -7,9 +7,20 @@ import com.google.android.gms.tasks.Tasks;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.Filter;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.ListenerRegistration;
 import com.google.firebase.firestore.Query;
+import com.google.firebase.firestore.Query;
+import com.google.firebase.firestore.QuerySnapshot;
+
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class MoodEventProvider {
     private final CollectionReference collection;
@@ -46,9 +57,15 @@ public class MoodEventProvider {
             throw new IllegalArgumentException("MoodEvent cannot be null");
         }
 
-        FirebaseUser user = auth.getCurrentUser();
-        assert user != null;
+        if (moodEvent.getId() == null || moodEvent.getId().isEmpty()) {
+            String generatedId = collection.document().getId();
+            moodEvent.setId(generatedId);
+        }
 
+        FirebaseUser user = auth.getCurrentUser();
+        if (user == null) {
+            throw new IllegalStateException("User must be logged in");
+        }
         // Ensure the MoodEvent has the correct userId
         moodEvent.setUid(user.getUid());
 
@@ -106,5 +123,66 @@ public class MoodEventProvider {
                 Filter.and(Filter.equalTo("uid", user.getUid()),
                            Filter.equalTo("visibility", "PRIVATE")),
                 Filter.equalTo("visibility", "PUBLIC")));
+    }
+
+    /**
+     * Listens to mood events for a list of user IDs.
+     * For the current user (assumed to be the first element in userIds) all posts are returned.
+     * For each followed user, only the 3 most recent posts are returned.
+     * The results from all queries are combined and returned via the CombinedListener.
+     */
+    public ListenerRegistration listenToMoodEventsForUsers(List<String> userIds, MoodEventFilter filter, int followerLimit, CombinedListener listener) {
+        if (userIds == null || userIds.isEmpty()) {
+            return new ListenerRegistration() {
+                @Override
+                public void remove() { }
+            };
+        }
+
+        // Assume first element is the current user's UID.
+        String currentUserId = userIds.get(0);
+        Map<String, List<DocumentSnapshot>> snapshotsByUser = new HashMap<>();
+        List<ListenerRegistration> registrations = new ArrayList<>();
+
+        for (String uid : userIds) {
+            Query query = filter.buildQuery().whereEqualTo("uid", uid);
+            if (!uid.equals(currentUserId)) {
+                query = query.limit(followerLimit);
+            }
+            ListenerRegistration reg = query.addSnapshotListener((querySnapshot, error) -> {
+                if (error != null) {
+                    listener.onEvent(null, error);
+                    return;
+                }
+                if (querySnapshot != null) {
+                    // Save the latest documents for this uid.
+                    snapshotsByUser.put(uid, querySnapshot.getDocuments());
+
+                    // Combine all documents from all users.
+                    List<DocumentSnapshot> combined = new ArrayList<>();
+                    for (List<DocumentSnapshot> docs : snapshotsByUser.values()) {
+                        combined.addAll(docs);
+                    }
+
+                    // Sorting the combined by time created aswell
+                    combined.sort((d1, d2) -> {
+                        Date t1 = d1.getDate("created");
+                        Date t2 = d2.getDate("created");
+                        if (t1 == null && t2 == null) return 0;
+                        if (t1 == null) return 1;
+                        if (t2 == null) return -1;
+                        return t2.compareTo(t1);
+                    });
+                    listener.onEvent(combined, null);
+                }
+            });
+            registrations.add(reg);
+        }
+
+        return new CombinedListenerComposer(registrations);
+    }
+
+    public CollectionReference getCollectionReference() {
+        return collection;
     }
 }
