@@ -12,25 +12,18 @@ import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
 
-import androidx.activity.result.ActivityResultLauncher;
-import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.core.content.FileProvider;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentContainerView;
 
-import android.os.Environment;
-import android.provider.MediaStore;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.ImageButton;
-import android.widget.ScrollView;
 import android.widget.TextView;
-import android.widget.Toast;
 import java.util.Calendar;
 
 import com.google.android.material.button.MaterialButtonToggleGroup;
@@ -43,8 +36,6 @@ import com.kernelcrew.moodapp.ui.components.EmotionPickerFragment;
 import com.kernelcrew.moodapp.ui.components.UploadPhotoFragment;
 import com.kernelcrew.moodapp.utils.PhotoUtils;
 
-import java.io.File;
-import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
@@ -73,6 +64,10 @@ public class MoodEventForm extends Fragment implements LocationUpdateListener {
 
     private TextInputEditText timestampInput;
     private Date selectedDate = new Date();
+
+    // For tests
+    private DatePickerDialog datePickerDialog;
+    private TimePickerDialog timePickerDialog;
 
     /**
      * Clear the currently selected photo.
@@ -365,7 +360,6 @@ public class MoodEventForm extends Fragment implements LocationUpdateListener {
                 selectedDate = calendar.getTime();
                 timestampInput.setText(formatDate(selectedDate));
             }, calendar.get(Calendar.HOUR_OF_DAY), calendar.get(Calendar.MINUTE), false).show();
-
         }, calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH)).show();
     }
 
@@ -373,4 +367,11 @@ public class MoodEventForm extends Fragment implements LocationUpdateListener {
         return new SimpleDateFormat("MMM d, yyyy h:mm a", Locale.getDefault()).format(date);
     }
 
+    /**
+     * TEST ONLY. Set the selected date
+     * @param selectedDate Set the selected date
+     */
+    public void setSelectedDate(Date selectedDate) {
+        this.selectedDate = selectedDate;
+    }
 }
