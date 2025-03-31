@@ -10,9 +10,13 @@ import android.widget.Button;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.DialogFragment;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
+import android.widget.Toast;
 
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.kernelcrew.moodapp.R;
+import com.kernelcrew.moodapp.data.MoodEventProvider;
 
 /**
  * Dialog fragment for confirming mood event deletion
@@ -20,6 +24,16 @@ import com.kernelcrew.moodapp.R;
 public class DeleteDialogFragment extends DialogFragment {
     private FirebaseFirestore db;
     private DeleteDialogListener listener;
+
+    private boolean isOnline() {
+        ConnectivityManager cm = (ConnectivityManager) requireContext().getSystemService(Context.CONNECTIVITY_SERVICE);
+        if (cm != null) {
+            NetworkInfo net = cm.getActiveNetworkInfo();
+            return net != null && net.isConnected();
+        }
+        return false;
+    }
+
 
     public interface DeleteDialogListener {
         void onDeleteConfirmed();
@@ -76,10 +90,14 @@ public class DeleteDialogFragment extends DialogFragment {
 
         keepButton.setOnClickListener(v -> dismiss());
 
+        if (!isOnline()) {
+            Toast.makeText(getContext(), "You're offline! Mood will be deleted when you're back online.", Toast.LENGTH_LONG).show();
+        }
+
         deleteButton.setOnClickListener(v -> {
             // Check if ID exists before deleting
             if (finalMoodEventId != null && listener != null) {
-                db.collection("moodEvents").document(finalMoodEventId).delete();
+                MoodEventProvider.getInstance().deleteMoodEvent(finalMoodEventId);
                 listener.onDeleteConfirmed();
             }
             dismiss();

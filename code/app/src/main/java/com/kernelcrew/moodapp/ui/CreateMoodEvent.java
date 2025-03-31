@@ -1,5 +1,8 @@
 package com.kernelcrew.moodapp.ui;
 
+import android.content.Context;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -31,11 +34,27 @@ public class CreateMoodEvent extends Fragment {
     private FirebaseUser currentUser;
     private MoodEventProvider provider;
 
+    private boolean isOnline() {
+        ConnectivityManager cm = (ConnectivityManager) requireContext().getSystemService(Context.CONNECTIVITY_SERVICE);
+        if (cm != null) {
+            NetworkInfo net = cm.getActiveNetworkInfo();
+            return net != null && net.isConnected();
+        }
+        return false;
+    }
+
     private void handleSubmit(MoodEventForm.MoodEventDetails details) {
         details.username = currentUser.getDisplayName();
         MoodEvent moodEvent = details.toMoodEvent(currentUser.getUid());
+        moodEvent.setSynced(false);
+
+        if (!isOnline()) {
+            Toast.makeText(getContext(), "Local mood set! Offline mood will sync when you're online.", Toast.LENGTH_LONG).show();
+        }
+
         provider.insertMoodEvent(moodEvent)
                 .addOnSuccessListener(_result -> {
+                    moodEvent.setSynced(true);
                     navController.navigate(R.id.homeFeed);
                 })
                 .addOnFailureListener(error -> {
