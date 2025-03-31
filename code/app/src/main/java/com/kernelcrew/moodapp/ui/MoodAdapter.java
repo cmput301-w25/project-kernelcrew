@@ -1,5 +1,6 @@
 package com.kernelcrew.moodapp.ui;
 
+import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -7,21 +8,25 @@ import android.widget.TextView;
 import android.widget.ImageView;
 
 import androidx.annotation.NonNull;
+import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.kernelcrew.moodapp.R;
 import com.kernelcrew.moodapp.data.MoodEvent;
 import com.kernelcrew.moodapp.data.UserProvider;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
-import java.text.SimpleDateFormat;
 import java.util.Locale;
 
-public class MoodAdapter extends RecyclerView.Adapter<MoodAdapter.MoodViewHolder> {
+public class MoodAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
+
+    // Define view types for non-empty and empty states.
+    private static final int VIEW_TYPE_EMPTY = 0;
+    private static final int VIEW_TYPE_ITEM = 1;
 
     private List<MoodEvent> moods = new ArrayList<>();
-
     private OnMoodClickListener onMoodClickListener;
     private UserProvider userProvider;
 
@@ -29,7 +34,7 @@ public class MoodAdapter extends RecyclerView.Adapter<MoodAdapter.MoodViewHolder
         this.userProvider = UserProvider.getInstance();
     }
 
-    // Callback interface to handle clicks on the "View Details" button
+    // Callback interface to handle clicks on the "View Details" button.
     public interface OnMoodClickListener {
         void onViewDetails(MoodEvent mood);
         void onViewComments(MoodEvent mood);
@@ -40,45 +45,80 @@ public class MoodAdapter extends RecyclerView.Adapter<MoodAdapter.MoodViewHolder
     }
 
     public void setMoods(List<MoodEvent> moods) {
-        this.moods = moods;
+        this.moods = (moods == null) ? new ArrayList<>() : moods;
         notifyDataSetChanged();
+    }
+
+    @Override
+    public int getItemViewType(int position) {
+        if (moods == null || moods.isEmpty()) {
+            return VIEW_TYPE_EMPTY;
+        }
+        return VIEW_TYPE_ITEM;
     }
 
     @NonNull
     @Override
-    public MoodViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.item_mood, parent, false);
-        return new MoodViewHolder(view);
+    public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+        if (viewType == VIEW_TYPE_EMPTY) {
+            TextView emptyView = new TextView(parent.getContext());
+            emptyView.setLayoutParams(new RecyclerView.LayoutParams(
+                    ViewGroup.LayoutParams.MATCH_PARENT,
+                    ViewGroup.LayoutParams.WRAP_CONTENT));
+            emptyView.setText("There is nothing here!");
+            emptyView.setTextAlignment(View.TEXT_ALIGNMENT_CENTER);
+            int padding = (int) (16 * parent.getContext().getResources().getDisplayMetrics().density);
+            emptyView.setPadding(padding, padding, padding, padding);
+            return new RecyclerView.ViewHolder(emptyView) {};
+        } else {
+            View view = LayoutInflater.from(parent.getContext())
+                    .inflate(R.layout.item_mood, parent, false);
+            return new MoodViewHolder(view);
+        }
     }
 
     @Override
-    public void onBindViewHolder(@NonNull MoodViewHolder holder, int position) {
+    public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
+        if (getItemViewType(position) == VIEW_TYPE_EMPTY) {
+            return;
+        }
         MoodEvent mood = moods.get(position);
+        MoodViewHolder viewHolder = (MoodViewHolder) holder;
 
-        // Display the mood text in the top TextView
-        holder.moodTypeTextView.setText(mood.getEmotion().toString());
+        viewHolder.moodTypeTextView.setText(mood.getEmotion().toString());
 
-        // Format the timestamp for the second TextView(Ex: "Thu 10am")
         SimpleDateFormat dateFormat = new SimpleDateFormat("EEE ha", Locale.getDefault());
         String formattedTime = dateFormat.format(mood.getCreated());
-        holder.dayTimeTextView.setText(formattedTime);
+        viewHolder.dayTimeTextView.setText(formattedTime);
 
-        // Set the mood image using MoodIconUtil
         int iconRes = MoodIconUtil.getMoodIconResource(mood.getEmotion().toString());
-        holder.moodImageView.setImageResource(iconRes);
+        viewHolder.moodImageView.setImageResource(iconRes);
 
-        holder.usernameText.setText("@" + mood.getUsername());
+        UserProvider.getInstance().fetchUsername(mood.getUid())
+                .addOnSuccessListener(username -> {
+                    viewHolder.usernameText.setText("@" + username);
 
-        // Set click listener for the "View Details" button
-        holder.viewDetailsButton.setOnClickListener(v -> {
+                    // Replace requireView with v in the click callback
+                    viewHolder.usernameText.setOnClickListener(v -> {
+                        Bundle args = new Bundle();
+                        args.putString("uid", mood.getUid());
+                        // Use Navigation.findNavController(...) with the clicked view
+                        Navigation.findNavController(v)
+                                .navigate(R.id.otherUserProfile, args);
+                    });
+                })
+                .addOnFailureListener(e -> {
+                    viewHolder.usernameText.setText(R.string.error_loading_user);
+                });
+
+        viewHolder.viewDetailsButton.setOnClickListener(v -> {
             if (onMoodClickListener != null) {
                 onMoodClickListener.onViewDetails(mood);
             }
         });
 
         // Set click listener for the comment layout
-        holder.commentLayout.setOnClickListener(v -> {
+        viewHolder.commentLayout.setOnClickListener(v -> {
             if (onMoodClickListener != null) {
                 onMoodClickListener.onViewComments(mood);
             }
@@ -86,21 +126,21 @@ public class MoodAdapter extends RecyclerView.Adapter<MoodAdapter.MoodViewHolder
 
         switch (mood.getVisibility()) {
             case PUBLIC:
-                holder.visibilityIcon.setImageResource(R.drawable.ic_public);
+                viewHolder.visibilityIcon.setImageResource(R.drawable.ic_public);
                 break;
             case PRIVATE:
-                holder.visibilityIcon.setImageResource(R.drawable.ic_lock);
+                viewHolder.visibilityIcon.setImageResource(R.drawable.ic_lock);
                 break;
         }
     }
 
     @Override
     public int getItemCount() {
-        return moods.size();
+        return (moods == null || moods.isEmpty()) ? 1 : moods.size();
     }
 
     public static class MoodViewHolder extends RecyclerView.ViewHolder {
-        ImageView moodImageView; // new
+        ImageView moodImageView;
         TextView moodTypeTextView;
         TextView dayTimeTextView;
         View viewDetailsButton; // Reference to the "View Details" button
@@ -114,7 +154,7 @@ public class MoodAdapter extends RecyclerView.Adapter<MoodAdapter.MoodViewHolder
 
         public MoodViewHolder(@NonNull View itemView) {
             super(itemView);
-            moodImageView = itemView.findViewById(R.id.moodImage); // initialize new view
+            moodImageView = itemView.findViewById(R.id.moodImage);
             moodTypeTextView = itemView.findViewById(R.id.moodTypeText);
             dayTimeTextView = itemView.findViewById(R.id.dayTimeText);
             viewDetailsButton = itemView.findViewById(R.id.viewDetailsButton);

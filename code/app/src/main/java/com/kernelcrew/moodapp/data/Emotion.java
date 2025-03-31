@@ -147,23 +147,6 @@ public enum Emotion {
         public String toString() {
             return "Surprise";
         }
-    },
-    ERROR {
-        @Override
-        public int getIconRes() {
-            return R.drawable.ic_error_color;
-        }
-
-        @Override
-        public int getColorRes() {
-            return R.color.errorColor;
-        }
-
-        @NonNull
-        @Override
-        public String toString() {
-            return "Error";
-        }
     };
 
     /**
