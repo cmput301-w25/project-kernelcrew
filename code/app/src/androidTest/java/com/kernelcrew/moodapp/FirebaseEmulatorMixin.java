@@ -72,15 +72,7 @@ public class FirebaseEmulatorMixin {
         Log.i("Response Code", "Response Code: " + response);
         urlConnection.disconnect();
 
-        url = new URL("http://" + androidLocalhost + ":9099/emulator/v1/projects/" + projectId +
-                "/accounts");
-        urlConnection = (HttpURLConnection) url.openConnection();
-        urlConnection.setRequestMethod("DELETE");
-        response = urlConnection.getResponseCode();
-        Log.i("Response Code", "Response Code: " + response);
-        urlConnection.disconnect();
-
-        url = new URL("http://" + androidLocalhost + ":9099/emulator/v1/projects/" + projectId +
+        url = new URL("http://" + androidLocalhost + ":8080/emulator/v1/projects/" + projectId +
                 "/databases/(default)/documents/users");
         urlConnection = (HttpURLConnection) url.openConnection();
         urlConnection.setRequestMethod("DELETE");
@@ -88,8 +80,17 @@ public class FirebaseEmulatorMixin {
         Log.i("Response Code", "Response Code: " + response);
         urlConnection.disconnect();
 
-        url = new URL("http://" + androidLocalhost + ":9099/emulator/v1/projects/" + projectId +
+        url = new URL("http://" + androidLocalhost + ":8080/emulator/v1/projects/" + projectId +
                 "/databases/(default)/documents/usernames");
+        urlConnection = (HttpURLConnection) url.openConnection();
+        urlConnection.setRequestMethod("DELETE");
+        response = urlConnection.getResponseCode();
+        Log.i("Response Code", "Response Code: " + response);
+        urlConnection.disconnect();
+
+        // Clear all users from firebase auth
+        url = new URL("http://" + androidLocalhost + ":9099/emulator/v1/projects/" + projectId +
+                "/accounts");
         urlConnection = (HttpURLConnection) url.openConnection();
         urlConnection.setRequestMethod("DELETE");
         response = urlConnection.getResponseCode();
