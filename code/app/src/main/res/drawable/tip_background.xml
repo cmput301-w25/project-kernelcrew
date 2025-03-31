@@ -1,4 +1,4 @@
-<!-- res/drawable/tip_background.xml -->
+<!-- Following drawable file created by OpenAI, ChatGPT-4, "Add map tip xml using TextView for location_fragment", accessed 03-30-2025 -->
 <shape xmlns:android="http://schemas.android.com/apk/res/android"
     android:shape="rectangle">
     <solid android:color="#e4dae9" />
