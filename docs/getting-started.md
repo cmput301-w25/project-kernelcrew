@@ -4,6 +4,8 @@ Opening the `code/` directory in Android Studio and running the "gradle sync"
 task covers most of the setup. However, you will also need to initialize an
 Android app in Firebase.
 
+---
+
 ## Firebase
 
 To setup Firebase, create a new Firebase app (just like we did in our lab) for
@@ -41,6 +43,8 @@ project we created earlier.
 
 After the `.firebaserc` file has been created, you can run `firebase deploy`.
 
+---
+
 ### Authentication
 
 We use firebase's authentication feature. This needs to be manually enabled by:
@@ -61,6 +65,8 @@ We use firebase's authentication feature. This needs to be manually enabled by:
 For technical details of firebase authentication, see [the
 docs](https://firebase.google.com/docs/auth/android/start).
 
+---
+
 ### Google Maps API Key
 
 A file, `code/local.properties` must be created with the contents:
@@ -73,3 +79,14 @@ MAPS_API_KEY=<API-KEY>
 
 Where `<API-KEY>` is a valid maps API key from your [google
 console](https://developers.google.com/maps/documentation/javascript/get-api-key#create-api-keys).
+
+---
+
+### Notifications
+
+Make sure notifications are enabled for the app on your device or emulator:
+
+- Go to **App Info → Notifications**
+- Ensure notifications are **allowed** for the app
+
+---
