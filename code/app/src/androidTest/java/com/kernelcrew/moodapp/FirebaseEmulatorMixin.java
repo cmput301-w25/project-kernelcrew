@@ -115,16 +115,19 @@ public class FirebaseEmulatorMixin {
         FirebaseAuth auth = FirebaseAuth.getInstance();
         try {
             Tasks.await(auth.createUserWithEmailAndPassword(TEST_EMAIL, TEST_PASSWORD));
-            // Add username field to this new user
+            // Now include the uid and username fields in the user document.
             FirebaseFirestore db = FirebaseFirestore.getInstance();
             Map<String, Object> userData = new HashMap<>();
+            // Add uid property required by the security rules.
+            userData.put("uid", auth.getCurrentUser().getUid());
             userData.put("username", TEST_USERNAME);
+            // Optionally, add email if your rules require it.
+            userData.put("email", TEST_EMAIL);
             Tasks.await(db.collection("users").document(auth.getCurrentUser().getUid()).set(userData));
         } catch (ExecutionException e) {
             if (!(e.getCause() instanceof com.google.firebase.auth.FirebaseAuthUserCollisionException)) {
                 throw e;
             }
-            // Ignore collision since the user already exists.
         }
     }
 
