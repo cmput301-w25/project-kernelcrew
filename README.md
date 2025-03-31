@@ -114,9 +114,9 @@ Follow the [Getting Started Instructions](./docs/getting-started.md).
 
 - [Wiki Link](https://github.com/cmput301-w25/project-kernelcrew/wiki)
 - [Scrum Board](https://github.com/orgs/cmput301-w25/projects/65/views/1)
-- [UI Mockups](https://www.figma.com/design/eCa5ZnSU4jZLgUE4boTtz5/Kernel-Crew-Mood-App?t=15209Kt1Vejob1xl-1)
+- [UI Mockups](https://github.com/cmput301-w25/project-kernelcrew/wiki/UI-Mockups-Project-Part-4)
 - [JavaDocs](https://cmput301-w25.github.io/project-kernelcrew/)
-- [UML]
+- [UML](https://github.com/cmput301-w25/project-kernelcrew/wiki/UML-for-Project-Part-4)
 
  ## 🔑 Tech Stack
 
@@ -129,4 +129,4 @@ Follow the [Getting Started Instructions](./docs/getting-started.md).
 
 ### 👨‍💻 Made With ❤️ By
 
-CMPUT 301 Winter 2025 Team #32
+CMPUT 301 Winter 2025 Team #34
