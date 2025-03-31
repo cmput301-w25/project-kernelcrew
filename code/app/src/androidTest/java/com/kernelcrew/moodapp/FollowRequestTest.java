@@ -147,14 +147,10 @@ public class FollowRequestTest extends FirebaseEmulatorMixin {
         onView(withId(R.id.signUpButtonAuthToHome)).perform(click());
         SystemClock.sleep(3000);
 
-        // From home feed, click on first mood event's "View Details" button.
-        onView(withId(R.id.moodRecyclerView))
-                .perform(actionOnItemAtPosition(0, clickChildViewWithId(R.id.viewDetailsButton)));
-        SystemClock.sleep(1500);
-
-        // In MoodDetails screen, click on the username chip to navigate to OtherUserProfile.
-        onView(withId(R.id.tvUsernameDisplay)).perform(click());
-        SystemClock.sleep(1500);
+        // Search for the user here
+        // TODO: click on "users" button(this is a child inside filterbarfragment not home feed)
+        // TODO: search for "user B", click again on users
+        // TODO: click on the 0th item i.e. "user B"
 
         // In OtherUserProfile, click the follow button.
         onView(withId(R.id.followButton)).check(matches(isDisplayed()));
