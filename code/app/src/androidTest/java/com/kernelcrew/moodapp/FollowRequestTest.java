@@ -217,7 +217,10 @@ public class FollowRequestTest extends FirebaseEmulatorMixin {
         onView(withId(R.id.followers_button)).check(matches(withText(containsString("1"))));
 
 
-        // TEST 3: User B unfollows User A
+        // TEST 3: User A unfollows User B
+        // TODO: sign in as user A
+        // TODO: click on the mood of B, click on username button of B to go to other user profile page
+        // TODO: click on unfollow button, check/verify if the "unfollow" changes to "follow" or not
     }
 
     /**
