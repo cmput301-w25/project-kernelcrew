@@ -214,6 +214,14 @@ public class FollowRequestTest extends FirebaseEmulatorMixin {
 
 
         // TEST 3: User A unfollows User B
+        // If the current page is not AuthHome, navigate to MyProfile and then sign out.
+        if (!isViewDisplayed(R.id.authHome)) {
+            onView(withId(R.id.page_myProfile)).perform(click());
+            SystemClock.sleep(2000);
+            onView(withId(R.id.signOutButton)).perform(click());
+            SystemClock.sleep(2000);
+        }
+
         // Sign in as User A.
         signInUser(USER_A_EMAIL, USER_A_PASSWORD);
         SystemClock.sleep(3000);
