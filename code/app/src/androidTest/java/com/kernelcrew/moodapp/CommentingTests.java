@@ -8,15 +8,21 @@ import static androidx.test.espresso.contrib.RecyclerViewActions.actionOnItemAtP
 import static androidx.test.espresso.matcher.ViewMatchers.*;
 
 import static org.awaitility.Awaitility.await;
+import static org.hamcrest.CoreMatchers.allOf;
+import static org.junit.Assert.assertEquals;
+
 import android.os.SystemClock;
 import android.view.View;
 import androidx.test.espresso.UiController;
 import androidx.test.espresso.ViewAction;
+import androidx.test.espresso.action.ViewActions;
 import androidx.test.ext.junit.rules.ActivityScenarioRule;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
 import com.google.android.gms.tasks.Tasks;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.QuerySnapshot;
 import com.kernelcrew.moodapp.data.Comment;
 import com.kernelcrew.moodapp.data.CommentProvider;
 import com.kernelcrew.moodapp.data.Emotion;
@@ -30,6 +36,8 @@ import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
+import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
@@ -118,7 +126,28 @@ public class CommentingTests extends FirebaseEmulatorMixin {
     }
 
     @Test
-    public void testNavigationToComments() throws InterruptedException {
+    public void testNavigationToCommentsPage() throws InterruptedException {
+        onView(withText("Sign In")).perform(click());
+        onView(withId(R.id.emailSignIn)).perform(replaceText(USER_EMAIL), closeSoftKeyboard());
+        onView(withId(R.id.passwordSignIn)).perform(replaceText(USER_PASSWORD), closeSoftKeyboard());
+        onView(withId(R.id.signInButtonAuthToHome)).perform(click());
+
+        SystemClock.sleep(1000);
+
+        onView(withId(R.id.filterBarFragment)).check(matches(isDisplayed()));
+
+        SystemClock.sleep(1000);
+
+        onView(withId(R.id.moodRecyclerView)).perform(actionOnItemAtPosition(0,
+                clickChildViewWithId(R.id.commentLayout)));
+
+        await().atMost(10, TimeUnit.SECONDS)
+                .untilAsserted(() -> onView(withId(R.id.moodContainer)).check(matches(isDisplayed())));
+
+    }
+
+    @Test
+    public void testCreateComment() throws InterruptedException {
         onView(withText("Sign In")).perform(click());
         onView(withId(R.id.emailSignIn)).perform(replaceText(USER_EMAIL), closeSoftKeyboard());
         onView(withId(R.id.passwordSignIn)).perform(replaceText(USER_PASSWORD), closeSoftKeyboard());
@@ -131,29 +160,16 @@ public class CommentingTests extends FirebaseEmulatorMixin {
         onView(withId(R.id.moodRecyclerView)).perform(actionOnItemAtPosition(0,
                 clickChildViewWithId(R.id.commentLayout)));
 
-        await().atMost(10, TimeUnit.SECONDS)
-                .untilAsserted(() -> onView(withId(R.id.moodContainer)).check(matches(isDisplayed())));
+        onView(withId(R.id.searchInput)).perform(replaceText("A second comment"), closeSoftKeyboard());
 
+        onView(allOf(
+                withId(com.google.android.material.R.id.text_input_end_icon),
+                isDescendantOfA(withId(R.id.searchInputLayout))
+        )).perform(click());
+
+        SystemClock.sleep(3000);
+
+        onView(withText("A second comment")).check(matches(isDisplayed()));
     }
 
-//    @Test
-//    public void testCreateComment() throws InterruptedException {
-//        onView(withText("Sign In")).perform(click());
-//        onView(withId(R.id.emailSignIn)).perform(replaceText(USER_EMAIL), closeSoftKeyboard());
-//        onView(withId(R.id.passwordSignIn)).perform(replaceText(USER_PASSWORD), closeSoftKeyboard());
-//        onView(withId(R.id.signInButtonAuthToHome)).perform(click());
-//
-//        SystemClock.sleep(1000);
-//
-//        onView(withId(R.id.filterBarFragment)).check(matches(isDisplayed()));
-//
-//        onView(withId(R.id.moodRecyclerView)).perform(actionOnItemAtPosition(0,
-//                clickChildViewWithId(R.id.commentLayout)));
-//
-//
-//
-//
-//        SystemClock.sleep(3000);
-//
-//    }
 }
