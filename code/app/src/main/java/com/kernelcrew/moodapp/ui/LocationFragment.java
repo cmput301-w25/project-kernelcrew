@@ -103,6 +103,15 @@ public class LocationFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.location_fragment, container, false);
 
+        MapTouchWrapper mapTouchWrapper = view.findViewById(R.id.map_touch_wrapper);
+        ScrollView scrollView = requireActivity().findViewById(R.id.scrollView);
+
+        if (mapTouchWrapper != null && scrollView != null) {
+            mapTouchWrapper.setOnTouchListener(() -> {
+                scrollView.requestDisallowInterceptTouchEvent(true);
+            });
+        }
+
         // Code from Claude AI, Anthropic, "Fix location API initialization", accessed 03-07-2024
         try {
             // Initialize the fusedLocationClient with the activity context

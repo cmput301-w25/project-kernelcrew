@@ -44,15 +44,20 @@
             app:cardCornerRadius="12dp"
             app:cardElevation="2dp"
             android:backgroundTint="@android:color/white">
-            <androidx.fragment.app.FragmentContainerView
-                android:id="@+id/mapContainer"
+            <com.kernelcrew.moodapp.ui.MapTouchWrapper
+                android:id="@+id/map_touch_wrapper"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:name="com.google.android.gms.maps.SupportMapFragment" />
+                android:layout_height="match_parent">
+                <androidx.fragment.app.FragmentContainerView
+                    android:id="@+id/mapContainer"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:name="com.google.android.gms.maps.SupportMapFragment" />
+            </com.kernelcrew.moodapp.ui.MapTouchWrapper>
+
         </com.google.android.material.card.MaterialCardView>
     </FrameLayout>
 
-    <!-- Remove Location Button (moved out of card) -->
     <com.google.android.material.button.MaterialButton
         android:id="@+id/remove_location_button"
         style="@style/Widget.Material3.Button.TextButton"

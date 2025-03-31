@@ -274,15 +274,6 @@ public class MoodEventForm extends Fragment implements LocationUpdateListener {
 
         FragmentContainerView locationFragmentContainer = view.findViewById(R.id.location_fragment);
 
-        MapTouchWrapper mapTouchWrapper = view.findViewById(R.id.map_touch_wrapper);
-        ScrollView scrollView = requireActivity().findViewById(R.id.scrollView); // Use your ScrollView's ID
-
-        mapTouchWrapper.setOnTouchListener(() -> {
-            if (scrollView != null) {
-                scrollView.requestDisallowInterceptTouchEvent(true);
-            }
-        });
-
 
 
         if (locationFragmentContainer != null) {
