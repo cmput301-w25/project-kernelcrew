@@ -157,6 +157,8 @@ public class CommentingTests extends FirebaseEmulatorMixin {
 
         onView(withId(R.id.filterBarFragment)).check(matches(isDisplayed()));
 
+        SystemClock.sleep(1000);
+
         onView(withId(R.id.moodRecyclerView)).perform(actionOnItemAtPosition(0,
                 clickChildViewWithId(R.id.commentLayout)));
 
