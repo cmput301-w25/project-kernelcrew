@@ -8,7 +8,10 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.kernelcrew.moodapp.R;
+import com.kernelcrew.moodapp.data.FollowRequestProvider;
 
 public class MainActivity extends AppCompatActivity {
     @Override
@@ -23,5 +26,12 @@ public class MainActivity extends AppCompatActivity {
             return insets;
         });
 
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+
+        if (user != null) {
+            FollowRequestProvider followRequestProvider = new FollowRequestProvider(this);
+            followRequestProvider.listenForFollowRequests(user.getUid());
+            followRequestProvider.listenForFollowAcceptedNotifications(user.getUid());
+        }
     }
 }

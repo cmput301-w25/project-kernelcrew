@@ -64,21 +64,12 @@ public class HomeFeed extends Fragment {
         if (user != null) {
             String myUid = user.getUid();
 
-            // Initialize FollowRequestProvider
-            FollowRequestProvider followRequestProvider = new FollowRequestProvider(getContext());
-
-            // Listen for follow requests
-            followRequestProvider.listenForFollowRequests(myUid);
-
-            // Listen for follow accepted notifications
-            followRequestProvider.listenForFollowAcceptedNotifications(myUid);
         }
 
         if (auth.getCurrentUser() == null) {
             Log.e("Home", "User not authenticated!");
         }
 
-        FollowRequestProvider followRequestProvider = new FollowRequestProvider(getContext());
 
         // Listener for moodEvents collection
         if (searchNFilterFragment != null) {
