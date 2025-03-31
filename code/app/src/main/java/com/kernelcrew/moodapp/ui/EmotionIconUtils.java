@@ -40,7 +40,7 @@ public class EmotionIconUtils {
      */
 
     public static BitmapDescriptor getEmotionIcon(Context context, String emotion) {
-        int resourceId;
+        int resourceId = 0;
 
         switch (emotion) {
             case "Anger":
@@ -66,9 +66,6 @@ public class EmotionIconUtils {
                 break;
             case "Surprise":
                 resourceId = R.drawable.ic_surprise_color_with_bg;
-                break;
-            default:
-                resourceId = R.drawable.ic_error_color;
                 break;
         }
 
