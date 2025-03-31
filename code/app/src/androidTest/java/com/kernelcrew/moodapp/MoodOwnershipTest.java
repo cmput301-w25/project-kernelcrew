@@ -50,14 +50,14 @@ import java.util.concurrent.ExecutionException;
 public class MoodOwnershipTest extends FirebaseEmulatorMixin {
 
     // User 1 credentials
-    private static final String USER1_USERNAME = "automatedtests1";
-    private static final String USER1_EMAIL = "automatedtests1@kernelcrew.com";
-    private static final String USER1_PASSWORD = "AT1@1234";
+    private static final String USER1_USERNAME = "moodownershipautomatedtests1";
+    private static final String USER1_EMAIL = "moodownership_automatedtests1@kernelcrew.com";
+    private static final String USER1_PASSWORD = "MOAT1@1234";
 
     // User 2 credentials
-    private static final String USER2_USERNAME = "automatedtests2";
-    private static final String USER2_EMAIL = "automatedtests2@kernelcrew.com";
-    private static final String USER2_PASSWORD = "AT2@1234";
+    private static final String USER2_USERNAME = "moodownershipautomatedtests2";
+    private static final String USER2_EMAIL = "moodownership_automatedtests2@kernelcrew.com";
+    private static final String USER2_PASSWORD = "MOAT2@1234";
 
     // Mood details for test creation
     private static final String MOOD1_REASON = "Feeling Energized";
