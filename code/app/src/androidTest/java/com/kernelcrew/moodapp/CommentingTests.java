@@ -125,6 +125,7 @@ public class CommentingTests extends FirebaseEmulatorMixin {
         loginUser();
     }
 
+    // TEST 01: Test Navigation to Comments Page
     @Test
     public void testNavigationToCommentsPage() throws InterruptedException {
         onView(withText("Sign In")).perform(click());
@@ -146,7 +147,7 @@ public class CommentingTests extends FirebaseEmulatorMixin {
 
 
 
-        // TEST 02: testCreateComment()
+        // TEST 02: Test Creating a Comment
         SystemClock.sleep(1000);
         // User is already signed in and on home feed screen from previous test
 
