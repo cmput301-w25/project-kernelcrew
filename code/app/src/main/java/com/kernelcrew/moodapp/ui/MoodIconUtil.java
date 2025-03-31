@@ -1,12 +1,12 @@
 package com.kernelcrew.moodapp.ui;
 
+import android.util.Log;
+
 import com.kernelcrew.moodapp.R;
 
 public class MoodIconUtil {
     public static int getMoodIconResource(String emotion) {
-        if (emotion == null) {
-            return R.drawable.ic_error_color;
-        }
+        assert (emotion != null);
         switch (emotion.toLowerCase()) {
             case "happy":
                 return R.drawable.ic_happy_color;
@@ -25,7 +25,7 @@ public class MoodIconUtil {
             case "surprise":
                 return R.drawable.ic_surprise_color;
             default:
-                return R.drawable.ic_error_color;
+                throw new IllegalArgumentException("Unknown emotion: " + emotion);
         }
     }
 }
