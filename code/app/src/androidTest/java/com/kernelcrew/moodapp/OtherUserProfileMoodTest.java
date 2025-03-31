@@ -40,6 +40,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
@@ -76,6 +77,8 @@ public class OtherUserProfileMoodTest extends FirebaseEmulatorMixin {
                 throw e;
             }
         }
+        String uid1 = auth.getCurrentUser().getUid();
+
         // Create or ensure USER2 exists.
         try {
             Tasks.await(auth.createUserWithEmailAndPassword(USER2_EMAIL, USER2_PASSWORD));
@@ -118,10 +121,22 @@ public class OtherUserProfileMoodTest extends FirebaseEmulatorMixin {
                     34.052235 + i * 0.001,    // Slight variation in latitude
                     -118.243683 - i * 0.001    // Slight variation in longitude
             );
-            // Set visibility to PUBLIC using the enum.
             mood.setVisibility(MoodEventVisibility.PUBLIC);
             Tasks.await(moodEventProvider.insertMoodEvent(mood));
         }
+
+        // Make user1 follow user2
+        Tasks.await(db.collection("users").document(uid1)
+                .collection("following")
+                .document(uid2)
+                .set(Collections.emptyMap()));
+
+        // Note, this must be done as USER1
+        Tasks.await(auth.signInWithEmailAndPassword(USER1_EMAIL, USER1_PASSWORD));
+        Tasks.await(db.collection("users").document(uid2)
+                .collection("followers")
+                .document(uid1)
+                .set(Collections.emptyMap()));
 
         auth.signOut();
     }
