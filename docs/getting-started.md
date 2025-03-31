@@ -73,3 +73,5 @@ MAPS_API_KEY=<API-KEY>
 
 Where `<API-KEY>` is a valid maps API key from your [google
 console](https://developers.google.com/maps/documentation/javascript/get-api-key#create-api-keys).
+
+For notifiations, make sure to enable the notifications in the app
