@@ -110,8 +110,8 @@ public class OtherUserProfileMoodTest extends FirebaseEmulatorMixin {
 
         // Seed several public MoodEvent documents for USER2.
         MoodEventProvider moodEventProvider = MoodEventProvider.getInstance();
-        // Create three distinct mood events.
-        for (int i = 1; i <= 3; i++) {
+        // Create many distinct mood events.
+        for (int i = 1; i <= 5; i++) {
             MoodEvent mood = new MoodEvent(
                     uid2,
                     USER2_USERNAME,
@@ -154,7 +154,7 @@ public class OtherUserProfileMoodTest extends FirebaseEmulatorMixin {
     }
 
     @Test
-    public void testOtherUserProfileDisplaysCorrectMoods() throws InterruptedException {
+    public void testOtherUserProfileDisplaysCorrectMoods() {
         // Ensure HomeFeed's RecyclerView is displayed.
         onView(withId(R.id.moodRecyclerView)).check(matches(isDisplayed()));
 
@@ -178,14 +178,14 @@ public class OtherUserProfileMoodTest extends FirebaseEmulatorMixin {
         onView(withId(R.id.email_text))
                 .check(matches(withText(USER2_EMAIL)));
 
-        // Check that the RecyclerView for public moods displays at least 2 items.
+        // Check that the RecyclerView for public moods displays no more than 3 items.
         onView(withId(R.id.public_moods_recycler_view))
                 .check((view, noViewFoundException) -> {
                     assertNotNull("RecyclerView is null", view);
                     RecyclerView recyclerView = (RecyclerView) view;
                     int itemCount = recyclerView.getAdapter().getItemCount();
-                    if (itemCount < 2) {
-                        throw new AssertionError("Expected at least 2 mood items, found " + itemCount);
+                    if (itemCount > 3) {
+                        throw new AssertionError("Expected at no more than 3 mood items, found " + itemCount);
                     }
                 });
 
