@@ -1,20 +1,21 @@
 package com.kernelcrew.moodapp;
 
-import static androidx.test.espresso.Espresso.onView;
-import static androidx.test.espresso.action.ViewActions.click;
-import static androidx.test.espresso.action.ViewActions.closeSoftKeyboard;
-import static androidx.test.espresso.action.ViewActions.replaceText;
-import static androidx.test.espresso.action.ViewActions.scrollTo;
+import static androidx.test.espresso.Espresso.*;
+import static androidx.test.espresso.action.ViewActions.*;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
-import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
-import static androidx.test.espresso.matcher.ViewMatchers.withId;
+import static androidx.test.espresso.matcher.ViewMatchers.*;
 import static org.awaitility.Awaitility.await;
-import static org.junit.Assert.assertTrue;
+import static org.hamcrest.Matchers.allOf;
+import static org.junit.Assert.*;
+import static org.hamcrest.Matchers.not;
 
+import android.Manifest;
 import android.os.SystemClock;
-
 import androidx.test.ext.junit.rules.ActivityScenarioRule;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
+import androidx.test.platform.app.InstrumentationRegistry;
+import androidx.test.rule.GrantPermissionRule;
+import androidx.test.uiautomator.UiDevice;
 
 import com.google.android.gms.tasks.Tasks;
 import com.google.firebase.auth.FirebaseAuth;
@@ -26,35 +27,75 @@ import com.kernelcrew.moodapp.data.MoodEvent;
 import com.kernelcrew.moodapp.data.MoodEventProvider;
 import com.kernelcrew.moodapp.ui.MainActivity;
 
+import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
 /**
- * Instrumented tests for LocationFragment UI interactions.
- * 
- * This class tests the UI elements and user interactions of the LocationFragment.
- * 
- * @author Claude AI, Anthropic, "Generate comprehensive UI tests for LocationFragment", accessed 10-03-2025
+ * Instrumented tests for location functionality in the app.
+ * These tests verify the UI and data persistence related to location features.
+ * Created by Anthropic, Claude 3.7 Sonnet, "Develop LocationInstrumentedTest for Android", accessed 03-30-2025
  */
 @RunWith(AndroidJUnit4.class)
 public class LocationInstrumentedTest extends FirebaseEmulatorMixin {
-    
+
+    private static final String TEST_EMAIL = "test@kernelcrew.com";
+    private static final String TEST_PASSWORD = "Password@1234";
+
     @Rule
     public ActivityScenarioRule<MainActivity> activityScenarioRule =
             new ActivityScenarioRule<>(MainActivity.class);
-    
+
+    @Rule
+    public GrantPermissionRule locationPermissionRule = GrantPermissionRule.grant(
+            Manifest.permission.ACCESS_FINE_LOCATION,
+            Manifest.permission.ACCESS_COARSE_LOCATION
+    );
+
+    /**
+     * Sets up the test database with required test data before any tests run.
+     * This includes:
+     * - Disabling animations for more reliable testing
+     * - Creating a test user
+     * - Ensuring the user is signed in
+     * - Creating an initial test mood event
+     *
+     * @throws ExecutionException if a task fails
+     * @throws InterruptedException if tasks are interrupted
+     */
     @BeforeClass
     public static void setupDatabase() throws ExecutionException, InterruptedException {
+        // Disable animations via UI Automator
+        UiDevice device = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation());
+        try {
+            device.executeShellCommand("settings put global window_animation_scale 0");
+            device.executeShellCommand("settings put global transition_animation_scale 0");
+            device.executeShellCommand("settings put global animator_duration_scale 0");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        // Create user first
         staticCreateUser();
-        
-        // Add a mood event without location to be used in tests
+
+        // Ensure user is signed in
         FirebaseAuth auth = FirebaseAuth.getInstance();
+        if (auth.getCurrentUser() == null) {
+            // Sign in the test user
+            Tasks.await(auth.signInWithEmailAndPassword(TEST_EMAIL, TEST_PASSWORD));
+        }
+
+        // Verify user is signed in
+        assertNotNull("User should be signed in", auth.getCurrentUser());
+
+        // Create test mood event
         MoodEvent moodEvent = new MoodEvent(
                 auth.getCurrentUser().getUid(),
                 "Username",
@@ -66,101 +107,118 @@ public class LocationInstrumentedTest extends FirebaseEmulatorMixin {
         );
         Tasks.await(MoodEventProvider.getInstance().insertMoodEvent(moodEvent));
     }
-    
+
     /**
-     * Test that the location button is displayed and clickable in the Create Mood Event screen.
+     * Setup method that runs before each test.
+     * Ensures user is logged in and navigates to the app if needed.
+     * Sets the activity to the RESUMED state to make sure it's ready for testing.
+     *
+     * @throws ExecutionException if a task fails
+     * @throws InterruptedException if tasks are interrupted
      */
-    @Test
-    public void testLocationButtonDisplayed() {
-        // Navigate to the Create Mood Event screen
-        onView(withId(R.id.page_createMoodEvent)).perform(click());
-        
-        // Wait for screen to load
-        SystemClock.sleep(1000);
-        
-        // Check that the add location button is displayed in the LocationFragment
-        onView(withId(R.id.add_location_button))
-                .check(matches(isDisplayed()));
+    @Before
+    public void setUp() throws ExecutionException, InterruptedException {
+        // Ensure user is logged in before each test
+        FirebaseAuth auth = FirebaseAuth.getInstance();
+        if (auth.getCurrentUser() == null) {
+            // Navigate through sign in flow
+            onView(withText("Sign In")).perform(click());
+            onView(withId(R.id.emailSignIn)).perform(replaceText(TEST_EMAIL));
+            onView(withId(R.id.passwordSignIn)).perform(replaceText(TEST_PASSWORD));
+            onView(withId(R.id.signInButtonAuthToHome)).perform(click());
+
+            // Wait for home screen to load
+            SystemClock.sleep(2000);
+        }
+
+        // Ensure activity is in RESUMED state
+        activityScenarioRule.getScenario().moveToState(androidx.lifecycle.Lifecycle.State.RESUMED);
     }
-    
+
     /**
-     * Test the click behavior of the location button.
-     * Note that actual permission dialog interactions can't be fully tested in instrumented tests.
+     * Utility method to sign in the test user.
+     * Used as a helper method for setting up test authentication.
+     *
+     * @throws ExecutionException if the sign-in task fails
+     * @throws InterruptedException if the sign-in task is interrupted
      */
-    @Test
-    public void testLocationButtonClick() {
-        // Navigate to the Create Mood Event screen
-        onView(withId(R.id.page_createMoodEvent)).perform(click());
-        
-        // Wait for screen to load
-        SystemClock.sleep(1000);
-        
-        // Click the location button
-        onView(withId(R.id.add_location_button)).perform(click());
-        
-        // Wait for permission dialog or any other UI response
-        SystemClock.sleep(1000);
-        
-        // The permission dialog will appear, but we can't interact with it in tests
-        // This test just verifies the button is clickable
+    private static void staticSignInUser() throws ExecutionException, InterruptedException {
+        FirebaseAuth auth = FirebaseAuth.getInstance();
+        Tasks.await(auth.signInWithEmailAndPassword(TEST_EMAIL, TEST_PASSWORD));
     }
-    
+
     /**
-     * Test submitting a form without location data.
-     * This verifies that a mood can be created even without location.
+     * Tests that a location can be added to a mood event successfully.
+     * Verifies:
+     * - The add location button is clickable
+     * - After adding a location, the card and remove button are visible
      */
     @Test
-    public void testSubmitFormWithoutLocation() {
-        FirebaseFirestore db = FirebaseFirestore.getInstance();
-        
-        // Navigate to the Create Mood Event screen
+    public void testLocationUIStateAfterAddingLocation() {
+        // Navigate to create mood event page
         onView(withId(R.id.page_createMoodEvent)).perform(click());
-        
-        // Wait for screen to load
+        SystemClock.sleep(3000); // Longer wait time for layout
+
+        // More direct approach to find and click the button
+        try {
+            // Find all views that match and try to click the first visible one
+            onView(withId(R.id.add_location_button))
+                    .perform(scrollTo(), click());
+
+            // Wait for the map to load
+            SystemClock.sleep(3000);
+
+            // Verify cardLocation and remove button are now visible
+            onView(withId(R.id.cardLocation)).check(matches(isDisplayed()));
+            onView(withId(R.id.remove_location_button)).check(matches(isDisplayed()));
+        } catch (Exception e) {
+            fail("Could not interact with add_location_button: " + e.getMessage());
+        }
+    }
+
+    /**
+     * Tests that a mood event with a location can be submitted successfully.
+     * Verifies:
+     * - A mood with location can be created via UI
+     * - The location data (latitude and longitude) is persisted to Firestore
+     */
+    @Test
+    public void testSubmitMoodEventWithLocation() {
+        final FirebaseFirestore db = FirebaseFirestore.getInstance();
+        final String testReason = "Test location mood";
+
+        onView(withId(R.id.page_createMoodEvent)).perform(click());
         SystemClock.sleep(1000);
-        
-        // Select an emotion
+
         onView(withId(R.id.toggle_happy)).perform(click());
+        onView(withId(R.id.emotion_reason))
+                .perform(scrollTo(), replaceText(testReason));
 
-        onView(withId(R.id.emotion_reason)).perform(scrollTo());
-
-        onView(withId(R.id.emotion_reason)).perform(replaceText("Location Test"));
-        onView(withId(R.id.emotion_reason)).perform(closeSoftKeyboard());
-
-        // Wait to ensure keyboard is closed
-        SystemClock.sleep(500);
-        
-        // Submit the form without adding location
-        onView(withId(R.id.submit_button)).perform(scrollTo(), click());
-        
-        // Wait for submission to process
+        onView(withId(R.id.add_location_button)).perform(scrollTo(), click());
         SystemClock.sleep(2000);
-        
-        // Verify the new mood event was added to Firestore
-        await().atMost(10, TimeUnit.SECONDS)
-                .untilAsserted(() -> {
-                    QuerySnapshot results = Tasks.await(db.collection("moodEvents").get());
-                    List<DocumentSnapshot> moodEvents = results.getDocuments();
-                    
-                    // Should have at least 2 mood events (the one from setup and the new one)
-                    assertTrue(moodEvents.size() >= 2);
-                    
-                    // Find the mood event with our test trigger
-                    boolean foundTestMood = false;
-                    for (DocumentSnapshot doc : moodEvents) {
-                        if ("Location Test".equals(doc.getString("reason"))) {
-                            foundTestMood = true;
-                            
-                            // Verify location is null or empty
-                            Object lat = doc.get("latitude");
-                            Object lon = doc.get("longitude");
-                            assertTrue(lat == null || lon == null);
-                            
-                            break;
+
+        onView(withId(R.id.submit_button)).perform(scrollTo(), click());
+        SystemClock.sleep(2000);
+
+        // Java 11 compatible version of the verification
+        await()
+                .atMost(10, TimeUnit.SECONDS)
+                .until(() -> {
+                    try {
+                        QuerySnapshot results = Tasks.await(db.collection("moodEvents").get());
+                        List<DocumentSnapshot> moodEvents = results.getDocuments();
+
+                        for (DocumentSnapshot doc : moodEvents) {
+                            if (testReason.equals(doc.getString("reason"))) {
+                                Object lat = doc.get("latitude");
+                                Object lon = doc.get("longitude");
+                                return (lat != null && lon != null);
+                            }
                         }
+                        return false;
+                    } catch (Exception e) {
+                        return false;
                     }
-                    
-                    assertTrue("Test mood event not found in Firestore", foundTestMood);
                 });
     }
-} 
+}

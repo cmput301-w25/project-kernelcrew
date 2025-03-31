@@ -48,6 +48,7 @@ public class FollowRequestProvider {
         return db.collection("users")
                 .document(userId)
                 .collection("notifications")
+                .whereEqualTo("shown", false)
                 .addSnapshotListener((snapshots, error) -> {
                     if (error != null) {
                         Log.e("FollowRequestProvider", "Error listening to notifications", error);
@@ -121,7 +122,7 @@ public class FollowRequestProvider {
                             .document(fromUserId)
                             .collection("notifications")
                             .document(docId)
-                            .delete();
+                            .update("shown", true);
                 })
                 .addOnFailureListener(e -> {
                     Log.e("FollowRequestProvider", "Error fetching username", e);

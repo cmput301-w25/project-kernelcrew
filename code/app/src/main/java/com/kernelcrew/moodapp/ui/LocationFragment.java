@@ -1,12 +1,12 @@
 /**
  * LocationFragment - Handles location functionality for mood events
- * 
+ *
  * This fragment manages all location-related operations including:
  * - Requesting and handling location permissions
  * - Getting the user's current location coordinates using FusedLocationProviderClient
  * - Providing location data to other components through the LocationUpdateListener interface
  * - Displaying UI for location functionality in the mood creation workflow
- * 
+ *
  * Created by Anthropic, Claude 3.7 Sonnet, "Create LocationFragment class", accessed 03-10-2025
  */
 
@@ -25,6 +25,9 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ImageButton;
+import android.widget.TextView;
+import android.widget.ScrollView;
 import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
@@ -37,6 +40,12 @@ import androidx.fragment.app.Fragment;
 
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.maps.CameraUpdateFactory;
+import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptor;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.material.snackbar.Snackbar;
 import com.kernelcrew.moodapp.R;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationCallback;
@@ -61,7 +70,7 @@ public class LocationFragment extends Fragment {
      * Button for requesting location access.
      * When clicked, initiates the location permission flow.
      */
-    private Button requestLocationButton;
+    private ImageButton requestLocationButton;
 
     /**
      * Stores the retrieved latitude coordinate.
@@ -83,10 +92,6 @@ public class LocationFragment extends Fragment {
     private LocationUpdateListener listener;
 
     /**
-     * Listener for location updates.
-     */
-
-    /**
      * Creates the fragment view and initializes location services.
      * Sets up the location button and location client.
      *
@@ -98,7 +103,17 @@ public class LocationFragment extends Fragment {
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_location, container, false);
+        View view = inflater.inflate(R.layout.location_fragment, container, false);
+        TextView mapTipText = view.findViewById(R.id.map_tip_text);
+
+        MapTouchWrapper mapTouchWrapper = view.findViewById(R.id.map_touch_wrapper);
+        ScrollView scrollView = requireActivity().findViewById(R.id.scrollView);
+
+        if (mapTouchWrapper != null && scrollView != null) {
+            mapTouchWrapper.setOnTouchListener(() -> {
+                scrollView.requestDisallowInterceptTouchEvent(true);
+            });
+        }
 
         // Code from Claude AI, Anthropic, "Fix location API initialization", accessed 03-07-2024
         try {
@@ -113,11 +128,54 @@ public class LocationFragment extends Fragment {
         // Find the button in the layout
         requestLocationButton = view.findViewById(R.id.add_location_button);
 
-        // Code from Claude AI, Anthropic, "Fix permission dialog not appearing", accessed 03-07-2024
-        // Set up the button click listener to start the location request process
+        // Find the location card view (map container)
+        View cardLocation = view.findViewById(R.id.cardLocation);
+        cardLocation.setVisibility(View.GONE); // Hide initially
+
+        Button removeLocationButton = view.findViewById(R.id.remove_location_button);
+        removeLocationButton.setVisibility(View.GONE); // Initially hidden
+
+        // Set up the button click listener to start the location request process and show map
         requestLocationButton.setOnClickListener(v -> {
             Log.i("LocationFragment", "Location button clicked");
+            requestLocationButton.setVisibility(View.GONE);
+            cardLocation.setVisibility(View.VISIBLE);
+            removeLocationButton.setVisibility(View.VISIBLE);
             checkLocationAndRequestPermission();
+            //Following map tip text created by OpenAI, ChatGPT-4, "Add map tip using TextView in Java Android studio for OnCreateView", accessed 03-30-2025
+            mapTipText.setAlpha(0f);
+            mapTipText.setVisibility(View.VISIBLE);
+            mapTipText.animate()
+                    .alpha(1f)
+                    .setDuration(500)
+                    .withEndAction(() -> {
+                        mapTipText.postDelayed(() -> {
+                            mapTipText.animate()
+                                    .alpha(0f)
+                                    .setDuration(500)
+                                    .withEndAction(() -> mapTipText.setVisibility(View.GONE))
+                                    .start();
+                        }, 4000);
+                    })
+                    .start();
+
+        });
+
+
+        removeLocationButton.setOnClickListener(v -> {
+            Log.i("LocationFragment", "Remove location clicked");
+            latitude = null;
+            longitude = null;
+
+            cardLocation.setVisibility(View.GONE);
+            requestLocationButton.setVisibility(View.VISIBLE);
+            removeLocationButton.setVisibility(View.GONE);
+
+            if (updateListener != null) {
+                updateListener.onLocationUpdated(null, null);
+            }
+
+            Toast.makeText(getContext(), "Location removed", Toast.LENGTH_SHORT).show();
         });
 
         // Check if we already have permission when the fragment is created
@@ -126,10 +184,8 @@ public class LocationFragment extends Fragment {
         if (ContextCompat.checkSelfPermission(requireContext(),
                 Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
             Log.i("LocationFragment", "Permission already granted on startup");
-            requestLocationButton.setText("Add Location");
         } else {
             Log.i("LocationFragment", "Permission not granted yet, waiting for user to request");
-            requestLocationButton.setText("Request Location Permission");
         }
 
         return view;
@@ -153,7 +209,6 @@ public class LocationFragment extends Fragment {
                     if (isGranted) {
                         // Permission granted
                         Log.i("LocationFragment", "Location permission granted by user");
-                        requestLocationButton.setText("Add Location");
                         requestNewLocation();
                     } else {
                         // Permission denied
@@ -350,9 +405,6 @@ public class LocationFragment extends Fragment {
                     locationCallback,
                     Looper.getMainLooper());
 
-            // Show a toast that we're fetching location
-            Toast.makeText(getContext(), "Fetching your location...", Toast.LENGTH_SHORT).show();
-
         } catch (Exception e) {
             Log.e("LocationFragment", "Error requesting location updates: " + e.getMessage(), e);
             saveMoodEventWithoutLocation();
@@ -373,12 +425,49 @@ public class LocationFragment extends Fragment {
         if (updateListener != null) {
             Log.d("LocationDebug", "Calling onLocationUpdated");
             updateListener.onLocationUpdated(latitude, longitude);
-        } else{
+        } else {
             Log.d("LocationDebug", "updateListener is null!");
         }
 
-        // Show success message
-        Toast.makeText(getContext(), "Location was successfully added", Toast.LENGTH_SHORT).show();
+        // Initialize map similar to MoodDetails
+        SupportMapFragment mapFragment = (SupportMapFragment)
+                getChildFragmentManager().findFragmentById(R.id.mapContainer);
+
+        if (mapFragment != null) {
+            mapFragment.getMapAsync(googleMap -> {
+                googleMap.clear();
+                Log.d("LocationFragment", "Map is ready");
+                if (latitude != null && longitude != null) {
+                    LatLng locationLatLng = new LatLng(latitude, longitude);
+                    googleMap.addMarker(new MarkerOptions()
+                            .position(locationLatLng)
+                            .title("Mood Location"));
+                    googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(locationLatLng, 12f));
+                } else {
+                    Log.e("LocationFragment", "No coordinates to show on map.");
+                }
+                // Set up an OnMapClickListener so that if the user taps elsewhere, we update the location.
+                googleMap.setOnMapClickListener(latLng -> {
+                    // Clear current markers
+                    googleMap.clear();
+                    // Add a new marker at the tapped location with the same style
+                    googleMap.addMarker(new MarkerOptions()
+                            .position(latLng)
+                            .title("Mood Location"));
+                    // Move the camera to the new location
+                    googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 12f));
+                    // Update stored coordinates
+                    latitude = latLng.latitude;
+                    longitude = latLng.longitude;
+                    // Notify any listener of the update
+                    if (updateListener != null) {
+                        updateListener.onLocationUpdated(latitude, longitude);
+                    }
+                });
+            });
+        } else {
+            Log.e("LocationFragment", "Map fragment not found.");
+        }
     }
 
     /**
@@ -395,6 +484,105 @@ public class LocationFragment extends Fragment {
      */
     public void setUpdateListener(LocationUpdateListener form) {
         this.updateListener = form;
+    }
+
+    public void setLocation(Double lat, Double lon) {
+        this.latitude = lat;
+        this.longitude = lon;
+    }
+
+    //Created by Anthropic, Claude 3.7 Sonnet, "Generate comprehensive JavaDoc for LocationFragment methods", accessed 03-30-2025
+    /**
+     * Populates the map with an existing location coordinate pair.
+     * This method is used when editing a mood event that already has location data,
+     * or when restoring a previously saved location.
+     *
+     * The method performs the following actions:
+     * <ul>
+     *     <li>Updates the internal latitude and longitude properties</li>
+     *     <li>Shows the map card and hides the add location button</li>
+     *     <li>Shows the remove location button</li>
+     *     <li>Initializes the map with a marker at the specified coordinates</li>
+     *     <li>Sets up a click listener to allow the user to change the location by tapping elsewhere on the map</li>
+     * </ul>
+     *
+     * Note that this method uses getView() which may return null if the fragment
+     * is not attached to its activity. Callers should ensure the fragment is
+     * in the proper lifecycle state before calling this method.
+     *
+     * @param latitude The latitude coordinate to display on the map
+     * @param longitude The longitude coordinate to display on the map
+     *
+     * @throws NullPointerException if getView() returns null or if map initialization fails
+     * @throws IllegalStateException if the fragment is not attached to an activity
+     */
+
+    public void populateMapFromExistingLocation (double latitude, double longitude) {
+        this.latitude = latitude;
+        this.longitude = longitude;
+
+        View cardLocation = getView().findViewById(R.id.cardLocation);
+        ImageButton requestLocationButton = getView().findViewById(R.id.add_location_button);
+        Button removeLocationButton = getView().findViewById(R.id.remove_location_button);
+
+        if (cardLocation != null && requestLocationButton != null) {
+            cardLocation.setVisibility(View.VISIBLE);
+            requestLocationButton.setVisibility(View.GONE);
+        }
+
+        if (removeLocationButton != null) {
+            removeLocationButton.setVisibility(View.VISIBLE);
+            //Following map tip created by OpenAI, ChatGPT-4, "Add map tip using TextView in Java Android studio for populateMapFromExistingLocation", accessed 03-30-2025
+            TextView mapTipText = getView().findViewById(R.id.map_tip_text);
+            if (mapTipText != null) {
+                mapTipText.setTranslationY(-50);
+                mapTipText.setAlpha(0f);
+                mapTipText.setVisibility(View.VISIBLE);
+
+                mapTipText.animate()
+                        .alpha(1f)
+                        .translationY(0)
+                        .setDuration(500)
+                        .withEndAction(() -> {
+                            mapTipText.postDelayed(() -> {
+                                mapTipText.animate()
+                                        .alpha(0f)
+                                        .translationY(-50)
+                                        .setDuration(500)
+                                        .withEndAction(() -> mapTipText.setVisibility(View.GONE))
+                                        .start();
+                            }, 4000);
+                        })
+                        .start();
+            }
+        }
+
+        SupportMapFragment mapFragment = (SupportMapFragment)
+                getChildFragmentManager().findFragmentById(R.id.mapContainer);
+
+        if (mapFragment != null) {
+            mapFragment.getMapAsync(googleMap -> {
+                googleMap.clear();
+                LatLng locationLatLng = new LatLng(latitude, longitude);
+                googleMap.addMarker(new MarkerOptions()
+                        .position(locationLatLng)
+                        .title("Existing Mood Location"));
+                googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(locationLatLng, 12f));
+
+                // Allow user to tap to update location
+                googleMap.setOnMapClickListener(latLng -> {
+                    googleMap.clear();
+                    googleMap.addMarker(new MarkerOptions()
+                            .position(latLng)
+                            .title("Updated Mood Location"));
+                    googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 12f));
+                    // Notify any listener of the update
+                    if (updateListener != null) {
+                        updateListener.onLocationUpdated(latLng.latitude, latLng.longitude);
+                    }
+                });
+            });
+        }
     }
 }
 

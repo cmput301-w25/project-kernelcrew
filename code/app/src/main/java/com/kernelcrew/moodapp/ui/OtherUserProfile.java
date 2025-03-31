@@ -58,6 +58,7 @@ public class OtherUserProfile extends Fragment {
         publicMoodsRecyclerView = view.findViewById(R.id.public_moods_recycler_view);
 
         toolbar.setNavigationIcon(R.drawable.ic_back);
+        toolbar.setNavigationContentDescription("BackButton_OtherUserProfile");
         toolbar.setNavigationOnClickListener(v ->
                 NavHostFragment.findNavController(this).popBackStack()
         );

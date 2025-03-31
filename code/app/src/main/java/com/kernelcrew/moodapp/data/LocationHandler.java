@@ -1,12 +1,14 @@
 package com.kernelcrew.moodapp.data;
 
 import android.Manifest;
+import android.app.Activity;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.location.LocationManager;
 import android.os.Looper;
 import android.util.Log;
 
+import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
 import com.google.android.gms.location.FusedLocationProviderClient;
@@ -21,8 +23,8 @@ import android.location.Location;
  * LocationHandler - A non-UI class for requesting location updates
  * Created by taking logic from a functional LocationFragment, so that it can be used in other functions.
  */
-// TODO: This does not work, I don't know why.
 public class LocationHandler {
+    public static final int REQUEST_LOCATION_PERMISSION = 1001;
 
     public interface OnLocationObtainedListener {
         /**
@@ -171,5 +173,39 @@ public class LocationHandler {
         }
         return locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)
                 || locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER);
+    }
+
+    /**
+     * Returns the current location if permission is granted.
+     * If not, it requests the ACCESS_FINE_LOCATION permission from the Activity.
+     *
+     * @param context The context (should be an Activity).
+     * @return The last known Location, or null if not available or permission is missing.
+     */
+    public static Location getCurrentLocation(Context context) {
+        // Check for location permission
+        if (ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION)
+                != PackageManager.PERMISSION_GRANTED) {
+            // Request permission if context is an Activity
+            if (context instanceof Activity) {
+                ActivityCompat.requestPermissions(
+                        (Activity) context,
+                        new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
+                        REQUEST_LOCATION_PERMISSION
+                );
+            }
+            return null;
+        }
+        LocationManager locationManager = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
+        try {
+            Location location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+            if (location == null) {
+                location = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
+            }
+            return location;
+        } catch (SecurityException e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 }

@@ -44,6 +44,7 @@ public class FollowersFragment extends Fragment {
         followersRecyclerView.setAdapter(adapter);
 
         userProvider = UserProvider.getInstance();
+
         FirebaseFirestore.getInstance()
                 .collection("users")
                 .document(FirebaseAuth.getInstance().getCurrentUser().getUid())
@@ -57,7 +58,7 @@ public class FollowersFragment extends Fragment {
                     followersList.clear();
                     if (snap != null) {
                         for (DocumentSnapshot doc : snap.getDocuments()) {
-                            followersList.add(new User(doc.getId(), false));
+                            followersList.add(new User(doc.getId(), doc.getString("username"), false));
                         }
                     }
                     adapter.notifyDataSetChanged();
@@ -95,21 +96,18 @@ public class FollowersFragment extends Fragment {
         @Override
         public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
             User user = users.get(position);
-            String uid = user.getName();
+            String uid = user.getUid();
 
-            // Fetch the username from Firestore
+            if (uid == null || uid.isEmpty()) {
+                Log.e("FollowersAdapter", "User UID is null or empty at position " + position);
+                return;
+            }
+
             FirebaseFirestore.getInstance().collection("users").document(uid)
                     .get()
                     .addOnSuccessListener(doc -> {
-                        if (doc.exists()) {
-                            String realName = doc.getString("username");
-                            if (realName == null || realName.isEmpty()) {
-                                realName = uid;
-                            }
-                            holder.usernameTextView.setText(realName);
-                        } else {
-                            holder.usernameTextView.setText(uid);
-                        }
+                        String realName = doc.getString("username");
+                        holder.usernameTextView.setText((realName != null && !realName.isEmpty()) ? realName : uid);
                     })
                     .addOnFailureListener(e -> holder.usernameTextView.setText(uid));
 
@@ -118,8 +116,7 @@ public class FollowersFragment extends Fragment {
             holder.itemView.setOnClickListener(v -> {
                 Bundle args = new Bundle();
                 args.putString("uid", uid);
-                Navigation.findNavController(v)
-                        .navigate(R.id.otherUserProfile, args);
+                Navigation.findNavController(v).navigate(R.id.otherUserProfile, args);
             });
         }
 

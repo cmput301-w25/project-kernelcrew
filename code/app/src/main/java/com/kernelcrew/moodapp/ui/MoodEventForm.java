@@ -4,6 +4,8 @@ import static android.app.Activity.RESULT_OK;
 import static android.view.View.INVISIBLE;
 import static android.view.View.VISIBLE;
 
+import android.app.DatePickerDialog;
+import android.app.TimePickerDialog;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -26,8 +28,10 @@ import android.view.ViewGroup;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.ImageButton;
+import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
+import java.util.Calendar;
 
 import com.google.android.material.button.MaterialButtonToggleGroup;
 import com.google.android.material.textfield.TextInputEditText;
@@ -64,6 +68,11 @@ public class MoodEventForm extends Fragment implements LocationUpdateListener {
     private Button photoResetButton;
     private TextView photoButtonError;
     private MaterialButtonToggleGroup visibilityToggle;
+
+    private LocationFragment locationFragment;
+
+    private TextInputEditText timestampInput;
+    private Date selectedDate = new Date();
 
     /**
      * Clear the currently selected photo.
@@ -125,6 +134,8 @@ public class MoodEventForm extends Fragment implements LocationUpdateListener {
         Bitmap photo;
         MoodEventVisibility visibility;
 
+        Date timestamp;
+
         /**
          * Empty constructor which initializes everything to null.
          */
@@ -143,6 +154,7 @@ public class MoodEventForm extends Fragment implements LocationUpdateListener {
             lon = moodEvent.getLongitude();
             photo = moodEvent.getPhoto();
             visibility = moodEvent.getVisibility();
+            timestamp = moodEvent.getCreated();
         }
 
         /**
@@ -163,6 +175,7 @@ public class MoodEventForm extends Fragment implements LocationUpdateListener {
 
             moodEvent.setPhoto(photo);
             moodEvent.setVisibility(visibility);
+            moodEvent.setCreated(timestamp);
 
             return moodEvent;
         }
@@ -172,12 +185,17 @@ public class MoodEventForm extends Fragment implements LocationUpdateListener {
         emotionPickerFragment.setSelected(details.emotion);
         situationAutoComplete.setText(details.socialSituation);
         reasonEditText.setText(details.reason);
+        selectedDate = details.timestamp != null ? details.timestamp : new Date();
+        if (timestampInput != null) {
+            timestampInput.setText(formatDate(selectedDate));
+        }
         if (details.lat != null && details.lon != null) {
             // Update UI to show location is set
             this.currentLatitude = details.lat;
             this.currentLongitude = details.lon;
-        } else {
-            // locationStatusTextView.setText("No location set");
+            if (locationFragment != null) {
+                locationFragment.populateMapFromExistingLocation(details.lat, details.lon);
+            }
         }
 
         if (details.photo != null) {
@@ -248,6 +266,8 @@ public class MoodEventForm extends Fragment implements LocationUpdateListener {
         details.lat = currentLatitude;
         details.lon = currentLongitude;
 
+        details.timestamp = selectedDate;
+
         return details;
     }
 
@@ -267,9 +287,30 @@ public class MoodEventForm extends Fragment implements LocationUpdateListener {
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+
+        FragmentContainerView locationFragmentContainer = view.findViewById(R.id.location_fragment);
+
+
+
+        if (locationFragmentContainer != null) {
+            locationFragment = locationFragmentContainer.getFragment();
+            Log.e("MoodEventForm", "LocationFragment attached.");
+            if (locationFragment != null) {
+                locationFragment.setUpdateListener(this);
+            } else {
+                Log.e("MoodEventForm", "LocationFragment not attached. Ensure it's specified in the layout.");
+            }
+        } else {
+            Log.e("MoodEventForm", "Location fragment container not found in layout.");
+        }
+        
         super.onViewCreated(view, savedInstanceState);
 
+
         Button submitButton = view.findViewById(R.id.submit_button);
+        timestampInput = view.findViewById(R.id.timestamp_input);
+        timestampInput.setText(formatDate(selectedDate));
+        timestampInput.setOnClickListener(v -> openDateTimePicker());
         submitButton.setOnClickListener(this::handleSubmit);
 
         FragmentContainerView emotionPickerFragmentContainer =
@@ -297,9 +338,10 @@ public class MoodEventForm extends Fragment implements LocationUpdateListener {
         photoResetButton.setOnClickListener(_v -> resetPhoto());
         photoButtonError = view.findViewById(R.id.photo_button_error);
         visibilityToggle = view.findViewById(R.id.visibility_button);
-
         updateResetPhotoVisibility();
-        addLocation = view.findViewById(R.id.add_location_button);
+        
+
+
     }
     @Override
     public void onLocationUpdated(Double latitude, Double longitude) {
@@ -307,4 +349,28 @@ public class MoodEventForm extends Fragment implements LocationUpdateListener {
         this.currentLatitude = latitude;
         this.currentLongitude = longitude;
     }
+
+    private void openDateTimePicker() {
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(selectedDate);
+
+        new DatePickerDialog(getContext(), (view, year, month, dayOfMonth) -> {
+            calendar.set(Calendar.YEAR, year);
+            calendar.set(Calendar.MONTH, month);
+            calendar.set(Calendar.DAY_OF_MONTH, dayOfMonth);
+
+            new TimePickerDialog(getContext(), (view1, hourOfDay, minute) -> {
+                calendar.set(Calendar.HOUR_OF_DAY, hourOfDay);
+                calendar.set(Calendar.MINUTE, minute);
+                selectedDate = calendar.getTime();
+                timestampInput.setText(formatDate(selectedDate));
+            }, calendar.get(Calendar.HOUR_OF_DAY), calendar.get(Calendar.MINUTE), false).show();
+
+        }, calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH)).show();
+    }
+
+    private String formatDate(Date date) {
+        return new SimpleDateFormat("MMM d, yyyy h:mm a", Locale.getDefault()).format(date);
+    }
+
 }

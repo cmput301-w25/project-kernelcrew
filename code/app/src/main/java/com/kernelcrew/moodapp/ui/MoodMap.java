@@ -115,7 +115,7 @@ public class MoodMap extends Fragment
                             lastPosition = position;
 
                             // Get marker icon based on emotion
-                            BitmapDescriptor emotionIcon = getEmotionIcon(moodEvent.getEmotion().toString());
+                            BitmapDescriptor emotionIcon = EmotionIconUtils.getEmotionIcon(getContext(), moodEvent.getEmotion().toString());
 
                             // Create the marker
                             MarkerOptions markerOptions = new MarkerOptions()
@@ -142,63 +142,6 @@ public class MoodMap extends Fragment
                         Log.e("MoodMapFragment", "Error loading mood events on map", e));
     }
 
-
-    private BitmapDescriptor getEmotionIcon(String emotion) {
-        int resourceId;
-
-        // Assign the appropriate drawable resource based on the emotion
-        switch (emotion) {
-            case "Anger":
-                resourceId = R.drawable.ic_anger_color_with_bg;
-                break;
-            case "Confused":
-                resourceId = R.drawable.ic_confused_color_with_bg;
-                break;
-            case "Disgust":
-                resourceId = R.drawable.ic_disgust_color_with_bg;
-                break;
-            case "Fear":
-                resourceId = R.drawable.ic_fear_color_with_bg;
-                break;
-            case "Happy":
-                resourceId = R.drawable.ic_happy_color_with_bg;
-                break;
-            case "Sad":
-                resourceId = R.drawable.ic_sad_color_with_bg;
-                break;
-            case "Shame":
-                resourceId = R.drawable.ic_shame_color_with_bg;
-                break;
-            case "Surprise":
-                resourceId = R.drawable.ic_surprise_color_with_bg;
-                break;
-            default:
-                resourceId = R.drawable.ic_error_color;
-                break;
-        }
-
-        // Create a properly scaled bitmap from the drawable resource
-        return getBitmapDescriptorFromVector(getContext(), resourceId);
-    }
-
-
-    private BitmapDescriptor getBitmapDescriptorFromVector(Context context, int vectorResId) {
-        Drawable vectorDrawable = ContextCompat.getDrawable(context, vectorResId);
-        if (vectorDrawable == null) {
-            return BitmapDescriptorFactory.defaultMarker();
-        }
-
-        int width = vectorDrawable.getIntrinsicWidth();
-        int height = vectorDrawable.getIntrinsicHeight();
-
-        vectorDrawable.setBounds(0, 0, width, height);
-
-        Bitmap bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
-        Canvas canvas = new Canvas(bitmap);
-        vectorDrawable.draw(canvas);
-
-        return BitmapDescriptorFactory.fromBitmap(bitmap);
-    }
 
 
 }
