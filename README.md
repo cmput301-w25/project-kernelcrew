@@ -25,7 +25,7 @@ This project was developed as part of the CMPUT 301 Mobile Application Developme
 
 We went above and beyond the project requirements by adding two major "wow" features:
 
-#### 🗺️ Interactive Mini Map
+#### 🗺️ Interactive Mini Map with a Custom Location
 - When creating or editing a mood, a **mini Google Map** appears.
 - Users can **manually select a location** by tapping and moving a pin.
 - In **Mood Details** and the **Global Mood Map**, a pin appears on the map, styled to match the emotion (e.g., 😊 for happy).
@@ -36,6 +36,12 @@ We went above and beyond the project requirements by adding two major "wow" feat
 #### 🔔 Real-Time Notifications
 - Users receive notifications when someone **requests to follow them**.
 - This fosters interaction and adds a social touch that encourages engagement.
+
+---
+
+#### 🕒 Custom Date and Time Picker
+- When creating or editing a mood, a **date and time picker** appears that allows the selection of a custom date and time instead of using the current date and time
+- This is useful to log mood events from the past to reflect on past emotions and to log missed entries with accurate timestamps
 
 ## 🛠️ Key Features
 
